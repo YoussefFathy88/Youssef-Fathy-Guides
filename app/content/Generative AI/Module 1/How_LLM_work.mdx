@@ -1,0 +1,237 @@
+---
+# ─── SESSION METADATA ───────────────────────────────────────────
+title: "How LLMs Work"
+slug: "how-llms-work"
+module: 1
+moduleName: "LLM Foundations"
+sessionNumber: 1
+duration: "14 min"
+difficulty: "beginner"
+tags: ["training", "inference", "transformer"]
+nextSession: "tokenization"
+prevSession: null
+# ────────────────────────────────────────────────────────────────
+---
+
+import {
+  ConceptStepper,
+  DataFlowDiagram,
+  TokenProbDist,
+  ParameterSlider,
+} from '@/components/shared'
+
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 1 — GOAL OF SESSION
+    ═══════════════════════════════════════════════════════════════ */}
+
+<SessionSection id="goal" label="Goal">
+
+## Understand what actually happens when you call an LLM
+
+You have called LLM APIs, seen the output stream back token by token, and noticed that the same prompt gives different answers each time. This session explains the full mechanical picture — from how the model was built, to how it generates each word, to why it behaves the way it does.
+
+</SessionSection>
+
+
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 2 — BIG PICTURE
+    ═══════════════════════════════════════════════════════════════ */}
+
+<SessionSection id="big-picture" label="Big Picture">
+
+## Two distinct phases: training and inference
+
+Every LLM goes through two completely separate phases. Training happens once and is enormously expensive — it produces the model weights. Inference happens every time you send a prompt — it is fast and uses those frozen weights to generate a response. As a developer, you only ever interact with the inference phase.
+
+<DataFlowDiagram
+  title="The LLM lifecycle"
+  caption="Notice that training and inference are fully separate — you interact only with the right half"
+  height={280}
+  nodes={[
+    { id: "data", label: "Training data", sublabel: "Trillions of tokens", x: 4, y: 30, color: "gray" },
+    { id: "train", label: "Training", sublabel: "Weeks on thousands of GPUs", x: 28, y: 30, color: "amber" },
+    { id: "weights", label: "Model weights", sublabel: "Frozen parameters", x: 52, y: 30, color: "teal" },
+    { id: "prompt", label: "Your prompt", x: 52, y: 70, color: "gray" },
+    { id: "infer", label: "Inference", sublabel: "Forward pass", x: 76, y: 50, color: "violet" },
+    { id: "output", label: "Output tokens", sublabel: "Streamed back", x: 93, y: 50, color: "teal" },
+  ]}
+  edges={[
+    { from: "data", to: "train", animated: true },
+    { from: "train", to: "weights", animated: true },
+    { from: "weights", to: "infer", animated: false },
+    { from: "prompt", to: "infer", animated: true },
+    { from: "infer", to: "output", animated: true },
+  ]}
+  highlightPath={["prompt", "infer", "output"]}
+/>
+
+</SessionSection>
+
+
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 3 — CORE CONCEPTS
+    ═══════════════════════════════════════════════════════════════ */}
+
+<SessionSection id="core-concepts" label="Core Concepts">
+
+## Training: compressing the internet into weights
+
+During training, the model reads enormous amounts of text and learns one task: predict the next token. It does this billions of times, adjusting its internal weights each time it gets a prediction wrong. By the end, those weights have compressed a statistical representation of language — and a surprising amount of world knowledge — into a single file.
+
+<ConceptStepper
+  title="How training works"
+  caption="Step through the training loop — this cycle repeats billions of times"
+  steps={[
+    {
+      title: "1. Sample a chunk of text",
+      caption: "The model receives a sequence of tokens from the training corpus — a sentence, a paragraph, a piece of code.",
+      visual: null
+    },
+    {
+      title: "2. Predict the next token",
+      caption: "For each position in the sequence, the model predicts what token comes next. It outputs a probability distribution over its entire vocabulary (~100k tokens).",
+      visual: null
+    },
+    {
+      title: "3. Compare to the real answer",
+      caption: "The true next token is known. The model's prediction is compared against it using cross-entropy loss — a measure of how wrong the distribution was.",
+      visual: null
+    },
+    {
+      title: "4. Adjust the weights",
+      caption: "Backpropagation computes how much each weight contributed to the error. Gradient descent nudges every weight slightly in the direction that reduces the loss.",
+      visual: null
+    },
+    {
+      title: "5. Repeat billions of times",
+      caption: "This loop runs across trillions of tokens. The weights gradually converge to a state that predicts language well — and in doing so, encode knowledge about the world.",
+      visual: null
+    },
+  ]}
+/>
+
+### Inference: one token at a time, every time
+
+When you send a prompt, the model runs a forward pass through all its layers and produces a probability score for every token in its vocabulary. It does not produce a sentence — it produces a distribution over what word should come next. One token is sampled from that distribution, appended to the context, and the whole process repeats until the response is complete.
+
+<DataFlowDiagram
+  title="Inference: the autoregressive loop"
+  caption="Each token becomes part of the input for generating the next one — follow one full cycle"
+  height={260}
+  nodes={[
+    { id: "context", label: "Context window", sublabel: "Prompt + tokens so far", x: 5, y: 45, color: "gray" },
+    { id: "forward", label: "Forward pass", sublabel: "All transformer layers", x: 35, y: 45, color: "violet" },
+    { id: "logits", label: "Logits", sublabel: "Score per vocab token", x: 62, y: 45, color: "teal" },
+    { id: "sample", label: "Sample", sublabel: "One token chosen", x: 82, y: 45, color: "amber" },
+    { id: "append", label: "Append to context", x: 62, y: 80, color: "gray" },
+  ]}
+  edges={[
+    { from: "context", to: "forward", animated: true },
+    { from: "forward", to: "logits", animated: true },
+    { from: "logits", to: "sample", animated: true },
+    { from: "sample", to: "append", animated: true },
+    { from: "append", to: "context", animated: true },
+  ]}
+/>
+
+### The output is a probability distribution, not a lookup
+
+This is the most important thing to internalize. The model does not retrieve answers from a database. For every token position, it produces a ranked probability distribution across ~100,000 possible next tokens. The token actually emitted depends on that distribution and on the sampling strategy — which is why the same prompt can yield different outputs.
+
+<TokenProbDist
+  title="Next-token distribution after 'The capital of France is'"
+  caption="Click 'Sample' to draw a token — run it several times to see variance at different temperatures"
+  showTemperature={true}
+  defaultTemperature={0.8}
+  highlightTop={1}
+  candidates={[
+    { token: "Paris", rawProb: 0.91 },
+    { token: "Lyon", rawProb: 0.04 },
+    { token: "a", rawProb: 0.02 },
+    { token: "the", rawProb: 0.01 },
+    { token: "France", rawProb: 0.01 },
+    { token: "located", rawProb: 0.01 },
+  ]}
+/>
+
+</SessionSection>
+
+
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 4 — PRACTICAL EXAMPLE
+    ═══════════════════════════════════════════════════════════════ */}
+
+<SessionSection id="practical-example" label="Practical Example">
+
+## Why your API responses are non-deterministic by default
+
+You are building a code review tool. You send the same prompt twice and get different suggestions each time. This is not a bug — it is temperature in action. The model's distribution for code tokens is not perfectly peaked; there are several plausible next tokens at each step. With temperature at 1.0, the model samples from that spread. Set temperature to 0 and the output becomes deterministic — always the highest-probability token — which is exactly what you want for a code review tool but not for a brainstorming assistant.
+
+<ParameterSlider
+  label="Temperature"
+  min={0}
+  max={2}
+  step={0.1}
+  defaultValue={1.0}
+  outputFn={(v) => {
+    if (v === 0) return "Fully deterministic — identical output every run. Best for factual retrieval, code generation, and structured outputs."
+    if (v < 0.4) return "Near-deterministic — very consistent with minor variation. Good for code review, classification, data extraction."
+    if (v < 0.9) return "Balanced — coherent and slightly varied. Default for most chat and assistant use cases."
+    if (v < 1.4) return "Creative — noticeably different each run. Good for drafting, brainstorming, and content generation."
+    return "Chaotic — high variance, low coherence. Useful for creative exploration but rarely for production."
+  }}
+  outputExamples={(v) => {
+    if (v < 0.3) return [
+      "Bug found on line 12: index out of bounds.",
+      "Bug found on line 12: index out of bounds.",
+      "Bug found on line 12: index out of bounds.",
+    ]
+    if (v < 1.0) return [
+      "Bug found on line 12: index out of bounds.",
+      "Potential issue on line 12: array access may exceed bounds.",
+      "Line 12 may throw if the array is shorter than expected.",
+    ]
+    return [
+      "Line 12 feels adventurous — perhaps too adventurous for the array.",
+      "The array on line 12 is living dangerously.",
+      "I'd have a word with whoever wrote line 12.",
+    ]
+  }}
+/>
+
+</SessionSection>
+
+
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 5 — RECAP
+    ═══════════════════════════════════════════════════════════════ */}
+
+<SessionSection id="recap" label="Recap">
+
+## What we covered
+
+<RecapTable rows={[
+  { term: "Training", definition: "One-time process of adjusting model weights by predicting next tokens across trillions of examples" },
+  { term: "Weights", definition: "Frozen numerical parameters that encode the model's knowledge — fixed after training" },
+  { term: "Inference", definition: "Running a forward pass on a prompt to generate output tokens one at a time" },
+  { term: "Logits", definition: "Raw unnormalized scores the model assigns to every possible next token before sampling" },
+  { term: "Temperature", definition: "Parameter that controls how flat or spiky the token probability distribution is at sampling time" },
+]} />
+
+</SessionSection>
+
+
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 6 — NEXT SESSION
+    ═══════════════════════════════════════════════════════════════ */}
+
+<SessionSection id="next-session" label="Next Session">
+
+<NextSessionCard
+  title="Tokenization"
+  slug="tokenization"
+  teaser="You now know the model processes tokens — next we open up exactly what a token is, how text gets split, and why it matters for everything from pricing to prompt design."
+  module={1}
+/>
+
+</SessionSection>
