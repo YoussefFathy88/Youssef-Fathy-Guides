@@ -67,6 +67,10 @@ export default function ConceptStepper({
   const [isPlaying, setIsPlaying] = useState(autoPlay);
 
   const activeStep = safeSteps[currentIndex] ?? safeSteps[0];
+  const hasVisual =
+    activeStep.visual !== null &&
+    activeStep.visual !== undefined &&
+    activeStep.visual !== false;
   const animationVariants = useMemo(
     () => ({
       enter: (customDirection: number) => ({
@@ -146,7 +150,14 @@ export default function ConceptStepper({
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-dashed border-gray-300 bg-white/60 p-5 dark:border-gray-600 dark:bg-gray-900/40">
+        <div
+          className={cn(
+            "overflow-hidden rounded-2xl border p-5",
+            hasVisual
+              ? "border-dashed border-gray-300 bg-white/60 dark:border-gray-600 dark:bg-gray-900/40"
+              : "border-gray-200 bg-white/70 dark:border-gray-700 dark:bg-gray-900/55",
+          )}
+        >
           <AnimatePresence initial={false} custom={direction} mode="wait">
             <motion.div
               key={`${currentIndex}-${activeStep.title}`}
@@ -165,7 +176,7 @@ export default function ConceptStepper({
                   </h3>
                 </div>
               </div>
-              <div className="min-h-[240px]">{activeStep.visual}</div>
+              {hasVisual ? <div className="min-h-[240px]">{activeStep.visual}</div> : null}
             </motion.div>
           </AnimatePresence>
         </div>

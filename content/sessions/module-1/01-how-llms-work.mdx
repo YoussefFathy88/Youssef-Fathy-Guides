@@ -7,7 +7,7 @@ sessionNumber: 1
 duration: "14 min"
 difficulty: "beginner"
 tags: ["training", "inference", "transformer"]
-nextSession: "tokenization"
+nextSession: "tokens-context-window"
 prevSession: null
 ---
 
@@ -102,11 +102,11 @@ When you send a prompt, the model runs a forward pass through all its layers and
   caption="Each token becomes part of the input for generating the next one. Follow one full cycle."
   height={260}
   nodes={[
-    { id: "context", label: "Context window", sublabel: "Prompt + tokens so far", x: 5, y: 45, color: "gray" },
-    { id: "forward", label: "Forward pass", sublabel: "All transformer layers", x: 35, y: 45, color: "violet" },
-    { id: "logits", label: "Logits", sublabel: "Score per vocab token", x: 62, y: 45, color: "teal" },
-    { id: "sample", label: "Sample", sublabel: "One token chosen", x: 82, y: 45, color: "amber" },
-    { id: "append", label: "Append to context", x: 62, y: 80, color: "gray" },
+    { id: "context", label: "Context window", sublabel: "Prompt + tokens so far", x: 12, y: 45, color: "gray" },
+    { id: "forward", label: "Forward pass", sublabel: "All transformer layers", x: 38, y: 45, color: "violet" },
+    { id: "logits", label: "Logits", sublabel: "Score per vocab token", x: 64, y: 45, color: "teal" },
+    { id: "sample", label: "Sample", sublabel: "One token chosen", x: 84, y: 45, color: "amber" },
+    { id: "append", label: "Append to context", x: 62, y: 78, color: "gray" },
   ]}
   edges={[
     { from: "context", to: "forward", animated: true },
@@ -225,9 +225,9 @@ You are building a code review tool. You send the same prompt twice and get diff
 <SessionSection id="next-session" label="Next Session">
 
 <NextSessionCard
-  title="Tokenization"
-  slug="tokenization"
-  teaser="You now know the model processes tokens. Next we open up exactly what a token is, how text gets split, and why it matters for everything from pricing to prompt design."
+  title="Tokens & Context Window"
+  slug="tokens-context-window"
+  teaser="You now know the model processes tokens. Next we make those tokens concrete and see how tokenization plus the context window constrain everything from pricing to prompt design."
   module={1}
 />
 

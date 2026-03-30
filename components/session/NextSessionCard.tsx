@@ -33,6 +33,9 @@ export function NextSessionCard({
 
         <div className="min-w-0 space-y-2">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-violet-600 dark:text-violet-300">
+            Next Session
+          </p>
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-violet-500/80 dark:text-violet-300/80">
             Module {module}
           </p>
           <h3 className="text-2xl font-semibold text-gray-950 dark:text-gray-50">{title}</h3>
