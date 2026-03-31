@@ -1,8 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
 
+import { useSessionPresentation } from "@/components/session/PresentationContext";
 import { cn } from "@/lib/utils";
 
 export interface Step {
@@ -61,10 +62,12 @@ export default function ConceptStepper({
   title = "Concept walkthrough",
 }: ConceptStepperProps) {
   const reducedMotion = useReducedMotion();
+  const { isPresentationMode } = useSessionPresentation();
   const safeSteps = steps.length > 0 ? steps : defaultSteps;
+  const shouldAutoPlay = autoPlay && !isPresentationMode;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(1);
-  const [isPlaying, setIsPlaying] = useState(autoPlay);
+  const [isPlaying, setIsPlaying] = useState(shouldAutoPlay);
 
   const activeStep = safeSteps[currentIndex] ?? safeSteps[0];
   const hasVisual =
@@ -87,8 +90,8 @@ export default function ConceptStepper({
   );
 
   useEffect(() => {
-    setIsPlaying(autoPlay);
-  }, [autoPlay]);
+    setIsPlaying(shouldAutoPlay);
+  }, [shouldAutoPlay]);
 
   useEffect(() => {
     if (!isPlaying || safeSteps.length < 2) {
@@ -104,6 +107,10 @@ export default function ConceptStepper({
   }, [autoPlayInterval, isPlaying, safeSteps.length]);
 
   useEffect(() => {
+    if (isPresentationMode) {
+      return undefined;
+    }
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "ArrowRight") {
         setDirection(1);
@@ -118,13 +125,36 @@ export default function ConceptStepper({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [safeSteps.length]);
+  }, [isPresentationMode, safeSteps.length]);
+
+  const handleLocalKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (!isPresentationMode) {
+      return;
+    }
+
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      event.stopPropagation();
+      setDirection(1);
+      setCurrentIndex((current) => wrapIndex(current + 1, safeSteps.length));
+    }
+
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      event.stopPropagation();
+      setDirection(-1);
+      setCurrentIndex((current) => wrapIndex(current - 1, safeSteps.length));
+    }
+  };
 
   return (
     <motion.div
       initial={reducedMotion ? false : { opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
+      data-local-navigation={isPresentationMode ? "true" : undefined}
+      onKeyDown={handleLocalKeyDown}
+      tabIndex={isPresentationMode ? 0 : undefined}
       className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800"
     >
       <div className="space-y-5">
@@ -134,7 +164,7 @@ export default function ConceptStepper({
             <p className="text-xs text-gray-500 dark:text-gray-400">{activeStep.caption}</p>
           </div>
           <div className="flex items-center gap-2">
-            {autoPlay ? (
+            {shouldAutoPlay ? (
               <button
                 type="button"
                 onClick={() => setIsPlaying((current) => !current)}

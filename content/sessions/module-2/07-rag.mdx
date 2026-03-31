@@ -1,0 +1,228 @@
+---
+title: "RAG"
+slug: "rag"
+module: 2
+moduleName: "Giving the Brain Capabilities"
+sessionNumber: 7
+duration: "14 min"
+difficulty: "intermediate"
+tags: ["rag", "retrieval", "vector-database"]
+nextSession: "tools-and-function-calling"
+prevSession: "agent-memory-types"
+---
+
+{/* SECTION 1 - GOAL */}
+
+<SessionSection id="goal" label="Goal">
+
+## Understand the full RAG pipeline from raw data to grounded LLM answer -- and where memory fits in
+
+Last session introduced semantic memory as a concept. RAG is how you actually build it. This session walks the complete pipeline: loading your data, splitting it into chunks, embedding those chunks into a vector database, and retrieving the right ones at query time so the LLM can answer with grounded, up-to-date information instead of relying only on what it learned during training.
+
+</SessionSection>
+
+
+{/* SECTION 2 - BIG PICTURE */}
+
+<SessionSection id="big-picture" label="Big Picture">
+
+## RAG combines two types of memory: what the model learned and what you provide
+
+The term RAG was introduced by Patrick Lewis et al. at Meta AI Research in 2020. The core idea is combining parametric memory (knowledge baked into the model's weights during training) with non-parametric memory (an external document store you control). The model's weights stay frozen -- you never retrain. Instead you retrieve relevant documents at query time and inject them into the context window alongside the user's question.
+
+<DataFlowDiagram
+  title="The full RAG pipeline -- from your documents to the LLM's answer"
+  caption="Follow the two paths -- the top path runs once to build the index, the bottom path runs on every query"
+  height={380}
+  nodes={[
+    { id: "raw-docs", label: "Raw documents", sublabel: "PDFs, web pages, databases, internal docs", x: 4, y: 18, color: "gray" },
+    { id: "chunking", label: "Chunking", sublabel: "Split into 200-500 token segments", x: 26, y: 18, color: "amber" },
+    { id: "embed-index", label: "Embedding model", sublabel: "Converts each chunk to a vector", x: 50, y: 18, color: "violet" },
+    { id: "vector-db", label: "Vector database", sublabel: "Stores all chunk vectors -- Pinecone, pgvector, Chroma", x: 72, y: 42, color: "teal" },
+    { id: "user-q", label: "User question", sublabel: "Natural language query", x: 4, y: 74, color: "gray" },
+    { id: "embed-q", label: "Embed question", sublabel: "Same embedding model as indexing", x: 26, y: 74, color: "violet" },
+    { id: "sim-search", label: "Similarity search", sublabel: "Find top-k most similar chunks", x: 50, y: 74, color: "teal" },
+    { id: "retrieved", label: "Retrieved chunks", sublabel: "Top 3-5 relevant text segments", x: 68, y: 74, color: "amber" },
+    { id: "llm-ctx", label: "LLM + context", sublabel: "Question + chunks in context window", x: 84, y: 74, color: "violet" },
+    { id: "grounded", label: "Grounded answer", sublabel: "Answer based on your documents", x: 93, y: 55, color: "teal" },
+  ]}
+  edges={[
+    { from: "raw-docs", to: "chunking", animated: false },
+    { from: "chunking", to: "embed-index", animated: false },
+    { from: "embed-index", to: "vector-db", animated: false },
+    { from: "vector-db", to: "sim-search", animated: true },
+    { from: "user-q", to: "embed-q", animated: true },
+    { from: "embed-q", to: "sim-search", animated: true },
+    { from: "sim-search", to: "retrieved", animated: true },
+    { from: "user-q", to: "llm-ctx", animated: true },
+    { from: "retrieved", to: "llm-ctx", animated: true },
+    { from: "llm-ctx", to: "grounded", animated: true },
+  ]}
+  highlightPath={["user-q", "embed-q", "sim-search", "retrieved", "llm-ctx", "grounded"]}
+/>
+
+</SessionSection>
+
+
+{/* SECTION 3 - CORE CONCEPTS */}
+
+<SessionSection id="core-concepts" label="Core Concepts">
+
+## Chunking: splitting documents into searchable pieces
+
+You cannot embed an entire 50-page document as one vector -- the embedding would average out all the meaning and become useless for retrieval. Instead you split every document into overlapping chunks, typically 200-500 tokens each with a 20-50 token overlap between adjacent chunks. The overlap ensures that sentences split across chunk boundaries are still retrievable. Chunk size is a tunable tradeoff: smaller chunks retrieve more precisely but miss broader context; larger chunks carry more context but match less precisely.
+
+<ConceptStepper
+  title="How a product manual gets split into chunks before embedding"
+  caption="Step through the chunking process -- notice the overlap between adjacent chunks"
+  autoPlay={false}
+  showDots={true}
+  steps={[
+    {
+      title: "1. Raw document loaded",
+      caption: "A 12-page product manual is loaded as plain text. Total size: ~6,000 tokens. Too large to embed meaningfully as one unit or to fit alongside other documents in the context window.",
+      visual: null
+    },
+    {
+      title: "2. Document split into 500-token chunks",
+      caption: "The text is divided into segments of 500 tokens each. A 6,000-token manual produces approximately 12 chunks, each covering about one section or topic.",
+      visual: null
+    },
+    {
+      title: "3. 50-token overlap added between adjacent chunks",
+      caption: "Chunk 1 ends at token 500. Chunk 2 starts at token 450. The 50-token overlap ensures that content at the boundary of two chunks can still be retrieved by either.",
+      visual: null
+    },
+    {
+      title: "4. Each chunk treated as an independent retrieval unit",
+      caption: "Each of the 12 chunks now has its own ID and metadata (source document, page number, section title). When a user asks a question, the system searches across all 12 chunks independently.",
+      visual: null
+    },
+  ]}
+/>
+
+### Embedding and storing: converting chunks into searchable vectors
+
+Each chunk is passed through an embedding model to produce a vector -- the same process you saw in Session 3. These vectors are stored in a vector database alongside the original chunk text. At query time, the user's question is embedded using the same model, and the database finds the chunks whose vectors are most similar to the question vector using cosine similarity or dot product search. The embedding model used at indexing time and query time must be identical -- different models produce incompatible vector spaces.
+
+<Vector2DPlot
+  title="Chunks from a product manual plotted by semantic similarity"
+  caption="Hover any chunk to see its distance from the query -- notice that the query lands near the relevant section"
+  height={340}
+  showDistances={true}
+  showClusters={true}
+  points={[
+    { id: "install-windows", label: "install_windows", x: 18, y: 22, cluster: "installation" },
+    { id: "install-mac", label: "install_mac", x: 22, y: 28, cluster: "installation" },
+    { id: "system-requirements", label: "system_requirements", x: 28, y: 20, cluster: "installation" },
+    { id: "error-codes", label: "error_codes", x: 65, y: 25, cluster: "troubleshooting" },
+    { id: "network-issues", label: "network_issues", x: 72, y: 22, cluster: "troubleshooting" },
+    { id: "reset-procedure", label: "reset_procedure", x: 78, y: 30, cluster: "troubleshooting" },
+    { id: "pricing-plans", label: "pricing_plans", x: 40, y: 72, cluster: "billing" },
+    { id: "invoice-download", label: "invoice_download", x: 48, y: 68, cluster: "billing" },
+    { id: "cancel-subscription", label: "cancel_subscription", x: 55, y: 78, cluster: "billing" },
+    { id: "query", label: "How do I fix a network connection error?", x: 68, y: 18, cluster: "troubleshooting", isQuery: true },
+  ]}
+/>
+
+### Retrieval and generation: injecting context into the LLM
+
+At query time the top-k most similar chunks (typically 3-5) are retrieved and injected into the context window alongside the user's question. The LLM sees: the system prompt, the retrieved chunks labeled as context, and the user's question. It generates an answer grounded in those chunks rather than relying solely on training-time knowledge. This is the non-parametric memory from Session 6 -- the external semantic memory store -- now fully operational.
+
+<ConceptStepper
+  title="What the LLM actually receives when RAG is active"
+  caption="Step through the LLM's context window -- notice how retrieved chunks sit between the system prompt and the question"
+  autoPlay={false}
+  showDots={true}
+  steps={[
+    {
+      title: "1. System prompt loaded (procedural memory)",
+      caption: "You are a helpful product support assistant. Answer only based on the provided context. If the answer is not in the context, say so.",
+      visual: null
+    },
+    {
+      title: "2. Retrieved chunks injected (semantic memory -- non-parametric)",
+      caption: "Context chunk 1: Network errors typically occur when... [150 tokens] -- Context chunk 2: To reset your network settings... [140 tokens] -- Context chunk 3: Error code E402 means... [130 tokens]",
+      visual: null
+    },
+    {
+      title: "3. User question appended",
+      caption: "User: My app shows error E402 and can't connect to the network. What should I do?",
+      visual: null
+    },
+    {
+      title: "4. LLM generates grounded answer",
+      caption: "Based on the provided documentation: Error E402 indicates a network timeout. To resolve this, first reset your network settings following the steps in section 4.2... The model cites its source because the source is in the context.",
+      visual: null
+    },
+  ]}
+/>
+
+</SessionSection>
+
+
+{/* SECTION 4 - PRACTICAL EXAMPLE */}
+
+<SessionSection id="practical-example" label="Practical Example">
+
+## A medical research assistant that answers from clinical trial documents
+
+A pharmaceutical company builds an internal tool for researchers to query their clinical trial archive -- 40,000 documents spanning 20 years. The model's training data contains general medical knowledge but none of these proprietary trial results. Without RAG, every question about specific trial outcomes returns a hallucinated answer. With RAG: all 40,000 documents are chunked into 500-token segments (approximately 800,000 chunks), embedded using a biomedical embedding model, and stored in a vector database. When a researcher asks "What were the adverse events in the Phase 2 trial for compound X?", the question is embedded, the top 5 most similar chunks are retrieved from the archive, and the LLM answers directly from the trial documents -- with citations pointing to the exact source document and page.
+
+<DataFlowDiagram
+  title="Medical research RAG system -- from 40,000 trial documents to a cited answer"
+  caption="Follow the query path -- notice how the answer traces back to specific source documents"
+  height={380}
+  nodes={[
+    { id: "docs", label: "40,000 clinical trial documents", sublabel: "PDFs indexed once at setup -- 800,000 chunks total", x: 4, y: 25, color: "gray" },
+    { id: "bio-embed", label: "Biomedical embedding model", sublabel: "Specialist model fine-tuned on medical text", x: 30, y: 14, color: "violet" },
+    { id: "vector-db", label: "Vector database", sublabel: "800,000 chunk vectors -- searched in milliseconds", x: 55, y: 44, color: "teal" },
+    { id: "researcher-q", label: "Researcher question", sublabel: "Adverse events in Phase 2 trial for compound X?", x: 4, y: 72, color: "gray" },
+    { id: "top5-chunks", label: "Top 5 retrieved chunks", sublabel: "5 most relevant trial document segments", x: 55, y: 72, color: "amber" },
+    { id: "llm-ctx", label: "LLM with context", sublabel: "Question + 5 chunks in context window", x: 76, y: 72, color: "violet" },
+    { id: "cited-answer", label: "Cited answer", sublabel: "According to Trial NCT-2847, adverse events included...", x: 93, y: 55, color: "teal" },
+  ]}
+  edges={[
+    { from: "docs", to: "bio-embed", animated: false, sublabel: "Indexed once" },
+    { from: "bio-embed", to: "vector-db", animated: false, sublabel: "Stored as vectors" },
+    { from: "researcher-q", to: "vector-db", animated: true, sublabel: "Embedded and searched" },
+    { from: "vector-db", to: "top5-chunks", animated: true, sublabel: "Top-k similarity search" },
+    { from: "researcher-q", to: "llm-ctx", animated: true },
+    { from: "top5-chunks", to: "llm-ctx", animated: true },
+    { from: "llm-ctx", to: "cited-answer", animated: true },
+  ]}
+  highlightPath={["researcher-q", "vector-db", "top5-chunks", "llm-ctx", "cited-answer"]}
+/>
+
+</SessionSection>
+
+
+{/* SECTION 5 - RECAP */}
+
+<SessionSection id="recap" label="Recap">
+
+## What we covered
+
+<RecapTable rows={[
+  { term: "RAG (Retrieval-Augmented Generation)", definition: "A pattern that combines a frozen LLM with an external document store, retrieving relevant chunks at query time to ground the model's answers" },
+  { term: "Chunking", definition: "Splitting documents into overlapping fixed-size segments (typically 200-500 tokens) so each segment can be independently embedded and retrieved" },
+  { term: "Non-parametric memory", definition: "Knowledge stored outside the model's weights in an external database -- can be updated without retraining the model" },
+  { term: "Vector database", definition: "A database optimised for storing and searching high-dimensional vectors by similarity -- used to index and retrieve document chunks" },
+  { term: "Top-k retrieval", definition: "Fetching the k most similar chunks to the query vector (typically k=3-5) to inject into the LLM's context window" },
+]} />
+
+</SessionSection>
+
+
+{/* SECTION 6 - NEXT SESSION */}
+
+<SessionSection id="next-session" label="Next Session">
+
+<NextSessionCard
+  title="Tools & Function Calling"
+  slug="tools-and-function-calling"
+  teaser="RAG gives the model access to knowledge -- tools give it the ability to act. Next session we open up how an LLM decides to call a function, what happens when it does, and how you design tool interfaces that work reliably."
+  module={2}
+/>
+
+</SessionSection>
