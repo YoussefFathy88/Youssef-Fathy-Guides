@@ -1,0 +1,201 @@
+---
+title: "Embeddings"
+slug: "embeddings"
+module: 1
+moduleName: "The Engine Room"
+sessionNumber: 3
+duration: "12 min"
+difficulty: "beginner"
+tags: ["embeddings", "vectors", "similarity"]
+nextSession: "transformer-attention"
+prevSession: "tokens-context-window"
+---
+
+{/* SECTION 1 - GOAL */}
+
+<SessionSection id="goal" label="Goal">
+
+## Understand how the model turns tokens into numbers it can reason over
+
+Tokens are just integers -- the model cannot compare or cluster them as-is. This session shows how embeddings solve that problem by mapping every token to a point in space where similar meanings end up close together.
+
+</SessionSection>
+
+
+{/* SECTION 2 - BIG PICTURE */}
+
+<SessionSection id="big-picture" label="Big Picture">
+
+## Embeddings sit at the entry point of every model and retrieval system
+
+Before attention, before generation, before any tool call -- the model converts your input tokens into vectors. That same process powers semantic search, RAG retrieval, and recommendation systems outside the model too.
+
+<DataFlowDiagram
+  title="Where embeddings live in the stack"
+  caption="Notice that embeddings feed both the transformer inside the model and retrieval systems outside it"
+  height={300}
+  nodes={[
+    { id: "tokens", label: "Token IDs", sublabel: "Integers from vocab", x: 14, y: 50, color: "gray" },
+    { id: "embed", label: "Embedding layer", sublabel: "Learned lookup table", x: 32, y: 50, color: "violet" },
+    { id: "vector", label: "Vector", sublabel: "e.g. 1536 numbers", x: 52, y: 50, color: "teal" },
+    { id: "transformer", label: "Transformer layers", sublabel: "Attention + reasoning", x: 76, y: 28, color: "violet" },
+    { id: "vectordb", label: "Vector database", sublabel: "Semantic search / RAG", x: 76, y: 72, color: "amber" },
+    { id: "response", label: "Model response", x: 88, y: 28, color: "teal" },
+  ]}
+  edges={[
+    { from: "tokens", to: "embed", animated: true },
+    { from: "embed", to: "vector", animated: true },
+    { from: "vector", to: "transformer", animated: true },
+    { from: "vector", to: "vectordb", animated: true },
+    { from: "transformer", to: "response", animated: true },
+  ]}
+  highlightPath={["tokens", "embed", "vector", "transformer", "response"]}
+/>
+
+</SessionSection>
+
+
+{/* SECTION 3 - CORE CONCEPTS */}
+
+<SessionSection id="core-concepts" label="Core Concepts">
+
+## Words become points in space
+
+The embedding layer is a lookup table. Each token ID maps to a fixed list of numbers -- called a vector. These numbers are learned during training so that tokens used in similar contexts end up at nearby points. You do not design them -- they emerge from predicting billions of next tokens.
+
+<Vector2DPlot
+  title="Word embeddings projected to 2D"
+  caption="Hover any point to see its distance from the query -- notice which words cluster together"
+  height={340}
+  showDistances={true}
+  showClusters={true}
+  points={[
+    { id: "king", label: "king", x: 72, y: 25, cluster: "royalty", isQuery: true },
+    { id: "queen", label: "queen", x: 68, y: 32, cluster: "royalty" },
+    { id: "prince", label: "prince", x: 76, y: 35, cluster: "royalty" },
+    { id: "dog", label: "dog", x: 22, y: 68, cluster: "animals" },
+    { id: "cat", label: "cat", x: 18, y: 74, cluster: "animals" },
+    { id: "wolf", label: "wolf", x: 28, y: 65, cluster: "animals" },
+    { id: "car", label: "car", x: 55, y: 78, cluster: "vehicles" },
+    { id: "bus", label: "bus", x: 62, y: 75, cluster: "vehicles" },
+  ]}
+/>
+
+### Similarity is distance
+
+Once words are vectors, "how similar are these two things?" becomes a calculation -- cosine similarity or dot product. Two sentences are similar if their vectors point in roughly the same direction. This is what powers search, RAG retrieval, and duplicate detection.
+
+<AttentionHeatmap
+  title="Cosine similarity between word pairs"
+  caption="Click any word row to see which other words are most similar to it"
+  colorRamp="violet"
+  tokens={["king", "queen", "prince", "dog", "cat", "car"]}
+  weights={[
+    [1.00, 0.82, 0.74, 0.12, 0.10, 0.08],
+    [0.82, 1.00, 0.70, 0.14, 0.13, 0.07],
+    [0.74, 0.70, 1.00, 0.11, 0.09, 0.06],
+    [0.12, 0.14, 0.11, 1.00, 0.88, 0.15],
+    [0.10, 0.13, 0.09, 0.88, 1.00, 0.12],
+    [0.08, 0.07, 0.06, 0.15, 0.12, 1.00],
+  ]}
+/>
+
+### Embeddings live inside models and outside them
+
+Inside the model, every transformer layer works entirely in vector space -- it never sees raw text again after the embedding layer. Outside the model, you can call an embeddings API to get a vector for any string and store it in a vector database for retrieval.
+
+<ConceptCompare
+  title="Embeddings inside vs outside the model"
+  caption="Toggle between the two uses -- both start from the same idea"
+  mode="toggle"
+  left={{
+    label: "Inside the model",
+    color: "violet",
+    points: [
+      "Every token becomes a vector at the first layer",
+      "Attention operates entirely in vector space",
+      "Happens automatically on every API call",
+      "You never see these vectors directly",
+    ]
+  }}
+  right={{
+    label: "Outside the model (embeddings API)",
+    color: "teal",
+    points: [
+      "Call an API to embed any text string",
+      "Store vectors in a database like Pinecone or pgvector",
+      "Search by similarity at query time",
+      "Powers RAG, semantic search, deduplication",
+    ]
+  }}
+/>
+
+</SessionSection>
+
+
+{/* SECTION 4 - PRACTICAL EXAMPLE */}
+
+<SessionSection id="practical-example" label="Practical Example">
+
+## How a support ticket router uses embeddings to replace keyword rules
+
+A SaaS company receives thousands of support tickets daily. Their old keyword-matching system breaks whenever customers phrase things differently -- "can't log in" misses "access denied" and "locked out". They replace it with an embeddings router: embed every ticket, embed every issue category label, then route each new ticket to the nearest category by cosine similarity. New categories are added by writing a description and embedding it -- no retraining, no new rules.
+
+<ConceptCompare
+  title="Keyword matching vs embedding similarity"
+  caption="See which approach handles the same problem more robustly"
+  mode="side-by-side"
+  left={{
+    label: "Keyword matching",
+    color: "gray",
+    points: [
+      "Breaks when customers use synonyms",
+      "Misses \"locked out\" if rule says \"can't log in\"",
+      "Every new phrasing needs a new rule",
+      "Brittle at scale",
+    ]
+  }}
+  right={{
+    label: "Embedding similarity",
+    color: "teal",
+    points: [
+      "Captures meaning not exact words",
+      "\"Locked out\" and \"can't log in\" land near each other",
+      "New categories added by writing a description",
+      "Robust to spelling variations and paraphrasing",
+    ]
+  }}
+/>
+
+</SessionSection>
+
+
+{/* SECTION 5 - RECAP */}
+
+<SessionSection id="recap" label="Recap">
+
+## What we covered
+
+<RecapTable rows={[
+  { term: "Embedding", definition: "A vector representation of a token where similar meanings are placed close together in space" },
+  { term: "Vector", definition: "A fixed-length list of numbers representing a point in high-dimensional space" },
+  { term: "Cosine similarity", definition: "A measure of how similar two vectors are based on the angle between them" },
+  { term: "Embedding layer", definition: "The lookup table at a model's input that converts token IDs into their vector representations" },
+  { term: "Semantic search", definition: "Retrieval based on meaning similarity between query and document embeddings rather than keyword overlap" },
+]} />
+
+</SessionSection>
+
+
+{/* SECTION 6 - NEXT SESSION */}
+
+<SessionSection id="next-session" label="Next Session">
+
+<NextSessionCard
+  title="Transformer & Attention"
+  slug="transformer-attention"
+  teaser="Now that tokens have become vectors, the next question is how the model relates them to each other -- which is exactly what the transformer's attention mechanism does."
+  module={1}
+/>
+
+</SessionSection>
