@@ -108,26 +108,19 @@ Every API provider charges per token and measures latency per token. A 1000-word
 
 The context window is the total number of tokens the model can see at once -- your system prompt, conversation history, retrieved documents, and the current message all count toward it. When you exceed the limit, either the API errors or old content gets truncated.
 
-<DataFlowDiagram
-  title="What fills the context window"
-  caption="Notice how every part of your request competes for the same fixed space"
-  height={300}
-  nodes={[
-    { id: "system", label: "System prompt", sublabel: "200-500 tokens", x: 14, y: 18, color: "gray" },
-    { id: "history", label: "Conversation history", sublabel: "Grows each turn", x: 16, y: 42, color: "amber" },
-    { id: "docs", label: "Retrieved documents", sublabel: "RAG chunks", x: 16, y: 66, color: "teal" },
-    { id: "message", label: "Current message", sublabel: "Latest input", x: 16, y: 88, color: "gray" },
-    { id: "window", label: "Context window", sublabel: "Fixed token limit", x: 52, y: 50, color: "violet" },
-    { id: "response", label: "Model response", sublabel: "Also uses tokens", x: 82, y: 50, color: "teal" },
+<ContextWindowFiller
+  title="What fills the context window -- toggle blocks on and off"
+  caption="Toggle each block to see how different content types compete for the same fixed space"
+  windowSize={128000}
+  costPer1kTokens={0.003}
+  blocks={[
+    { id: "system", label: "System prompt", tokens: 420, color: "gray", defaultOn: true, icon: "⚙️", description: "Instructions, persona, constraints" },
+    { id: "few-shot", label: "Few-shot examples", tokens: 2800, color: "violet", defaultOn: false, icon: "📋", description: "3 example input/output pairs" },
+    { id: "history", label: "Conversation history", tokens: 14000, color: "amber", defaultOn: false, icon: "💬", description: "10 turns of back-and-forth" },
+    { id: "rag-chunks", label: "Retrieved chunks", tokens: 3200, color: "teal", defaultOn: false, icon: "📄", description: "Top-5 RAG chunks at 640 tokens each" },
+    { id: "contract", label: "Full document (contract)", tokens: 22000, color: "rose", defaultOn: false, icon: "📑", description: "A 17,000-word legal contract" },
+    { id: "message", label: "Current message", tokens: 180, color: "blue", defaultOn: true, icon: "✏️", description: "The user's current question" },
   ]}
-  edges={[
-    { from: "system", to: "window", animated: true },
-    { from: "history", to: "window", animated: true },
-    { from: "docs", to: "window", animated: true },
-    { from: "message", to: "window", animated: true },
-    { from: "window", to: "response", animated: true },
-  ]}
-  highlightPath={["message", "window", "response"]}
 />
 
 </SessionSection>

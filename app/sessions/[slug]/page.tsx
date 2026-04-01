@@ -12,11 +12,14 @@ import {
   SessionSection,
 } from "@/components/session";
 import {
+  AgentLoopStepper,
   AnnotatedCode,
   AttentionHeatmap,
   ConceptCompare,
   ConceptStepper,
+  ContextWindowFiller,
   DataFlowDiagram,
+  DualPhaseFlow,
   LayerStack,
   MiniPlayground,
   ParameterSlider,
@@ -60,10 +63,13 @@ function getMdxComponents(isPresentationMode: boolean) {
     SessionSection,
     RecapTable,
     NextSessionCard,
+    AgentLoopStepper,
     ParameterSlider,
     AttentionHeatmap,
     ConceptStepper,
+    ContextWindowFiller,
     DataFlowDiagram,
+    DualPhaseFlow,
     ConceptCompare,
     MiniPlayground,
     Vector2DPlot,
@@ -78,7 +84,7 @@ function getMdxComponents(isPresentationMode: boolean) {
         className={[
           isPresentationMode
             ? "text-balance text-4xl font-semibold text-white sm:text-5xl"
-            : "text-balance text-3xl font-semibold text-gray-950 dark:text-gray-50",
+            : "text-balance text-[2.4rem] font-semibold leading-tight text-gray-950 dark:text-gray-50 sm:text-5xl",
           className,
         ]
           .filter(Boolean)
@@ -91,7 +97,7 @@ function getMdxComponents(isPresentationMode: boolean) {
         className={[
           isPresentationMode
             ? "mt-8 text-2xl font-semibold text-gray-100 sm:text-3xl"
-            : "mt-8 text-xl font-semibold text-gray-950 dark:text-gray-100",
+            : "mt-10 text-[1.8rem] font-semibold leading-tight text-gray-950 dark:text-gray-100 sm:text-[2rem]",
           className,
         ]
           .filter(Boolean)
@@ -104,7 +110,7 @@ function getMdxComponents(isPresentationMode: boolean) {
         className={[
           isPresentationMode
             ? "mt-5 text-lg leading-9 text-gray-200 sm:text-xl sm:leading-10"
-            : "mt-4 text-base leading-8 text-gray-700 dark:text-gray-300",
+            : "mt-5 text-[1.14rem] leading-9 text-gray-700 dark:text-gray-300 sm:text-[1.22rem] sm:leading-10",
           className,
         ]
           .filter(Boolean)
@@ -130,7 +136,7 @@ function getMdxComponents(isPresentationMode: boolean) {
         className={[
           isPresentationMode
             ? "mt-5 list-disc space-y-3 pl-6 text-lg leading-8 text-gray-200 sm:text-xl sm:leading-9"
-            : "mt-4 list-disc space-y-2 pl-6 text-base leading-7 text-gray-700 dark:text-gray-300",
+            : "mt-5 list-disc space-y-3 pl-7 text-[1.12rem] leading-9 text-gray-700 dark:text-gray-300 sm:text-[1.2rem] sm:leading-10",
           className,
         ]
           .filter(Boolean)
@@ -143,7 +149,7 @@ function getMdxComponents(isPresentationMode: boolean) {
         className={[
           isPresentationMode
             ? "mt-5 list-decimal space-y-3 pl-6 text-lg leading-8 text-gray-200 sm:text-xl sm:leading-9"
-            : "mt-4 list-decimal space-y-2 pl-6 text-base leading-7 text-gray-700 dark:text-gray-300",
+            : "mt-5 list-decimal space-y-3 pl-7 text-[1.12rem] leading-9 text-gray-700 dark:text-gray-300 sm:text-[1.2rem] sm:leading-10",
           className,
         ]
           .filter(Boolean)
@@ -180,10 +186,6 @@ function getMdxComponents(isPresentationMode: boolean) {
       />
     ),
   };
-}
-
-function getDifficultyLabel(difficulty: string) {
-  return difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
 }
 
 export async function generateStaticParams() {
@@ -265,33 +267,17 @@ export default async function SessionPage({ params, searchParams }: SessionPageP
                 </div>
 
                 <div className="space-y-3">
-                  <h1 className="text-balance text-4xl font-semibold text-gray-950 dark:text-gray-50 sm:text-5xl">
+                  <h1 className="text-balance text-5xl font-semibold leading-tight text-gray-950 dark:text-gray-50 sm:text-6xl">
                     {frontmatter.title}
                   </h1>
-                  <div className="flex flex-wrap gap-3 text-sm text-gray-600 dark:text-gray-300">
-                    <span className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 dark:border-gray-800 dark:bg-gray-900/70">
-                      {frontmatter.duration}
-                    </span>
-                    <span className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 dark:border-gray-800 dark:bg-gray-900/70">
-                      {getDifficultyLabel(frontmatter.difficulty)}
-                    </span>
-                    {frontmatter.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-full border border-gray-200 bg-white px-3 py-1 text-gray-500 dark:border-gray-800 dark:bg-gray-900/70 dark:text-gray-400"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
                 </div>
               </div>
             </header>
 
-            <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-10">
+            <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-14">
               <SessionProgressNav sections={[...sessionSections]} activeSection="goal" />
 
-              <article className="w-full max-w-3xl rounded-[28px] border border-gray-200/80 bg-white/85 px-6 py-8 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-950/60 sm:px-8 sm:py-10">
+              <article className="w-full max-w-[1120px] rounded-[28px] border border-gray-200/80 bg-white/85 px-7 py-9 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-950/60 sm:px-10 sm:py-11 lg:px-12">
                 <MDXRemote source={content} components={mdxComponents} />
               </article>
             </div>

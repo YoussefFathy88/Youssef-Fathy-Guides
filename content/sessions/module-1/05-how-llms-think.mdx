@@ -201,8 +201,8 @@ A team builds a contract analysis tool. It does two jobs on every uploaded contr
     { from: "call1", to: "result1", animated: true },
     { from: "doc", to: "call2", animated: true },
     { from: "call2", to: "result2", animated: true },
-    { from: "model", to: "call1", animated: false },
-    { from: "model", to: "call2", animated: false },
+    { from: "model", to: "call1", animated: false, dashed: true },
+    { from: "model", to: "call2", animated: false, dashed: true },
   ]}
   highlightPath={["doc", "call2", "result2"]}
 />

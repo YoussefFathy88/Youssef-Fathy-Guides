@@ -240,6 +240,7 @@ Only use `DataFlowDiagram` for **non-linear** graphs where nodes connect in arbi
 - Put node explanations in `nodes[].sublabel` â€” they appear in the panel when the box is clicked
 - Put line explanations in `edges[].label` â€” they stay hidden on the canvas and appear in the panel when the line is clicked
 - Do not rely on bold text inside boxes to signal importance
+- Use solid lines for actual runtime flow and `edges[].dashed` only for supporting or shared relationships that are not themselves the main data path
 - If solid and dashed lines have diagram-specific meaning, always set `solidLegendLabel` and `dashedLegendLabel`
 - If a node needs a paragraph to make sense inside the canvas, use a different component
 
@@ -258,7 +259,7 @@ All components are always available without importing:
 | `ParameterSlider` | `label`, `min`, `max`, `step`, `defaultValue`, `states` |
 | `AttentionHeatmap` | `tokens`, `weights`, `colorRamp?`, `title?`, `caption?` |
 | `ConceptStepper` | `steps`, `autoPlay?`, `showDots?`, `title?`, `caption?` |
-| `DataFlowDiagram` | `nodes`, `edges`, `height?`, `highlightPath?`, `title?`, `caption?`, `nodeDetailMode?`, `solidLegendLabel?`, `dashedLegendLabel?` |
+| `DataFlowDiagram` | `nodes`, `edges` (`dashed?` supported), `height?`, `highlightPath?`, `title?`, `caption?`, `nodeDetailMode?`, `solidLegendLabel?`, `dashedLegendLabel?` |
 | `ConceptCompare` | `left`, `right`, `mode?`, `title?`, `caption?` |
 | `MiniPlayground` | `placeholder?`, `simulationFn?`, `title?`, `caption?` |
 | `Vector2DPlot` | `points`, `showDistances?`, `showClusters?`, `title?`, `caption?` |
@@ -405,7 +406,7 @@ memory types each solve a different part of that problem. Most real agents combi
     { from: "incontext", to: "agent", animated: true, label: "Always present" },
     { from: "episodic", to: "agent", animated: true, label: "Retrieved on demand" },
     { from: "semantic", to: "agent", animated: true, label: "Retrieved on demand" },
-    { from: "procedural", to: "agent", animated: false, label: "Loaded once at start" },
+    { from: "procedural", to: "agent", animated: false, label: "Loaded once at start", dashed: true },
     { from: "agent", to: "response", animated: true },
   ]}
   highlightPath={["episodic", "agent", "response"]}
@@ -520,8 +521,8 @@ file loaded at startup. Unlike other memory types it is never retrieved mid-conv
     { id: "usermsg", label: "User message arrives", sublabel: "Triggers agent response -- rules already in place", x: 93, y: 50, color: "gray" },
   ]}
   edges={[
-    { from: "sysprompt", to: "startup", animated: false, label: "Loaded once" },
-    { from: "tools", to: "startup", animated: false, label: "Loaded once" },
+    { from: "sysprompt", to: "startup", animated: false, label: "Loaded once", dashed: true },
+    { from: "tools", to: "startup", animated: false, label: "Loaded once", dashed: true },
     { from: "startup", to: "convo", animated: true, label: "Rules stay active through the session" },
     { from: "usermsg", to: "convo", animated: true, label: "User input arrives after startup" },
   ]}
@@ -562,7 +563,7 @@ prompt -- procedural memory -- defines escalation rules and response format.
     { from: "incontext", to: "agent", animated: true, label: "Live conversation is already available to the agent" },
     { from: "episodic", to: "agent", animated: true, label: "Retrieved episode is injected into context" },
     { from: "semantic", to: "agent", animated: true, label: "Retrieved knowledge is injected into context" },
-    { from: "procedural", to: "agent", animated: false, label: "Rules were loaded earlier at session start" },
+    { from: "procedural", to: "agent", animated: false, label: "Rules were loaded earlier at session start", dashed: true },
     { from: "agent", to: "response", animated: true, label: "The agent forms the reply" },
   ]}
   highlightPath={["msg", "episodic", "agent", "response"]}

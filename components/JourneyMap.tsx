@@ -113,11 +113,6 @@ export function JourneyMap({ currentSessionId, className }: JourneyMapProps) {
                       <>
                         <span>{session.id}</span>
                         <span className="ml-2 truncate">{session.title}</span>
-                        {state === "current" ? (
-                          <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full border border-white/15 bg-slate-950 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white shadow-lg">
-                            Now viewing
-                          </span>
-                        ) : null}
                       </>
                     );
 

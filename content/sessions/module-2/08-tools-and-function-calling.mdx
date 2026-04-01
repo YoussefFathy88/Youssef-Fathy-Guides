@@ -82,16 +82,45 @@ A tool is not a special technology -- it is any function in your codebase that y
 
 This is the most important thing to understand: the LLM does not call your API, access your database, or run your code. It reads the tool descriptions, decides which tool to use, and returns a structured JSON object with the tool name and arguments. Your application reads that JSON, executes the actual function, and sends the result back to the model. The model then uses that result to form its final answer.
 
-<StepSequence
-  title="The complete tool-use loop -- from user question to final answer"
-  caption="Click any step to expand -- notice that your application code runs at step 3, not the model"
-  orientation="vertical"
+<AgentLoopStepper
+  title="The complete tool-use loop -- step through it yourself"
+  caption="Press Step → to advance one step at a time, or Play to run through automatically"
   steps={[
-    { number: 1, phase: "Define", title: "You define tools and send them with the user message", detail: "Your API call includes a tools array. Each tool has a name, a description the model reads, and an input_schema defining the JSON arguments it must provide.", color: "gray" },
-    { number: 2, phase: "Decide", title: "The model decides whether to call a tool", detail: "The model reads the user message and all tool descriptions. If a tool is needed it returns stop_reason: tool_use with the tool name and arguments as structured JSON.", color: "violet" },
-    { number: 3, phase: "Execute", title: "Your application executes the tool", detail: "You read the tool name and arguments. Your code calls the actual function -- hits the API, queries the database, runs the calculation. The model is not involved in this step.", color: "amber" },
-    { number: 4, phase: "Return", title: "You send the tool result back to the model", detail: "You append the result to the conversation and call the API again. The model now sees the original question plus the real data your tool returned.", color: "teal" },
-    { number: 5, phase: "Answer", title: "The model generates the final answer", detail: "With the tool result in context the model generates its response -- grounded in real data, not training-time knowledge.", color: "violet" },
+    {
+      id: "define",
+      actor: "user",
+      label: "You define tools and send the user message",
+      bubble: "POST /v1/messages\n{\n  tools: [{ name: 'get_weather', description: '...', input_schema: {...} }],\n  messages: [{ role: 'user', content: 'What is the weather in Cairo?' }]\n}",
+      detail: "Your API call includes a tools array alongside the user message. Each tool has a name, a description the model reads to decide when to call it, and an input_schema defining what arguments it must provide."
+    },
+    {
+      id: "decide",
+      actor: "model",
+      label: "Model decides to call a tool",
+      bubble: "Response: stop_reason: 'tool_use'\ncontent: [{\n  type: 'tool_use',\n  name: 'get_weather',\n  input: { city: 'Cairo' }\n}]",
+      detail: "The model reads the user message and all tool descriptions. It decides a tool is needed and returns a structured tool_use block -- the tool name and the arguments it wants to pass. The model does not call anything itself."
+    },
+    {
+      id: "execute",
+      actor: "your-code",
+      label: "Your application executes the tool",
+      bubble: "# You read the tool name and arguments\ntool_name = 'get_weather'\nargs = { city: 'Cairo' }\n\n# Your code calls the actual function\nresult = get_weather(city='Cairo')\n# → { temp: 34, condition: 'sunny', humidity: 28 }",
+      detail: "Your application reads the tool_use block, calls the actual function, and gets a real result. The model is completely uninvolved in this step. This is the key distinction -- the model requests, you execute."
+    },
+    {
+      id: "return",
+      actor: "user",
+      label: "You send the tool result back",
+      bubble: "POST /v1/messages  (second API call)\nmessages: [\n  { role: 'user',      content: 'What is the weather in Cairo?' },\n  { role: 'assistant', content: [tool_use block] },\n  { role: 'user',      content: [{ type: 'tool_result',\n                         tool_use_id: '...',\n                         content: '{temp: 34, condition: sunny}' }] }\n]",
+      detail: "You append a tool_result message to the conversation with the real data your function returned, then make a second API call. The model now sees the full context: the original question plus the actual tool output."
+    },
+    {
+      id: "answer",
+      actor: "model",
+      label: "Model generates the final answer",
+      bubble: "Response: stop_reason: 'end_turn'\ncontent: 'The current weather in Cairo is 34°C\nand sunny with 28% humidity -- a hot,\nclear day.'",
+      detail: "With the tool result in context, the model generates its response grounded in real data rather than training-time knowledge. For multi-step tasks, it may call another tool -- the loop repeats from step 2."
+    }
   ]}
 />
 
@@ -184,9 +213,9 @@ A user asks: "Can I afford to fly from Cairo to London next weekend, and what is
   ]}
   edges={[
     { from: "user-q", to: "model-1", animated: true },
-    { from: "model-1", to: "flight", animated: true, sublabel: "Parallel request" },
-    { from: "model-1", to: "exchange", animated: true, sublabel: "Parallel request" },
-    { from: "model-1", to: "weather", animated: true, sublabel: "Parallel request" },
+    { from: "model-1", to: "flight", animated: true, label: "Parallel request" },
+    { from: "model-1", to: "exchange", animated: true, label: "Parallel request" },
+    { from: "model-1", to: "weather", animated: true, label: "Parallel request" },
     { from: "flight", to: "model-2", animated: true },
     { from: "exchange", to: "model-2", animated: true },
     { from: "weather", to: "model-2", animated: true },

@@ -56,7 +56,13 @@ export function PresentationShell({
   const reducedMotion = useReducedMotion();
   const shellRef = useRef<HTMLDivElement | null>(null);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
-  const [activeSectionId, setActiveSectionId] = useState<string | null>(sections[0]?.id ?? null);
+  const presentationSections = useMemo(
+    () => [{ id: "session-intro", label: "Title" }, ...sections],
+    [sections],
+  );
+  const [activeSectionId, setActiveSectionId] = useState<string | null>(
+    presentationSections[0]?.id ?? null,
+  );
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const currentIndex = useMemo(() => {
@@ -64,11 +70,12 @@ export function PresentationShell({
       return 0;
     }
 
-    const matchIndex = sections.findIndex((section) => section.id === activeSectionId);
+    const matchIndex = presentationSections.findIndex((section) => section.id === activeSectionId);
     return matchIndex >= 0 ? matchIndex : 0;
-  }, [activeSectionId, sections]);
+  }, [activeSectionId, presentationSections]);
 
-  const activeSectionLabel = sections[currentIndex]?.label ?? sections[0]?.label ?? "Goal";
+  const activeSectionLabel =
+    presentationSections[currentIndex]?.label ?? presentationSections[0]?.label ?? "Title";
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -87,7 +94,7 @@ export function PresentationShell({
       return undefined;
     }
 
-    const observedSections = sections
+    const observedSections = presentationSections
       .map((section) => root.querySelector<HTMLElement>(`#${section.id}`))
       .filter((element): element is HTMLElement => element !== null);
 
@@ -114,7 +121,7 @@ export function PresentationShell({
 
     observedSections.forEach((section) => observer.observe(section));
     return () => observer.disconnect();
-  }, [sections]);
+  }, [presentationSections]);
 
   const scrollToSection = (sectionId: string) => {
     setActiveSectionId(sectionId);
@@ -128,11 +135,11 @@ export function PresentationShell({
 
   const goToRelativeSlide = (offset: number) => {
     const nextIndex = currentIndex + offset;
-    if (nextIndex < 0 || nextIndex >= sections.length) {
+    if (nextIndex < 0 || nextIndex >= presentationSections.length) {
       return;
     }
 
-    scrollToSection(sections[nextIndex].id);
+    scrollToSection(presentationSections[nextIndex].id);
   };
 
   const toggleFullscreen = async () => {
@@ -176,19 +183,21 @@ export function PresentationShell({
 
       if (event.key === "Home") {
         event.preventDefault();
-        scrollToSection(sections[0]?.id ?? "goal");
+        scrollToSection(presentationSections[0]?.id ?? "session-intro");
         return;
       }
 
       if (event.key === "End") {
         event.preventDefault();
-        scrollToSection(sections[sections.length - 1]?.id ?? "next-session");
+        scrollToSection(
+          presentationSections[presentationSections.length - 1]?.id ?? "next-session",
+        );
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentIndex, reducedMotion, sections]);
+  }, [currentIndex, presentationSections, reducedMotion]);
 
   return (
     <PresentationProvider
@@ -220,7 +229,7 @@ export function PresentationShell({
 
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <span className="rounded-full border border-gray-700 bg-gray-950/70 px-3 py-2 text-gray-300">
-                {currentIndex + 1} / {sections.length}
+                {currentIndex + 1} / {presentationSections.length}
               </span>
               <button
                 type="button"
@@ -239,7 +248,8 @@ export function PresentationShell({
                 disabled={currentIndex === sections.length - 1}
                 className={cn(
                   "rounded-full border border-gray-700 bg-gray-950/70 px-3 py-2 text-gray-200 transition hover:border-violet-400 hover:text-white",
-                  currentIndex === sections.length - 1 && "cursor-not-allowed opacity-40 hover:border-gray-700 hover:text-gray-200",
+                  currentIndex === presentationSections.length - 1 &&
+                    "cursor-not-allowed opacity-40 hover:border-gray-700 hover:text-gray-200",
                 )}
               >
                 Next
@@ -271,6 +281,29 @@ export function PresentationShell({
           style={{ scrollBehavior: reducedMotion ? "auto" : "smooth" }}
         >
           <article className="mx-auto max-w-6xl">
+            <section
+              id="session-intro"
+              aria-roledescription="slide"
+              data-session-label="Title"
+              data-session-section="true"
+              className="flex min-h-[calc(100dvh-8rem)] snap-start snap-always items-center py-6"
+            >
+              <div className="w-full rounded-[32px] border border-gray-800/80 bg-gray-950/70 px-6 py-10 shadow-[0_32px_80px_-48px_rgba(15,23,42,0.85)] backdrop-blur sm:px-8 lg:px-10 lg:py-14">
+                <div className="space-y-6">
+                  <div className="flex flex-wrap items-center gap-3 text-sm uppercase tracking-[0.18em] text-violet-200/75">
+                    <span className="rounded-full border border-violet-400/20 bg-violet-500/12 px-3 py-1 font-semibold text-violet-200">
+                      Module {module}
+                    </span>
+                    <span>{moduleName}</span>
+                  </div>
+
+                  <h1 className="text-balance text-5xl font-semibold text-white sm:text-6xl lg:text-7xl">
+                    {title}
+                  </h1>
+                </div>
+              </div>
+            </section>
+
             {children}
           </article>
         </div>

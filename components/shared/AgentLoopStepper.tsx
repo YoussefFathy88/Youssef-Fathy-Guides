@@ -1,0 +1,241 @@
+"use client";
+
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { useState, useEffect, useRef, useCallback } from "react";
+
+import { cn } from "@/lib/utils";
+
+export interface LoopStep {
+  id: string;
+  actor: "user" | "model" | "your-code";
+  label: string;
+  bubble: string;
+  detail: string;
+}
+
+export interface AgentLoopStepperProps {
+  title?: string;
+  caption?: string;
+  steps: LoopStep[];
+}
+
+const actor = {
+  user: {
+    badge: "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200",
+    cardBg: "bg-gray-50 dark:bg-gray-800/60",
+    cardBorder: "border-gray-200 dark:border-gray-700",
+    dotBg: "bg-gray-400",
+    dotActive: "bg-gray-500 ring-gray-300 dark:ring-gray-600",
+    bubbleBg: "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700",
+    label: "YOU",
+    icon: "👤",
+  },
+  model: {
+    badge: "bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300",
+    cardBg: "bg-violet-50/40 dark:bg-violet-500/5",
+    cardBorder: "border-violet-200 dark:border-violet-500/30",
+    dotBg: "bg-violet-300 dark:bg-violet-700",
+    dotActive: "bg-violet-500 ring-violet-300 dark:ring-violet-600",
+    bubbleBg: "bg-violet-50 dark:bg-violet-500/10 border-violet-200 dark:border-violet-500/30",
+    label: "MODEL",
+    icon: "🤖",
+  },
+  "your-code": {
+    badge: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300",
+    cardBg: "bg-amber-50/40 dark:bg-amber-500/5",
+    cardBorder: "border-amber-200 dark:border-amber-500/30",
+    dotBg: "bg-amber-300 dark:bg-amber-700",
+    dotActive: "bg-amber-500 ring-amber-300 dark:ring-amber-600",
+    bubbleBg: "bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30",
+    label: "YOUR CODE",
+    icon: "⚙️",
+  },
+} as const;
+
+export default function AgentLoopStepper({ title, caption, steps }: AgentLoopStepperProps) {
+  const reducedMotion = useReducedMotion();
+  const [current, setCurrent] = useState(0);
+  const [direction, setDirection] = useState(1);
+  const [playing, setPlaying] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const go = useCallback(
+    (next: number) => {
+      setDirection(next > current ? 1 : -1);
+      setCurrent(next);
+    },
+    [current],
+  );
+
+  const stepForward = useCallback(() => {
+    if (current < steps.length - 1) {
+      go(current + 1);
+    } else {
+      setPlaying(false);
+    }
+  }, [current, steps.length, go]);
+
+  useEffect(() => {
+    if (!playing) {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      return;
+    }
+    timerRef.current = setTimeout(stepForward, 2200);
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [playing, current, stepForward]);
+
+  const step = steps[current];
+  const tone = actor[step.actor];
+  const isLast = current === steps.length - 1;
+
+  const variants = {
+    enter: (d: number) => ({
+      x: reducedMotion ? 0 : d * 28,
+      opacity: 0,
+    }),
+    center: { x: 0, opacity: 1 },
+    exit: (d: number) => ({
+      x: reducedMotion ? 0 : d * -28,
+      opacity: 0,
+    }),
+  };
+
+  return (
+    <motion.div
+      initial={reducedMotion ? false : { opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800"
+    >
+      {(title || caption) && (
+        <div className="mb-5 space-y-1">
+          {title && <h2 className="text-sm font-medium text-gray-900 dark:text-gray-100">{title}</h2>}
+          {caption && <p className="text-xs text-gray-500 dark:text-gray-400">{caption}</p>}
+        </div>
+      )}
+
+      {/* Step dots */}
+      <div className="mb-5 flex items-center gap-1.5">
+        {steps.map((s, i) => {
+          const t = actor[s.actor];
+          const isCurrent = i === current;
+          return (
+            <button
+              key={s.id}
+              type="button"
+              aria-label={`Go to step ${i + 1}`}
+              onClick={() => go(i)}
+              className={cn(
+                "h-2.5 rounded-full transition-all duration-200 focus-visible:outline-none focus-visible:ring-2",
+                isCurrent
+                  ? cn("w-6 ring-2 ring-offset-1", t.dotActive)
+                  : cn("w-2.5 opacity-40 hover:opacity-70", t.dotBg),
+              )}
+            />
+          );
+        })}
+        <span className="ml-auto text-[11px] font-medium text-gray-400 dark:text-gray-500">
+          {current + 1} / {steps.length}
+        </span>
+      </div>
+
+      {/* Main card */}
+      <div className="relative overflow-hidden rounded-xl" style={{ minHeight: 220 }}>
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.div
+            key={step.id}
+            custom={direction}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className={cn(
+              "rounded-xl border p-5",
+              tone.cardBg,
+              tone.cardBorder,
+            )}
+          >
+            {/* Actor badge + step label */}
+            <div className="mb-4 flex items-center gap-3">
+              <span className={cn(
+                "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider",
+                tone.badge,
+              )}>
+                <span className="text-sm leading-none">{tone.icon}</span>
+                {tone.label}
+              </span>
+              <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                {step.label}
+              </span>
+            </div>
+
+            {/* Bubble — looks like API output */}
+            <div className={cn(
+              "mb-4 rounded-lg border p-3",
+              tone.bubbleBg,
+            )}>
+              <p className="font-mono text-[11px] leading-relaxed whitespace-pre-wrap text-gray-700 dark:text-gray-300">
+                {step.bubble}
+              </p>
+            </div>
+
+            {/* Detail */}
+            <p className="text-xs leading-relaxed text-gray-600 dark:text-gray-400">
+              {step.detail}
+            </p>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Controls */}
+      <div className="mt-5 flex items-center gap-2">
+        <button
+          type="button"
+          disabled={current === 0}
+          onClick={() => { setPlaying(false); go(current - 1); }}
+          className="flex h-8 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 text-xs font-medium text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
+        >
+          ← Prev
+        </button>
+
+        <button
+          type="button"
+          disabled={isLast}
+          onClick={() => { setPlaying(false); stepForward(); }}
+          className="flex h-8 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 text-xs font-medium text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
+        >
+          Step →
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            if (playing) {
+              setPlaying(false);
+            } else {
+              if (isLast) go(0);
+              setPlaying(true);
+            }
+          }}
+          className={cn(
+            "flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold transition",
+            playing
+              ? "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+              : "bg-violet-600 text-white hover:bg-violet-700",
+          )}
+        >
+          {playing ? "⏸ Pause" : isLast ? "↩ Replay" : "▶ Play"}
+        </button>
+
+        {isLast && (
+          <span className="ml-auto text-[11px] font-medium text-gray-400 dark:text-gray-500">
+            ↩ loop repeats for multi-step agents
+          </span>
+        )}
+      </div>
+    </motion.div>
+  );
+}

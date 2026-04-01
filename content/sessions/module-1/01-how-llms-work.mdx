@@ -25,21 +25,37 @@ You have called LLM APIs, seen the output stream back token by token, and notice
 
 Every LLM goes through two completely separate phases. Training happens once and is enormously expensive. It produces the model weights. Inference happens every time you send a prompt. It is fast and uses those frozen weights to generate a response. As a developer, you only ever interact with the inference phase.
 
-<PipelineTrack
-  title="The LLM lifecycle"
-  caption="Training runs once and produces frozen weights. Inference runs every time you call the API."
-  nodes={[
-    { id: "data", label: "Training data", sublabel: "Trillions of tokens", color: "gray" },
-    { id: "train", label: "Training", sublabel: "Weeks on thousands of GPUs", color: "amber" },
-    { id: "weights", label: "Model weights", sublabel: "Frozen parameters", color: "amber" },
-    { id: "prompt", label: "Your prompt", sublabel: "Every API call", color: "gray" },
-    { id: "infer", label: "Inference", sublabel: "Forward pass", color: "violet" },
-    { id: "output", label: "Output tokens", sublabel: "Streamed back", color: "violet" },
-  ]}
-  lines={[
-    { nodes: ["data", "train", "weights"], color: "#f59e0b", label: "Training (once)", dashed: true },
-    { nodes: ["prompt", "infer", "output"], color: "#8b5cf6", label: "Inference (every call)" },
-  ]}
+<DualPhaseFlow
+  title="The LLM lifecycle -- training runs once, inference runs every call"
+  caption="Two completely separate phases. As a developer, you only ever interact with inference."
+  leftPhase={{
+    label: "Training",
+    frequency: "Runs once",
+    frequencyDetail: "Weeks on thousands of GPUs. Never repeated after deployment.",
+    color: "amber",
+    steps: [
+      { id: "data", label: "Collect training data", sublabel: "Trillions of tokens from text across the internet", icon: "📚" },
+      { id: "train", label: "Train: predict next token", sublabel: "Billions of iterations. Weights adjusted on every error.", icon: "⚙️" },
+      { id: "eval", label: "Evaluate and align", sublabel: "RLHF, safety testing, benchmark evaluation", icon: "✅" },
+    ]
+  }}
+  rightPhase={{
+    label: "Inference",
+    frequency: "Runs on every API call",
+    frequencyDetail: "Milliseconds per token. The same frozen weights every single time.",
+    color: "violet",
+    steps: [
+      { id: "prompt", label: "Receive prompt", sublabel: "Your text and system prompt enter the context window", icon: "💬" },
+      { id: "forward", label: "Forward pass", sublabel: "Context flows through all transformer layers", icon: "⚡" },
+      { id: "sample", label: "Sample one token", sublabel: "Logits → softmax → temperature → one token drawn", icon: "🎯" },
+      { id: "repeat", label: "Repeat until done", sublabel: "Each token appended, loop runs again from step 1", icon: "🔁" },
+    ]
+  }}
+  artifact={{
+    label: "Model weights",
+    sublabel: "Frozen parameters. Never changed during inference.",
+    icon: "🧠"
+  }}
 />
 
 </SessionSection>

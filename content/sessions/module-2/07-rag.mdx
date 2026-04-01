@@ -30,23 +30,38 @@ Last session introduced semantic memory as a concept. RAG is how you actually bu
 
 The term RAG was introduced by Patrick Lewis et al. at Meta AI Research in 2020. The core idea is combining parametric memory (knowledge baked into the model's weights during training) with non-parametric memory (an external document store you control). The model's weights stay frozen -- you never retrain. Instead you retrieve relevant documents at query time and inject them into the context window alongside the user's question.
 
-<PipelineTrack
-  title="The full RAG pipeline -- from your documents to the LLM's answer"
-  caption="Top track builds the index once. Bottom track runs on every query. The embedding model is shared."
-  nodes={[
-    { id: "raw-docs", label: "Raw documents", sublabel: "PDFs, web pages, databases", color: "gray" },
-    { id: "chunking", label: "Chunking", sublabel: "200-500 token segments", color: "amber" },
-    { id: "embed-model", label: "Embedding model", sublabel: "Converts text to vectors", color: "violet" },
-    { id: "vector-db", label: "Vector database", sublabel: "Pinecone, pgvector, Chroma", color: "teal" },
-    { id: "user-q", label: "User question", sublabel: "Natural language query", color: "gray" },
-    { id: "sim-search", label: "Similarity search", sublabel: "Find top-k chunks", color: "teal" },
-    { id: "llm-ctx", label: "LLM + context", sublabel: "Question + retrieved chunks", color: "violet" },
-    { id: "answer", label: "Grounded answer", sublabel: "Based on your documents", color: "teal" },
-  ]}
-  lines={[
-    { nodes: ["raw-docs", "chunking", "embed-model", "vector-db"], color: "#8b5cf6", label: "Index path", dashed: true },
-    { nodes: ["user-q", "embed-model", "sim-search", "llm-ctx", "answer"], color: "#14b8a6", label: "Query path" },
-  ]}
+<DualPhaseFlow
+  title="The full RAG pipeline -- index once, query on every request"
+  caption="Left phase builds the knowledge store. Right phase retrieves from it in real time on every question."
+  leftPhase={{
+    label: "Indexing",
+    frequency: "Runs once (or when data changes)",
+    frequencyDetail: "Can take minutes to hours for large document sets.",
+    color: "violet",
+    steps: [
+      { id: "load", label: "Load documents", sublabel: "PDFs, web pages, databases, internal wikis", icon: "📄" },
+      { id: "chunk", label: "Chunk into segments", sublabel: "200–500 tokens with 20–50 token overlap", icon: "✂️" },
+      { id: "embed", label: "Embed each chunk", sublabel: "Embedding model converts text to vector", icon: "🔢" },
+      { id: "store", label: "Store in vector DB", sublabel: "Chunk vector + original text + metadata saved", icon: "🗄️" },
+    ]
+  }}
+  rightPhase={{
+    label: "Query",
+    frequency: "Runs on every user question",
+    frequencyDetail: "Milliseconds. Must use the same embedding model as indexing.",
+    color: "teal",
+    steps: [
+      { id: "question", label: "Receive question", sublabel: "User's natural language query arrives", icon: "❓" },
+      { id: "embed-q", label: "Embed question", sublabel: "Same embedding model as indexing -- must match", icon: "🔢" },
+      { id: "search", label: "Similarity search", sublabel: "Find top-k most similar chunk vectors", icon: "🔍" },
+      { id: "generate", label: "LLM generates answer", sublabel: "Question + retrieved chunks → grounded response", icon: "💬" },
+    ]
+  }}
+  artifact={{
+    label: "Vector database",
+    sublabel: "Pinecone, pgvector, Chroma. Searchable by similarity.",
+    icon: "🗃️"
+  }}
 />
 
 </SessionSection>
@@ -123,22 +138,36 @@ At query time the top-k most similar chunks (typically 3-5) are retrieved and in
 
 A pharmaceutical company builds an internal tool for researchers to query their clinical trial archive -- 40,000 documents spanning 20 years. The model's training data contains general medical knowledge but none of these proprietary trial results. Without RAG, every question about specific trial outcomes returns a hallucinated answer. With RAG: all 40,000 documents are chunked into 500-token segments (approximately 800,000 chunks), embedded using a biomedical embedding model, and stored in a vector database. When a researcher asks "What were the adverse events in the Phase 2 trial for compound X?", the question is embedded, the top 5 most similar chunks are retrieved from the archive, and the LLM answers directly from the trial documents -- with citations pointing to the exact source document and page.
 
-<PipelineTrack
-  title="Medical research RAG system -- from 40,000 trial documents to a cited answer"
-  caption="Top track indexes documents once. Bottom track answers each researcher question in milliseconds."
-  nodes={[
-    { id: "docs", label: "40,000 trial documents", sublabel: "PDFs indexed once at setup", color: "gray" },
-    { id: "bio-embed", label: "Biomedical embedding model", sublabel: "Fine-tuned on medical text", color: "violet" },
-    { id: "vector-db", label: "Vector database", sublabel: "800,000 chunk vectors", color: "teal" },
-    { id: "researcher-q", label: "Researcher question", sublabel: "Adverse events in Phase 2?", color: "gray" },
-    { id: "top5", label: "Top 5 retrieved chunks", sublabel: "Most relevant trial segments", color: "amber" },
-    { id: "llm-ctx", label: "LLM with context", sublabel: "Question + 5 chunks", color: "violet" },
-    { id: "cited", label: "Cited answer", sublabel: "According to Trial NCT-2847...", color: "teal" },
-  ]}
-  lines={[
-    { nodes: ["docs", "bio-embed", "vector-db"], color: "#8b5cf6", label: "Index path", dashed: true },
-    { nodes: ["researcher-q", "bio-embed", "vector-db", "top5", "llm-ctx", "cited"], color: "#14b8a6", label: "Query path" },
-  ]}
+<DualPhaseFlow
+  title="Medical research RAG -- 40,000 trial documents to a cited answer"
+  caption="Indexing runs once at setup. Every researcher question runs the query phase in milliseconds."
+  leftPhase={{
+    label: "Index (setup)",
+    frequency: "Runs once at deployment",
+    frequencyDetail: "40,000 PDFs produce ~800,000 chunks. Takes hours but only ever runs once.",
+    color: "violet",
+    steps: [
+      { id: "docs", label: "40,000 trial documents", sublabel: "PDFs covering 20 years of clinical trial data", icon: "📋" },
+      { id: "chunk-med", label: "Chunk into 500-token segments", sublabel: "~800,000 total chunks with source metadata", icon: "✂️" },
+      { id: "bio-embed", label: "Biomedical embedding model", sublabel: "Fine-tuned on medical text for domain accuracy", icon: "🧬" },
+    ]
+  }}
+  rightPhase={{
+    label: "Query (per researcher)",
+    frequency: "Runs on every question",
+    frequencyDetail: "Same biomedical model embeds the question before similarity search.",
+    color: "teal",
+    steps: [
+      { id: "researcher-q", label: "Researcher question", sublabel: "What were the adverse events in Phase 2 trial?", icon: "🔬" },
+      { id: "vec-search", label: "Top 5 chunks retrieved", sublabel: "Most similar trial segments found by vector search", icon: "🔍" },
+      { id: "llm-answer", label: "LLM generates cited answer", sublabel: "According to Trial NCT-2847, page 12...", icon: "📝" },
+    ]
+  }}
+  artifact={{
+    label: "Vector database",
+    sublabel: "800,000 chunk vectors. Searched in milliseconds.",
+    icon: "🗃️"
+  }}
 />
 
 </SessionSection>

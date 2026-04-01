@@ -88,7 +88,7 @@ function HorizontalSequence({ steps, reducedMotion }: { steps: SequenceStep[]; r
         const isActive = activeStep === i;
 
         return (
-          <div key={step.number} className="flex flex-1 items-start">
+          <div key={step.number} className="flex min-w-0 flex-1 items-start">
             {/* Card */}
             <motion.button
               type="button"
@@ -209,7 +209,7 @@ function VerticalSequence({ steps, reducedMotion }: { steps: SequenceStep[]; red
                 <span className={cn("shrink-0 text-[11px] font-semibold uppercase tracking-wide", tone.text)}>
                   {step.phase}
                 </span>
-                <span className="min-w-0 text-sm font-semibold leading-snug text-gray-900 dark:text-gray-100">
+                <span className="min-w-0 flex-1 text-sm font-semibold leading-snug text-gray-900 dark:text-gray-100">
                   {step.title}
                 </span>
               </div>

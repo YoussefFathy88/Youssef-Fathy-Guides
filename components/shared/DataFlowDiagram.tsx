@@ -26,6 +26,7 @@ export interface DiagramEdge {
   label?: string;
   animated?: boolean;
   color?: string;
+  dashed?: boolean;
 }
 
 export interface DataFlowDiagramProps {
@@ -245,8 +246,8 @@ export default function DataFlowDiagram({
     [highlightedEdges, nodeMap, dims],
   );
 
-  const hasHighlightedEdges = resolvedEdges.some((edge) => edge.isHighlighted);
-  const hasSupportingEdges = resolvedEdges.some((edge) => !edge.isHighlighted);
+  const hasSolidEdges = resolvedEdges.some((edge) => !edge.dashed);
+  const hasDashedEdges = resolvedEdges.some((edge) => edge.dashed);
 
   return (
     <motion.div
@@ -299,7 +300,7 @@ export default function DataFlowDiagram({
                     fill="none"
                     stroke={edge.stroke}
                     strokeWidth={edge.isHighlighted ? 2.5 : 1.5}
-                    strokeDasharray={edge.isHighlighted ? undefined : "6 4"}
+                    strokeDasharray={edge.dashed ? "6 4" : undefined}
                     animate={
                       edge.isHighlighted && !reducedMotion
                         ? { opacity: [0.6, 1, 0.6] }
@@ -336,7 +337,6 @@ export default function DataFlowDiagram({
               const mapped = nodeMap.get(node.id);
               if (!mapped) return null;
               const tone = nodeColorMap[node.color ?? "gray"];
-              const isPathNode = highlightPath.includes(node.id);
               const isActiveNode = activeItem?.type === "node" && activeItem.id === node.id;
               const px = toPx(mapped.xPct, mapped.yPct);
 
@@ -350,8 +350,6 @@ export default function DataFlowDiagram({
                     "absolute min-w-[120px] max-w-[160px] -translate-x-1/2 -translate-y-1/2 rounded-xl border px-3 py-2.5",
                     tone.surface,
                     tone.glow,
-                    isPathNode && "ring-2 ring-offset-1 ring-offset-transparent",
-                    isPathNode && tone.glow,
                     (nodeDetailMode === "legend" || nodeDetailMode === "panel") && "cursor-pointer",
                     isActiveNode && "ring-2 ring-offset-1 ring-offset-transparent",
                   )}
@@ -456,9 +454,9 @@ export default function DataFlowDiagram({
           </div>
         ) : null}
 
-        {(hasHighlightedEdges || hasSupportingEdges) ? (
+        {(hasSolidEdges || hasDashedEdges) ? (
           <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-            {hasHighlightedEdges ? (
+            {hasSolidEdges ? (
               <div className="flex items-center gap-2">
                 <svg width="40" height="10" viewBox="0 0 40 10" fill="none" aria-hidden="true">
                   <line x1="2" y1="5" x2="38" y2="5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
@@ -467,7 +465,7 @@ export default function DataFlowDiagram({
                 <span>{solidLegendLabel}</span>
               </div>
             ) : null}
-            {hasSupportingEdges ? (
+            {hasDashedEdges ? (
               <div className="flex items-center gap-2">
                 <svg width="40" height="10" viewBox="0 0 40 10" fill="none" aria-hidden="true">
                   <line

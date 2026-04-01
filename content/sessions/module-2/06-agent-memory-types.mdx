@@ -47,7 +47,7 @@ Without a memory system, your agent forgets everything the moment a session ends
     { from: "incontext", to: "agent", animated: true, label: "Always present" },
     { from: "episodic", to: "agent", animated: true, label: "Retrieved on demand" },
     { from: "semantic", to: "agent", animated: true, label: "Retrieved on demand" },
-    { from: "procedural", to: "agent", animated: false, label: "Loaded once at start" },
+    { from: "procedural", to: "agent", animated: false, label: "Loaded once at start", dashed: true },
     { from: "agent", to: "response", animated: true },
   ]}
   highlightPath={["episodic", "agent", "response"]}
@@ -170,8 +170,8 @@ Procedural memory stores rules, workflows, and decision logic: how to handle a r
     { id: "usermsg", label: "User message arrives", sublabel: "Triggers agent response -- rules already in place", x: 93, y: 50, color: "gray" },
   ]}
   edges={[
-    { from: "sysprompt", to: "startup", animated: false, label: "Loaded once" },
-    { from: "tools", to: "startup", animated: false, label: "Loaded once" },
+    { from: "sysprompt", to: "startup", animated: false, label: "Loaded once", dashed: true },
+    { from: "tools", to: "startup", animated: false, label: "Loaded once", dashed: true },
     { from: "startup", to: "convo", animated: true },
     { from: "usermsg", to: "convo", animated: true },
   ]}
@@ -210,7 +210,7 @@ A SaaS company builds a support agent for enterprise customers. In-context memor
     { from: "incontext", to: "agent", animated: true },
     { from: "episodic", to: "agent", animated: true },
     { from: "semantic", to: "agent", animated: true },
-    { from: "procedural", to: "agent", animated: false },
+    { from: "procedural", to: "agent", animated: false, dashed: true },
     { from: "agent", to: "response", animated: true },
   ]}
   highlightPath={["msg", "episodic", "agent", "response"]}

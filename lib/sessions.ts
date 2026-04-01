@@ -159,6 +159,17 @@ const loadSessionFiles = cache(async (): Promise<ParsedSessionFile[]> => {
     }),
   );
 
+  const seenSlugs = new Map<string, string>();
+  for (const session of parsedFiles) {
+    const existing = seenSlugs.get(session.frontmatter.slug);
+    if (existing) {
+      throw new Error(
+        `Duplicate session slug "${session.frontmatter.slug}" found in both ${existing} and ${session.filePath}.`,
+      );
+    }
+    seenSlugs.set(session.frontmatter.slug, session.filePath);
+  }
+
   return parsedFiles.sort((left, right) => {
     if (left.frontmatter.module !== right.frontmatter.module) {
       return left.frontmatter.module - right.frontmatter.module;
