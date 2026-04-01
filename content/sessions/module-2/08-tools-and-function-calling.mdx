@@ -66,32 +66,15 @@ Without tools, an LLM can only generate text based on what it knows from trainin
 
 A tool is not a special technology -- it is any function in your codebase that you describe to the model and allow it to call. That function can wrap anything: a REST API call, a database query, a Python function, a shell command, or an internal microservice. What makes it a tool is the description you attach to it -- a plain English explanation of what it does, when to use it, and what arguments it needs. The model reads that description to decide whether and how to use it.
 
-<ConceptStepper
+<StepSequence
   title="What tools can wrap -- four examples of the same pattern"
-  caption="Step through each type -- notice that the tool is always a thin wrapper around something that already exists"
-  autoPlay={false}
-  showDots={true}
+  caption="Click any step to expand -- the tool is always a thin wrapper around something that already exists"
+  orientation="horizontal"
   steps={[
-    {
-      title: "1. REST API tool: get_weather(city: string)",
-      caption: "Wraps a call to a weather API. The model calls this when the user asks about current conditions. Your function hits the API, gets JSON back, returns the result. The model never touches the API directly.",
-      visual: null
-    },
-    {
-      title: "2. Database tool: get_customer_orders(customer_id: string)",
-      caption: "Wraps a SQL query to your orders database. The model calls this to look up a customer's history. Your function runs the query, returns the rows. The model never has database credentials.",
-      visual: null
-    },
-    {
-      title: "3. Internal service tool: send_notification(user_id: string, message: string)",
-      caption: "Wraps an internal notification microservice. The model calls this to alert a user. Your function calls the service. The model just decides when and what to send.",
-      visual: null
-    },
-    {
-      title: "4. Code execution tool: run_python(code: string)",
-      caption: "Wraps a sandboxed Python executor. The model writes code and calls this tool to run it. Your function executes the code safely, returns stdout. The model gets the output and reasons about it.",
-      visual: null
-    },
+    { number: 1, phase: "REST API", title: "get_weather(city)", detail: "Wraps a call to a weather API. Your function hits the API, gets JSON back, returns the result. The model never touches the API directly.", color: "violet", icon: "🌤️" },
+    { number: 2, phase: "Database", title: "get_customer_orders(id)", detail: "Wraps a SQL query to your orders database. Your function runs the query, returns the rows. The model never has database credentials.", color: "teal", icon: "🗄️" },
+    { number: 3, phase: "Service", title: "send_notification(user, msg)", detail: "Wraps an internal notification microservice. The model decides when and what to send. Your function calls the service.", color: "amber", icon: "📨" },
+    { number: 4, phase: "Code", title: "run_python(code)", detail: "Wraps a sandboxed Python executor. The model writes code, calls this tool to run it, and reasons about the stdout result.", color: "blue", icon: "⚙️" },
   ]}
 />
 
@@ -99,37 +82,16 @@ A tool is not a special technology -- it is any function in your codebase that y
 
 This is the most important thing to understand: the LLM does not call your API, access your database, or run your code. It reads the tool descriptions, decides which tool to use, and returns a structured JSON object with the tool name and arguments. Your application reads that JSON, executes the actual function, and sends the result back to the model. The model then uses that result to form its final answer.
 
-<ConceptStepper
+<StepSequence
   title="The complete tool-use loop -- from user question to final answer"
-  caption="Step through each stage -- notice that your application code runs between steps 3 and 4, not the model"
-  autoPlay={false}
-  showDots={true}
+  caption="Click any step to expand -- notice that your application code runs at step 3, not the model"
+  orientation="vertical"
   steps={[
-    {
-      title: "1. You define tools and send them with the user message",
-      caption: "Your API call includes a tools array. Each tool has a name, a description the model reads, and an input_schema defining the JSON arguments it must provide.",
-      visual: null
-    },
-    {
-      title: "2. The model decides whether to call a tool",
-      caption: 'The model reads the user message and all tool descriptions. If a tool is needed it stops and returns stop_reason: "tool_use" with the tool name and arguments as a structured JSON block.',
-      visual: null
-    },
-    {
-      title: "3. Your application executes the tool",
-      caption: "You read the tool name and arguments. Your code calls the actual function -- hits the API, queries the database, runs the calculation. The model is not involved in this step at all.",
-      visual: null
-    },
-    {
-      title: "4. You send the tool result back to the model",
-      caption: "You append the result to the conversation and call the API again. The model now sees the original question plus the real data your tool returned.",
-      visual: null
-    },
-    {
-      title: "5. The model generates the final answer",
-      caption: "With the tool result in context the model generates its response -- grounded in real data, not training-time knowledge.",
-      visual: null
-    },
+    { number: 1, phase: "Define", title: "You define tools and send them with the user message", detail: "Your API call includes a tools array. Each tool has a name, a description the model reads, and an input_schema defining the JSON arguments it must provide.", color: "gray" },
+    { number: 2, phase: "Decide", title: "The model decides whether to call a tool", detail: "The model reads the user message and all tool descriptions. If a tool is needed it returns stop_reason: tool_use with the tool name and arguments as structured JSON.", color: "violet" },
+    { number: 3, phase: "Execute", title: "Your application executes the tool", detail: "You read the tool name and arguments. Your code calls the actual function -- hits the API, queries the database, runs the calculation. The model is not involved in this step.", color: "amber" },
+    { number: 4, phase: "Return", title: "You send the tool result back to the model", detail: "You append the result to the conversation and call the API again. The model now sees the original question plus the real data your tool returned.", color: "teal" },
+    { number: 5, phase: "Answer", title: "The model generates the final answer", detail: "With the tool result in context the model generates its response -- grounded in real data, not training-time knowledge.", color: "violet" },
   ]}
 />
 
@@ -162,6 +124,39 @@ A tool definition has three parts: name (what your code calls), description (wha
       "Produces consistent, reliable tool calls every time",
     ]
   }}
+/>
+
+<AnnotatedCode
+  title="A well-defined tool in Python -- Anthropic SDK format"
+  caption="Click a callout number to highlight the corresponding line"
+  code={`tools = [
+  {
+    "name": "get_order_status",
+    "description": (
+      "Look up the current status of a specific customer order "
+      "by order ID. Use this when the user asks about a specific "
+      "order, shipment, or delivery. Returns: status, estimated "
+      "delivery date, and tracking number."
+    ),
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "order_id": {
+          "type": "string",
+          "description": "The unique order ID, e.g. ORD-12345"
+        }
+      },
+      "required": ["order_id"]
+    }
+  }
+]`}
+  annotations={[
+    { line: 3, label: "Tool name", description: "What your code calls this function. Short, snake_case, descriptive.", color: "violet" },
+    { line: 4, label: "Description", description: "What the model reads to decide when and how to call this tool. The most important field -- be specific about when to use it and what it returns.", color: "teal" },
+    { line: 10, label: "Input schema", description: "A JSON Schema object defining the arguments the model must provide. The model generates valid JSON matching this schema.", color: "amber" },
+    { line: 13, label: "Property definition", description: "Each argument the tool accepts. Include the expected format so the model provides the right value.", color: "blue" },
+    { line: 17, label: "Required fields", description: "List which arguments are mandatory. The model will always provide these before making the tool call.", color: "violet" },
+  ]}
 />
 
 </SessionSection>

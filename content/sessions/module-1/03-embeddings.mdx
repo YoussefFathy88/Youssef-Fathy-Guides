@@ -30,26 +30,21 @@ Tokens are just integers -- the model cannot compare or cluster them as-is. This
 
 Before attention, before generation, before any tool call -- the model converts your input tokens into vectors. That same process powers semantic search, RAG retrieval, and recommendation systems outside the model too.
 
-<DataFlowDiagram
+<PipelineTrack
   title="Where embeddings live in the stack"
-  caption="Notice that embeddings feed both the transformer inside the model and retrieval systems outside it"
-  height={300}
+  caption="Follow each track -- the model path and the retrieval path both start from the same embedding step"
   nodes={[
-    { id: "tokens", label: "Token IDs", sublabel: "Integers from vocab", x: 14, y: 50, color: "gray" },
-    { id: "embed", label: "Embedding layer", sublabel: "Learned lookup table", x: 32, y: 50, color: "violet" },
-    { id: "vector", label: "Vector", sublabel: "e.g. 1536 numbers", x: 52, y: 50, color: "teal" },
-    { id: "transformer", label: "Transformer layers", sublabel: "Attention + reasoning", x: 76, y: 28, color: "violet" },
-    { id: "vectordb", label: "Vector database", sublabel: "Semantic search / RAG", x: 76, y: 72, color: "amber" },
-    { id: "response", label: "Model response", x: 88, y: 28, color: "teal" },
+    { id: "tokens", label: "Token IDs", sublabel: "Integers from vocab", color: "gray" },
+    { id: "embed", label: "Embedding layer", sublabel: "Learned lookup table", color: "violet" },
+    { id: "vector", label: "Vector", sublabel: "e.g. 1536 numbers", color: "teal" },
+    { id: "transformer", label: "Transformer layers", sublabel: "Attention + reasoning", color: "violet" },
+    { id: "response", label: "Model response", sublabel: "Generated tokens", color: "teal" },
+    { id: "vectordb", label: "Vector database", sublabel: "Semantic search / RAG", color: "amber" },
   ]}
-  edges={[
-    { from: "tokens", to: "embed", animated: true },
-    { from: "embed", to: "vector", animated: true },
-    { from: "vector", to: "transformer", animated: true },
-    { from: "vector", to: "vectordb", animated: true },
-    { from: "transformer", to: "response", animated: true },
+  lines={[
+    { nodes: ["tokens", "embed", "vector", "transformer", "response"], color: "#8b5cf6", label: "Model path" },
+    { nodes: ["tokens", "embed", "vector", "vectordb"], color: "#f59e0b", label: "Retrieval path", dashed: true },
   ]}
-  highlightPath={["tokens", "embed", "vector", "transformer", "response"]}
 />
 
 </SessionSection>

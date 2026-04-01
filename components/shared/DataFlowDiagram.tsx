@@ -35,6 +35,9 @@ export interface DataFlowDiagramProps {
   title?: string;
   caption?: string;
   highlightPath?: string[];
+  nodeDetailMode?: "inline" | "legend" | "panel";
+  solidLegendLabel?: string;
+  dashedLegendLabel?: string;
 }
 
 const defaultNodes: DiagramNode[] = [
@@ -76,6 +79,9 @@ const nodeColorMap = {
 } as const;
 
 type Point = { x: number; y: number };
+type ActiveDiagramItem =
+  | { type: "node"; id: string }
+  | { type: "edge"; id: string };
 
 function getBezierPoints(from: Point, to: Point) {
   const midX = (from.x + to.x) / 2;
@@ -138,6 +144,9 @@ export default function DataFlowDiagram({
   title = "Data flow",
   caption = "Follow the arrows — highlighted paths pulse brighter.",
   highlightPath = [],
+  nodeDetailMode = "panel",
+  solidLegendLabel = "Solid line: route being shown directly",
+  dashedLegendLabel = "Dashed line: additional supporting relationship",
 }: DataFlowDiagramProps) {
   const reducedMotion = useReducedMotion();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -157,6 +166,7 @@ export default function DataFlowDiagram({
 
   const safeNodes = nodes.length > 0 ? nodes : defaultNodes;
   const safeEdges = edges.length > 0 ? edges : defaultEdges;
+  const [activeItem, setActiveItem] = useState<ActiveDiagramItem | null>(null);
 
   // Clamp node percentages so cards never touch the edges
   const nodeMap = useMemo(
@@ -173,6 +183,21 @@ export default function DataFlowDiagram({
       ),
     [safeNodes],
   );
+
+  useEffect(() => {
+    setActiveItem((current) => {
+      if (current?.type === "node" && safeNodes.some((node) => node.id === current.id)) {
+        return current;
+      }
+
+      if (nodeDetailMode === "panel") {
+        return null;
+      }
+
+      const defaultNodeId = highlightPath[0] ?? safeNodes[0]?.id;
+      return defaultNodeId ? { type: "node", id: defaultNodeId } : null;
+    });
+  }, [highlightPath, nodeDetailMode, safeNodes]);
 
   // Convert % → px using measured container dimensions
   const toPx = (xPct: number, yPct: number) => ({
@@ -204,18 +229,24 @@ export default function DataFlowDiagram({
           const dotColor = nodeColorMap[fromNode.color ?? "gray"].dot;
           return {
             ...edge,
+            id: `${edge.from}->${edge.to}`,
             index,
             points,
             midpoint,
             isHighlighted,
             dotColor,
             stroke: isHighlighted ? dotColor : "rgba(148, 163, 184, 0.45)",
+            fromLabel: fromNode.label,
+            toLabel: toNode.label,
           };
         })
         .filter((e): e is NonNullable<typeof e> => e !== null),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [highlightedEdges, nodeMap, dims],
   );
+
+  const hasHighlightedEdges = resolvedEdges.some((edge) => edge.isHighlighted);
+  const hasSupportingEdges = resolvedEdges.some((edge) => !edge.isHighlighted);
 
   return (
     <motion.div
@@ -252,6 +283,17 @@ export default function DataFlowDiagram({
             >
               {resolvedEdges.map((edge) => (
                 <g key={`${edge.from}-${edge.to}`}>
+                  {nodeDetailMode === "panel" && edge.label ? (
+                    <path
+                      d={getBezierPath(edge.points)}
+                      fill="none"
+                      stroke="transparent"
+                      strokeWidth={18}
+                      strokeLinecap="round"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => setActiveItem({ type: "edge", id: edge.id })}
+                    />
+                  ) : null}
                   <motion.path
                     d={getBezierPath(edge.points)}
                     fill="none"
@@ -277,7 +319,7 @@ export default function DataFlowDiagram({
             </svg>
 
             {/* Edge labels — rendered as HTML divs for crisp text at any scale */}
-            {resolvedEdges.map((edge) =>
+            {nodeDetailMode === "inline" && resolvedEdges.map((edge) =>
               edge.label ? (
                 <div
                   key={`label-${edge.from}-${edge.to}`}
@@ -295,6 +337,7 @@ export default function DataFlowDiagram({
               if (!mapped) return null;
               const tone = nodeColorMap[node.color ?? "gray"];
               const isPathNode = highlightPath.includes(node.id);
+              const isActiveNode = activeItem?.type === "node" && activeItem.id === node.id;
               const px = toPx(mapped.xPct, mapped.yPct);
 
               return (
@@ -309,11 +352,17 @@ export default function DataFlowDiagram({
                     tone.glow,
                     isPathNode && "ring-2 ring-offset-1 ring-offset-transparent",
                     isPathNode && tone.glow,
+                    (nodeDetailMode === "legend" || nodeDetailMode === "panel") && "cursor-pointer",
+                    isActiveNode && "ring-2 ring-offset-1 ring-offset-transparent",
                   )}
                   style={{ left: px.x, top: px.y }}
+                  onMouseEnter={() => nodeDetailMode === "legend" && setActiveItem({ type: "node", id: node.id })}
+                  onFocus={() => setActiveItem({ type: "node", id: node.id })}
+                  onClick={() => (nodeDetailMode === "panel" || nodeDetailMode === "legend") && setActiveItem({ type: "node", id: node.id })}
+                  tabIndex={nodeDetailMode === "inline" ? -1 : 0}
                 >
-                  <p className="text-xs font-semibold leading-tight">{node.label}</p>
-                  {node.sublabel && (
+                  <p className="text-xs font-normal leading-tight">{node.label}</p>
+                  {nodeDetailMode === "inline" && node.sublabel && (
                     <p className="mt-0.5 text-[11px] leading-tight text-gray-500 dark:text-gray-400">
                       {node.sublabel}
                     </p>
@@ -323,6 +372,122 @@ export default function DataFlowDiagram({
             })}
           </div>
         </div>
+
+        {nodeDetailMode === "legend" ? (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {safeNodes.map((node) => {
+              const tone = nodeColorMap[node.color ?? "gray"];
+              const isActive = activeItem?.type === "node" && activeItem.id === node.id;
+
+              return (
+                <button
+                  key={`detail-${node.id}`}
+                  type="button"
+                  onMouseEnter={() => setActiveItem({ type: "node", id: node.id })}
+                  onFocus={() => setActiveItem({ type: "node", id: node.id })}
+                  onClick={() => setActiveItem({ type: "node", id: node.id })}
+                  className={cn(
+                    "rounded-xl border px-4 py-3 text-left transition-all",
+                    tone.surface,
+                    isActive ? "shadow-md ring-2 ring-offset-1 ring-offset-transparent" : "opacity-85",
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-full"
+                      style={{ backgroundColor: tone.dot }}
+                    />
+                    <p className="text-sm font-normal">{node.label}</p>
+                  </div>
+                  {node.sublabel ? (
+                    <p className="mt-2 text-xs leading-relaxed text-gray-600 dark:text-gray-400">
+                      {node.sublabel}
+                    </p>
+                  ) : null}
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
+
+        {nodeDetailMode === "panel" ? (
+          <div className="rounded-2xl border border-gray-200 bg-white/70 px-4 py-4 dark:border-gray-700 dark:bg-gray-900/40">
+            {activeItem?.type === "node" ? safeNodes
+              .filter((node) => node.id === activeItem.id)
+              .map((node) => {
+                const tone = nodeColorMap[node.color ?? "gray"];
+
+                return (
+                  <div key={`panel-${node.id}`} className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="h-2.5 w-2.5 shrink-0 rounded-full"
+                        style={{ backgroundColor: tone.dot }}
+                      />
+                      <p className={cn("text-sm font-normal", tone.text)}>{node.label}</p>
+                    </div>
+                    <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                      {node.sublabel ?? "No additional detail for this node."}
+                    </p>
+                  </div>
+                );
+              }) : activeItem?.type === "edge" ? resolvedEdges
+              .filter((edge) => edge.id === activeItem.id)
+              .map((edge) => (
+                <div key={`panel-${edge.id}`} className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-full"
+                      style={{ backgroundColor: edge.dotColor }}
+                    />
+                    <p className="text-sm font-normal text-gray-700 dark:text-gray-200">
+                      {edge.fromLabel} to {edge.toLabel}
+                    </p>
+                  </div>
+                  <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                    {edge.label ?? "Connection between these two steps."}
+                  </p>
+                </div>
+              )) : (
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Click any box or line in the diagram to see its description here.
+                </p>
+              )}
+          </div>
+        ) : null}
+
+        {(hasHighlightedEdges || hasSupportingEdges) ? (
+          <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+            {hasHighlightedEdges ? (
+              <div className="flex items-center gap-2">
+                <svg width="40" height="10" viewBox="0 0 40 10" fill="none" aria-hidden="true">
+                  <line x1="2" y1="5" x2="38" y2="5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                  <circle cx="20" cy="5" r="3.5" fill="currentColor" />
+                </svg>
+                <span>{solidLegendLabel}</span>
+              </div>
+            ) : null}
+            {hasSupportingEdges ? (
+              <div className="flex items-center gap-2">
+                <svg width="40" height="10" viewBox="0 0 40 10" fill="none" aria-hidden="true">
+                  <line
+                    x1="2"
+                    y1="5"
+                    x2="38"
+                    y2="5"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeDasharray="6 4"
+                    opacity="0.8"
+                  />
+                  <circle cx="20" cy="5" r="3.5" fill="currentColor" opacity="0.8" />
+                </svg>
+                <span>{dashedLegendLabel}</span>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </motion.div>
   );

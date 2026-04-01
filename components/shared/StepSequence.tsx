@@ -199,17 +199,17 @@ function VerticalSequence({ steps, reducedMotion }: { steps: SequenceStep[]; red
               transition={{ duration: 0.3, delay: i * 0.07, ease: "easeOut" }}
               onClick={() => setActiveStep(isActive ? null : i)}
               className={cn(
-                "mb-4 flex-1 rounded-xl border px-4 py-3 text-left transition-shadow hover:shadow-md",
+                "mb-4 min-w-0 flex-1 rounded-xl border px-4 py-3 text-left transition-shadow hover:shadow-md",
                 tone.light,
                 tone.border,
                 isActive && `ring-2 ${tone.ring}`,
               )}
             >
-              <div className="flex items-center gap-2">
-                <span className={cn("text-[11px] font-semibold uppercase tracking-wide", tone.text)}>
+              <div className="flex min-w-0 items-start gap-2 sm:items-center">
+                <span className={cn("shrink-0 text-[11px] font-semibold uppercase tracking-wide", tone.text)}>
                   {step.phase}
                 </span>
-                <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
+                <span className="min-w-0 text-sm font-semibold leading-snug text-gray-900 dark:text-gray-100">
                   {step.title}
                 </span>
               </div>
@@ -224,7 +224,9 @@ function VerticalSequence({ steps, reducedMotion }: { steps: SequenceStep[]; red
                 </p>
               </motion.div>
               {!isActive && (
-                <p className="mt-1 truncate text-xs text-gray-500 dark:text-gray-500">{step.detail}</p>
+                <p className="mt-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs text-gray-500 dark:text-gray-500">
+                  {step.detail}
+                </p>
               )}
             </motion.button>
           </div>

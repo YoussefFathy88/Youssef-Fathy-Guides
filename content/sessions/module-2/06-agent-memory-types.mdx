@@ -32,8 +32,9 @@ Without a memory system, your agent forgets everything the moment a session ends
 
 <DataFlowDiagram
   title="The four memory types and where they live relative to the agent"
-  caption="Follow the arrows -- notice which types live inside the context window and which live in external storage"
+  caption="Follow the arrows, then click any node below the diagram to inspect its role more clearly"
   height={340}
+  nodeDetailMode="panel"
   nodes={[
     { id: "agent", label: "Agent (LLM)", sublabel: "Stateless model making decisions", x: 50, y: 50, color: "violet" },
     { id: "incontext", label: "In-context memory", sublabel: "Active conversation -- lives inside context window", x: 50, y: 12, color: "teal" },
@@ -158,8 +159,9 @@ Procedural memory stores rules, workflows, and decision logic: how to handle a r
 
 <DataFlowDiagram
   title="How procedural memory enters the agent at session startup"
-  caption="Notice that procedural memory is loaded once -- it is not fetched mid-conversation like episodic or semantic memory"
+  caption="Follow the startup flow, then click any node to see the detailed explanation below the diagram"
   height={260}
+  nodeDetailMode="panel"
   nodes={[
     { id: "sysprompt", label: "System prompt", sublabel: "Step-by-step rules and escalation logic", x: 8, y: 25, color: "gray" },
     { id: "tools", label: "Tool definitions", sublabel: "When and how to call each available tool", x: 8, y: 75, color: "gray" },
@@ -189,8 +191,9 @@ A SaaS company builds a support agent for enterprise customers. In-context memor
 
 <DataFlowDiagram
   title="Customer support agent -- all four memory types activating together on one user message"
-  caption="Trace a new customer message through the system -- notice which memory types activate and in what order"
+  caption="Trace the flow, then click any node to see its explanation below the diagram"
   height={360}
+  nodeDetailMode="panel"
   nodes={[
     { id: "msg", label: "Customer message", sublabel: "'My payment failed again -- this happened last month too'", x: 4, y: 50, color: "gray" },
     { id: "incontext", label: "In-context memory", sublabel: "Current conversation -- already in context window", x: 30, y: 15, color: "teal" },

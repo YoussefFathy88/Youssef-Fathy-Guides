@@ -115,6 +115,8 @@ export default function PipelineTrack({
   const PADDING_X = 80;
   const PADDING_Y = 36;
   const STATION_R = 10;
+  const TRACK_LABEL_HEIGHT = 24;
+  const TRACK_LABEL_WIDTH = 140;
 
   const totalHeight = lines.length * TRACK_HEIGHT + PADDING_Y * 2;
 
@@ -196,18 +198,29 @@ export default function PipelineTrack({
 
                 {/* Track label on the left */}
                 {line.label && (
-                  <text
-                    x={x1 - 12}
-                    y={y}
-                    textAnchor="end"
-                    dominantBaseline="central"
-                    fontSize={11}
-                    fontWeight={600}
-                    fill={line.color}
-                    opacity={0.9}
-                  >
-                    {line.label}
-                  </text>
+                  <>
+                    <rect
+                      x={Math.max(12, x1 - TRACK_LABEL_WIDTH / 2)}
+                      y={y - 30}
+                      width={TRACK_LABEL_WIDTH}
+                      height={TRACK_LABEL_HEIGHT}
+                      rx={TRACK_LABEL_HEIGHT / 2}
+                      fill={line.color}
+                      opacity={0.12}
+                    />
+                    <text
+                      x={Math.max(12 + TRACK_LABEL_WIDTH / 2, x1)}
+                      y={y - 18}
+                      textAnchor="middle"
+                      dominantBaseline="central"
+                      fontSize={11}
+                      fontWeight={600}
+                      fill={line.color}
+                      opacity={0.95}
+                    >
+                      {line.label}
+                    </text>
+                  </>
                 )}
               </g>
             );
@@ -292,23 +305,28 @@ export default function PipelineTrack({
           const node = nodeMap.get(tooltip);
           if (!node?.sublabel) return null;
           // Find station position
-          for (const { stations } of lineLayouts) {
+          for (const { stations, y } of lineLayouts) {
             const st = stations.find((s) => s.node.id === tooltip);
             if (st) {
               const pctX = (st.x / 800) * 100;
+              const showBelow = y < 64;
               const tone = nodeColorMap[node.color ?? "gray"];
               return (
                 <div
                   key="tooltip"
                   className={cn(
-                    "pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full rounded-xl border px-3 py-2 shadow-lg",
+                    "pointer-events-none absolute z-10 max-w-[220px] -translate-x-1/2 rounded-xl border px-3 py-2 shadow-lg",
+                    showBelow ? "translate-y-0" : "-translate-y-full",
                     tone.bg,
                     tone.ring.replace("ring-", "border-").split(" ")[0],
                   )}
-                  style={{ left: `${pctX}%`, top: "10%" }}
+                  style={{
+                    left: `${pctX}%`,
+                    top: showBelow ? y + STATION_R + 12 : y - STATION_R - 12,
+                  }}
                 >
                   <p className={cn("text-xs font-semibold", tone.text)}>{node.label}</p>
-                  <p className="mt-0.5 text-[11px] text-gray-600 dark:text-gray-400">{node.sublabel}</p>
+                  <p className="mt-0.5 text-[11px] leading-snug text-gray-600 dark:text-gray-400">{node.sublabel}</p>
                 </div>
               );
             }

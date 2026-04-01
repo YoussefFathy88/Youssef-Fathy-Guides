@@ -165,12 +165,8 @@ export default function AnnotatedCode({
                       <td className="w-8 select-none pr-4 text-right font-mono text-[11px] text-gray-600">
                         {lineNum}
                       </td>
-                      {/* Code content */}
-                      <td className="font-mono text-[12.5px] text-gray-200 whitespace-pre">
-                        {highlightLine(line)}
-                      </td>
                       {/* Annotation badge */}
-                      <td className="w-6 pl-2">
+                      <td className="w-8 pr-3">
                         {isAnnotated && ann && tone && (
                           <span
                             className={cn(
@@ -181,6 +177,10 @@ export default function AnnotatedCode({
                             {annIdx! + 1}
                           </span>
                         )}
+                      </td>
+                      {/* Code content */}
+                      <td className="font-mono text-[12.5px] text-gray-200 whitespace-pre">
+                        {highlightLine(line)}
                       </td>
                     </tr>
                   );

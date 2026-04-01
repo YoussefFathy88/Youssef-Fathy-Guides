@@ -30,32 +30,15 @@ The last session turned tokens into vectors. This session shows what happens nex
 
 A transformer is a stack of identical blocks. Each block has two jobs: attention (tokens talk to each other) and a feed-forward layer (each token processes what it learned). This repeats across many layers -- GPT-4 has 96 layers, each refining the vectors further before the final output.
 
-<ConceptStepper
+<LayerStack
   title="What happens inside one transformer block"
-  caption="Step through each stage -- this cycle repeats for every layer in the model"
-  autoPlay={false}
-  showDots={true}
-  steps={[
-    {
-      title: "1. Input vectors arrive",
-      caption: "Each token enters the block as a vector from the previous layer (or the embedding layer for the first block).",
-      visual: null
-    },
-    {
-      title: "2. Attention: tokens look at each other",
-      caption: "Every token computes how much it should borrow from every other token. The output is an updated vector for each token -- now context-aware.",
-      visual: null
-    },
-    {
-      title: "3. Feed-forward: each token processes independently",
-      caption: "A small neural network runs on each token's updated vector separately. This is where most of the model's knowledge is stored.",
-      visual: null
-    },
-    {
-      title: "4. Output vectors move to the next block",
-      caption: "The refined vectors pass to the next transformer block. After all blocks, the final vectors are used to predict the next token.",
-      visual: null
-    },
+  caption="Click any layer to see what it does -- this stack repeats for every layer in the model"
+  direction="top-to-bottom"
+  layers={[
+    { id: "input", label: "Input vectors", sublabel: "From previous layer or embedding", color: "gray", detail: "Each token enters the block as a vector from the layer below. For the first block this is the embedding layer output. For later blocks it is the refined output of the previous transformer block." },
+    { id: "attn", label: "Attention", sublabel: "Tokens look at each other", color: "violet", detail: "Every token computes how much it should borrow from every other token using Q, K, V. The output is an updated vector for each token -- now context-aware across the whole sequence." },
+    { id: "ffn", label: "Feed-forward network", sublabel: "Each token processes independently", color: "teal", detail: "A small two-layer neural network runs on each token's updated vector separately. This is where most of the model's factual knowledge is stored in the weights." },
+    { id: "output", label: "Output vectors", sublabel: "Move to the next block", color: "amber", detail: "The refined vectors pass to the next transformer block. After all blocks, the final vectors are used to predict the next token." },
   ]}
 />
 
@@ -89,37 +72,16 @@ For each token, the model creates three vectors from its embedding: a Query (wha
 
 Think of it like a YouTube search. Your search query is Q. Each video's title is a K. The video itself is V. Attention compares your Q against every K, scores the matches, and returns a weighted blend of the matching Vs. The key difference from a real search engine: the weights are soft -- every token contributes something, just with different amounts.
 
-<ConceptStepper
+<StepSequence
   title="How Q, K, V works step by step"
-  caption='Step through the calculation for "sat" -- notice how the blend is built from all tokens'
-  autoPlay={false}
-  showDots={true}
+  caption="Click any step to expand the detail for that stage"
+  orientation="vertical"
   steps={[
-    {
-      title: "1. Create Q, K, V for every token",
-      caption: "Each token's vector is multiplied by three learned weight matrices to produce its Q, K, and V vectors. These matrices are learned during training.",
-      visual: null
-    },
-    {
-      title: "2. Compare Q against every K",
-      caption: "The Query for \"sat\" is dot-producted against the Key of every other token. \"cat\" scores highest because \"sat\" needs to know who is doing the sitting.",
-      visual: null
-    },
-    {
-      title: "3. Scale and apply softmax",
-      caption: "The raw scores are divided by the square root of the vector dimension to keep numbers stable, then softmax converts them into weights that sum to 1.0.",
-      visual: null
-    },
-    {
-      title: "4. Blend the Values",
-      caption: "Each token's Value vector is multiplied by its weight. All weighted Values are summed to produce one output vector for \"sat\".",
-      visual: null
-    },
-    {
-      title: "5. Output is context-aware",
-      caption: "The new vector for \"sat\" now carries information from \"cat\", \"mat\", and all other tokens -- weighted by relevance.",
-      visual: null
-    },
+    { number: 1, phase: "Project", title: "Create Q, K, V for every token", detail: "Each token's vector is multiplied by three learned weight matrices to produce its Query, Key, and Value vectors. These matrices are learned during training.", color: "violet" },
+    { number: 2, phase: "Score", title: "Compare Q against every K", detail: "The Query for each token is dot-producted against the Key of every other token. For \"sat\", the Key of \"cat\" scores highest because sat needs to know who is doing the sitting.", color: "teal" },
+    { number: 3, phase: "Normalise", title: "Scale and apply softmax", detail: "The raw scores are divided by the square root of the vector dimension to keep numbers stable, then softmax converts them into weights that sum to 1.0.", color: "amber" },
+    { number: 4, phase: "Blend", title: "Blend the Values", detail: "Each token's Value vector is multiplied by its weight. All weighted Values are summed to produce one output vector per token.", color: "blue" },
+    { number: 5, phase: "Output", title: "Output is context-aware", detail: "The new vector for \"sat\" now carries information from \"cat\", \"mat\", and all other tokens -- weighted by relevance. Attention is complete for this layer.", color: "violet" },
   ]}
 />
 

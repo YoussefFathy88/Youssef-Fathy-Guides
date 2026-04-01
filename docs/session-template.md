@@ -156,6 +156,7 @@ prevSession: {{ "slug-from-canonical-table" | null }}
 - String props use double quotes
 - Array props multiline — one item per line
 - Never nest components inside each other
+- For `DataFlowDiagram`, keep the canvas minimal â€” short labels in boxes, full descriptions in the detail panel
 
 ### Content
 - Max 3 sentences per narration block
@@ -233,6 +234,15 @@ Pick the **most specific** component for the content type. Avoid `DataFlowDiagra
 ### When `DataFlowDiagram` is still appropriate
 Only use `DataFlowDiagram` for **non-linear** graphs where nodes connect in arbitrary directions (e.g. memory type topology, multi-agent routing). For any ordered, left-to-right flow use `PipelineTrack` instead.
 
+### `DataFlowDiagram` authoring rules
+- Default behavior is **panel mode** â€” clicking a box or line shows its description below the diagram
+- Keep `nodes[].label` short â€” usually one short phrase only
+- Put node explanations in `nodes[].sublabel` â€” they appear in the panel when the box is clicked
+- Put line explanations in `edges[].label` â€” they stay hidden on the canvas and appear in the panel when the line is clicked
+- Do not rely on bold text inside boxes to signal importance
+- If solid and dashed lines have diagram-specific meaning, always set `solidLegendLabel` and `dashedLegendLabel`
+- If a node needs a paragraph to make sense inside the canvas, use a different component
+
 ---
 
 ## Available Components
@@ -248,7 +258,7 @@ All components are always available without importing:
 | `ParameterSlider` | `label`, `min`, `max`, `step`, `defaultValue`, `states` |
 | `AttentionHeatmap` | `tokens`, `weights`, `colorRamp?`, `title?`, `caption?` |
 | `ConceptStepper` | `steps`, `autoPlay?`, `showDots?`, `title?`, `caption?` |
-| `DataFlowDiagram` | `nodes`, `edges`, `height?`, `highlightPath?`, `title?`, `caption?` |
+| `DataFlowDiagram` | `nodes`, `edges`, `height?`, `highlightPath?`, `title?`, `caption?`, `nodeDetailMode?`, `solidLegendLabel?`, `dashedLegendLabel?` |
 | `ConceptCompare` | `left`, `right`, `mode?`, `title?`, `caption?` |
 | `MiniPlayground` | `placeholder?`, `simulationFn?`, `title?`, `caption?` |
 | `Vector2DPlot` | `points`, `showDistances?`, `showClusters?`, `title?`, `caption?` |
@@ -381,7 +391,7 @@ memory types each solve a different part of that problem. Most real agents combi
 
 <DataFlowDiagram
   title="The four memory types and where they live relative to the agent"
-  caption="Follow the arrows -- notice which types live inside the context window and which live in external storage"
+  caption="Follow the arrows, then click any box or line below the diagram to inspect its role more clearly"
   height={340}
   nodes={[
     { id: "agent", label: "Agent (LLM)", sublabel: "Stateless model making decisions", x: 50, y: 50, color: "violet" },
@@ -399,6 +409,8 @@ memory types each solve a different part of that problem. Most real agents combi
     { from: "agent", to: "response", animated: true },
   ]}
   highlightPath={["episodic", "agent", "response"]}
+  solidLegendLabel="Solid line: route being shown directly"
+  dashedLegendLabel="Dashed line: additional supporting relationship"
 />
 
 </SessionSection>
@@ -498,7 +510,7 @@ file loaded at startup. Unlike other memory types it is never retrieved mid-conv
 
 <DataFlowDiagram
   title="How procedural memory enters the agent at session startup"
-  caption="Notice it is loaded once -- not fetched mid-conversation like episodic or semantic memory"
+  caption="Click any box or line below the diagram to inspect what loads at startup and what happens later in the session"
   height={260}
   nodes={[
     { id: "sysprompt", label: "System prompt", sublabel: "Step-by-step rules and escalation logic", x: 8, y: 25, color: "gray" },
@@ -508,12 +520,14 @@ file loaded at startup. Unlike other memory types it is never retrieved mid-conv
     { id: "usermsg", label: "User message arrives", sublabel: "Triggers agent response -- rules already in place", x: 93, y: 50, color: "gray" },
   ]}
   edges={[
-    { from: "sysprompt", to: "startup", animated: false },
-    { from: "tools", to: "startup", animated: false },
-    { from: "startup", to: "convo", animated: true },
-    { from: "usermsg", to: "convo", animated: true },
+    { from: "sysprompt", to: "startup", animated: false, label: "Loaded once" },
+    { from: "tools", to: "startup", animated: false, label: "Loaded once" },
+    { from: "startup", to: "convo", animated: true, label: "Rules stay active through the session" },
+    { from: "usermsg", to: "convo", animated: true, label: "User input arrives after startup" },
   ]}
   highlightPath={["sysprompt", "startup", "convo"]}
+  solidLegendLabel="Solid line: the main session path"
+  dashedLegendLabel="Dashed line: setup loaded before the session begins"
 />
 
 </SessionSection>
@@ -530,7 +544,7 @@ prompt -- procedural memory -- defines escalation rules and response format.
 
 <DataFlowDiagram
   title="Customer support agent -- all four memory types activating on one user message"
-  caption="Trace a new customer message -- notice which memory types activate and in what order"
+  caption="Trace the message path, then click any box or line below the diagram to inspect what each memory type contributes"
   height={360}
   nodes={[
     { id: "msg", label: "Customer message", sublabel: "'My payment failed again -- this happened last month too'", x: 4, y: 50, color: "gray" },
@@ -542,16 +556,18 @@ prompt -- procedural memory -- defines escalation rules and response format.
     { id: "response", label: "Response to customer", sublabel: "'I can see last month's issue -- here is what to try first...'", x: 90, y: 50, color: "teal" },
   ]}
   edges={[
-    { from: "msg", to: "incontext", animated: true },
-    { from: "msg", to: "episodic", animated: true },
-    { from: "msg", to: "semantic", animated: true },
-    { from: "incontext", to: "agent", animated: true },
-    { from: "episodic", to: "agent", animated: true },
-    { from: "semantic", to: "agent", animated: true },
-    { from: "procedural", to: "agent", animated: false },
-    { from: "agent", to: "response", animated: true },
+    { from: "msg", to: "incontext", animated: true, label: "Current message enters active context" },
+    { from: "msg", to: "episodic", animated: true, label: "Message triggers search over similar past tickets" },
+    { from: "msg", to: "semantic", animated: true, label: "Message triggers retrieval of relevant product knowledge" },
+    { from: "incontext", to: "agent", animated: true, label: "Live conversation is already available to the agent" },
+    { from: "episodic", to: "agent", animated: true, label: "Retrieved episode is injected into context" },
+    { from: "semantic", to: "agent", animated: true, label: "Retrieved knowledge is injected into context" },
+    { from: "procedural", to: "agent", animated: false, label: "Rules were loaded earlier at session start" },
+    { from: "agent", to: "response", animated: true, label: "The agent forms the reply" },
   ]}
   highlightPath={["msg", "episodic", "agent", "response"]}
+  solidLegendLabel="Solid line: the example path being traced"
+  dashedLegendLabel="Dashed line: other memory sources that also connect to the agent"
 />
 
 </SessionSection>

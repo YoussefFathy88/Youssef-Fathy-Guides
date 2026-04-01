@@ -9,7 +9,6 @@ import {
   getRequiredSessionToUnlock,
   getSessionById,
   getSessionRoute,
-  isSessionUnlocked,
 } from "@/lib/course";
 import { hexToRgba } from "@/lib/utils";
 
@@ -24,7 +23,6 @@ export function SessionHero({ session }: SessionHeroProps) {
   const next = session.leadsTo[0] ? getSessionById(session.leadsTo[0]) : undefined;
   const nextAvailable = getNextAvailableSession(session.id, completed);
   const isCompleted = completed.has(session.id);
-  const isUnlocked = isSessionUnlocked(session.id, completed);
   const requiredSession = getRequiredSessionToUnlock(session);
 
   return (
@@ -63,7 +61,7 @@ export function SessionHero({ session }: SessionHeroProps) {
               backgroundColor: module?.color,
             }}
           >
-            {session.title} &lt;- you are here
+            Current session: {session.title}
           </span>
           <span className="text-slate-500">-&gt;</span>
           <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-slate-300">
@@ -76,11 +74,12 @@ export function SessionHero({ session }: SessionHeroProps) {
           <ButtonLink href="/library" variant="secondary">
             Back to library
           </ButtonLink>
-          {!isUnlocked && requiredSession ? (
+          {requiredSession ? (
             <ButtonLink href={getSessionRoute(requiredSession)} variant="secondary">
-              Complete {requiredSession.id} first
+              Recommended first: {requiredSession.id}
             </ButtonLink>
-          ) : !isCompleted ? (
+          ) : null}
+          {!isCompleted ? (
             <button
               type="button"
               onClick={() => markComplete(session.id)}
@@ -95,9 +94,9 @@ export function SessionHero({ session }: SessionHeroProps) {
           ) : null}
         </div>
 
-        {!isUnlocked && requiredSession ? (
+        {requiredSession ? (
           <div className="surface-panel p-4 text-sm text-slate-300">
-            This session is locked in the guided path. Complete {requiredSession.id} - {requiredSession.title} to unlock it in order.
+            You can open this session anytime. For the guided path, it is best taken after {requiredSession.id} - {requiredSession.title}.
           </div>
         ) : null}
       </div>

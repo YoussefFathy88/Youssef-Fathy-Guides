@@ -30,32 +30,15 @@ Every LLM API call you make is secretly a tokenization problem. This session sho
 
 Before the model runs attention or predicts anything, your text is converted to a sequence of token IDs. That sequence is all the model ever sees -- not words, not characters, not sentences. The context window is the maximum number of those tokens the model can hold at once.
 
-<ConceptStepper
+<StepSequence
   title="From text to token IDs"
-  caption="Step through each stage -- notice what gets lost and what survives"
-  autoPlay={false}
-  showDots={true}
+  caption="Click any step to expand -- notice what the model actually receives"
+  orientation="horizontal"
   steps={[
-    {
-      title: "1. Your raw text",
-      caption: "The string \"Hello, world! How are you?\" enters the pipeline exactly as typed.",
-      visual: null
-    },
-    {
-      title: "2. Byte-pair encoding splits it",
-      caption: "The tokenizer applies BPE rules. \"Hello\" becomes one token, \",\" one token, \" world\" one token, \"!\" one token, \" How\" one token, \" are\" one token, \" you\" one token, \"?\" one token. 8 tokens total.",
-      visual: null
-    },
-    {
-      title: "3. Token IDs assigned",
-      caption: "Each token maps to an integer in the vocabulary. \"Hello\" = 15496, \",\" = 11, \" world\" = 995, and so on.",
-      visual: null
-    },
-    {
-      title: "4. Integer sequence handed to the model",
-      caption: "The model receives [15496, 11, 995, 0, 1374, 389, 345, 30]. This is the only input it ever sees.",
-      visual: null
-    },
+    { number: 1, phase: "Input", title: "Your raw text", detail: "The string \"Hello, world! How are you?\" enters the pipeline exactly as typed.", color: "gray" },
+    { number: 2, phase: "Split", title: "Byte-pair encoding splits it", detail: "The tokenizer applies BPE rules. \"Hello\" becomes one token, \",\" one, \" world\" one, \"!\" one, \" How\" one, \" are\" one, \" you\" one, \"?\" one. 8 tokens total.", color: "violet" },
+    { number: 3, phase: "Map", title: "Token IDs assigned", detail: "Each token maps to an integer in the vocabulary. \"Hello\" = 15496, \",\" = 11, \" world\" = 995, and so on.", color: "teal" },
+    { number: 4, phase: "Model", title: "Integer sequence handed to the model", detail: "The model receives [15496, 11, 995, 0, 1374, 389, 345, 30]. This is the only input it ever sees -- not words, not characters.", color: "amber" },
   ]}
 />
 
@@ -70,37 +53,16 @@ Before the model runs attention or predicts anything, your text is converted to 
 
 Tokenizers use Byte-Pair Encoding (BPE) -- a compression algorithm that learns common subword patterns from training data. Common words become single tokens; rare words get split into pieces. This means "unhappiness" might be 3 tokens while "the" is always 1.
 
-<ConceptStepper
+<StepSequence
   title="How BPE handles different words"
-  caption="Step through each word type -- notice how token count changes with word frequency"
-  autoPlay={false}
-  showDots={true}
+  caption="Click any step to expand -- notice how token count changes with word frequency"
+  orientation="vertical"
   steps={[
-    {
-      title: "Common word: \"the\"",
-      caption: "\"the\" = 1 token (ID: 262). Extremely common words get their own single token.",
-      visual: null
-    },
-    {
-      title: "Normal word: \"hello\"",
-      caption: "\"hello\" = 1 token (ID: 15496). Common enough to have its own entry in the vocabulary.",
-      visual: null
-    },
-    {
-      title: "Compound word: \"unhappiness\"",
-      caption: "\"unhappiness\" = 3 tokens: [\"un\", \"happiness\", \"s\"]. Rare words get split into known subword pieces.",
-      visual: null
-    },
-    {
-      title: "Technical term: \"ChatGPT\"",
-      caption: "\"ChatGPT\" = 3 tokens: [\"Chat\", \"G\", \"PT\"]. Brand names and rare proper nouns split further.",
-      visual: null
-    },
-    {
-      title: "URL: \"https://openai.com\"",
-      caption: "\"https://openai.com\" = 7+ tokens. Punctuation, slashes, and dots each become separate tokens.",
-      visual: null
-    },
+    { number: 1, phase: "Common", title: "\"the\" = 1 token", detail: "\"the\" = 1 token (ID: 262). Extremely common words get their own single token in the vocabulary.", color: "teal" },
+    { number: 2, phase: "Normal", title: "\"hello\" = 1 token", detail: "\"hello\" = 1 token (ID: 15496). Common enough to have its own entry in the vocabulary.", color: "teal" },
+    { number: 3, phase: "Compound", title: "\"unhappiness\" = 3 tokens", detail: "\"unhappiness\" = 3 tokens: [\"un\", \"happi\", \"ness\"]. Rare words get split into known subword pieces.", color: "amber" },
+    { number: 4, phase: "Technical", title: "\"ChatGPT\" = 3 tokens", detail: "\"ChatGPT\" = 3 tokens: [\"Chat\", \"G\", \"PT\"]. Brand names and rare proper nouns split further.", color: "amber" },
+    { number: 5, phase: "URL", title: "\"https://openai.com\" = 7+ tokens", detail: "\"https://openai.com\" = 7+ tokens. Punctuation, slashes, and dots each become separate tokens -- URLs are expensive.", color: "rose" },
   ]}
 />
 

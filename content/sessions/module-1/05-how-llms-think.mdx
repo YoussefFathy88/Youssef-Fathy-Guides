@@ -69,42 +69,17 @@ Thinking mode does not use a different model or a smarter architecture. It gives
 
 Remember from Session 1: every token the model predicts gets added to the context window and influences the next prediction. The scratchpad exploits this directly. When the model writes "wait -- this approach fails if the input is empty... let me try differently..." that correction is now in the context. The model predicts the final answer starting from a context that includes a full worked solution -- not a cold start. It is the same mechanism as normal prediction, used as rough work.
 
-<ConceptStepper
+<StepSequence
   title="The same prompt -- fast mode vs thinking mode, step by step"
-  caption="Step through both paths for the same question -- notice when the visible answer actually appears"
-  autoPlay={false}
-  showDots={true}
+  caption="Click any step to expand -- notice when the visible answer actually appears in each mode"
+  orientation="vertical"
   steps={[
-    {
-      title: "Step 1 -- The prompt (identical in both modes)",
-      caption: "Question sent: \"Write a function that finds the longest palindrome substring in a string.\" Same words, same tokens, same context entering the model.",
-      visual: null
-    },
-    {
-      title: "Step 2 -- Fast mode: model predicts answer token 1 immediately",
-      caption: "No delay. The model outputs the first word of the function directly. It commits to an approach with no working out.",
-      visual: null
-    },
-    {
-      title: "Step 3 -- Fast mode: answer grows token by token",
-      caption: "Each new token is predicted based only on the original prompt plus the answer tokens produced so far. No opportunity to catch a mistake mid-way.",
-      visual: null
-    },
-    {
-      title: "Step 4 -- Thinking mode: model generates scratchpad token 1 (hidden)",
-      caption: "Instead of an answer token, the model writes an internal token: \"A palindrome reads the same forwards and backwards. I could use expand-around-centre...\"",
-      visual: null
-    },
-    {
-      title: "Step 5 -- Thinking mode: scratchpad grows -- model catches a mistake",
-      caption: "Scratchpad continues: \"...wait, I need to handle even-length palindromes separately. My first approach only handles odd-length. Revising...\" This correction is now in context.",
-      visual: null
-    },
-    {
-      title: "Step 6 -- Thinking mode: scratchpad ends, visible answer begins",
-      caption: "Model decides it has a good approach. It now predicts the first visible answer token -- starting from a context that includes a complete worked solution with the mistake already corrected.",
-      visual: null
-    },
+    { number: 1, phase: "Prompt", title: "The prompt is identical in both modes", detail: "Question sent: 'Write a function that finds the longest palindrome substring in a string.' Same words, same tokens, same context entering the model.", color: "gray" },
+    { number: 2, phase: "Fast", title: "Fast mode: answer token 1 arrives immediately", detail: "No delay. The model outputs the first word of the function directly. It commits to an approach with no working out.", color: "teal" },
+    { number: 3, phase: "Fast", title: "Fast mode: answer grows token by token", detail: "Each new token is predicted based only on the original prompt plus the answer tokens so far. No opportunity to catch a mistake mid-way.", color: "teal" },
+    { number: 4, phase: "Think", title: "Thinking mode: scratchpad begins (hidden)", detail: "Instead of an answer token, the model writes an internal token: 'A palindrome reads the same forwards and backwards. I could use expand-around-centre...'", color: "violet" },
+    { number: 5, phase: "Think", title: "Thinking mode: model catches a mistake mid-scratchpad", detail: "Scratchpad continues: '...wait, I need to handle even-length palindromes separately. My first approach only handles odd-length. Revising...' This correction is now in context.", color: "violet" },
+    { number: 6, phase: "Answer", title: "Thinking mode: visible answer begins after scratchpad", detail: "Model decides it has a good approach. First visible token appears -- starting from a context that includes a complete worked solution with the mistake already corrected.", color: "amber" },
   ]}
 />
 
@@ -211,6 +186,8 @@ A team builds a contract analysis tool. It does two jobs on every uploaded contr
   title="One document, two API calls, two thinking budgets"
   caption="Follow each path -- same model, same document, different budgets for different task complexity"
   height={320}
+  solidLegendLabel="Solid lines: the two API call routes"
+  dashedLegendLabel="Dashed lines: shared model dependencies"
   nodes={[
     { id: "doc", label: "Uploaded contract", sublabel: "PDF converted to text", x: 5, y: 50, color: "gray" },
     { id: "call1", label: "API call 1: classify", sublabel: "Fast mode -- 0 thinking tokens -- ~1 second", x: 38, y: 22, color: "teal" },
