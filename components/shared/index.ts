@@ -6,3 +6,7 @@ export { default as ConceptCompare } from "./ConceptCompare";
 export { default as MiniPlayground } from "./MiniPlayground";
 export { default as Vector2DPlot } from "./Vector2DPlot";
 export { default as TokenProbDist } from "./TokenProbDist";
+export { default as PipelineTrack } from "./PipelineTrack";
+export { default as StepSequence } from "./StepSequence";
+export { default as LayerStack } from "./LayerStack";
+export { default as AnnotatedCode } from "./AnnotatedCode";

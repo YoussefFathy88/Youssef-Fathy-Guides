@@ -211,23 +211,137 @@ Rules:
 
 ---
 
+## Component Chooser
+
+Pick the **most specific** component for the content type. Avoid `DataFlowDiagram` and `ConceptStepper` when a purpose-built alternative exists.
+
+| Content type | Use this component |
+|---|---|
+| Linear pipeline / subway-style flow (RAG, LLM lifecycle, tool loop) | **`PipelineTrack`** |
+| Numbered how-it-works sequence (training loop, inference steps) | **`StepSequence`** |
+| Stacked architecture / processing layers (transformer layers, agent stack) | **`LayerStack`** |
+| Code block with callout explanations | **`AnnotatedCode`** |
+| Concept A vs Concept B | `ConceptCompare` |
+| Any number that controls behaviour (temperature, top-p) | `ParameterSlider` |
+| Token-to-token attention weights | `AttentionHeatmap` |
+| Semantic similarity / embedding clusters | `Vector2DPlot` |
+| Next-token probability distribution | `TokenProbDist` |
+| User types input → sees live output | `MiniPlayground` |
+| Arbitrary node graph with non-linear edges | `DataFlowDiagram` |
+| Sequential concept reveal (use sparingly) | `ConceptStepper` |
+
+### When `DataFlowDiagram` is still appropriate
+Only use `DataFlowDiagram` for **non-linear** graphs where nodes connect in arbitrary directions (e.g. memory type topology, multi-agent routing). For any ordered, left-to-right flow use `PipelineTrack` instead.
+
+---
+
 ## Available Components
 
 All components are always available without importing:
 
-| Component | Best for |
+| Component | Props summary |
 |---|---|
-| `ParameterSlider` | Any concept where a number controls behaviour |
-| `AttentionHeatmap` | Token-to-token relationships, similarity matrices |
-| `ConceptStepper` | Sequential processes, step-by-step flows |
-| `DataFlowDiagram` | Data moving through a system, pipelines, architectures |
-| `ConceptCompare` | Two approaches side by side or toggled |
-| `MiniPlayground` | User types input and sees output change (no inline functions — use static simulation logic) |
-| `Vector2DPlot` | Semantic clustering, embedding space, similarity |
-| `TokenProbDist` | Next-token probability distributions |
+| `PipelineTrack` | `nodes`, `lines`, `title?`, `caption?` |
+| `StepSequence` | `steps`, `title?`, `caption?`, `orientation?` ("horizontal" \| "vertical") |
+| `LayerStack` | `layers`, `title?`, `caption?`, `direction?` ("top-to-bottom" \| "bottom-to-top") |
+| `AnnotatedCode` | `code`, `annotations`, `language?`, `title?`, `caption?` |
+| `ParameterSlider` | `label`, `min`, `max`, `step`, `defaultValue`, `states` |
+| `AttentionHeatmap` | `tokens`, `weights`, `colorRamp?`, `title?`, `caption?` |
+| `ConceptStepper` | `steps`, `autoPlay?`, `showDots?`, `title?`, `caption?` |
+| `DataFlowDiagram` | `nodes`, `edges`, `height?`, `highlightPath?`, `title?`, `caption?` |
+| `ConceptCompare` | `left`, `right`, `mode?`, `title?`, `caption?` |
+| `MiniPlayground` | `placeholder?`, `simulationFn?`, `title?`, `caption?` |
+| `Vector2DPlot` | `points`, `showDistances?`, `showClusters?`, `title?`, `caption?` |
+| `TokenProbDist` | `candidates`, `showTemperature?`, `showTopP?`, `title?`, `caption?` |
 | `SessionSection` | Section wrapper (always required) |
-| `RecapTable` | Section 5 recap only |
+| `RecapTable` | Section 5 recap only — `rows` array |
 | `NextSessionCard` | Section 6 next session only |
+
+---
+
+## New Component Examples
+
+### PipelineTrack
+```mdx
+<PipelineTrack
+  title="The RAG pipeline — index path runs once, query path runs every time"
+  caption="Follow each track — top track builds the index, bottom track answers a question"
+  nodes={[
+    { id: "docs", label: "Documents", sublabel: "PDFs, databases, web pages", color: "gray" },
+    { id: "chunk", label: "Chunking", sublabel: "Split into 200–500 token segments", color: "violet" },
+    { id: "embed", label: "Embedding model", sublabel: "Converts each chunk to a vector", color: "teal" },
+    { id: "vecdb", label: "Vector database", sublabel: "Stores all chunk vectors", color: "amber" },
+    { id: "query", label: "User query", sublabel: "Natural language question", color: "gray" },
+    { id: "retrieve", label: "Retrieve top-k", sublabel: "Nearest-neighbour search", color: "teal" },
+    { id: "llm", label: "LLM", sublabel: "Generates answer with context", color: "violet" },
+  ]}
+  lines={[
+    { nodes: ["docs", "chunk", "embed", "vecdb"], color: "#8b5cf6", label: "Index path", dashed: true },
+    { nodes: ["query", "embed", "retrieve", "llm"], color: "#14b8a6", label: "Query path" },
+  ]}
+/>
+```
+
+### StepSequence
+```mdx
+<StepSequence
+  title="How transformer attention works — four steps"
+  caption="Click a step to expand the detail"
+  orientation="vertical"
+  steps={[
+    { number: 1, phase: "Project", title: "Turn each token into Q, K, V vectors", detail: "Every token embedding is multiplied by three learned weight matrices to produce a Query, Key, and Value vector for that position.", color: "violet" },
+    { number: 2, phase: "Score", title: "Dot-product every Q against every K", detail: "We compute a raw attention score between every pair of positions. High score = these two tokens should influence each other.", color: "teal" },
+    { number: 3, phase: "Normalise", title: "Softmax turns raw scores into probabilities", detail: "Scores are scaled by √d_k then passed through softmax. Each row now sums to 1 — a probability distribution over all positions.", color: "amber" },
+    { number: 4, phase: "Aggregate", title: "Weighted sum of V vectors gives the output", detail: "The output for each token is the sum of all Value vectors weighted by the attention probabilities computed in step 3.", color: "blue" },
+  ]}
+/>
+```
+
+### LayerStack
+```mdx
+<LayerStack
+  title="The transformer block — data flows upward through each layer"
+  caption="Click any layer to see what it does"
+  direction="bottom-to-top"
+  layers={[
+    { id: "embed", label: "Token Embedding", sublabel: "Input", color: "gray", detail: "Converts each input token ID into a dense vector of size d_model (e.g. 768). This is the raw numeric representation the model works with." },
+    { id: "pos", label: "Positional Encoding", sublabel: "Layer 0", color: "violet", detail: "Adds position-specific signals to each embedding so the model knows token order. Without this, the transformer is position-blind." },
+    { id: "attn", label: "Multi-Head Attention", sublabel: "Layer 1–N", color: "teal", detail: "Lets each token attend to every other token. Multiple heads allow the model to capture different types of relationships simultaneously." },
+    { id: "ffn", label: "Feed-Forward Network", sublabel: "Layer 1–N", color: "amber", detail: "A two-layer MLP applied independently to each position. Doubles the model's width then projects back — where most 'knowledge' is stored." },
+    { id: "lm", label: "LM Head", sublabel: "Output", color: "blue", detail: "Projects the final hidden state to vocabulary size and applies softmax to produce a probability distribution over the next token." },
+  ]}
+/>
+```
+
+### AnnotatedCode
+```mdx
+<AnnotatedCode
+  title="A minimal RAG query in Python"
+  caption="Click a callout number to highlight the corresponding line"
+  code={`import anthropic
+import chromadb
+
+client = chromadb.Client()
+collection = client.get_collection("docs")
+
+query = "How does attention work?"
+results = collection.query(query_texts=[query], n_results=3)
+
+context = "\n".join(results["documents"][0])
+
+response = anthropic.Anthropic().messages.create(
+  model="claude-opus-4-6",
+  max_tokens=512,
+  messages=[{"role": "user", "content": f"{context}\n\n{query}"}]
+)`}
+  annotations={[
+    { line: 4, label: "Vector DB client", description: "ChromaDB runs locally — no external API needed for prototyping.", color: "violet" },
+    { line: 7, label: "User query", description: "The raw natural-language question — not yet vectorised.", color: "teal" },
+    { line: 8, label: "Similarity search", description: "ChromaDB embeds the query and returns the 3 most similar chunks by cosine distance.", color: "amber" },
+    { line: 10, label: "Context injection", description: "Retrieved chunks are joined into a single string and prepended to the prompt.", color: "blue" },
+    { line: 12, label: "LLM call", description: "Claude receives the context + question and generates a grounded answer.", color: "violet" },
+  ]}
+/>
 
 ---
 

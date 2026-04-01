@@ -12,12 +12,16 @@ import {
   SessionSection,
 } from "@/components/session";
 import {
+  AnnotatedCode,
   AttentionHeatmap,
   ConceptCompare,
   ConceptStepper,
   DataFlowDiagram,
+  LayerStack,
   MiniPlayground,
   ParameterSlider,
+  PipelineTrack,
+  StepSequence,
   TokenProbDist,
   Vector2DPlot,
 } from "@/components/shared";
@@ -64,6 +68,10 @@ function getMdxComponents(isPresentationMode: boolean) {
     MiniPlayground,
     Vector2DPlot,
     TokenProbDist,
+    PipelineTrack,
+    StepSequence,
+    LayerStack,
+    AnnotatedCode,
     h2: ({ className, ...props }: ComponentPropsWithoutRef<"h2">) => (
       <h2
         {...props}
