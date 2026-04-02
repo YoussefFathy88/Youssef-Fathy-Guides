@@ -1,0 +1,270 @@
+---
+title: "Tools & Function Calling"
+slug: "tools-and-function-calling"
+module: 2
+moduleName: "Giving the Brain Capabilities"
+sessionNumber: 8
+duration: "13 min"
+difficulty: "intermediate"
+tags: ["tools", "function-calling", "agents"]
+nextSession: "mcp"
+prevSession: "rag"
+---
+
+{/* SECTION 1 - GOAL */}
+<SessionSection id="goal" label="Goal">
+
+## Understand what tools are, why agents need them, and how the tool-use loop works end to end
+
+The LLM is the brain -- it reasons, plans, and decides. But a brain with no hands can only talk. Tools are the hands: they let the agent take real actions in the world -- read a live price, write to a database, send an email, run code. This session explains what tools are, what forms they take, and exactly how the agent uses them.
+
+</SessionSection>
+
+
+{/* SECTION 2 - BIG PICTURE */}
+<SessionSection id="big-picture" label="Big Picture">
+
+## The LLM is the brain -- tools are the hands
+
+Without tools, an LLM can only generate text based on what it knows from training and what you put in the context window. With tools, it can reach outside itself -- query real-time data, trigger real-world actions, and interact with systems. The agent decides which tool to use and when. Your application actually runs the tool. The result comes back to the agent to form the final answer.
+
+<NodeFlowDiagram
+  title="The tool-use loop — the LLM decides, your code executes, results come back"
+  height={640}
+  groups={[
+    { id: "tools", label: "Available Tools", nodeIds: ["api", "db", "service", "code"], color: "amber" },
+  ]}
+  nodes={[
+    { id: "user",     label: "User",          sublabel: "Sends a request",              x: 10, y: 50, color: "gray",   shape: "circle", emoji: "👤" },
+    { id: "llm",      label: "LLM",           sublabel: "Reasons + decides",            x: 35, y: 50, color: "violet", shape: "circle", size: "lg", emoji: "🤖" },
+    { id: "toolcall", label: "Tool Call",      sublabel: "Structured JSON output",       x: 60, y: 50, color: "blue",   shape: "rect",   emoji: "🔧" },
+    { id: "api",      label: "REST API",       sublabel: "get_weather(), prices…",       x: 84, y: 18, color: "amber",  shape: "rect",   emoji: "🌐" },
+    { id: "db",       label: "Database",       sublabel: "get_orders(), SQL…",           x: 84, y: 38, color: "amber",  shape: "rect",   emoji: "🗄️" },
+    { id: "service",  label: "Service",        sublabel: "send_email(), notify…",        x: 84, y: 60, color: "amber",  shape: "rect",   emoji: "📨" },
+    { id: "code",     label: "Code Runner",    sublabel: "run_python(), compute…",       x: 84, y: 80, color: "amber",  shape: "rect",   emoji: "⚙️" },
+    { id: "result",   label: "Tool Result",    sublabel: "JSON back to context",         x: 60, y: 82, color: "blue",   shape: "rect",   emoji: "📥" },
+    { id: "answer",   label: "Final Answer",   sublabel: "Informed by real-world data",  x: 10, y: 82, color: "teal",   shape: "rect",   emoji: "✅" },
+  ]}
+  edges={[
+    { from: "user",     to: "llm",      animated: true, stepNumber: 1 },
+    { from: "llm",      to: "toolcall", animated: true, stepNumber: 2, label: "decide to call tool" },
+    { from: "toolcall", to: "api",      animated: true, stepNumber: 3 },
+    { from: "toolcall", to: "db",       animated: true },
+    { from: "toolcall", to: "service",  animated: true },
+    { from: "toolcall", to: "code",     animated: true },
+    { from: "api",      to: "result",   animated: true, stepNumber: 4 },
+    { from: "db",       to: "result",   animated: true },
+    { from: "service",  to: "result",   animated: true },
+    { from: "code",     to: "result",   animated: true },
+    { from: "result",   to: "llm",      animated: true, stepNumber: 5, label: "context updated" },
+    { from: "llm",      to: "answer",   animated: true, stepNumber: 6 },
+    { from: "answer",   to: "user",     animated: true, stepNumber: 7 },
+  ]}
+  steps={[
+    { id: "s1", label: "User sends a request",             description: "A user message arrives. The LLM sees the message alongside all tool schemas — JSON descriptions of every function available to it. It reads these to decide what is possible.", highlightNodes: ["user", "llm"], highlightEdges: ["user→llm"] },
+    { id: "s2", label: "LLM decides to call a tool",       description: "Instead of answering directly, the LLM outputs a structured tool-call object: the function name and its arguments as JSON. The LLM does NOT execute anything itself — it only describes what it wants called.", highlightNodes: ["llm", "toolcall"], highlightEdges: ["llm→toolcall"] },
+    { id: "s3", label: "Your code executes the tool",      description: "Your application reads the tool-call output and runs the actual function — an API request, a database query, a service call, or a code execution. The LLM cannot do this step itself.", highlightNodes: ["toolcall", "api", "db", "service", "code"], highlightEdges: ["toolcall→api", "toolcall→db", "toolcall→service", "toolcall→code"] },
+    { id: "s4", label: "Result returned",                  description: "The tool's output is serialised as JSON and injected back into the conversation as a new message. The LLM will see this result on its next turn.", highlightNodes: ["result"], highlightEdges: ["api→result", "db→result", "service→result", "code→result"] },
+    { id: "s5", label: "LLM reads the result",             description: "The LLM now has the tool output in its context. It can answer the user directly, or decide to call another tool. This loop continues until it is ready to respond.", highlightNodes: ["llm", "result"], highlightEdges: ["result→llm"] },
+    { id: "s6", label: "Final answer delivered to user",   description: "Once the LLM has all the real-world data it needs, it produces the final natural-language answer. This answer is grounded in current data — not just training knowledge.", highlightNodes: ["llm", "answer", "user"], highlightEdges: ["llm→answer", "answer→user"] },
+  ]}
+/>
+
+</SessionSection>
+
+
+{/* SECTION 3 - CORE CONCEPTS */}
+<SessionSection id="core-concepts" label="Core Concepts">
+
+## A tool is any callable function you expose to the model
+
+A tool is not a special technology -- it is any function in your codebase that you describe to the model and allow it to call. That function can wrap anything: a REST API call, a database query, a Python function, a shell command, or an internal microservice. What makes it a tool is the description you attach to it -- a plain English explanation of what it does, when to use it, and what arguments it needs. The model reads that description to decide whether and how to use it.
+
+<StepSequence
+  title="What tools can wrap -- four examples of the same pattern"
+  caption="Click any step to expand -- the tool is always a thin wrapper around something that already exists"
+  orientation="horizontal"
+  steps={[
+    { number: 1, phase: "REST API", title: "get_weather(city)", detail: "Wraps a call to a weather API. Your function hits the API, gets JSON back, returns the result. The model never touches the API directly.", color: "violet", icon: "🌤️" },
+    { number: 2, phase: "Database", title: "get_customer_orders(id)", detail: "Wraps a SQL query to your orders database. Your function runs the query, returns the rows. The model never has database credentials.", color: "teal", icon: "🗄️" },
+    { number: 3, phase: "Service", title: "send_notification(user, msg)", detail: "Wraps an internal notification microservice. The model decides when and what to send. Your function calls the service.", color: "amber", icon: "📨" },
+    { number: 4, phase: "Code", title: "run_python(code)", detail: "Wraps a sandboxed Python executor. The model writes code, calls this tool to run it, and reasons about the stdout result.", color: "blue", icon: "⚙️" },
+  ]}
+/>
+
+### The model never executes tools -- it requests them, you run them
+
+This is the most important thing to understand: the LLM does not call your API, access your database, or run your code. It reads the tool descriptions, decides which tool to use, and returns a structured JSON object with the tool name and arguments. Your application reads that JSON, executes the actual function, and sends the result back to the model. The model then uses that result to form its final answer.
+
+<AgentLoopStepper
+  title="The complete tool-use loop -- step through it yourself"
+  caption="Press Step → to advance one step at a time, or Play to run through automatically"
+  steps={[
+    {
+      id: "define",
+      actor: "user",
+      label: "You define tools and send the user message",
+      bubble: "POST /v1/messages\n{\n  tools: [{ name: 'get_weather', description: '...', input_schema: {...} }],\n  messages: [{ role: 'user', content: 'What is the weather in Cairo?' }]\n}",
+      detail: "Your API call includes a tools array alongside the user message. Each tool has a name, a description the model reads to decide when to call it, and an input_schema defining what arguments it must provide."
+    },
+    {
+      id: "decide",
+      actor: "model",
+      label: "Model decides to call a tool",
+      bubble: "Response: stop_reason: 'tool_use'\ncontent: [{\n  type: 'tool_use',\n  name: 'get_weather',\n  input: { city: 'Cairo' }\n}]",
+      detail: "The model reads the user message and all tool descriptions. It decides a tool is needed and returns a structured tool_use block -- the tool name and the arguments it wants to pass. The model does not call anything itself."
+    },
+    {
+      id: "execute",
+      actor: "your-code",
+      label: "Your application executes the tool",
+      bubble: "# You read the tool name and arguments\ntool_name = 'get_weather'\nargs = { city: 'Cairo' }\n\n# Your code calls the actual function\nresult = get_weather(city='Cairo')\n# → { temp: 34, condition: 'sunny', humidity: 28 }",
+      detail: "Your application reads the tool_use block, calls the actual function, and gets a real result. The model is completely uninvolved in this step. This is the key distinction -- the model requests, you execute."
+    },
+    {
+      id: "return",
+      actor: "user",
+      label: "You send the tool result back",
+      bubble: "POST /v1/messages  (second API call)\nmessages: [\n  { role: 'user',      content: 'What is the weather in Cairo?' },\n  { role: 'assistant', content: [tool_use block] },\n  { role: 'user',      content: [{ type: 'tool_result',\n                         tool_use_id: '...',\n                         content: '{temp: 34, condition: sunny}' }] }\n]",
+      detail: "You append a tool_result message to the conversation with the real data your function returned, then make a second API call. The model now sees the full context: the original question plus the actual tool output."
+    },
+    {
+      id: "answer",
+      actor: "model",
+      label: "Model generates the final answer",
+      bubble: "Response: stop_reason: 'end_turn'\ncontent: 'The current weather in Cairo is 34°C\nand sunny with 28% humidity -- a hot,\nclear day.'",
+      detail: "With the tool result in context, the model generates its response grounded in real data rather than training-time knowledge. For multi-step tasks, it may call another tool -- the loop repeats from step 2."
+    }
+  ]}
+/>
+
+### The description is what the model uses to decide when to call a tool
+
+A tool definition has three parts: name (what your code calls), description (what the model reads to decide when and how to use it), and input_schema (the arguments the model must provide). The description is the most critical part. A vague description produces wrong or missed tool calls. A precise description tells the model exactly when to reach for this tool and what to expect back.
+
+<ConceptCompare
+  title="Vague tool description vs precise tool description"
+  caption="Read both sides -- notice how much more reliably the model can use the precise version"
+  mode="side-by-side"
+  left={{
+    label: "Vague description -- model guesses when to use it",
+    color: "gray",
+    points: [
+      "name: 'get_data'",
+      "description: 'Gets data from the system'",
+      "Model does not know what data, from where, or when",
+      "May call it for unrelated queries or skip it when needed",
+      "Produces inconsistent, unreliable behavior",
+    ]
+  }}
+  right={{
+    label: "Precise description -- model knows exactly when to use it",
+    color: "violet",
+    points: [
+      "name: 'get_order_status'",
+      "description: 'Look up the current status of a specific customer order by order ID. Use this when the user asks about a specific order, shipment, or delivery. Returns: status, estimated delivery date, and tracking number.'",
+      "Tells the model: what it does, when to use it, what it returns",
+      "Produces consistent, reliable tool calls every time",
+    ]
+  }}
+/>
+
+<AnnotatedCode
+  title="A well-defined tool in Python -- Anthropic SDK format"
+  caption="Click a callout number to highlight the corresponding line"
+  code={`tools = [
+  {
+    "name": "get_order_status",
+    "description": (
+      "Look up the current status of a specific customer order "
+      "by order ID. Use this when the user asks about a specific "
+      "order, shipment, or delivery. Returns: status, estimated "
+      "delivery date, and tracking number."
+    ),
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "order_id": {
+          "type": "string",
+          "description": "The unique order ID, e.g. ORD-12345"
+        }
+      },
+      "required": ["order_id"]
+    }
+  }
+]`}
+  annotations={[
+    { line: 3, label: "Tool name", description: "What your code calls this function. Short, snake_case, descriptive.", color: "violet" },
+    { line: 4, label: "Description", description: "What the model reads to decide when and how to call this tool. The most important field -- be specific about when to use it and what it returns.", color: "teal" },
+    { line: 10, label: "Input schema", description: "A JSON Schema object defining the arguments the model must provide. The model generates valid JSON matching this schema.", color: "amber" },
+    { line: 13, label: "Property definition", description: "Each argument the tool accepts. Include the expected format so the model provides the right value.", color: "blue" },
+    { line: 17, label: "Required fields", description: "List which arguments are mandatory. The model will always provide these before making the tool call.", color: "violet" },
+  ]}
+/>
+
+</SessionSection>
+
+
+{/* SECTION 4 - PRACTICAL EXAMPLE */}
+<SessionSection id="practical-example" label="Practical Example">
+
+## A travel assistant that uses three tools to answer one question
+
+A user asks: "Can I afford to fly from Cairo to London next weekend, and what is the weather like?" This requires three tools: get_flight_prices (hits a flight search API for available routes and prices), get_exchange_rate (converts GBP to EGP so the user sees local currency), and get_weather_forecast (returns London weather for next weekend). All three are independent -- the model requests all three in one response, your application runs them in parallel, and the results come back together. The model then generates one coherent answer: "The cheapest flight is £320 (approximately 16,000 EGP). London next weekend will be 12°C and rainy."
+
+<DataFlowDiagram
+  title="Travel assistant -- three parallel tool calls answering one user question"
+  caption="Follow the flow -- notice all three tools run in parallel between the first and second model call"
+  height={380}
+  nodes={[
+    { id: "user-q", label: "User question", sublabel: "Can I afford Cairo to London next weekend? What's the weather?", x: 4, y: 50, color: "gray" },
+    { id: "model-1", label: "Model call 1", sublabel: "Model reads question and 3 tool descriptions -- requests all three in one response", x: 22, y: 50, color: "violet" },
+    { id: "flight", label: "get_flight_prices", sublabel: "Hits flight search API -- returns available flights and prices in GBP", x: 50, y: 15, color: "amber" },
+    { id: "exchange", label: "get_exchange_rate", sublabel: "Hits currency API -- returns GBP to EGP conversion rate", x: 50, y: 50, color: "amber" },
+    { id: "weather", label: "get_weather_forecast", sublabel: "Hits weather API -- returns London forecast for next weekend", x: 50, y: 82, color: "amber" },
+    { id: "model-2", label: "Model call 2", sublabel: "Model receives all 3 results -- generates one combined answer", x: 76, y: 50, color: "violet" },
+    { id: "final", label: "Final answer", sublabel: "Cheapest flight: £320 (~16,000 EGP). London: 12°C and rainy next weekend", x: 93, y: 50, color: "teal" },
+  ]}
+  edges={[
+    { from: "user-q", to: "model-1", animated: true },
+    { from: "model-1", to: "flight", animated: true, label: "Parallel request" },
+    { from: "model-1", to: "exchange", animated: true, label: "Parallel request" },
+    { from: "model-1", to: "weather", animated: true, label: "Parallel request" },
+    { from: "flight", to: "model-2", animated: true },
+    { from: "exchange", to: "model-2", animated: true },
+    { from: "weather", to: "model-2", animated: true },
+    { from: "model-2", to: "final", animated: true },
+  ]}
+  highlightPath={["user-q", "model-1", "flight", "model-2", "final"]}
+/>
+
+</SessionSection>
+
+
+{/* SECTION 5 - RECAP */}
+<SessionSection id="recap" label="Recap">
+
+## What we covered
+
+<RecapTable rows={[
+  { term: "Tool", definition: "Any callable function you expose to the model -- can wrap a REST API, database query, code executor, or internal service" },
+  { term: "tool_use block", definition: "The structured JSON the model returns when it wants to call a tool -- contains the tool name and the arguments your code should use" },
+  { term: "tool_result block", definition: "The message you send back containing the output of the function you executed" },
+  { term: "input_schema", definition: "A JSON Schema definition specifying what arguments the model must provide when calling a tool" },
+  { term: "Parallel tool calls", definition: "When the model requests multiple independent tools in one response so your application can run them simultaneously" },
+]} />
+
+</SessionSection>
+
+
+{/* SECTION 6 - NEXT SESSION */}
+<SessionSection id="next-session" label="Next Session">
+
+<NextSessionCard
+  title="MCP"
+  slug="mcp"
+  teaser="You now know how to define tools one by one -- MCP is the standard that lets you define them once and connect them to any model or agent without writing custom integration code for each provider."
+  module={2}
+/>
+
+</SessionSection>

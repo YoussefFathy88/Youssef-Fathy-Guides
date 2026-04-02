@@ -1,0 +1,257 @@
+---
+title: "Agent Memory Types"
+slug: "agent-memory-types"
+module: 2
+moduleName: "Giving the Brain Capabilities"
+sessionNumber: 6
+duration: "12 min"
+difficulty: "intermediate"
+tags: ["memory", "episodic", "semantic"]
+nextSession: "rag"
+prevSession: "how-llms-think"
+---
+
+{/* SECTION 1 - GOAL */}
+
+<SessionSection id="goal" label="Goal">
+
+## Understand the four types of memory an AI agent can have and when to use each one
+
+By default, LLMs are stateless -- every API call starts from scratch with no memory of what came before. If you want an agent to remember anything, you have to design that memory system yourself. This session maps the four memory types, what each stores, where it lives, and which problem it solves.
+
+</SessionSection>
+
+
+{/* SECTION 2 - BIG PICTURE */}
+
+<SessionSection id="big-picture" label="Big Picture">
+
+## Memory is what turns a stateless model into an agent that learns over time
+
+Without a memory system, your agent forgets everything the moment a session ends. The four memory types solve different parts of that problem: active working context, past experiences, factual knowledge, and learned procedures. Most real agents combine two or more of them.
+
+<NodeFlowDiagram
+  title="Memory is what turns a stateless model into an agent that learns over time"
+  height={560}
+  groups={[
+    { id: "external", label: "External Storage", nodeIds: ["episodic", "semantic", "procedural"], color: "amber" },
+  ]}
+  nodes={[
+    { id: "agent",      label: "Agent (LLM)",    sublabel: "Makes decisions",             x: 50, y: 50, color: "violet", shape: "circle", size: "lg", emoji: "🤖" },
+    { id: "incontext",  label: "In-context",     sublabel: "Active conversation window",  x: 50, y: 12, color: "teal",   shape: "rect",   emoji: "💬" },
+    { id: "episodic",   label: "Episodic",       sublabel: "Past interaction logs",       x: 85, y: 35, color: "amber",  shape: "hex",    emoji: "📜" },
+    { id: "semantic",   label: "Semantic",       sublabel: "Facts + vector DB",           x: 85, y: 65, color: "amber",  shape: "hex",    emoji: "🔍" },
+    { id: "procedural", label: "Procedural",     sublabel: "System prompt / config",      x: 50, y: 86, color: "gray",   shape: "rect",   emoji: "📋" },
+    { id: "response",   label: "Response",       sublabel: "Output to user",              x: 14, y: 50, color: "gray",   shape: "rect",   emoji: "📤" },
+  ]}
+  edges={[
+    { from: "incontext",  to: "agent",    animated: true,  label: "always present",    color: "teal" },
+    { from: "episodic",   to: "agent",    animated: true,  label: "retrieved on demand" },
+    { from: "semantic",   to: "agent",    animated: true,  label: "retrieved on demand" },
+    { from: "procedural", to: "agent",    animated: false, label: "loaded at start",   dashed: true },
+    { from: "agent",      to: "response", animated: true },
+  ]}
+  steps={[
+    { id: "s1", label: "In-context memory",   description: "Everything currently in the context window — system prompt, conversation, retrieved documents. Zero infrastructure. Instant access. Disappears when the session ends.", highlightNodes: ["incontext", "agent"], highlightEdges: ["incontext→agent"] },
+    { id: "s2", label: "Episodic memory",     description: "Past interaction logs stored in an external database. The agent retrieves summaries of previous sessions on demand — giving it a sense of history across conversations.", highlightNodes: ["episodic", "agent"], highlightEdges: ["episodic→agent"] },
+    { id: "s3", label: "Semantic memory",     description: "Factual knowledge stored in a vector database. Powers RAG retrieval — the agent embeds a query and finds semantically similar facts. This is the memory type from the next session.", highlightNodes: ["semantic", "agent"], highlightEdges: ["semantic→agent"] },
+    { id: "s4", label: "Procedural memory",   description: "Fixed rules, personas, and instructions in the system prompt or a config file. Loaded once at the start. Never retrieved dynamically — it defines how the agent behaves.", highlightNodes: ["procedural", "agent"], highlightEdges: ["procedural→agent"] },
+    { id: "s5", label: "Agent responds",      description: "After consulting memory, the agent produces a response or a tool call. For long-running agents this loop repeats — each response may also write back to episodic or semantic memory.", highlightNodes: ["agent", "response"], highlightEdges: ["agent→response"] },
+  ]}
+/>
+
+</SessionSection>
+
+
+{/* SECTION 3 - CORE CONCEPTS */}
+
+<SessionSection id="core-concepts" label="Core Concepts">
+
+## In-context memory: the agent's active working space
+
+In-context memory is everything currently inside the context window: the system prompt, the conversation so far, retrieved documents, and the current user message. It needs no external infrastructure and is instantly available. Its limit is the context window itself, so old content gets truncated and disappears unless you save it somewhere else.
+
+<ConceptStepper
+  title="How in-context memory grows and gets truncated during a long conversation"
+  caption="Step through the turns -- notice the moment old content starts getting dropped"
+  autoPlay={false}
+  showDots={true}
+  steps={[
+    {
+      title: "Turn 1 -- conversation starts fresh",
+      caption: "Context window holds: system prompt (500 tokens) + first user message (50 tokens) = 550 tokens total. The agent sees everything clearly.",
+      visual: null
+    },
+    {
+      title: "Turn 10 -- history is accumulating",
+      caption: "Context now holds: system prompt (500) + 9 previous turns (1,800 tokens) + current message (60 tokens) = 2,360 tokens. Still fits -- no truncation yet.",
+      visual: null
+    },
+    {
+      title: "Turn 40 -- context window is nearly full",
+      caption: "39 turns of back-and-forth have accumulated. The oldest turns are now being dropped to make room. The agent can no longer see what was said in turns 1-15.",
+      visual: null
+    },
+    {
+      title: "Session ends -- all in-context memory is erased",
+      caption: "The context window clears completely. The next session starts blank -- unless the agent wrote important information to episodic or semantic memory before closing.",
+      visual: null
+    },
+  ]}
+/>
+
+### Episodic memory: a searchable log of past sessions
+
+Episodic memory stores records of specific past interactions: what the user asked, what the agent did, and what happened next. Those records are saved to an external store and the most relevant ones are pulled back into context in later sessions. It answers the question, "what happened before?"
+
+<ConceptCompare
+  title="Support agent without episodic memory vs support agent with episodic memory"
+  caption="Toggle between the two -- notice what the agent can and cannot reference in a follow-up conversation"
+  mode="toggle"
+  left={{
+    label: "No episodic memory -- every session is a blank slate",
+    color: "gray",
+    points: [
+      "Agent has zero knowledge of past interactions",
+      "User must re-explain context every time: 'As I mentioned last week...'",
+      "Agent cannot reference past decisions, errors, or resolutions",
+      "Frustrating for users with ongoing issues or multi-session tasks",
+    ]
+  }}
+  right={{
+    label: "With episodic memory -- past sessions are searchable",
+    color: "teal",
+    points: [
+      "Summaries of past interactions stored in a vector database",
+      "Top 3 most relevant past episodes retrieved at session start",
+      "Agent can say: 'Last Tuesday you had a billing error -- we resolved it by resetting your subscription'",
+      "Enables coherent continuity across days, weeks, or months",
+    ]
+  }}
+/>
+
+### Semantic memory: facts and knowledge the agent can look up
+
+Semantic memory stores factual knowledge that is independent of any single interaction: product docs, company policies, domain knowledge, user preferences, or bug lists. The agent queries it when it needs a fact, not a story about a past event. RAG is the most common implementation, and the next session opens up exactly how that retrieval flow works.
+
+<ConceptCompare
+  title="Episodic memory vs semantic memory -- what each one actually stores"
+  caption="Read both sides -- one remembers what happened, the other knows what is true"
+  mode="side-by-side"
+  left={{
+    label: "Episodic memory -- records of events",
+    color: "amber",
+    points: [
+      "'On 3 March, user reported a login error on their mobile app'",
+      "'Agent escalated the ticket to tier-2 support'",
+      "'Issue was resolved by resetting the OAuth token'",
+      "Always tied to a specific time, user, and outcome",
+    ]
+  }}
+  right={{
+    label: "Semantic memory -- statements of fact",
+    color: "teal",
+    points: [
+      "'OAuth tokens in this system expire after 24 hours'",
+      "'Tier-2 support handles all authentication-related issues'",
+      "'The mobile app login flow uses Auth0 as the identity provider'",
+      "Not tied to any event -- true regardless of when you ask",
+    ]
+  }}
+/>
+
+### Procedural memory: the instructions that shape how the agent behaves
+
+Procedural memory stores rules, workflows, and decision logic: how to handle a refund, which tool to call, how to format an answer, and when to escalate. In practice it lives in the system prompt, tool definitions, or startup configuration. Unlike episodic and semantic memory, it is usually loaded once at the beginning and shapes every decision that follows.
+
+<DataFlowDiagram
+  title="How procedural memory enters the agent at session startup"
+  caption="Follow the startup flow, then click any node to see the detailed explanation below the diagram"
+  height={260}
+  nodeDetailMode="panel"
+  nodes={[
+    { id: "sysprompt", label: "System prompt", sublabel: "Step-by-step rules and escalation logic", x: 8, y: 25, color: "gray" },
+    { id: "tools", label: "Tool definitions", sublabel: "When and how to call each available tool", x: 8, y: 75, color: "gray" },
+    { id: "startup", label: "Agent session start", sublabel: "Procedural memory loaded here -- before first user message", x: 42, y: 50, color: "violet" },
+    { id: "convo", label: "Conversation runs", sublabel: "Agent follows loaded rules throughout session", x: 72, y: 50, color: "teal" },
+    { id: "usermsg", label: "User message arrives", sublabel: "Triggers agent response -- rules already in place", x: 93, y: 50, color: "gray" },
+  ]}
+  edges={[
+    { from: "sysprompt", to: "startup", animated: false, label: "Loaded once", dashed: true },
+    { from: "tools", to: "startup", animated: false, label: "Loaded once", dashed: true },
+    { from: "startup", to: "convo", animated: true },
+    { from: "usermsg", to: "convo", animated: true },
+  ]}
+  highlightPath={["sysprompt", "startup", "convo"]}
+/>
+
+</SessionSection>
+
+
+{/* SECTION 4 - PRACTICAL EXAMPLE */}
+
+<SessionSection id="practical-example" label="Practical Example">
+
+## A customer support agent using all four memory types together
+
+A SaaS company builds a support agent for enterprise customers. In-context memory holds the live conversation while episodic memory retrieves the most relevant past tickets so the agent already knows what happened before. Semantic memory supplies product facts from documentation, and procedural memory defines when to resolve the issue directly versus escalate to a human.
+
+<DataFlowDiagram
+  title="Customer support agent -- all four memory types activating together on one user message"
+  caption="Trace the flow, then click any node to see its explanation below the diagram"
+  height={360}
+  nodeDetailMode="panel"
+  nodes={[
+    { id: "msg", label: "Customer message", sublabel: "'My payment failed again -- this happened last month too'", x: 4, y: 50, color: "gray" },
+    { id: "incontext", label: "In-context memory", sublabel: "Current conversation -- already in context window", x: 30, y: 15, color: "teal" },
+    { id: "episodic", label: "Episodic memory", sublabel: "Last month's payment failure ticket -- retrieved by similarity search", x: 30, y: 50, color: "amber" },
+    { id: "semantic", label: "Semantic memory", sublabel: "Payment retry policy doc -- retrieved from vector DB", x: 30, y: 82, color: "teal" },
+    { id: "agent", label: "Agent (LLM)", sublabel: "Combines all four memory sources to form response", x: 62, y: 50, color: "violet" },
+    { id: "procedural", label: "Procedural memory", sublabel: "Escalation rules -- loaded in system prompt at session start", x: 62, y: 85, color: "gray" },
+    { id: "response", label: "Response to customer", sublabel: "'I can see last month's issue -- here is what to try first...'", x: 90, y: 50, color: "teal" },
+  ]}
+  edges={[
+    { from: "msg", to: "incontext", animated: true },
+    { from: "msg", to: "episodic", animated: true },
+    { from: "msg", to: "semantic", animated: true },
+    { from: "incontext", to: "agent", animated: true },
+    { from: "episodic", to: "agent", animated: true },
+    { from: "semantic", to: "agent", animated: true },
+    { from: "procedural", to: "agent", animated: false, dashed: true },
+    { from: "agent", to: "response", animated: true },
+  ]}
+  highlightPath={["msg", "episodic", "agent", "response"]}
+/>
+
+</SessionSection>
+
+
+{/* SECTION 5 - RECAP */}
+
+<SessionSection id="recap" label="Recap">
+
+## What we covered
+
+<RecapTable rows={[
+  { term: "In-context memory", definition: "Everything currently in the context window -- fast and always available, but temporary and limited by context window size" },
+  { term: "Episodic memory", definition: "A stored log of past interactions saved to an external database and retrieved at the start of future sessions" },
+  { term: "Semantic memory", definition: "A store of facts and knowledge retrieved on demand when the agent needs specific information -- RAG is the main implementation" },
+  { term: "Procedural memory", definition: "Rules and instructions loaded at agent startup that define how the agent behaves throughout the session" },
+  { term: "Stateless", definition: "The default behaviour of an LLM -- no memory of previous API calls, every request processed independently from scratch" },
+]} />
+
+</SessionSection>
+
+
+{/* SECTION 6 - NEXT SESSION */}
+
+<SessionSection id="next-session" label="Next Session">
+
+<NextSessionCard
+  title="RAG"
+  slug="rag"
+  teaser="Semantic memory needs a retrieval mechanism to actually work -- RAG is exactly that. Next session we open up how RAG finds the right document at query time and why it is the most widely deployed memory pattern in production agents today."
+  module={2}
+/>
+
+</SessionSection>

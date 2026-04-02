@@ -6,7 +6,6 @@ import {
   getNextAvailableSession,
   getRequiredSessionToUnlock,
   getSessionRoute,
-  isSessionUnlocked,
 } from "@/lib/course";
 
 import { ButtonLink } from "@/components/ui/button-link";
@@ -19,7 +18,6 @@ type SessionProgressCtaProps = {
 export function SessionProgressCta({ session }: SessionProgressCtaProps) {
   const { completed, markComplete } = useProgress();
   const isCompleted = completed.has(session.id);
-  const isUnlocked = isSessionUnlocked(session.id, completed);
   const nextSession = getNextAvailableSession(session.id, completed);
   const requiredSession = getRequiredSessionToUnlock(session);
 
@@ -32,25 +30,29 @@ export function SessionProgressCta({ session }: SessionProgressCtaProps) {
             {nextSession ? `${nextSession.id} | ${nextSession.title}` : "Course checkpoint reached"}
           </h2>
           <p className="mt-3 max-w-3xl text-lg text-slate-300">
-            Mark this session complete to persist your progress locally and unlock the next step in the journey.
+            Mark this session complete to persist your progress locally and keep your guided path in sync.
           </p>
+          {requiredSession ? (
+            <p className="mt-3 text-sm text-slate-400">
+              Recommended first in the guided path: {requiredSession.id} | {requiredSession.title}
+            </p>
+          ) : null}
         </div>
 
         <div className="flex flex-wrap gap-3">
           {!isCompleted ? (
-            isUnlocked ? (
-              <button
-                type="button"
-                onClick={() => markComplete(session.id)}
-                className="rounded-full border border-emerald-400/20 bg-emerald-500/12 px-5 py-3 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/20"
-              >
-                Mark {session.id} complete
-              </button>
-            ) : requiredSession ? (
-              <ButtonLink href={getSessionRoute(requiredSession)} variant="secondary">
-                Unlock via {requiredSession.id}
-              </ButtonLink>
-            ) : null
+            <button
+              type="button"
+              onClick={() => markComplete(session.id)}
+              className="rounded-full border border-emerald-400/20 bg-emerald-500/12 px-5 py-3 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/20"
+            >
+              Mark {session.id} complete
+            </button>
+          ) : null}
+          {requiredSession ? (
+            <ButtonLink href={getSessionRoute(requiredSession)} variant="secondary">
+              Open {requiredSession.id}
+            </ButtonLink>
           ) : null}
           {nextSession ? (
             <ButtonLink href={getSessionRoute(nextSession)}>

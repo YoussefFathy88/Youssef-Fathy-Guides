@@ -1,0 +1,195 @@
+---
+title: "Transformer & Attention"
+slug: "transformer-attention"
+module: 1
+moduleName: "The Engine Room"
+sessionNumber: 4
+duration: "13 min"
+difficulty: "beginner"
+tags: ["attention", "transformer", "qkv"]
+nextSession: "how-llms-think"
+prevSession: "embeddings"
+---
+
+{/* SECTION 1 - GOAL */}
+
+<SessionSection id="goal" label="Goal">
+
+## Understand how the transformer lets every token talk to every other token
+
+The last session turned tokens into vectors. This session shows what happens next -- how the transformer uses attention to let every token look at every other token simultaneously and decide which ones matter for understanding its own meaning.
+
+</SessionSection>
+
+
+{/* SECTION 2 - BIG PICTURE */}
+
+<SessionSection id="big-picture" label="Big Picture">
+
+## The transformer block is the engine inside every modern LLM
+
+A transformer is a stack of identical blocks. Each block has two jobs: attention (tokens talk to each other) and a feed-forward layer (each token processes what it learned). This repeats across many layers -- GPT-4 has 96 layers, each refining the vectors further before the final output.
+
+<NodeFlowDiagram
+  title="What happens inside one transformer block — repeated 96× in GPT-4"
+  height={540}
+  groups={[
+    { id: "block", label: "One Transformer Block (×96 in GPT-4)", nodeIds: ["attn", "attn2", "attn3", "ffn"], color: "violet" },
+  ]}
+  nodes={[
+    { id: "input",  label: "Input Vectors",      sublabel: "From embedding or prior block",    x: 50, y: 10, color: "gray",   shape: "rect", size: "lg", emoji: "📥" },
+    { id: "attn",   label: "Attention Head 1",   sublabel: "Q·K·V: tokens talk to each other", x: 22, y: 42, color: "violet", shape: "rect", emoji: "👁️" },
+    { id: "attn2",  label: "Attention Head 2",   sublabel: "Different subspace focus",          x: 50, y: 42, color: "violet", shape: "rect", emoji: "👁️" },
+    { id: "attn3",  label: "Attention Head 3…",  sublabel: "Up to 96 heads in parallel",        x: 78, y: 42, color: "violet", shape: "rect", emoji: "👁️" },
+    { id: "ffn",    label: "Feed-Forward Net",   sublabel: "Each token processed independently", x: 50, y: 70, color: "teal",   shape: "rect", size: "lg", emoji: "⚡" },
+    { id: "output", label: "Output Vectors",     sublabel: "Richer, context-aware vectors",     x: 50, y: 92, color: "amber",  shape: "rect", size: "lg", emoji: "📤" },
+  ]}
+  edges={[
+    { from: "input",  to: "attn",   animated: true, stepNumber: 1 },
+    { from: "input",  to: "attn2",  animated: true },
+    { from: "input",  to: "attn3",  animated: true },
+    { from: "attn",   to: "ffn",    animated: true, stepNumber: 2 },
+    { from: "attn2",  to: "ffn",    animated: true },
+    { from: "attn3",  to: "ffn",    animated: true },
+    { from: "ffn",    to: "output", animated: true, stepNumber: 3 },
+  ]}
+  steps={[
+    { id: "s1", label: "Input vectors enter the block", description: "Each token arrives as a vector — from the embedding layer on the first block, or from the previous transformer block output for all subsequent blocks.", highlightNodes: ["input"], highlightEdges: [] },
+    { id: "s2", label: "Multiple attention heads run in parallel", description: "Every attention head computes Q, K, V for every token simultaneously. Each head focuses on a different learned subspace — one might track syntax, another semantics, another coreference. GPT-4 runs 96 of these in parallel per block.", highlightNodes: ["attn", "attn2", "attn3"], highlightEdges: ["input→attn", "input→attn2", "input→attn3"] },
+    { id: "s3", label: "Feed-forward network refines each token", description: "The attention outputs are combined, then passed through a small two-layer neural network — independently for each token. This is where most of the model's factual knowledge lives in its weights.", highlightNodes: ["ffn"], highlightEdges: ["attn→ffn", "attn2→ffn", "attn3→ffn"] },
+    { id: "s4", label: "Richer vectors move to the next block", description: "The output vectors carry more context than the inputs. This block repeats dozens of times — each pass deepens the model's understanding before the final token prediction.", highlightNodes: ["ffn", "output"], highlightEdges: ["ffn→output"] },
+  ]}
+/>
+
+</SessionSection>
+
+
+{/* SECTION 3 - CORE CONCEPTS */}
+
+<SessionSection id="core-concepts" label="Core Concepts">
+
+## Attention lets every token ask a question about every other token
+
+For each token, the model creates three vectors from its embedding: a Query (what am I looking for?), a Key (what do I offer?), and a Value (what should I contribute if selected?). The token compares its Query against every other token's Key to get a score, turns those scores into weights with softmax, then blends all the Values using those weights. The result is a new vector for that token -- one that now carries context from the whole sequence.
+
+<AttentionHeatmap
+  title='Attention weights for "The cat sat on the mat"'
+  caption='Click any token row to see what it attends to -- notice how "sat" strongly attends to "cat"'
+  colorRamp="amber"
+  tokens={["The", "cat", "sat", "on", "the", "mat"]}
+  weights={[
+    [0.40, 0.25, 0.15, 0.08, 0.07, 0.05],
+    [0.10, 0.55, 0.20, 0.05, 0.05, 0.05],
+    [0.05, 0.50, 0.25, 0.08, 0.05, 0.07],
+    [0.10, 0.15, 0.30, 0.25, 0.10, 0.10],
+    [0.30, 0.10, 0.10, 0.10, 0.25, 0.15],
+    [0.05, 0.10, 0.15, 0.15, 0.20, 0.35],
+  ]}
+/>
+
+### Q, K, V is a learned search engine
+
+Think of it like a YouTube search. Your search query is Q. Each video's title is a K. The video itself is V. Attention compares your Q against every K, scores the matches, and returns a weighted blend of the matching Vs. The key difference from a real search engine: the weights are soft -- every token contributes something, just with different amounts.
+
+<StepSequence
+  title="How Q, K, V works step by step"
+  caption="Click any step to expand the detail for that stage"
+  orientation="vertical"
+  steps={[
+    { number: 1, phase: "Project", title: "Create Q, K, V for every token", detail: "Each token's vector is multiplied by three learned weight matrices to produce its Query, Key, and Value vectors. These matrices are learned during training.", color: "violet" },
+    { number: 2, phase: "Score", title: "Compare Q against every K", detail: "The Query for each token is dot-producted against the Key of every other token. For \"sat\", the Key of \"cat\" scores highest because sat needs to know who is doing the sitting.", color: "teal" },
+    { number: 3, phase: "Normalise", title: "Scale and apply softmax", detail: "The raw scores are divided by the square root of the vector dimension to keep numbers stable, then softmax converts them into weights that sum to 1.0.", color: "amber" },
+    { number: 4, phase: "Blend", title: "Blend the Values", detail: "Each token's Value vector is multiplied by its weight. All weighted Values are summed to produce one output vector per token.", color: "blue" },
+    { number: 5, phase: "Output", title: "Output is context-aware", detail: "The new vector for \"sat\" now carries information from \"cat\", \"mat\", and all other tokens -- weighted by relevance. Attention is complete for this layer.", color: "violet" },
+  ]}
+/>
+
+### Multi-head attention runs this process in parallel
+
+A single attention pass captures one type of relationship. Multi-head attention runs several passes in parallel -- each head learns to focus on different patterns like subject-verb, pronoun-reference, or position. The outputs are concatenated and projected back to the original dimension. Most modern models use 12 to 96 heads per layer.
+
+<ConceptCompare
+  title="Single-head vs multi-head attention"
+  caption="Toggle to see what changes when you add more heads"
+  mode="toggle"
+  left={{
+    label: "Single-head attention",
+    color: "gray",
+    points: [
+      "One set of Q, K, V matrices",
+      "Captures one relationship type per layer",
+      "Cheaper to compute",
+      "Misses parallel patterns like syntax AND semantics simultaneously",
+    ]
+  }}
+  right={{
+    label: "Multi-head attention",
+    color: "violet",
+    points: [
+      "Multiple Q, K, V sets run in parallel",
+      "Each head specializes in a different relationship",
+      "Outputs concatenated then projected back to original size",
+      "GPT-4 uses 96 heads per layer",
+    ]
+  }}
+/>
+
+</SessionSection>
+
+
+{/* SECTION 4 - PRACTICAL EXAMPLE */}
+
+<SessionSection id="practical-example" label="Practical Example">
+
+## Why "she" in a sentence gets resolved correctly
+
+A developer builds a document summarizer. The model receives: "The contract was signed by the CEO because she approved it." The pronoun "she" needs to resolve to "CEO" not "contract". Attention handles this -- "she" produces a Query that scores highly against the Key of "CEO" and low against "contract". The updated vector for "she" carries the CEO's context. Without attention, the model would have no mechanism to link pronouns to their referents across long distances.
+
+<AttentionHeatmap
+  title='How "she" attends to resolve its reference'
+  caption='Click the "she" row -- notice it attends strongly to "CEO" and weakly to "contract"'
+  colorRamp="amber"
+  tokens={["contract", "CEO", "because", "she", "approved", "it", "."]}
+  weights={[
+    [0.35, 0.20, 0.10, 0.10, 0.10, 0.10, 0.05],
+    [0.15, 0.40, 0.10, 0.15, 0.10, 0.05, 0.05],
+    [0.10, 0.10, 0.35, 0.15, 0.15, 0.10, 0.05],
+    [0.05, 0.65, 0.05, 0.10, 0.08, 0.05, 0.02],
+    [0.10, 0.20, 0.10, 0.25, 0.20, 0.10, 0.05],
+    [0.30, 0.10, 0.10, 0.10, 0.15, 0.20, 0.05],
+    [0.10, 0.10, 0.10, 0.10, 0.15, 0.10, 0.35],
+  ]}
+/>
+
+</SessionSection>
+
+
+{/* SECTION 5 - RECAP */}
+
+<SessionSection id="recap" label="Recap">
+
+## What we covered
+
+<RecapTable rows={[
+  { term: "Attention", definition: "A mechanism that lets each token create a context-aware vector by blending information from all other tokens" },
+  { term: "Query (Q)", definition: "A vector representing what a token is looking for in other tokens" },
+  { term: "Key (K)", definition: "A vector representing what a token offers to other tokens searching for it" },
+  { term: "Value (V)", definition: "A vector representing the actual content a token contributes when selected by attention" },
+  { term: "Multi-head attention", definition: "Running multiple attention passes in parallel, each capturing a different type of relationship" },
+]} />
+
+</SessionSection>
+
+
+{/* SECTION 6 - NEXT SESSION */}
+
+<SessionSection id="next-session" label="Next Session">
+
+<NextSessionCard
+  title="How LLMs Think"
+  slug="how-llms-think"
+  teaser="Now that you understand how the transformer builds context, the next question is what the model does with that context -- and how temperature and sampling shape what actually comes out."
+  module={1}
+/>
+
+</SessionSection>

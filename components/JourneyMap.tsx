@@ -74,14 +74,13 @@ export function JourneyMap({ currentSessionId, className }: JourneyMapProps) {
                 </div>
               </div>
 
-              <div className="-mx-2 overflow-x-auto px-2 pb-2">
+              <div className="-mx-2 overflow-x-auto px-2 pb-2 pt-4">
                 <div className="flex min-w-max gap-3">
                   {moduleSessions.map((session) => {
                     const state =
                       session.id === derivedCurrentSessionId
                         ? "current"
                         : getSessionState(session, completed, derivedCurrentSessionId);
-                    const canNavigate = state !== "locked";
                     const baseClasses =
                       "relative inline-flex min-w-[12rem] items-center justify-center rounded-full border px-4 py-3 text-sm font-medium transition duration-300";
 
@@ -114,25 +113,8 @@ export function JourneyMap({ currentSessionId, className }: JourneyMapProps) {
                       <>
                         <span>{session.id}</span>
                         <span className="ml-2 truncate">{session.title}</span>
-                        {state === "current" ? (
-                          <span className="absolute -top-2 rounded-full border border-white/15 bg-slate-950 px-2 py-0.5 text-[10px] uppercase tracking-[0.2em] text-white">
-                            You are here
-                          </span>
-                        ) : null}
                       </>
                     );
-
-                    if (!canNavigate) {
-                      return (
-                        <div
-                          key={session.id}
-                          className={baseClasses}
-                          style={style}
-                        >
-                          {pill}
-                        </div>
-                      );
-                    }
 
                     return (
                       <Link

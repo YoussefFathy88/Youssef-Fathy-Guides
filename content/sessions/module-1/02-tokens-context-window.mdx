@@ -30,32 +30,27 @@ Every LLM API call you make is secretly a tokenization problem. This session sho
 
 Before the model runs attention or predicts anything, your text is converted to a sequence of token IDs. That sequence is all the model ever sees -- not words, not characters, not sentences. The context window is the maximum number of those tokens the model can hold at once.
 
-<ConceptStepper
-  title="From text to token IDs"
-  caption="Step through each stage -- notice what gets lost and what survives"
-  autoPlay={false}
-  showDots={true}
+<NodeFlowDiagram
+  title="From raw text to what the model actually reads"
+  height={420}
+  nodes={[
+    { id: "text",    label: "Raw Text",       sublabel: "\"Hello, world!\"",            x: 10, y: 50, color: "gray",   shape: "rect", emoji: "📝" },
+    { id: "bpe",     label: "BPE Tokenizer",  sublabel: "Byte-pair encoding",           x: 36, y: 50, color: "violet", shape: "rect", size: "lg", emoji: "✂️" },
+    { id: "tokens",  label: "Token Strings",  sublabel: "\"Hello\", \",\", \" world\"…", x: 62, y: 50, color: "teal",   shape: "rect", emoji: "🔤" },
+    { id: "ids",     label: "Token IDs",      sublabel: "[15496, 11, 995…]",            x: 86, y: 50, color: "amber",  shape: "rect", emoji: "🔢" },
+    { id: "window",  label: "Context Window", sublabel: "Max tokens the model holds",   x: 86, y: 82, color: "blue",   shape: "hex",  size: "lg", emoji: "🪟" },
+  ]}
+  edges={[
+    { from: "text",   to: "bpe",    animated: true, stepNumber: 1 },
+    { from: "bpe",    to: "tokens", animated: true, stepNumber: 2 },
+    { from: "tokens", to: "ids",    animated: true, stepNumber: 3 },
+    { from: "ids",    to: "window", animated: true, stepNumber: 4, label: "fills up to limit" },
+  ]}
   steps={[
-    {
-      title: "1. Your raw text",
-      caption: "The string \"Hello, world! How are you?\" enters the pipeline exactly as typed.",
-      visual: null
-    },
-    {
-      title: "2. Byte-pair encoding splits it",
-      caption: "The tokenizer applies BPE rules. \"Hello\" becomes one token, \",\" one token, \" world\" one token, \"!\" one token, \" How\" one token, \" are\" one token, \" you\" one token, \"?\" one token. 8 tokens total.",
-      visual: null
-    },
-    {
-      title: "3. Token IDs assigned",
-      caption: "Each token maps to an integer in the vocabulary. \"Hello\" = 15496, \",\" = 11, \" world\" = 995, and so on.",
-      visual: null
-    },
-    {
-      title: "4. Integer sequence handed to the model",
-      caption: "The model receives [15496, 11, 995, 0, 1374, 389, 345, 30]. This is the only input it ever sees.",
-      visual: null
-    },
+    { id: "s1", label: "Raw text enters",          description: "Your string — the prompt you write — enters the tokenization pipeline exactly as typed. The model never sees the characters directly.", highlightNodes: ["text"], highlightEdges: [] },
+    { id: "s2", label: "BPE splits into tokens",   description: "The tokenizer applies Byte-Pair Encoding rules learned from training data. Common words become single tokens; rare or compound words get split into subwords.", highlightNodes: ["bpe", "tokens"], highlightEdges: ["text→bpe", "bpe→tokens"] },
+    { id: "s3", label: "Tokens mapped to integers", description: "Each token string maps to a fixed integer ID in the vocabulary. \"Hello\" = 15496, \",\" = 11, \" world\" = 995. These IDs are all the model operates on.", highlightNodes: ["tokens", "ids"], highlightEdges: ["tokens→ids"] },
+    { id: "s4", label: "IDs fill the context window", description: "The integer sequence is placed into the context window. The model can only process up to a maximum number of tokens at once — this is the hard limit that shapes your entire architecture.", highlightNodes: ["ids", "window"], highlightEdges: ["ids→window"] },
   ]}
 />
 
@@ -70,37 +65,16 @@ Before the model runs attention or predicts anything, your text is converted to 
 
 Tokenizers use Byte-Pair Encoding (BPE) -- a compression algorithm that learns common subword patterns from training data. Common words become single tokens; rare words get split into pieces. This means "unhappiness" might be 3 tokens while "the" is always 1.
 
-<ConceptStepper
+<StepSequence
   title="How BPE handles different words"
-  caption="Step through each word type -- notice how token count changes with word frequency"
-  autoPlay={false}
-  showDots={true}
+  caption="Click any step to expand -- notice how token count changes with word frequency"
+  orientation="vertical"
   steps={[
-    {
-      title: "Common word: \"the\"",
-      caption: "\"the\" = 1 token (ID: 262). Extremely common words get their own single token.",
-      visual: null
-    },
-    {
-      title: "Normal word: \"hello\"",
-      caption: "\"hello\" = 1 token (ID: 15496). Common enough to have its own entry in the vocabulary.",
-      visual: null
-    },
-    {
-      title: "Compound word: \"unhappiness\"",
-      caption: "\"unhappiness\" = 3 tokens: [\"un\", \"happiness\", \"s\"]. Rare words get split into known subword pieces.",
-      visual: null
-    },
-    {
-      title: "Technical term: \"ChatGPT\"",
-      caption: "\"ChatGPT\" = 3 tokens: [\"Chat\", \"G\", \"PT\"]. Brand names and rare proper nouns split further.",
-      visual: null
-    },
-    {
-      title: "URL: \"https://openai.com\"",
-      caption: "\"https://openai.com\" = 7+ tokens. Punctuation, slashes, and dots each become separate tokens.",
-      visual: null
-    },
+    { number: 1, phase: "Common", title: "\"the\" = 1 token", detail: "\"the\" = 1 token (ID: 262). Extremely common words get their own single token in the vocabulary.", color: "teal" },
+    { number: 2, phase: "Normal", title: "\"hello\" = 1 token", detail: "\"hello\" = 1 token (ID: 15496). Common enough to have its own entry in the vocabulary.", color: "teal" },
+    { number: 3, phase: "Compound", title: "\"unhappiness\" = 3 tokens", detail: "\"unhappiness\" = 3 tokens: [\"un\", \"happi\", \"ness\"]. Rare words get split into known subword pieces.", color: "amber" },
+    { number: 4, phase: "Technical", title: "\"ChatGPT\" = 3 tokens", detail: "\"ChatGPT\" = 3 tokens: [\"Chat\", \"G\", \"PT\"]. Brand names and rare proper nouns split further.", color: "amber" },
+    { number: 5, phase: "URL", title: "\"https://openai.com\" = 7+ tokens", detail: "\"https://openai.com\" = 7+ tokens. Punctuation, slashes, and dots each become separate tokens -- URLs are expensive.", color: "rose" },
   ]}
 />
 
@@ -146,26 +120,19 @@ Every API provider charges per token and measures latency per token. A 1000-word
 
 The context window is the total number of tokens the model can see at once -- your system prompt, conversation history, retrieved documents, and the current message all count toward it. When you exceed the limit, either the API errors or old content gets truncated.
 
-<DataFlowDiagram
-  title="What fills the context window"
-  caption="Notice how every part of your request competes for the same fixed space"
-  height={300}
-  nodes={[
-    { id: "system", label: "System prompt", sublabel: "200-500 tokens", x: 14, y: 18, color: "gray" },
-    { id: "history", label: "Conversation history", sublabel: "Grows each turn", x: 16, y: 42, color: "amber" },
-    { id: "docs", label: "Retrieved documents", sublabel: "RAG chunks", x: 16, y: 66, color: "teal" },
-    { id: "message", label: "Current message", sublabel: "Latest input", x: 16, y: 88, color: "gray" },
-    { id: "window", label: "Context window", sublabel: "Fixed token limit", x: 52, y: 50, color: "violet" },
-    { id: "response", label: "Model response", sublabel: "Also uses tokens", x: 82, y: 50, color: "teal" },
+<ContextWindowFiller
+  title="What fills the context window -- toggle blocks on and off"
+  caption="Toggle each block to see how different content types compete for the same fixed space"
+  windowSize={128000}
+  costPer1kTokens={0.003}
+  blocks={[
+    { id: "system", label: "System prompt", tokens: 420, color: "gray", defaultOn: true, icon: "⚙️", description: "Instructions, persona, constraints" },
+    { id: "few-shot", label: "Few-shot examples", tokens: 2800, color: "violet", defaultOn: false, icon: "📋", description: "3 example input/output pairs" },
+    { id: "history", label: "Conversation history", tokens: 14000, color: "amber", defaultOn: false, icon: "💬", description: "10 turns of back-and-forth" },
+    { id: "rag-chunks", label: "Retrieved chunks", tokens: 3200, color: "teal", defaultOn: false, icon: "📄", description: "Top-5 RAG chunks at 640 tokens each" },
+    { id: "contract", label: "Full document (contract)", tokens: 22000, color: "rose", defaultOn: false, icon: "📑", description: "A 17,000-word legal contract" },
+    { id: "message", label: "Current message", tokens: 180, color: "blue", defaultOn: true, icon: "✏️", description: "The user's current question" },
   ]}
-  edges={[
-    { from: "system", to: "window", animated: true },
-    { from: "history", to: "window", animated: true },
-    { from: "docs", to: "window", animated: true },
-    { from: "message", to: "window", animated: true },
-    { from: "window", to: "response", animated: true },
-  ]}
-  highlightPath={["message", "window", "response"]}
 />
 
 </SessionSection>

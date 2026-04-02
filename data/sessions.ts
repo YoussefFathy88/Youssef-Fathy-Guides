@@ -90,13 +90,13 @@ export const courseSessions: CourseSession[] = [
   {
     id: "E05",
     slug: "how-llms-think",
-    title: "How LLMs Think: Reasoning, Planning & Sampling",
+    title: "How LLMs Think",
     module: 1,
     prevRecap:
       "We have looked inside the transformer at inference time and seen how attention builds context. Now we ask the harder question: what does the model actually do with that context, and how do temperature and sampling shape what comes out?",
     dependsOn: ["E03", "E04"],
     leadsTo: ["E06"],
-    status: "upcoming",
+    status: "published",
   },
   {
     id: "E06",

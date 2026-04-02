@@ -11,13 +11,6 @@ nextSession: "tokens-context-window"
 prevSession: null
 ---
 
-import {
-  ConceptStepper,
-  DataFlowDiagram,
-  TokenProbDist,
-  ParameterSlider,
-} from "@/components/shared";
-
 <SessionSection id="goal" label="Goal">
 
 ## Understand what actually happens when you call an LLM
@@ -32,26 +25,41 @@ You have called LLM APIs, seen the output stream back token by token, and notice
 
 Every LLM goes through two completely separate phases. Training happens once and is enormously expensive. It produces the model weights. Inference happens every time you send a prompt. It is fast and uses those frozen weights to generate a response. As a developer, you only ever interact with the inference phase.
 
-<DataFlowDiagram
-  title="The LLM lifecycle"
-  caption="Notice that training and inference are fully separate. You interact only with the right half."
-  height={280}
+<NodeFlowDiagram
+  title="The LLM lifecycle — training runs once, inference runs every call"
+  height={580}
+  groups={[
+    { id: "training", label: "Training Phase — runs once", nodeIds: ["data", "train", "eval"], color: "amber" },
+    { id: "inference", label: "Inference Phase — every API call", nodeIds: ["prompt", "forward", "sample", "repeat"], color: "violet" },
+  ]}
   nodes={[
-    { id: "data", label: "Training data", sublabel: "Trillions of tokens", x: 10, y: 30, color: "gray" },
-    { id: "train", label: "Training", sublabel: "Weeks on thousands of GPUs", x: 30, y: 30, color: "amber" },
-    { id: "weights", label: "Model weights", sublabel: "Frozen parameters", x: 50, y: 30, color: "teal" },
-    { id: "prompt", label: "Your prompt", x: 54, y: 72, color: "gray" },
-    { id: "infer", label: "Inference", sublabel: "Forward pass", x: 78, y: 50, color: "violet" },
-    { id: "output", label: "Output tokens", sublabel: "Streamed back", x: 92, y: 50, color: "teal" },
+    { id: "data",    label: "Training Data",    sublabel: "Trillions of tokens",        x: 18, y: 22, color: "amber",  shape: "rect", emoji: "📚" },
+    { id: "train",   label: "Train",            sublabel: "Predict next token",          x: 18, y: 50, color: "amber",  shape: "rect", emoji: "⚙️" },
+    { id: "eval",    label: "Align & Evaluate", sublabel: "RLHF + safety testing",       x: 18, y: 78, color: "amber",  shape: "rect", emoji: "✅" },
+    { id: "weights", label: "Model Weights",    sublabel: "Frozen after training",        x: 50, y: 50, color: "gray",   shape: "hex",  size: "lg", emoji: "🧠" },
+    { id: "prompt",  label: "User Prompt",      sublabel: "Enters context window",        x: 82, y: 22, color: "violet", shape: "rect", emoji: "💬" },
+    { id: "forward", label: "Forward Pass",     sublabel: "All transformer layers",       x: 82, y: 44, color: "violet", shape: "rect", emoji: "⚡" },
+    { id: "sample",  label: "Sample Token",     sublabel: "Logits → softmax → draw",      x: 82, y: 65, color: "violet", shape: "rect", emoji: "🎯" },
+    { id: "repeat",  label: "Repeat Loop",      sublabel: "Until stop token",             x: 82, y: 84, color: "violet", shape: "rect", emoji: "🔁" },
   ]}
   edges={[
-    { from: "data", to: "train", animated: true },
-    { from: "train", to: "weights", animated: true },
-    { from: "weights", to: "infer", animated: false },
-    { from: "prompt", to: "infer", animated: true },
-    { from: "infer", to: "output", animated: true },
+    { from: "data",    to: "train",   animated: false },
+    { from: "train",   to: "eval",    animated: false },
+    { from: "eval",    to: "weights", animated: false, label: "produces" },
+    { from: "weights", to: "forward", animated: true,  label: "loaded once", dashed: true },
+    { from: "prompt",  to: "forward", animated: true },
+    { from: "forward", to: "sample",  animated: true },
+    { from: "sample",  to: "repeat",  animated: true },
+    { from: "repeat",  to: "forward", animated: true,  dashed: true, label: "next token" },
   ]}
-  highlightPath={["prompt", "infer", "output"]}
+  steps={[
+    { id: "s1", label: "Collect training data",   description: "Trillions of tokens from text across the internet are assembled into the training corpus — books, code, web pages, scientific papers.", highlightNodes: ["data"], highlightEdges: [] },
+    { id: "s2", label: "Train the model",         description: "The model predicts the next token billions of times, adjusting weights on every error via backpropagation. This runs for weeks on thousands of GPUs.", highlightNodes: ["data", "train"], highlightEdges: ["data→train"] },
+    { id: "s3", label: "Align and evaluate",      description: "RLHF, safety filtering, and benchmark evaluation shape the final model behavior. This is what makes the model helpful and safe.", highlightNodes: ["train", "eval"], highlightEdges: ["train→eval"] },
+    { id: "s4", label: "Freeze the weights",      description: "Training ends. The weights are frozen and saved. They are never changed during inference — only read. This artifact is the model.", highlightNodes: ["eval", "weights"], highlightEdges: ["eval→weights"] },
+    { id: "s5", label: "Prompt enters, weights load", description: "Your API call sends a prompt. The frozen weights are loaded from storage. As a developer, you only ever interact with this inference phase.", highlightNodes: ["prompt", "weights", "forward"], highlightEdges: ["weights→forward", "prompt→forward"] },
+    { id: "s6", label: "Autoregressive token loop", description: "One token is sampled per loop: forward pass → logits → softmax → sample. That token is appended to context and the loop restarts — every single word is generated this way.", highlightNodes: ["forward", "sample", "repeat"], highlightEdges: ["forward→sample", "sample→repeat", "repeat→forward"] },
+  ]}
 />
 
 </SessionSection>
@@ -62,34 +70,16 @@ Every LLM goes through two completely separate phases. Training happens once and
 
 During training, the model reads enormous amounts of text and learns one task: predict the next token. It does this billions of times, adjusting its internal weights each time it gets a prediction wrong. By the end, those weights have compressed a statistical representation of language, and a surprising amount of world knowledge, into a single file.
 
-<ConceptStepper
+<StepSequence
   title="How training works"
+  caption="Click any step to expand the detail"
+  orientation="vertical"
   steps={[
-    {
-      title: "1. Sample a chunk of text",
-      caption: "The model receives a sequence of tokens from the training corpus, such as a sentence, a paragraph, or a piece of code.",
-      visual: null
-    },
-    {
-      title: "2. Predict the next token",
-      caption: "For each position in the sequence, the model predicts what token comes next. It outputs a probability distribution over its entire vocabulary.",
-      visual: null
-    },
-    {
-      title: "3. Compare to the real answer",
-      caption: "The true next token is known. The model's prediction is compared against it using cross-entropy loss, a measure of how wrong the distribution was.",
-      visual: null
-    },
-    {
-      title: "4. Adjust the weights",
-      caption: "Backpropagation computes how much each weight contributed to the error. Gradient descent nudges every weight slightly in the direction that reduces the loss.",
-      visual: null
-    },
-    {
-      title: "5. Repeat billions of times",
-      caption: "This loop runs across trillions of tokens. The weights gradually converge to a state that predicts language well, and in doing so, encode knowledge about the world.",
-      visual: null
-    },
+    { number: 1, phase: "Sample", title: "Sample a chunk of text", detail: "The model receives a sequence of tokens from the training corpus, such as a sentence, a paragraph, or a piece of code.", color: "violet" },
+    { number: 2, phase: "Predict", title: "Predict the next token", detail: "For each position in the sequence, the model predicts what token comes next. It outputs a probability distribution over its entire vocabulary.", color: "teal" },
+    { number: 3, phase: "Compare", title: "Compare to the real answer", detail: "The true next token is known. The model's prediction is compared against it using cross-entropy loss, a measure of how wrong the distribution was.", color: "amber" },
+    { number: 4, phase: "Adjust", title: "Adjust the weights", detail: "Backpropagation computes how much each weight contributed to the error. Gradient descent nudges every weight slightly in the direction that reduces the loss.", color: "blue" },
+    { number: 5, phase: "Repeat", title: "Repeat billions of times", detail: "This loop runs across trillions of tokens. The weights gradually converge to a state that predicts language well, encoding knowledge about the world.", color: "violet" },
   ]}
 />
 
@@ -97,23 +87,15 @@ During training, the model reads enormous amounts of text and learns one task: p
 
 When you send a prompt, the model runs a forward pass through all its layers and produces a probability score for every token in its vocabulary. It does not produce a sentence. It produces a distribution over what token should come next. One token is sampled from that distribution, appended to the context, and the whole process repeats until the response is complete.
 
-<DataFlowDiagram
+<StepSequence
   title="Inference: the autoregressive loop"
-  caption="Each token becomes part of the input for generating the next one. Follow one full cycle."
-  height={260}
-  nodes={[
-    { id: "context", label: "Context window", sublabel: "Prompt + tokens so far", x: 12, y: 45, color: "gray" },
-    { id: "forward", label: "Forward pass", sublabel: "All transformer layers", x: 38, y: 45, color: "violet" },
-    { id: "logits", label: "Logits", sublabel: "Score per vocab token", x: 64, y: 45, color: "teal" },
-    { id: "sample", label: "Sample", sublabel: "One token chosen", x: 84, y: 45, color: "amber" },
-    { id: "append", label: "Append to context", x: 62, y: 78, color: "gray" },
-  ]}
-  edges={[
-    { from: "context", to: "forward", animated: true },
-    { from: "forward", to: "logits", animated: true },
-    { from: "logits", to: "sample", animated: true },
-    { from: "sample", to: "append", animated: true },
-    { from: "append", to: "context", animated: true },
+  caption="Each token becomes part of the input for the next. Click any step to expand."
+  orientation="horizontal"
+  steps={[
+    { number: 1, phase: "Input", title: "Context window", detail: "Every previous token -- from the original prompt to all tokens generated so far -- is the input to this step.", color: "gray" },
+    { number: 2, phase: "Forward", title: "Forward pass", detail: "The context passes through every transformer layer in sequence. Each layer refines the vector representations toward the final output.", color: "violet" },
+    { number: 3, phase: "Score", title: "Logits", detail: "The final layer produces a raw score for every token in the vocabulary. These scores are called logits.", color: "teal" },
+    { number: 4, phase: "Sample", title: "Sample one token", detail: "Logits are turned into probabilities with softmax. Temperature scales the distribution. One token is drawn and appended -- then the loop repeats.", color: "amber" },
   ]}
 />
 

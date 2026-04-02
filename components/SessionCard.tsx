@@ -42,7 +42,6 @@ export function SessionCard({ session, state, unlockHint }: SessionCardProps) {
   const module = getModuleById(session.module);
   const moduleColor = module?.color ?? "#534AB7";
   const href = getSessionRoute(session);
-  const isLocked = state === "locked";
 
   const inner = (
     <article
@@ -65,16 +64,17 @@ export function SessionCard({ session, state, unlockHint }: SessionCardProps) {
           <div className="flex items-center gap-3">
             <span
               className="h-2.5 w-2.5 rounded-full"
-              style={{ backgroundColor: isLocked ? "#64748b" : moduleColor }}
+              style={{ backgroundColor: state === "locked" ? "#64748b" : moduleColor }}
             />
             <span
               className="rounded-full border px-3 py-1 text-xs font-medium uppercase tracking-[0.2em]"
               style={{
-                color: isLocked ? "#94a3b8" : moduleColor,
-                borderColor: isLocked
+                color: state === "locked" ? "#94a3b8" : moduleColor,
+                borderColor: state === "locked"
                   ? "rgba(148, 163, 184, 0.18)"
                   : hexToRgba(moduleColor, 0.28),
-                backgroundColor: isLocked ? "rgba(148, 163, 184, 0.08)" : hexToRgba(moduleColor, 0.12),
+                backgroundColor:
+                  state === "locked" ? "rgba(148, 163, 184, 0.08)" : hexToRgba(moduleColor, 0.12),
               }}
             >
               {session.id}
@@ -89,7 +89,7 @@ export function SessionCard({ session, state, unlockHint }: SessionCardProps) {
           ) : state === "locked" ? (
             <span className="inline-flex items-center gap-1 rounded-full border border-slate-500/20 bg-slate-500/10 px-3 py-1 text-xs font-medium text-slate-300">
               <LockIcon />
-              Locked
+              Guided later
             </span>
           ) : state === "current" ? (
             <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-white">
@@ -111,7 +111,7 @@ export function SessionCard({ session, state, unlockHint }: SessionCardProps) {
       <div className="mt-6 min-h-[3.5rem]">
         {state === "locked" ? (
           <p className="text-sm text-slate-400">
-            Complete {unlockHint ?? "the previous session"} to unlock.
+            Open anytime. Recommended after {unlockHint ?? "the previous session"}.
           </p>
         ) : state === "completed" ? (
           <p className="text-sm text-emerald-100/90">Watch again</p>
@@ -125,10 +125,6 @@ export function SessionCard({ session, state, unlockHint }: SessionCardProps) {
       </div>
     </article>
   );
-
-  if (isLocked) {
-    return inner;
-  }
 
   return <Link href={href}>{inner}</Link>;
 }

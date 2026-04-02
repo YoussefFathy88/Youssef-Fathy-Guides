@@ -37,38 +37,18 @@ const defaultPoints: PlotPoint[] = [
 ];
 
 const clusterColors = [
-  {
-    id: "violet",
-    fill: "#8b5cf6",
-    badge: "bg-violet-500 dark:bg-violet-400",
-    text: "text-violet-500 dark:text-violet-300",
-  },
-  {
-    id: "teal",
-    fill: "#14b8a6",
-    badge: "bg-teal-500 dark:bg-teal-400",
-    text: "text-teal-500 dark:text-teal-300",
-  },
-  {
-    id: "amber",
-    fill: "#f59e0b",
-    badge: "bg-amber-500 dark:bg-amber-400",
-    text: "text-amber-500 dark:text-amber-300",
-  },
-  {
-    id: "coral",
-    fill: "#f97316",
-    badge: "bg-orange-500 dark:bg-orange-400",
-    text: "text-orange-500 dark:text-orange-300",
-  },
+  { fill: "#8b5cf6", badge: "bg-violet-500 dark:bg-violet-400" },
+  { fill: "#14b8a6", badge: "bg-teal-500 dark:bg-teal-400" },
+  { fill: "#f59e0b", badge: "bg-amber-500 dark:bg-amber-400" },
+  { fill: "#f97316", badge: "bg-orange-500 dark:bg-orange-400" },
 ] as const;
 
-function clampPercent(value: number) {
-  return Math.min(Math.max(value, 0), 100);
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
 }
 
-function getDistance(from: PlotPoint, to: PlotPoint) {
-  return Math.hypot(from.x - to.x, from.y - to.y);
+function distPx(ax: number, ay: number, bx: number, by: number) {
+  return Math.hypot(ax - bx, ay - by);
 }
 
 export default function Vector2DPlot({
@@ -80,66 +60,85 @@ export default function Vector2DPlot({
   height = 340,
 }: Vector2DPlotProps) {
   const reducedMotion = useReducedMotion();
-  const svgRef = useRef<SVGSVGElement | null>(null);
-  const safePoints = points.length > 0 ? points : defaultPoints;
-  const initialQuery = safePoints.find((point) => point.isQuery) ?? safePoints[0];
+  const containerRef = useRef<HTMLDivElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [dims, setDims] = useState({ width: 600, height });
 
-  const [queryPosition, setQueryPosition] = useState({ x: initialQuery.x, y: initialQuery.y });
+  // Measure the container in real pixels — eliminates preserveAspectRatio distortion
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      const r = entries[0].contentRect;
+      setDims({ width: r.width, height: r.height });
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const safePoints = points.length > 0 ? points : defaultPoints;
+  const initialQuery = safePoints.find((p) => p.isQuery) ?? safePoints[0];
+
+  const [queryPct, setQueryPct] = useState({ x: initialQuery.x, y: initialQuery.y });
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [lockedId, setLockedId] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
 
   useEffect(() => {
-    setQueryPosition({ x: initialQuery.x, y: initialQuery.y });
+    setQueryPct({ x: initialQuery.x, y: initialQuery.y });
   }, [initialQuery.x, initialQuery.y]);
 
   const clusterMap = useMemo(() => {
     const map = new Map<string, (typeof clusterColors)[number]>();
-    let colorIndex = 0;
-
-    safePoints.forEach((point) => {
-      if (!point.cluster || map.has(point.cluster)) {
-        return;
-      }
-
-      map.set(point.cluster, clusterColors[colorIndex % clusterColors.length]);
-      colorIndex += 1;
+    let i = 0;
+    safePoints.forEach((p) => {
+      if (!p.cluster || map.has(p.cluster)) return;
+      map.set(p.cluster, clusterColors[i % clusterColors.length]);
+      i++;
     });
-
     return map;
   }, [safePoints]);
 
+  // Convert % → px using measured container size
+  const toX = (pct: number) => (pct / 100) * dims.width;
+  const toY = (pct: number) => (pct / 100) * dims.height;
+
   const resolvedPoints = useMemo(
     () =>
-      safePoints.map((point) =>
-        point.isQuery ? { ...point, x: queryPosition.x, y: queryPosition.y } : point,
+      safePoints.map((p) =>
+        p.isQuery
+          ? { ...p, px: toX(queryPct.x), py: toY(queryPct.y) }
+          : { ...p, px: toX(p.x), py: toY(p.y) },
       ),
-    [queryPosition.x, queryPosition.y, safePoints],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [queryPct, safePoints, dims],
   );
 
-  const queryPoint = resolvedPoints.find((point) => point.isQuery) ?? resolvedPoints[0];
+  const queryPoint = resolvedPoints.find((p) => p.isQuery) ?? resolvedPoints[0];
   const activeId = lockedId ?? hoveredId;
-  const activePoint = resolvedPoints.find((point) => point.id === activeId) ?? null;
+  const activePoint = resolvedPoints.find((p) => p.id === activeId) ?? null;
+
   const nearestPoints = useMemo(
     () =>
       resolvedPoints
-        .filter((point) => point.id !== queryPoint.id)
-        .map((point) => ({ point, distance: getDistance(queryPoint, point) }))
-        .sort((left, right) => left.distance - right.distance)
+        .filter((p) => !p.isQuery)
+        .map((p) => ({ point: p, dist: distPx(queryPoint.px, queryPoint.py, p.px, p.py) }))
+        .sort((a, b) => a.dist - b.dist)
         .slice(0, 3),
     [queryPoint, resolvedPoints],
   );
 
-  const handlePointerMove = (event: ReactPointerEvent<SVGSVGElement>) => {
-    if (!dragging || !svgRef.current) {
-      return;
-    }
-
+  const handlePointerMove = (e: ReactPointerEvent<SVGSVGElement>) => {
+    if (!dragging || !svgRef.current) return;
     const bounds = svgRef.current.getBoundingClientRect();
-    const x = clampPercent(((event.clientX - bounds.left) / bounds.width) * 100);
-    const y = clampPercent(((event.clientY - bounds.top) / bounds.height) * 100);
-    setQueryPosition({ x, y });
+    const xPct = clamp(((e.clientX - bounds.left) / bounds.width) * 100, 5, 95);
+    const yPct = clamp(((e.clientY - bounds.top) / bounds.height) * 100, 5, 95);
+    setQueryPct({ x: xPct, y: yPct });
   };
+
+  const DOT_R = 9;        // circle radius in px
+  const QUERY_R = 11;     // query point radius in px
+  const FONT_SIZE = 13;   // label font size in px
 
   return (
     <motion.div
@@ -155,105 +154,125 @@ export default function Vector2DPlot({
         </div>
 
         <div className="space-y-4">
+          {/* Plot area */}
           <div
-            className="overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900"
+            ref={containerRef}
+            className="overflow-hidden rounded-2xl border border-gray-200 bg-gray-950 dark:border-gray-700"
             style={{ height }}
           >
             <svg
               ref={svgRef}
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
-              className="h-full w-full"
+              viewBox={`0 0 ${dims.width} ${dims.height}`}
+              width={dims.width}
+              height={dims.height}
+              className="h-full w-full overflow-visible"
               onPointerMove={handlePointerMove}
               onPointerUp={() => setDragging(false)}
               onPointerLeave={() => setDragging(false)}
               aria-label="2D vector similarity plot"
             >
-              <line x1="10" y1="90" x2="90" y2="90" stroke="rgba(148, 163, 184, 0.25)" strokeWidth="0.5" />
-              <line x1="10" y1="10" x2="10" y2="90" stroke="rgba(148, 163, 184, 0.25)" strokeWidth="0.5" />
+              {/* Axis lines */}
+              <line
+                x1={dims.width * 0.08} y1={dims.height * 0.92}
+                x2={dims.width * 0.92} y2={dims.height * 0.92}
+                stroke="rgba(148,163,184,0.2)" strokeWidth="1"
+              />
+              <line
+                x1={dims.width * 0.08} y1={dims.height * 0.08}
+                x2={dims.width * 0.08} y2={dims.height * 0.92}
+                stroke="rgba(148,163,184,0.2)" strokeWidth="1"
+              />
 
-              {showDistances && activePoint ? (
+              {/* Distance line to hovered/locked point */}
+              {showDistances && activePoint && (
                 <>
                   <line
-                    x1={queryPoint.x}
-                    y1={queryPoint.y}
-                    x2={activePoint.x}
-                    y2={activePoint.y}
-                    stroke="rgba(139, 92, 246, 0.65)"
-                    strokeWidth="0.75"
-                    strokeDasharray="2 2"
+                    x1={queryPoint.px} y1={queryPoint.py}
+                    x2={activePoint.px} y2={activePoint.py}
+                    stroke="rgba(139,92,246,0.6)"
+                    strokeWidth="1.5"
+                    strokeDasharray="5 4"
                   />
                   <text
-                    x={(queryPoint.x + activePoint.x) / 2}
-                    y={(queryPoint.y + activePoint.y) / 2 - 2}
+                    x={(queryPoint.px + activePoint.px) / 2}
+                    y={(queryPoint.py + activePoint.py) / 2 - 8}
                     textAnchor="middle"
-                    className="fill-gray-500 text-[3px] dark:fill-gray-400"
+                    fontSize={11}
+                    fontWeight={600}
+                    fill="rgba(139,92,246,0.9)"
                   >
-                    {getDistance(queryPoint, activePoint).toFixed(1)}
+                    {distPx(queryPoint.px, queryPoint.py, activePoint.px, activePoint.py).toFixed(1)}
                   </text>
                 </>
-              ) : null}
+              )}
 
+              {/* Points */}
               {resolvedPoints.map((point) => {
                 const color = point.isQuery
                   ? clusterColors[0]
-                  : clusterMap.get(point.cluster ?? "") ?? clusterColors[0];
+                  : (clusterMap.get(point.cluster ?? "") ?? clusterColors[0]);
+                const r = point.isQuery ? QUERY_R : DOT_R;
 
                 return (
                   <g key={point.id}>
-                    {point.isQuery ? (
+                    {/* Pulsing ring for query point */}
+                    {point.isQuery && !reducedMotion && (
                       <motion.circle
-                        cx={point.x}
-                        cy={point.y}
-                        r="4.4"
+                        cx={point.px}
+                        cy={point.py}
+                        r={QUERY_R}
                         fill="none"
-                        stroke="rgba(139, 92, 246, 0.28)"
-                        strokeWidth="1"
-                        animate={
-                          reducedMotion
-                            ? undefined
-                            : { scale: [1, 1.35, 1], opacity: [0.8, 0.2, 0.8] }
-                        }
-                        transition={{
-                          duration: 1.8,
-                          ease: "easeInOut",
-                          repeat: Number.POSITIVE_INFINITY,
-                        }}
-                        style={{ transformOrigin: `${point.x}px ${point.y}px` }}
+                        stroke="rgba(139,92,246,0.35)"
+                        strokeWidth="2"
+                        animate={{ scale: [1, 1.6, 1], opacity: [0.7, 0, 0.7] }}
+                        transition={{ duration: 2, ease: "easeInOut", repeat: Infinity }}
+                        style={{ transformOrigin: `${point.px}px ${point.py}px` }}
                       />
-                    ) : null}
+                    )}
 
+                    {/* Main circle — crisp because viewBox matches container px */}
                     <circle
-                      cx={point.x}
-                      cy={point.y}
-                      r={point.isQuery ? 3.2 : 2.3}
-                      fill={point.isQuery ? "#8b5cf6" : color.fill}
-                      stroke="white"
-                      strokeWidth="1"
-                      onPointerEnter={() => !lockedId && setHoveredId(point.isQuery ? null : point.id)}
+                      cx={point.px}
+                      cy={point.py}
+                      r={r}
+                      fill={color.fill}
+                      stroke="rgba(255,255,255,0.15)"
+                      strokeWidth="1.5"
+                      onPointerEnter={() => !lockedId && !point.isQuery && setHoveredId(point.id)}
                       onPointerLeave={() => !lockedId && setHoveredId(null)}
                       onClick={() =>
                         !point.isQuery &&
-                        setLockedId((current) => (current === point.id ? null : point.id))
+                        setLockedId((cur) => (cur === point.id ? null : point.id))
                       }
-                      onPointerDown={(event) => {
-                        if (!point.isQuery) {
-                          return;
-                        }
-
-                        event.currentTarget.setPointerCapture(event.pointerId);
+                      onPointerDown={(e) => {
+                        if (!point.isQuery) return;
+                        e.currentTarget.setPointerCapture(e.pointerId);
                         setDragging(true);
                       }}
-                      className={cn(
-                        "dark:stroke-gray-900",
-                        point.isQuery ? "cursor-grab active:cursor-grabbing" : "cursor-pointer",
-                      )}
+                      className={point.isQuery ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"}
                     />
 
+                    {/* Highlight ring on hover/lock */}
+                    {activeId === point.id && (
+                      <circle
+                        cx={point.px}
+                        cy={point.py}
+                        r={r + 4}
+                        fill="none"
+                        stroke={color.fill}
+                        strokeWidth="2"
+                        opacity={0.5}
+                      />
+                    )}
+
+                    {/* Label — rendered in px so it's always crisp */}
                     <text
-                      x={point.x + (point.isQuery ? 4 : 3)}
-                      y={point.y - 2.5}
-                      className="fill-gray-700 text-[3px] font-medium dark:fill-gray-200"
+                      x={point.px + r + 5}
+                      y={point.py + 4}
+                      fontSize={FONT_SIZE}
+                      fontWeight={500}
+                      fill="rgba(226,232,240,0.9)"
+                      style={{ userSelect: "none", pointerEvents: "none" }}
                     >
                       {point.label}
                     </text>
@@ -263,30 +282,35 @@ export default function Vector2DPlot({
             </svg>
           </div>
 
+          {/* Nearest neighbours */}
           <div className="flex flex-wrap gap-2">
-            {nearestPoints.map(({ point, distance }) => (
+            {nearestPoints.map(({ point, dist }) => (
               <span
                 key={point.id}
                 className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs text-gray-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400"
               >
-                {point.label}: {distance.toFixed(1)}
+                {point.label}: {dist.toFixed(1)}
               </span>
             ))}
           </div>
 
-          {showClusters ? (
+          {/* Cluster legend */}
+          {showClusters && (
             <div className="flex flex-wrap gap-3">
               {Array.from(clusterMap.entries()).map(([cluster, color]) => (
                 <div
                   key={cluster}
                   className="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1 text-xs text-gray-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400"
                 >
-                  <span className={cn("h-2.5 w-2.5 rounded-full", color.badge)} aria-hidden="true" />
+                  <span
+                    className={cn("h-2.5 w-2.5 rounded-full", color.badge)}
+                    aria-hidden="true"
+                  />
                   <span>{cluster}</span>
                 </div>
               ))}
             </div>
-          ) : null}
+          )}
         </div>
       </div>
     </motion.div>
