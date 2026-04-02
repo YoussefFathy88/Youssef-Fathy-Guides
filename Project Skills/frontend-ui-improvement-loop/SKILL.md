@@ -74,6 +74,15 @@ If `lint` has unrelated pre-existing failures but `build` is clean, continue UI 
 Use a fixed desktop viewport for iteration.
 If the user cares about presentation or recorded video, also test the presentation viewport.
 
+Prefer the fastest live dev loop first. Do a fresh clean restart/check only when there is a concrete signal that the current runtime may be stale or untrustworthy, for example:
+- the browser still shows an old error after a code fix
+- screenshots/HTML/metrics disagree with the code you just edited
+- host files and container-served files may be out of sync
+- a package, lockfile, Dockerfile, Docker compose file, or framework config changed
+- a blank/white/stale screenshot appears and route checks do not explain it
+
+When one of those signals appears, run the smallest reliable reset sequence for the active runtime, then re-open the same route and re-capture the same state. For this repo's dev Docker flow, that usually means stopping the app, clearing `.next`, recreating the container, and verifying the route again.
+
 When screenshots look suspicious:
 
 - verify the route returns successfully

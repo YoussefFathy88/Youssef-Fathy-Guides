@@ -41,6 +41,12 @@ Use this file when a frontend task needs a concrete visual review standard.
 4. Compare before and after.
 5. Keep the change only if the rendered result is clearly better.
 
+## Fresh Restart Rule
+
+- Use hot reload / normal dev serving by default for speed.
+- Do a fresh clean restart/check only when there is evidence of stale runtime state, mismatched artifacts, container/host drift, or dependency/config changes.
+- After a reset, validate the same route and same UI state again before making more UI edits.
+
 ## Report Format
 
 - Confirmed fixes

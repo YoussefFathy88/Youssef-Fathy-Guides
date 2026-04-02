@@ -276,10 +276,10 @@ export default async function SessionPage({ params, searchParams }: SessionPageP
               </div>
             </header>
 
-            <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-14">
+            <div className="flex flex-col gap-8">
               <SessionProgressNav sections={[...sessionSections]} activeSection="goal" />
 
-              <article className="w-full max-w-[1120px] rounded-[28px] border border-gray-200/80 bg-white/85 px-7 py-9 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-950/60 sm:px-10 sm:py-11 lg:px-12">
+              <article className="w-full max-w-none rounded-[28px] border border-gray-200/80 bg-white/85 px-7 py-9 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-950/60 sm:px-10 sm:py-11 lg:px-12">
                 <MDXRemote source={content} components={mdxComponents} />
               </article>
             </div>
