@@ -15,3 +15,8 @@ pnpm-debug.log*
 .env.test.local
 .env.production.local
 .vercel
+
+# Portable Node.js
+.node_portable/
+setup_node.ps1
+dev.ps1
