@@ -1,6 +1,6 @@
 ---
 name: frontend-ui-improvement-loop
-description: Improve, debug, or polish frontend UI with real verification. Use when Codex needs to fix layout, spacing, responsiveness, interaction, animation, readability, or visual regressions and must confirm the result by running the app, checking build/lint health, opening the UI in a browser, capturing screenshots, and iterating from actual rendered output instead of code-only guesses.
+description: Improve, debug, or polish frontend UI with real verification. Use when the agent needs to fix layout, spacing, responsiveness, interaction, animation, readability, or visual regressions and must confirm the result by running the app, checking build/lint health, opening the UI in a browser, capturing screenshots, and iterating from actual rendered output instead of code-only guesses.
 ---
 
 # Frontend UI Improvement Loop
@@ -22,7 +22,7 @@ Use this skill to make frontend changes only after establishing a reliable valid
 
 3. Start the app and verify the real page.
    Use the real browser path whenever possible.
-   If `$playwright` is available, use it to open the page, capture screenshots, and inspect interaction states.
+   Use the built-in `browser_subagent` tool to open the page, navigate the local application, capture screenshots or videos, and inspect interaction states.
    Do not treat code review alone as visual verification.
    Confirm that the server you are looking at is the one you intended to start.
    If the port is occupied, stale, or ambiguous, stop and fix that first.

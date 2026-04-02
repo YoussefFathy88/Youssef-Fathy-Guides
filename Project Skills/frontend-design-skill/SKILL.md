@@ -26,8 +26,8 @@ Use this skill for art direction and composition. When the task also depends on 
 Default rule:
 
 - do not declare layout, spacing, motion, or readability fixes complete from code review alone
-- verify in a real browser with a fixed viewport
-- capture before and after screenshots for the same page and state
+- verify in a real browser using the `browser_subagent` tool with a fixed viewport
+- explicitly invoke the `browser_subagent` to capture before and after screenshots (or videos) for the same page and state
 - prefer a production-style server for final judgment, not only dev mode
 - treat component-lab routes as the source of truth for component quality and session pages as the integration check
 - do not trust a screenshot until you have confirmed it came from the intended fresh server and route
