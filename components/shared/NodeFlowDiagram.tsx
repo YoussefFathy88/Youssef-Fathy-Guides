@@ -16,6 +16,14 @@ import { cn } from "@/lib/utils";
 export type NodeColor = "violet" | "teal" | "amber" | "blue" | "rose" | "gray";
 export type NodeShape = "circle" | "rect" | "hex";
 export type NodeSize = "sm" | "md" | "lg";
+export type NodeFlowLayout =
+  | "horizontal-flow"
+  | "vertical-stack"
+  | "split-lanes"
+  | "hub-spoke"
+  | "freeform";
+export type NodeFlowViewport = "presentation" | "page" | "responsive";
+export type NodeFlowDensity = "comfortable" | "compact";
 
 export interface FlowNode {
   id: string;
@@ -57,12 +65,15 @@ export interface DiagramStep {
 }
 
 export interface NodeFlowDiagramProps {
-  nodes: FlowNode[];
-  edges: FlowEdge[];
+  nodes?: FlowNode[];
+  edges?: FlowEdge[];
   groups?: NodeGroup[];
   steps?: DiagramStep[];
   title?: string;
   height?: number;
+  layout?: NodeFlowLayout;
+  viewport?: NodeFlowViewport;
+  density?: NodeFlowDensity;
 }
 
 // ─── Color tokens ─────────────────────────────────────────────────────────────
@@ -434,13 +445,18 @@ function HexNode({ node, cx, cy, dimmed, highlighted }: NodeProps) {
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function NodeFlowDiagram({
-  nodes,
-  edges,
+  nodes = [],
+  edges = [],
   groups = [],
   steps = [],
   title,
   height = 500,
 }: NodeFlowDiagramProps) {
+  const safeNodes = Array.isArray(nodes) ? nodes : [];
+  const safeEdges = Array.isArray(edges) ? edges : [];
+  const safeGroups = Array.isArray(groups) ? groups : [];
+  const safeSteps = Array.isArray(steps) ? steps : [];
+  const hasDiagramData = safeNodes.length > 0;
   const reducedMotion = useReducedMotion();
   const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ width: 700, height });
@@ -465,7 +481,7 @@ export default function NodeFlowDiagram({
 
   // Keyboard navigation
   useEffect(() => {
-    if (!steps.length) return;
+    if (!safeSteps.length) return;
     const handler = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") goNext();
       if (e.key === "ArrowLeft") goPrev();
@@ -474,7 +490,7 @@ export default function NodeFlowDiagram({
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [steps, currentStep, playing]);
+  }, [safeSteps, currentStep, playing]);
 
   // Auto-play timer
   useEffect(() => {
@@ -485,7 +501,7 @@ export default function NodeFlowDiagram({
     timerRef.current = setTimeout(() => {
       setCurrentStep((s) => {
         const next = s + 1;
-        if (next >= steps.length) {
+        if (next >= safeSteps.length) {
           setPlaying(false);
           return s;
         }
@@ -496,13 +512,13 @@ export default function NodeFlowDiagram({
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [playing, currentStep, steps.length]);
+  }, [playing, currentStep, safeSteps.length]);
 
   const goNext = useCallback(() => {
     setPlaying(false);
     setDirection(1);
-    setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
-  }, [steps.length]);
+    setCurrentStep((s) => Math.min(s + 1, safeSteps.length - 1));
+  }, [safeSteps.length]);
 
   const goPrev = useCallback(() => {
     setPlaying(false);
@@ -514,7 +530,7 @@ export default function NodeFlowDiagram({
     if (playing) {
       setPlaying(false);
     } else {
-      if (currentStep >= steps.length - 1) {
+      if (currentStep >= safeSteps.length - 1) {
         setCurrentStep(0);
         setDirection(1);
       } else if (currentStep === -1) {
@@ -522,10 +538,10 @@ export default function NodeFlowDiagram({
       }
       setPlaying(true);
     }
-  }, [playing, currentStep, steps.length]);
+  }, [playing, currentStep, safeSteps.length]);
 
   // Active step data
-  const activeStep = currentStep >= 0 && currentStep < steps.length ? steps[currentStep] : null;
+  const activeStep = currentStep >= 0 && currentStep < safeSteps.length ? safeSteps[currentStep] : null;
   const highlightNodes = useMemo(() => new Set(activeStep?.highlightNodes ?? []), [activeStep]);
   const highlightEdges = useMemo(() => new Set(activeStep?.highlightEdges ?? []), [activeStep]);
   const hasActiveStep = activeStep !== null;
@@ -533,7 +549,7 @@ export default function NodeFlowDiagram({
   // Build node pixel map
   const nodeMap = useMemo(() => {
     const map = new Map<string, FlowNode & { px: number; py: number }>();
-    for (const node of nodes) {
+    for (const node of safeNodes) {
       map.set(node.id, {
         ...node,
         px: toPx(node.x, dims.width),
@@ -541,12 +557,12 @@ export default function NodeFlowDiagram({
       });
     }
     return map;
-  }, [nodes, dims]);
+  }, [safeNodes, dims]);
 
   // Compute group bounding boxes
   const groupBBoxes = useMemo(() => {
     const GROUP_PAD = 22;
-    return groups.map((group) => {
+    return safeGroups.map((group) => {
       const members = group.nodeIds
         .map((id) => nodeMap.get(id))
         .filter((n): n is NonNullable<typeof n> => !!n);
@@ -568,11 +584,11 @@ export default function NodeFlowDiagram({
 
       return { group, x: minX, y: minY, w: maxX - minX, h: maxY - minY };
     }).filter((b): b is NonNullable<typeof b> => b !== null);
-  }, [groups, nodeMap]);
+  }, [safeGroups, nodeMap]);
 
   // Resolve edges with pixel coords
   const resolvedEdges = useMemo(() => {
-    return edges.map((edge, index) => {
+    return safeEdges.map((edge, index) => {
       const fromNode = nodeMap.get(edge.from);
       const toNode = nodeMap.get(edge.to);
       if (!fromNode || !toNode) return null;
@@ -597,7 +613,7 @@ export default function NodeFlowDiagram({
         isDimmed: hasActiveStep && !highlightEdges.has(edgeKey),
       };
     }).filter((e): e is NonNullable<typeof e> => e !== null);
-  }, [edges, nodeMap, highlightEdges, hasActiveStep]);
+  }, [safeEdges, nodeMap, highlightEdges, hasActiveStep]);
 
   // Arrow markers (one per color)
   const usedColors = useMemo(() => {
@@ -606,7 +622,7 @@ export default function NodeFlowDiagram({
     return [...s];
   }, [resolvedEdges, nodeMap]);
 
-  const isLast = currentStep === steps.length - 1;
+  const isLast = currentStep === safeSteps.length - 1;
 
   return (
     <motion.div
@@ -630,6 +646,15 @@ export default function NodeFlowDiagram({
           backgroundSize: "22px 22px",
         }}
       >
+        {!hasDiagramData && (
+          <div className="absolute inset-0 flex items-center justify-center px-6 text-center">
+            <p className="max-w-md text-sm leading-7 text-slate-400">
+              Diagram data is unavailable for this block. The page is still loaded, but the
+              nodes/edges payload did not arrive from the MDX content.
+            </p>
+          </div>
+        )}
+
         <svg
           viewBox={`0 0 ${dims.width} ${dims.height}`}
           width={dims.width}
@@ -772,7 +797,7 @@ export default function NodeFlowDiagram({
           })}
 
           {/* Nodes */}
-          {nodes.map((node) => {
+          {safeNodes.map((node) => {
             const mapped = nodeMap.get(node.id);
             if (!mapped) return null;
             const isHighlighted = hasActiveStep ? highlightNodes.has(node.id) : false;
@@ -798,11 +823,11 @@ export default function NodeFlowDiagram({
       </div>
 
       {/* Step controller */}
-      {steps.length > 0 && (
+      {safeSteps.length > 0 && (
         <div className="mt-4 space-y-3">
           {/* Progress dots + counter */}
           <div className="flex items-center gap-2">
-            {steps.map((s, i) => (
+            {safeSteps.map((s, i) => (
               <motion.button
                 key={s.id}
                 type="button"
@@ -822,7 +847,7 @@ export default function NodeFlowDiagram({
               />
             ))}
             <span className="ml-auto text-[11px] font-medium text-slate-500">
-              {currentStep >= 0 ? `${currentStep + 1} / ${steps.length}` : `${steps.length} steps`}
+              {currentStep >= 0 ? `${currentStep + 1} / ${safeSteps.length}` : `${safeSteps.length} steps`}
             </span>
           </div>
 

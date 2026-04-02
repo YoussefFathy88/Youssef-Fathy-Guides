@@ -15,7 +15,7 @@ export interface SequenceStep {
 }
 
 export interface StepSequenceProps {
-  steps: SequenceStep[];
+  steps?: SequenceStep[];
   title?: string;
   caption?: string;
   orientation?: "horizontal" | "vertical";
@@ -78,12 +78,19 @@ const colorMap = {
   },
 } as const;
 
-function HorizontalSequence({ steps, reducedMotion }: { steps: SequenceStep[]; reducedMotion: boolean | null }) {
+function HorizontalSequence({
+  steps = [],
+  reducedMotion,
+}: {
+  steps?: SequenceStep[];
+  reducedMotion: boolean | null;
+}) {
+  const safeSteps = Array.isArray(steps) ? steps : [];
   const [activeStep, setActiveStep] = useState<number | null>(null);
 
   return (
     <div className="flex items-start gap-0">
-      {steps.map((step, i) => {
+      {safeSteps.map((step, i) => {
         const tone = colorMap[step.color ?? "violet"];
         const isActive = activeStep === i;
 
@@ -132,7 +139,7 @@ function HorizontalSequence({ steps, reducedMotion }: { steps: SequenceStep[]; r
             </motion.button>
 
             {/* Arrow between steps */}
-            {i < steps.length - 1 && (
+            {i < safeSteps.length - 1 && (
               <div className="mt-5 flex shrink-0 items-center px-1">
                 <svg width="20" height="14" viewBox="0 0 20 14" fill="none" aria-hidden="true">
                   <motion.path
@@ -155,15 +162,22 @@ function HorizontalSequence({ steps, reducedMotion }: { steps: SequenceStep[]; r
   );
 }
 
-function VerticalSequence({ steps, reducedMotion }: { steps: SequenceStep[]; reducedMotion: boolean | null }) {
+function VerticalSequence({
+  steps = [],
+  reducedMotion,
+}: {
+  steps?: SequenceStep[];
+  reducedMotion: boolean | null;
+}) {
+  const safeSteps = Array.isArray(steps) ? steps : [];
   const [activeStep, setActiveStep] = useState<number | null>(null);
 
   return (
     <div className="space-y-0">
-      {steps.map((step, i) => {
+      {safeSteps.map((step, i) => {
         const tone = colorMap[step.color ?? "violet"];
         const isActive = activeStep === i;
-        const isLast = i === steps.length - 1;
+        const isLast = i === safeSteps.length - 1;
 
         return (
           <div key={step.number} className="flex gap-4">
@@ -237,11 +251,12 @@ function VerticalSequence({ steps, reducedMotion }: { steps: SequenceStep[]; red
 }
 
 export default function StepSequence({
-  steps,
+  steps = [],
   title,
   caption,
   orientation = "vertical",
 }: StepSequenceProps) {
+  const safeSteps = Array.isArray(steps) ? steps : [];
   const reducedMotion = useReducedMotion();
 
   return (
@@ -259,9 +274,9 @@ export default function StepSequence({
       )}
 
       {orientation === "horizontal" ? (
-        <HorizontalSequence steps={steps} reducedMotion={reducedMotion} />
+        <HorizontalSequence steps={safeSteps} reducedMotion={reducedMotion} />
       ) : (
-        <VerticalSequence steps={steps} reducedMotion={reducedMotion} />
+        <VerticalSequence steps={safeSteps} reducedMotion={reducedMotion} />
       )}
     </motion.div>
   );

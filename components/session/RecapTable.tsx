@@ -8,17 +8,18 @@ export interface RecapRow {
 }
 
 export interface RecapTableProps {
-  rows: RecapRow[];
+  rows?: RecapRow[];
 }
 
-export function RecapTable({ rows }: RecapTableProps) {
+export function RecapTable({ rows = [] }: RecapTableProps) {
+  const safeRows = Array.isArray(rows) ? rows : [];
   const reducedMotion = useReducedMotion();
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950/50">
       <table className="w-full border-collapse text-left">
         <tbody>
-          {rows.map((row, index) => (
+          {safeRows.map((row, index) => (
             <motion.tr
               key={`${row.term}-${index}`}
               initial={reducedMotion ? false : { opacity: 0, y: 10 }}
