@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend UI Improvement Loop"
+  short_description: "Verify and polish frontend UI in-browser"
+  default_prompt: "Use -ui-improvement-loop to validate the app, inspect the UI in-browser, compare screenshots, and iterate on frontend fixes with real verification."
