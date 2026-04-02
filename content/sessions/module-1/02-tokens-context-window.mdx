@@ -30,15 +30,27 @@ Every LLM API call you make is secretly a tokenization problem. This session sho
 
 Before the model runs attention or predicts anything, your text is converted to a sequence of token IDs. That sequence is all the model ever sees -- not words, not characters, not sentences. The context window is the maximum number of those tokens the model can hold at once.
 
-<StepSequence
-  title="From text to token IDs"
-  caption="Click any step to expand -- notice what the model actually receives"
-  orientation="horizontal"
+<NodeFlowDiagram
+  title="From raw text to what the model actually reads"
+  height={420}
+  nodes={[
+    { id: "text",    label: "Raw Text",       sublabel: "\"Hello, world!\"",            x: 10, y: 50, color: "gray",   shape: "rect", emoji: "📝" },
+    { id: "bpe",     label: "BPE Tokenizer",  sublabel: "Byte-pair encoding",           x: 36, y: 50, color: "violet", shape: "rect", size: "lg", emoji: "✂️" },
+    { id: "tokens",  label: "Token Strings",  sublabel: "\"Hello\", \",\", \" world\"…", x: 62, y: 50, color: "teal",   shape: "rect", emoji: "🔤" },
+    { id: "ids",     label: "Token IDs",      sublabel: "[15496, 11, 995…]",            x: 86, y: 50, color: "amber",  shape: "rect", emoji: "🔢" },
+    { id: "window",  label: "Context Window", sublabel: "Max tokens the model holds",   x: 86, y: 82, color: "blue",   shape: "hex",  size: "lg", emoji: "🪟" },
+  ]}
+  edges={[
+    { from: "text",   to: "bpe",    animated: true, stepNumber: 1 },
+    { from: "bpe",    to: "tokens", animated: true, stepNumber: 2 },
+    { from: "tokens", to: "ids",    animated: true, stepNumber: 3 },
+    { from: "ids",    to: "window", animated: true, stepNumber: 4, label: "fills up to limit" },
+  ]}
   steps={[
-    { number: 1, phase: "Input", title: "Your raw text", detail: "The string \"Hello, world! How are you?\" enters the pipeline exactly as typed.", color: "gray" },
-    { number: 2, phase: "Split", title: "Byte-pair encoding splits it", detail: "The tokenizer applies BPE rules. \"Hello\" becomes one token, \",\" one, \" world\" one, \"!\" one, \" How\" one, \" are\" one, \" you\" one, \"?\" one. 8 tokens total.", color: "violet" },
-    { number: 3, phase: "Map", title: "Token IDs assigned", detail: "Each token maps to an integer in the vocabulary. \"Hello\" = 15496, \",\" = 11, \" world\" = 995, and so on.", color: "teal" },
-    { number: 4, phase: "Model", title: "Integer sequence handed to the model", detail: "The model receives [15496, 11, 995, 0, 1374, 389, 345, 30]. This is the only input it ever sees -- not words, not characters.", color: "amber" },
+    { id: "s1", label: "Raw text enters",          description: "Your string — the prompt you write — enters the tokenization pipeline exactly as typed. The model never sees the characters directly.", highlightNodes: ["text"], highlightEdges: [] },
+    { id: "s2", label: "BPE splits into tokens",   description: "The tokenizer applies Byte-Pair Encoding rules learned from training data. Common words become single tokens; rare or compound words get split into subwords.", highlightNodes: ["bpe", "tokens"], highlightEdges: ["text→bpe", "bpe→tokens"] },
+    { id: "s3", label: "Tokens mapped to integers", description: "Each token string maps to a fixed integer ID in the vocabulary. \"Hello\" = 15496, \",\" = 11, \" world\" = 995. These IDs are all the model operates on.", highlightNodes: ["tokens", "ids"], highlightEdges: ["tokens→ids"] },
+    { id: "s4", label: "IDs fill the context window", description: "The integer sequence is placed into the context window. The model can only process up to a maximum number of tokens at once — this is the hard limit that shapes your entire architecture.", highlightNodes: ["ids", "window"], highlightEdges: ["ids→window"] },
   ]}
 />
 

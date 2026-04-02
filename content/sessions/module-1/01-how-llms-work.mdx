@@ -25,37 +25,41 @@ You have called LLM APIs, seen the output stream back token by token, and notice
 
 Every LLM goes through two completely separate phases. Training happens once and is enormously expensive. It produces the model weights. Inference happens every time you send a prompt. It is fast and uses those frozen weights to generate a response. As a developer, you only ever interact with the inference phase.
 
-<DualPhaseFlow
-  title="The LLM lifecycle -- training runs once, inference runs every call"
-  caption="Two completely separate phases. As a developer, you only ever interact with inference."
-  leftPhase={{
-    label: "Training",
-    frequency: "Runs once",
-    frequencyDetail: "Weeks on thousands of GPUs. Never repeated after deployment.",
-    color: "amber",
-    steps: [
-      { id: "data", label: "Collect training data", sublabel: "Trillions of tokens from text across the internet", icon: "📚" },
-      { id: "train", label: "Train: predict next token", sublabel: "Billions of iterations. Weights adjusted on every error.", icon: "⚙️" },
-      { id: "eval", label: "Evaluate and align", sublabel: "RLHF, safety testing, benchmark evaluation", icon: "✅" },
-    ]
-  }}
-  rightPhase={{
-    label: "Inference",
-    frequency: "Runs on every API call",
-    frequencyDetail: "Milliseconds per token. The same frozen weights every single time.",
-    color: "violet",
-    steps: [
-      { id: "prompt", label: "Receive prompt", sublabel: "Your text and system prompt enter the context window", icon: "💬" },
-      { id: "forward", label: "Forward pass", sublabel: "Context flows through all transformer layers", icon: "⚡" },
-      { id: "sample", label: "Sample one token", sublabel: "Logits → softmax → temperature → one token drawn", icon: "🎯" },
-      { id: "repeat", label: "Repeat until done", sublabel: "Each token appended, loop runs again from step 1", icon: "🔁" },
-    ]
-  }}
-  artifact={{
-    label: "Model weights",
-    sublabel: "Frozen parameters. Never changed during inference.",
-    icon: "🧠"
-  }}
+<NodeFlowDiagram
+  title="The LLM lifecycle — training runs once, inference runs every call"
+  height={580}
+  groups={[
+    { id: "training", label: "Training Phase — runs once", nodeIds: ["data", "train", "eval"], color: "amber" },
+    { id: "inference", label: "Inference Phase — every API call", nodeIds: ["prompt", "forward", "sample", "repeat"], color: "violet" },
+  ]}
+  nodes={[
+    { id: "data",    label: "Training Data",    sublabel: "Trillions of tokens",        x: 18, y: 22, color: "amber",  shape: "rect", emoji: "📚" },
+    { id: "train",   label: "Train",            sublabel: "Predict next token",          x: 18, y: 50, color: "amber",  shape: "rect", emoji: "⚙️" },
+    { id: "eval",    label: "Align & Evaluate", sublabel: "RLHF + safety testing",       x: 18, y: 78, color: "amber",  shape: "rect", emoji: "✅" },
+    { id: "weights", label: "Model Weights",    sublabel: "Frozen after training",        x: 50, y: 50, color: "gray",   shape: "hex",  size: "lg", emoji: "🧠" },
+    { id: "prompt",  label: "User Prompt",      sublabel: "Enters context window",        x: 82, y: 22, color: "violet", shape: "rect", emoji: "💬" },
+    { id: "forward", label: "Forward Pass",     sublabel: "All transformer layers",       x: 82, y: 44, color: "violet", shape: "rect", emoji: "⚡" },
+    { id: "sample",  label: "Sample Token",     sublabel: "Logits → softmax → draw",      x: 82, y: 65, color: "violet", shape: "rect", emoji: "🎯" },
+    { id: "repeat",  label: "Repeat Loop",      sublabel: "Until stop token",             x: 82, y: 84, color: "violet", shape: "rect", emoji: "🔁" },
+  ]}
+  edges={[
+    { from: "data",    to: "train",   animated: false },
+    { from: "train",   to: "eval",    animated: false },
+    { from: "eval",    to: "weights", animated: false, label: "produces" },
+    { from: "weights", to: "forward", animated: true,  label: "loaded once", dashed: true },
+    { from: "prompt",  to: "forward", animated: true },
+    { from: "forward", to: "sample",  animated: true },
+    { from: "sample",  to: "repeat",  animated: true },
+    { from: "repeat",  to: "forward", animated: true,  dashed: true, label: "next token" },
+  ]}
+  steps={[
+    { id: "s1", label: "Collect training data",   description: "Trillions of tokens from text across the internet are assembled into the training corpus — books, code, web pages, scientific papers.", highlightNodes: ["data"], highlightEdges: [] },
+    { id: "s2", label: "Train the model",         description: "The model predicts the next token billions of times, adjusting weights on every error via backpropagation. This runs for weeks on thousands of GPUs.", highlightNodes: ["data", "train"], highlightEdges: ["data→train"] },
+    { id: "s3", label: "Align and evaluate",      description: "RLHF, safety filtering, and benchmark evaluation shape the final model behavior. This is what makes the model helpful and safe.", highlightNodes: ["train", "eval"], highlightEdges: ["train→eval"] },
+    { id: "s4", label: "Freeze the weights",      description: "Training ends. The weights are frozen and saved. They are never changed during inference — only read. This artifact is the model.", highlightNodes: ["eval", "weights"], highlightEdges: ["eval→weights"] },
+    { id: "s5", label: "Prompt enters, weights load", description: "Your API call sends a prompt. The frozen weights are loaded from storage. As a developer, you only ever interact with this inference phase.", highlightNodes: ["prompt", "weights", "forward"], highlightEdges: ["weights→forward", "prompt→forward"] },
+    { id: "s6", label: "Autoregressive token loop", description: "One token is sampled per loop: forward pass → logits → softmax → sample. That token is appended to context and the loop restarts — every single word is generated this way.", highlightNodes: ["forward", "sample", "repeat"], highlightEdges: ["forward→sample", "sample→repeat", "repeat→forward"] },
+  ]}
 />
 
 </SessionSection>

@@ -13,3 +13,4 @@ export { default as AnnotatedCode } from "./AnnotatedCode";
 export { default as DualPhaseFlow } from "./DualPhaseFlow";
 export { default as AgentLoopStepper } from "./AgentLoopStepper";
 export { default as ContextWindowFiller } from "./ContextWindowFiller";
+export { default as NodeFlowDiagram } from "./NodeFlowDiagram";

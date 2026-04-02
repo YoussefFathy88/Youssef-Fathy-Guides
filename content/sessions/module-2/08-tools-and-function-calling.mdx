@@ -28,32 +28,46 @@ The LLM is the brain -- it reasons, plans, and decides. But a brain with no hand
 
 Without tools, an LLM can only generate text based on what it knows from training and what you put in the context window. With tools, it can reach outside itself -- query real-time data, trigger real-world actions, and interact with systems. The agent decides which tool to use and when. Your application actually runs the tool. The result comes back to the agent to form the final answer.
 
-<ConceptCompare
-  title="LLM without tools vs LLM with tools -- what each one can do"
-  caption="Read both sides -- notice the difference between knowing and doing"
-  mode="side-by-side"
-  left={{
-    label: "LLM without tools -- can only speak",
-    color: "gray",
-    points: [
-      "Answers from training data only -- knowledge has a cutoff date",
-      "Cannot check live prices, weather, or stock data",
-      "Cannot write to a database, send emails, or book appointments",
-      "Cannot run code or call external APIs",
-      "Useful for reasoning and writing -- limited for acting",
-    ]
-  }}
-  right={{
-    label: "LLM with tools -- can speak and act",
-    color: "violet",
-    points: [
-      "Can call any function or API you expose to it",
-      "Gets real-time data: prices, weather, availability, inventory",
-      "Can write to databases, send emails, trigger workflows",
-      "Can run code, search the web, query internal systems",
-      "Becomes an agent -- reasons AND acts",
-    ]
-  }}
+<NodeFlowDiagram
+  title="The tool-use loop — the LLM decides, your code executes, results come back"
+  height={640}
+  groups={[
+    { id: "tools", label: "Available Tools", nodeIds: ["api", "db", "service", "code"], color: "amber" },
+  ]}
+  nodes={[
+    { id: "user",     label: "User",          sublabel: "Sends a request",              x: 10, y: 50, color: "gray",   shape: "circle", emoji: "👤" },
+    { id: "llm",      label: "LLM",           sublabel: "Reasons + decides",            x: 35, y: 50, color: "violet", shape: "circle", size: "lg", emoji: "🤖" },
+    { id: "toolcall", label: "Tool Call",      sublabel: "Structured JSON output",       x: 60, y: 50, color: "blue",   shape: "rect",   emoji: "🔧" },
+    { id: "api",      label: "REST API",       sublabel: "get_weather(), prices…",       x: 84, y: 18, color: "amber",  shape: "rect",   emoji: "🌐" },
+    { id: "db",       label: "Database",       sublabel: "get_orders(), SQL…",           x: 84, y: 38, color: "amber",  shape: "rect",   emoji: "🗄️" },
+    { id: "service",  label: "Service",        sublabel: "send_email(), notify…",        x: 84, y: 60, color: "amber",  shape: "rect",   emoji: "📨" },
+    { id: "code",     label: "Code Runner",    sublabel: "run_python(), compute…",       x: 84, y: 80, color: "amber",  shape: "rect",   emoji: "⚙️" },
+    { id: "result",   label: "Tool Result",    sublabel: "JSON back to context",         x: 60, y: 82, color: "blue",   shape: "rect",   emoji: "📥" },
+    { id: "answer",   label: "Final Answer",   sublabel: "Informed by real-world data",  x: 10, y: 82, color: "teal",   shape: "rect",   emoji: "✅" },
+  ]}
+  edges={[
+    { from: "user",     to: "llm",      animated: true, stepNumber: 1 },
+    { from: "llm",      to: "toolcall", animated: true, stepNumber: 2, label: "decide to call tool" },
+    { from: "toolcall", to: "api",      animated: true, stepNumber: 3 },
+    { from: "toolcall", to: "db",       animated: true },
+    { from: "toolcall", to: "service",  animated: true },
+    { from: "toolcall", to: "code",     animated: true },
+    { from: "api",      to: "result",   animated: true, stepNumber: 4 },
+    { from: "db",       to: "result",   animated: true },
+    { from: "service",  to: "result",   animated: true },
+    { from: "code",     to: "result",   animated: true },
+    { from: "result",   to: "llm",      animated: true, stepNumber: 5, label: "context updated" },
+    { from: "llm",      to: "answer",   animated: true, stepNumber: 6 },
+    { from: "answer",   to: "user",     animated: true, stepNumber: 7 },
+  ]}
+  steps={[
+    { id: "s1", label: "User sends a request",             description: "A user message arrives. The LLM sees the message alongside all tool schemas — JSON descriptions of every function available to it. It reads these to decide what is possible.", highlightNodes: ["user", "llm"], highlightEdges: ["user→llm"] },
+    { id: "s2", label: "LLM decides to call a tool",       description: "Instead of answering directly, the LLM outputs a structured tool-call object: the function name and its arguments as JSON. The LLM does NOT execute anything itself — it only describes what it wants called.", highlightNodes: ["llm", "toolcall"], highlightEdges: ["llm→toolcall"] },
+    { id: "s3", label: "Your code executes the tool",      description: "Your application reads the tool-call output and runs the actual function — an API request, a database query, a service call, or a code execution. The LLM cannot do this step itself.", highlightNodes: ["toolcall", "api", "db", "service", "code"], highlightEdges: ["toolcall→api", "toolcall→db", "toolcall→service", "toolcall→code"] },
+    { id: "s4", label: "Result returned",                  description: "The tool's output is serialised as JSON and injected back into the conversation as a new message. The LLM will see this result on its next turn.", highlightNodes: ["result"], highlightEdges: ["api→result", "db→result", "service→result", "code→result"] },
+    { id: "s5", label: "LLM reads the result",             description: "The LLM now has the tool output in its context. It can answer the user directly, or decide to call another tool. This loop continues until it is ready to respond.", highlightNodes: ["llm", "result"], highlightEdges: ["result→llm"] },
+    { id: "s6", label: "Final answer delivered to user",   description: "Once the LLM has all the real-world data it needs, it produces the final natural-language answer. This answer is grounded in current data — not just training knowledge.", highlightNodes: ["llm", "answer", "user"], highlightEdges: ["llm→answer", "answer→user"] },
+  ]}
 />
 
 </SessionSection>

@@ -30,20 +30,33 @@ Tokens are just integers -- the model cannot compare or cluster them as-is. This
 
 Before attention, before generation, before any tool call -- the model converts your input tokens into vectors. That same process powers semantic search, RAG retrieval, and recommendation systems outside the model too.
 
-<PipelineTrack
-  title="Where embeddings live in the stack"
-  caption="Follow each track -- the model path and the retrieval path both start from the same embedding step"
-  nodes={[
-    { id: "tokens", label: "Token IDs", sublabel: "Integers from vocab", color: "gray" },
-    { id: "embed", label: "Embedding layer", sublabel: "Learned lookup table", color: "violet" },
-    { id: "vector", label: "Vector", sublabel: "e.g. 1536 numbers", color: "teal" },
-    { id: "transformer", label: "Transformer layers", sublabel: "Attention + reasoning", color: "violet" },
-    { id: "response", label: "Model response", sublabel: "Generated tokens", color: "teal" },
-    { id: "vectordb", label: "Vector database", sublabel: "Semantic search / RAG", color: "amber" },
+<NodeFlowDiagram
+  title="Embeddings sit at the entry point of every model and retrieval system"
+  height={520}
+  groups={[
+    { id: "vector-space", label: "Vector Space", nodeIds: ["embed", "vectors"], color: "blue" },
   ]}
-  lines={[
-    { nodes: ["tokens", "embed", "vector", "transformer", "response"], color: "#8b5cf6", label: "Model path" },
-    { nodes: ["tokens", "embed", "vector", "vectordb"], color: "#f59e0b", label: "Retrieval path", dashed: true },
+  nodes={[
+    { id: "tokens",      label: "Token IDs",          sublabel: "Integers from vocab",         x: 14, y: 50, color: "gray",   shape: "rect", emoji: "🔢" },
+    { id: "embed",       label: "Embedding Layer",     sublabel: "Learned lookup table",         x: 38, y: 50, color: "blue",   shape: "rect", size: "lg", emoji: "📐" },
+    { id: "vectors",     label: "Vectors",             sublabel: "e.g. 1536 numbers each",       x: 62, y: 50, color: "blue",   shape: "hex",  size: "lg", emoji: "📊" },
+    { id: "transformer", label: "Transformer Layers",  sublabel: "Attention + reasoning",        x: 84, y: 28, color: "violet", shape: "rect", emoji: "⚡" },
+    { id: "response",    label: "Model Response",      sublabel: "Generated tokens",             x: 84, y: 52, color: "teal",   shape: "rect", emoji: "💬" },
+    { id: "vectordb",    label: "Vector Database",     sublabel: "Semantic search / RAG",        x: 84, y: 76, color: "amber",  shape: "hex",  emoji: "🗄️" },
+  ]}
+  edges={[
+    { from: "tokens",      to: "embed",       animated: true, stepNumber: 1 },
+    { from: "embed",       to: "vectors",     animated: true, stepNumber: 2 },
+    { from: "vectors",     to: "transformer", animated: true, stepNumber: 3, label: "model path" },
+    { from: "transformer", to: "response",    animated: true, stepNumber: 4 },
+    { from: "vectors",     to: "vectordb",    animated: true, stepNumber: 5, label: "retrieval path", dashed: true },
+  ]}
+  steps={[
+    { id: "s1", label: "Token IDs enter",           description: "Every token in your input starts as an integer ID — the same output from the tokenizer covered in the last session.", highlightNodes: ["tokens"], highlightEdges: [] },
+    { id: "s2", label: "Embedding layer maps to vectors", description: "The embedding layer is a lookup table. Each token ID maps to a fixed list of numbers (a vector). These numbers were learned during training — you do not design them.", highlightNodes: ["embed", "vectors"], highlightEdges: ["tokens→embed", "embed→vectors"] },
+    { id: "s3", label: "Vectors enter the transformer", description: "For the model path, vectors flow into transformer layers. Attention and feed-forward networks refine them, building up context and meaning across the sequence.", highlightNodes: ["vectors", "transformer"], highlightEdges: ["vectors→transformer"] },
+    { id: "s4", label: "Model generates a response", description: "After passing through all transformer layers, the final vectors are used to predict the next token — and the cycle continues until the response is complete.", highlightNodes: ["transformer", "response"], highlightEdges: ["transformer→response"] },
+    { id: "s5", label: "Same vectors power retrieval", description: "The exact same embedding process runs outside the model for RAG: your documents and queries are both embedded, then compared in the vector database by similarity. This is semantic search.", highlightNodes: ["vectors", "vectordb"], highlightEdges: ["vectors→vectordb"] },
   ]}
 />
 

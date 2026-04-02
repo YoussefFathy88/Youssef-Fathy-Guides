@@ -30,38 +30,44 @@ Last session introduced semantic memory as a concept. RAG is how you actually bu
 
 The term RAG was introduced by Patrick Lewis et al. at Meta AI Research in 2020. The core idea is combining parametric memory (knowledge baked into the model's weights during training) with non-parametric memory (an external document store you control). The model's weights stay frozen -- you never retrain. Instead you retrieve relevant documents at query time and inject them into the context window alongside the user's question.
 
-<DualPhaseFlow
-  title="The full RAG pipeline -- index once, query on every request"
-  caption="Left phase builds the knowledge store. Right phase retrieves from it in real time on every question."
-  leftPhase={{
-    label: "Indexing",
-    frequency: "Runs once (or when data changes)",
-    frequencyDetail: "Can take minutes to hours for large document sets.",
-    color: "violet",
-    steps: [
-      { id: "load", label: "Load documents", sublabel: "PDFs, web pages, databases, internal wikis", icon: "📄" },
-      { id: "chunk", label: "Chunk into segments", sublabel: "200–500 tokens with 20–50 token overlap", icon: "✂️" },
-      { id: "embed", label: "Embed each chunk", sublabel: "Embedding model converts text to vector", icon: "🔢" },
-      { id: "store", label: "Store in vector DB", sublabel: "Chunk vector + original text + metadata saved", icon: "🗄️" },
-    ]
-  }}
-  rightPhase={{
-    label: "Query",
-    frequency: "Runs on every user question",
-    frequencyDetail: "Milliseconds. Must use the same embedding model as indexing.",
-    color: "teal",
-    steps: [
-      { id: "question", label: "Receive question", sublabel: "User's natural language query arrives", icon: "❓" },
-      { id: "embed-q", label: "Embed question", sublabel: "Same embedding model as indexing -- must match", icon: "🔢" },
-      { id: "search", label: "Similarity search", sublabel: "Find top-k most similar chunk vectors", icon: "🔍" },
-      { id: "generate", label: "LLM generates answer", sublabel: "Question + retrieved chunks → grounded response", icon: "💬" },
-    ]
-  }}
-  artifact={{
-    label: "Vector database",
-    sublabel: "Pinecone, pgvector, Chroma. Searchable by similarity.",
-    icon: "🗃️"
-  }}
+<NodeFlowDiagram
+  title="The full RAG pipeline — index once, query on every request"
+  height={660}
+  groups={[
+    { id: "indexing", label: "Indexing — runs once (or when data changes)", nodeIds: ["docs", "chunk", "embed-i", "store"],           color: "violet" },
+    { id: "query",    label: "Query — every user request",                  nodeIds: ["question", "embed-q", "search", "llm", "answer"], color: "teal" },
+  ]}
+  nodes={[
+    { id: "docs",     label: "Documents",        sublabel: "PDFs, wikis, DBs",              x: 18, y: 15, color: "violet", shape: "rect", emoji: "📄" },
+    { id: "chunk",    label: "Chunking",         sublabel: "200–500 tokens + overlap",      x: 18, y: 36, color: "violet", shape: "rect", emoji: "✂️" },
+    { id: "embed-i",  label: "Embed Chunks",     sublabel: "Text → vector",                 x: 18, y: 57, color: "violet", shape: "rect", emoji: "🔢" },
+    { id: "store",    label: "Vector DB",        sublabel: "Pinecone / Chroma / pgvector",  x: 18, y: 78, color: "violet", shape: "hex",  size: "lg", emoji: "🗄️" },
+    { id: "question", label: "User Question",    sublabel: "Natural language",              x: 82, y: 15, color: "teal",   shape: "rect", emoji: "❓" },
+    { id: "embed-q",  label: "Embed Question",   sublabel: "Same model as indexing!",       x: 82, y: 36, color: "teal",   shape: "rect", emoji: "🔢" },
+    { id: "search",   label: "Similarity Search",sublabel: "Top-k nearest vectors",        x: 82, y: 55, color: "teal",   shape: "rect", emoji: "🔍" },
+    { id: "llm",      label: "LLM",              sublabel: "Question + chunks",             x: 82, y: 72, color: "blue",   shape: "circle", size: "lg", emoji: "🤖" },
+    { id: "answer",   label: "Grounded Answer",  sublabel: "Cited, up-to-date",             x: 82, y: 88, color: "teal",   shape: "rect", emoji: "✅" },
+  ]}
+  edges={[
+    { from: "docs",     to: "chunk",    animated: false, stepNumber: 1 },
+    { from: "chunk",    to: "embed-i",  animated: false, stepNumber: 2 },
+    { from: "embed-i",  to: "store",    animated: true,  stepNumber: 3 },
+    { from: "question", to: "embed-q",  animated: true,  stepNumber: 4 },
+    { from: "embed-q",  to: "search",   animated: true,  stepNumber: 5 },
+    { from: "store",    to: "search",   animated: true,  stepNumber: 6, label: "retrieve chunks" },
+    { from: "search",   to: "llm",      animated: true,  stepNumber: 7 },
+    { from: "question", to: "llm",      animated: true,  stepNumber: 8, dashed: true },
+    { from: "llm",      to: "answer",   animated: true,  stepNumber: 9 },
+  ]}
+  steps={[
+    { id: "s1", label: "Load documents",          description: "Source data — PDFs, web pages, internal wikis, database records — is loaded. This indexing phase only runs when your knowledge base changes, not on every query.", highlightNodes: ["docs"], highlightEdges: [] },
+    { id: "s2", label: "Chunk into segments",     description: "Each document is split into overlapping segments of 200–500 tokens. The overlap (20–50 tokens) ensures sentences split across boundaries remain retrievable.", highlightNodes: ["docs", "chunk"], highlightEdges: ["docs→chunk"] },
+    { id: "s3", label: "Embed and store",         description: "An embedding model converts each chunk to a vector. The vector, the original text, and metadata (source, page, date) are stored in the vector database.", highlightNodes: ["chunk", "embed-i", "store"], highlightEdges: ["chunk→embed-i", "embed-i→store"] },
+    { id: "s4", label: "User question arrives",   description: "A user sends a question at query time. The indexing phase is complete — we are now purely reading from the vector database, not writing to it.", highlightNodes: ["question"], highlightEdges: [] },
+    { id: "s5", label: "Embed the question",      description: "The question is converted to a vector using the EXACT SAME embedding model used during indexing. Different models produce incompatible vector spaces — this is a critical constraint.", highlightNodes: ["question", "embed-q"], highlightEdges: ["question→embed-q"] },
+    { id: "s6", label: "Similarity search",       description: "The question vector is compared against all stored chunk vectors. Top-k most similar chunks are retrieved — these are the documents most relevant to the question.", highlightNodes: ["embed-q", "search", "store"], highlightEdges: ["embed-q→search", "store→search"] },
+    { id: "s7", label: "LLM generates grounded answer", description: "The retrieved chunks are injected into the prompt alongside the original question. The LLM answers using this grounded context — not its training data alone.", highlightNodes: ["search", "question", "llm", "answer"], highlightEdges: ["search→llm", "question→llm", "llm→answer"] },
+  ]}
 />
 
 </SessionSection>

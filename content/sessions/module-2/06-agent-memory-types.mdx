@@ -30,27 +30,34 @@ By default, LLMs are stateless -- every API call starts from scratch with no mem
 
 Without a memory system, your agent forgets everything the moment a session ends. The four memory types solve different parts of that problem: active working context, past experiences, factual knowledge, and learned procedures. Most real agents combine two or more of them.
 
-<DataFlowDiagram
-  title="The four memory types and where they live relative to the agent"
-  caption="Follow the arrows, then click any node below the diagram to inspect its role more clearly"
-  height={340}
-  nodeDetailMode="panel"
+<NodeFlowDiagram
+  title="Memory is what turns a stateless model into an agent that learns over time"
+  height={560}
+  groups={[
+    { id: "external", label: "External Storage", nodeIds: ["episodic", "semantic", "procedural"], color: "amber" },
+  ]}
   nodes={[
-    { id: "agent", label: "Agent (LLM)", sublabel: "Stateless model making decisions", x: 50, y: 50, color: "violet" },
-    { id: "incontext", label: "In-context memory", sublabel: "Active conversation -- lives inside context window", x: 50, y: 12, color: "teal" },
-    { id: "episodic", label: "Episodic memory", sublabel: "Past interaction logs -- stored in external database", x: 82, y: 50, color: "amber" },
-    { id: "semantic", label: "Semantic memory", sublabel: "Facts and knowledge -- vector or structured DB", x: 82, y: 82, color: "teal" },
-    { id: "procedural", label: "Procedural memory", sublabel: "Instructions and rules -- system prompt or config file", x: 50, y: 82, color: "gray" },
-    { id: "response", label: "Agent response", sublabel: "Output to user or next tool call", x: 18, y: 50, color: "gray" },
+    { id: "agent",      label: "Agent (LLM)",    sublabel: "Makes decisions",             x: 50, y: 50, color: "violet", shape: "circle", size: "lg", emoji: "🤖" },
+    { id: "incontext",  label: "In-context",     sublabel: "Active conversation window",  x: 50, y: 12, color: "teal",   shape: "rect",   emoji: "💬" },
+    { id: "episodic",   label: "Episodic",       sublabel: "Past interaction logs",       x: 85, y: 35, color: "amber",  shape: "hex",    emoji: "📜" },
+    { id: "semantic",   label: "Semantic",       sublabel: "Facts + vector DB",           x: 85, y: 65, color: "amber",  shape: "hex",    emoji: "🔍" },
+    { id: "procedural", label: "Procedural",     sublabel: "System prompt / config",      x: 50, y: 86, color: "gray",   shape: "rect",   emoji: "📋" },
+    { id: "response",   label: "Response",       sublabel: "Output to user",              x: 14, y: 50, color: "gray",   shape: "rect",   emoji: "📤" },
   ]}
   edges={[
-    { from: "incontext", to: "agent", animated: true, label: "Always present" },
-    { from: "episodic", to: "agent", animated: true, label: "Retrieved on demand" },
-    { from: "semantic", to: "agent", animated: true, label: "Retrieved on demand" },
-    { from: "procedural", to: "agent", animated: false, label: "Loaded once at start", dashed: true },
-    { from: "agent", to: "response", animated: true },
+    { from: "incontext",  to: "agent",    animated: true,  label: "always present",    color: "teal" },
+    { from: "episodic",   to: "agent",    animated: true,  label: "retrieved on demand" },
+    { from: "semantic",   to: "agent",    animated: true,  label: "retrieved on demand" },
+    { from: "procedural", to: "agent",    animated: false, label: "loaded at start",   dashed: true },
+    { from: "agent",      to: "response", animated: true },
   ]}
-  highlightPath={["episodic", "agent", "response"]}
+  steps={[
+    { id: "s1", label: "In-context memory",   description: "Everything currently in the context window — system prompt, conversation, retrieved documents. Zero infrastructure. Instant access. Disappears when the session ends.", highlightNodes: ["incontext", "agent"], highlightEdges: ["incontext→agent"] },
+    { id: "s2", label: "Episodic memory",     description: "Past interaction logs stored in an external database. The agent retrieves summaries of previous sessions on demand — giving it a sense of history across conversations.", highlightNodes: ["episodic", "agent"], highlightEdges: ["episodic→agent"] },
+    { id: "s3", label: "Semantic memory",     description: "Factual knowledge stored in a vector database. Powers RAG retrieval — the agent embeds a query and finds semantically similar facts. This is the memory type from the next session.", highlightNodes: ["semantic", "agent"], highlightEdges: ["semantic→agent"] },
+    { id: "s4", label: "Procedural memory",   description: "Fixed rules, personas, and instructions in the system prompt or a config file. Loaded once at the start. Never retrieved dynamically — it defines how the agent behaves.", highlightNodes: ["procedural", "agent"], highlightEdges: ["procedural→agent"] },
+    { id: "s5", label: "Agent responds",      description: "After consulting memory, the agent produces a response or a tool call. For long-running agents this loop repeats — each response may also write back to episodic or semantic memory.", highlightNodes: ["agent", "response"], highlightEdges: ["agent→response"] },
+  ]}
 />
 
 </SessionSection>

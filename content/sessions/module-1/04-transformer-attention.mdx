@@ -30,15 +30,34 @@ The last session turned tokens into vectors. This session shows what happens nex
 
 A transformer is a stack of identical blocks. Each block has two jobs: attention (tokens talk to each other) and a feed-forward layer (each token processes what it learned). This repeats across many layers -- GPT-4 has 96 layers, each refining the vectors further before the final output.
 
-<LayerStack
-  title="What happens inside one transformer block"
-  caption="Click any layer to see what it does -- this stack repeats for every layer in the model"
-  direction="top-to-bottom"
-  layers={[
-    { id: "input", label: "Input vectors", sublabel: "From previous layer or embedding", color: "gray", detail: "Each token enters the block as a vector from the layer below. For the first block this is the embedding layer output. For later blocks it is the refined output of the previous transformer block." },
-    { id: "attn", label: "Attention", sublabel: "Tokens look at each other", color: "violet", detail: "Every token computes how much it should borrow from every other token using Q, K, V. The output is an updated vector for each token -- now context-aware across the whole sequence." },
-    { id: "ffn", label: "Feed-forward network", sublabel: "Each token processes independently", color: "teal", detail: "A small two-layer neural network runs on each token's updated vector separately. This is where most of the model's factual knowledge is stored in the weights." },
-    { id: "output", label: "Output vectors", sublabel: "Move to the next block", color: "amber", detail: "The refined vectors pass to the next transformer block. After all blocks, the final vectors are used to predict the next token." },
+<NodeFlowDiagram
+  title="What happens inside one transformer block — repeated 96× in GPT-4"
+  height={540}
+  groups={[
+    { id: "block", label: "One Transformer Block (×96 in GPT-4)", nodeIds: ["attn", "attn2", "attn3", "ffn"], color: "violet" },
+  ]}
+  nodes={[
+    { id: "input",  label: "Input Vectors",      sublabel: "From embedding or prior block",    x: 50, y: 10, color: "gray",   shape: "rect", size: "lg", emoji: "📥" },
+    { id: "attn",   label: "Attention Head 1",   sublabel: "Q·K·V: tokens talk to each other", x: 22, y: 42, color: "violet", shape: "rect", emoji: "👁️" },
+    { id: "attn2",  label: "Attention Head 2",   sublabel: "Different subspace focus",          x: 50, y: 42, color: "violet", shape: "rect", emoji: "👁️" },
+    { id: "attn3",  label: "Attention Head 3…",  sublabel: "Up to 96 heads in parallel",        x: 78, y: 42, color: "violet", shape: "rect", emoji: "👁️" },
+    { id: "ffn",    label: "Feed-Forward Net",   sublabel: "Each token processed independently", x: 50, y: 70, color: "teal",   shape: "rect", size: "lg", emoji: "⚡" },
+    { id: "output", label: "Output Vectors",     sublabel: "Richer, context-aware vectors",     x: 50, y: 92, color: "amber",  shape: "rect", size: "lg", emoji: "📤" },
+  ]}
+  edges={[
+    { from: "input",  to: "attn",   animated: true, stepNumber: 1 },
+    { from: "input",  to: "attn2",  animated: true },
+    { from: "input",  to: "attn3",  animated: true },
+    { from: "attn",   to: "ffn",    animated: true, stepNumber: 2 },
+    { from: "attn2",  to: "ffn",    animated: true },
+    { from: "attn3",  to: "ffn",    animated: true },
+    { from: "ffn",    to: "output", animated: true, stepNumber: 3 },
+  ]}
+  steps={[
+    { id: "s1", label: "Input vectors enter the block", description: "Each token arrives as a vector — from the embedding layer on the first block, or from the previous transformer block output for all subsequent blocks.", highlightNodes: ["input"], highlightEdges: [] },
+    { id: "s2", label: "Multiple attention heads run in parallel", description: "Every attention head computes Q, K, V for every token simultaneously. Each head focuses on a different learned subspace — one might track syntax, another semantics, another coreference. GPT-4 runs 96 of these in parallel per block.", highlightNodes: ["attn", "attn2", "attn3"], highlightEdges: ["input→attn", "input→attn2", "input→attn3"] },
+    { id: "s3", label: "Feed-forward network refines each token", description: "The attention outputs are combined, then passed through a small two-layer neural network — independently for each token. This is where most of the model's factual knowledge lives in its weights.", highlightNodes: ["ffn"], highlightEdges: ["attn→ffn", "attn2→ffn", "attn3→ffn"] },
+    { id: "s4", label: "Richer vectors move to the next block", description: "The output vectors carry more context than the inputs. This block repeats dozens of times — each pass deepens the model's understanding before the final token prediction.", highlightNodes: ["ffn", "output"], highlightEdges: ["ffn→output"] },
   ]}
 />
 
