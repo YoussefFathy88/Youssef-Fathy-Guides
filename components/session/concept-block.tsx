@@ -26,7 +26,7 @@ export function ConceptBlock({ concept }: ConceptBlockProps) {
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm font-medium text-white">{concept.placeholderTitle}</p>
           <span className="text-xs uppercase tracking-[0.22em] text-slate-500">
-            Placeholder
+            Story layer
           </span>
         </div>
 

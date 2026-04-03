@@ -166,6 +166,51 @@ function ScoreBars({
   );
 }
 
+function WeightsMatrixIcon() {
+  return (
+    <svg
+      viewBox="0 0 120 120"
+      className="h-20 w-20 text-slate-700 dark:text-slate-100"
+      role="img"
+      aria-label="Model weights matrix"
+      fill="none"
+    >
+      <defs>
+        <linearGradient id="weights-matrix-gradient" x1="20" y1="24" x2="100" y2="96">
+          <stop offset="0%" stopColor="#c4b5fd" />
+          <stop offset="100%" stopColor="#8b5cf6" />
+        </linearGradient>
+      </defs>
+      <rect
+        x="24"
+        y="24"
+        width="72"
+        height="72"
+        rx="18"
+        stroke="url(#weights-matrix-gradient)"
+        strokeWidth="4"
+        fill="rgba(139,92,246,0.08)"
+      />
+      <path
+        d="M42 42H78M42 60H78M42 78H78M42 42V78M60 42V78M78 42V78"
+        stroke="url(#weights-matrix-gradient)"
+        strokeWidth="3.5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M42 78L60 60L78 42"
+        stroke="currentColor"
+        strokeWidth="4"
+        strokeLinecap="round"
+      />
+      <circle cx="42" cy="42" r="6" fill="currentColor" />
+      <circle cx="60" cy="60" r="6" fill="currentColor" />
+      <circle cx="78" cy="42" r="6" fill="currentColor" />
+      <circle cx="42" cy="78" r="6" fill="currentColor" />
+    </svg>
+  );
+}
+
 export default function InferenceWalkthrough({
   title,
   caption,
@@ -266,11 +311,11 @@ export default function InferenceWalkthrough({
         <div className="rounded-3xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white p-5 dark:border-gray-700 dark:from-gray-900 dark:to-gray-950">
           <div
             className={cn(
-              "mx-auto flex h-32 w-32 items-center justify-center rounded-[2rem] border border-violet-200 bg-violet-50 text-4xl shadow-[0_0_30px_rgba(139,92,246,0.18)] dark:border-violet-500/40 dark:bg-violet-500/10",
+              "mx-auto flex h-32 w-32 items-center justify-center rounded-[2rem] border border-violet-200 bg-violet-50 shadow-[0_0_30px_rgba(139,92,246,0.18)] dark:border-violet-500/40 dark:bg-violet-500/10",
               !reducedMotion && "animate-pulse",
             )}
           >
-            {"{}"}
+            <WeightsMatrixIcon />
           </div>
           <p className="mt-4 text-center text-sm font-semibold text-gray-900 dark:text-gray-100">
             Frozen model weights loaded from storage

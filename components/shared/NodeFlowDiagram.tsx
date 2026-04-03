@@ -159,6 +159,7 @@ type Point = { x: number; y: number };
 
 const PADDING_X = 180;
 const PADDING_Y = 25;
+const GEOMETRY_EPSILON = 1e-6;
 
 function toPxX(pct: number, width: number): number {
   return PADDING_X + (pct / 100) * (width - PADDING_X * 2);
@@ -168,17 +169,172 @@ function toPxY(pct: number, height: number): number {
   return PADDING_Y + (pct / 100) * (height - PADDING_Y * 2);
 }
 
-function hexPath(cx: number, cy: number, r: number): string {
-  const pts = Array.from({ length: 6 }, (_, i) => {
+function getHexVertices(cx: number, cy: number, r: number): Point[] {
+  return Array.from({ length: 6 }, (_, i) => {
     const angle = (Math.PI / 180) * (60 * i - 30);
-    return `${(cx + r * Math.cos(angle)).toFixed(1)},${(cy + r * Math.sin(angle)).toFixed(1)}`;
+    return {
+      x: cx + r * Math.cos(angle),
+      y: cy + r * Math.sin(angle),
+    };
   });
+}
+
+function hexPath(cx: number, cy: number, r: number): string {
+  const pts = getHexVertices(cx, cy, r).map(
+    (point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`,
+  );
   return `M ${pts.join(" L ")} Z`;
 }
 
-function getBezierPoints(from: Point, to: Point) {
+function normalizeDirection(dx: number, dy: number): Point {
+  const length = Math.hypot(dx, dy);
+  if (length < GEOMETRY_EPSILON) {
+    return { x: 1, y: 0 };
+  }
+
+  return { x: dx / length, y: dy / length };
+}
+
+function intersectRayWithSegment(origin: Point, direction: Point, start: Point, end: Point) {
+  const edge = {
+    x: end.x - start.x,
+    y: end.y - start.y,
+  };
+  const denominator = direction.x * edge.y - direction.y * edge.x;
+
+  if (Math.abs(denominator) < GEOMETRY_EPSILON) {
+    return null;
+  }
+
+  const startDelta = {
+    x: start.x - origin.x,
+    y: start.y - origin.y,
+  };
+  const t = (startDelta.x * edge.y - startDelta.y * edge.x) / denominator;
+  const u = (startDelta.x * direction.y - startDelta.y * direction.x) / denominator;
+
+  if (t <= GEOMETRY_EPSILON || u < -GEOMETRY_EPSILON || u > 1 + GEOMETRY_EPSILON) {
+    return null;
+  }
+
+  return {
+    point: {
+      x: origin.x + direction.x * t,
+      y: origin.y + direction.y * t,
+    },
+    distance: t,
+  };
+}
+
+function getHexDockPoint(center: Point, r: number, toward: Point) {
+  const direction = normalizeDirection(toward.x - center.x, toward.y - center.y);
+  const vertices = getHexVertices(center.x, center.y, r);
+  let best:
+    | {
+        point: Point;
+        normal: Point;
+        distance: number;
+      }
+    | null = null;
+
+  vertices.forEach((start, index) => {
+    const end = vertices[(index + 1) % vertices.length];
+    const hit = intersectRayWithSegment(center, direction, start, end);
+    if (!hit || (best && hit.distance >= best.distance)) return;
+
+    const midpoint = {
+      x: (start.x + end.x) / 2,
+      y: (start.y + end.y) / 2,
+    };
+
+    best = {
+      point: hit.point,
+      normal: normalizeDirection(midpoint.x - center.x, midpoint.y - center.y),
+      distance: hit.distance,
+    };
+  });
+
+  return (
+    best ?? {
+      point: {
+        x: center.x + direction.x * r,
+        y: center.y + direction.y * r,
+      },
+      normal: direction,
+    }
+  );
+}
+
+function getRectDockPoint(center: Point, width: number, height: number, toward: Point) {
+  const direction = normalizeDirection(toward.x - center.x, toward.y - center.y);
+  const halfW = width / 2;
+  const halfH = height / 2;
+  const tx = Math.abs(direction.x) < GEOMETRY_EPSILON ? Number.POSITIVE_INFINITY : halfW / Math.abs(direction.x);
+  const ty = Math.abs(direction.y) < GEOMETRY_EPSILON ? Number.POSITIVE_INFINITY : halfH / Math.abs(direction.y);
+  const distance = Math.min(tx, ty);
+
+  if (tx < ty) {
+    return {
+      point: {
+        x: center.x + direction.x * distance,
+        y: center.y + direction.y * distance,
+      },
+      normal: { x: Math.sign(direction.x) || 1, y: 0 },
+    };
+  }
+
+  return {
+    point: {
+      x: center.x + direction.x * distance,
+      y: center.y + direction.y * distance,
+    },
+    normal: { x: 0, y: Math.sign(direction.y) || 1 },
+  };
+}
+
+function getNodeDockPoint(node: FlowNode & { px: number; py: number }, toward: Point) {
+  const s = SIZE[node.size ?? "md"];
+  const center = { x: node.px, y: node.py };
+
+  if (node.shape === "circle") {
+    const direction = normalizeDirection(toward.x - center.x, toward.y - center.y);
+    return {
+      point: {
+        x: center.x + direction.x * s.r,
+        y: center.y + direction.y * s.r,
+      },
+      normal: direction,
+    };
+  }
+
+  if (node.shape === "hex") {
+    return getHexDockPoint(center, s.r, toward);
+  }
+
+  return getRectDockPoint(center, s.w, s.h, toward);
+}
+
+function getBezierPoints(from: Point, to: Point, fromNormal?: Point, toNormal?: Point) {
   const dx = to.x - from.x;
   const dy = to.y - from.y;
+
+  if (fromNormal && toNormal) {
+    const handleLength = Math.min(160, Math.max(48, Math.hypot(dx, dy) * 0.45));
+    const travelDirection = normalizeDirection(dx, dy);
+    return {
+      p0: from,
+      p1: {
+        x: from.x + fromNormal.x * handleLength,
+        y: from.y + fromNormal.y * handleLength,
+      },
+      p2: {
+        x: to.x - travelDirection.x * handleLength,
+        y: to.y - travelDirection.y * handleLength,
+      },
+      p3: to,
+    };
+  }
+
   if (Math.abs(dx) >= Math.abs(dy)) {
     const midX = (from.x + to.x) / 2;
     return { p0: from, p1: { x: midX, y: from.y }, p2: { x: midX, y: to.y }, p3: to };
@@ -376,6 +532,7 @@ function HexNode({ node, cx, cy, dimmed, highlighted }: NodeProps) {
   const c = COLOR[node.color ?? "gray"];
   const s = SIZE[node.size ?? "md"];
   const r = s.r;
+  const d = hexPath(cx, cy, r);
 
   return (
     <motion.g
@@ -384,12 +541,26 @@ function HexNode({ node, cx, cy, dimmed, highlighted }: NodeProps) {
       transition={{ duration: 0.3 }}
     >
       <motion.path
-        d={hexPath(cx, cy, r)}
+        d={d}
         fill={c.fill}
         stroke={highlighted ? c.dot : c.stroke}
-        strokeWidth={highlighted ? 2 : 1.5}
+        strokeWidth={highlighted ? 2.5 : 1.75}
+        strokeLinecap="butt"
+        strokeLinejoin="miter"
+        strokeMiterlimit={8}
+        shapeRendering="geometricPrecision"
         animate={highlighted ? { filter: `drop-shadow(0 0 10px ${c.glow})` } : { filter: "none" }}
         transition={{ duration: 0.3 }}
+      />
+      <path
+        d={d}
+        fill="none"
+        stroke="rgba(255,255,255,0.16)"
+        strokeWidth={0.75}
+        strokeLinecap="butt"
+        strokeLinejoin="miter"
+        strokeMiterlimit={8}
+        shapeRendering="geometricPrecision"
       />
       {node.emoji ? (
         <text
@@ -575,26 +746,14 @@ export default function NodeFlowDiagram({
       const toNode = nodeMap.get(edge.to);
       if (!fromNode || !toNode) return null;
 
-            const dx = toNode.px - fromNode.px;
-      const dy = toNode.py - fromNode.py;
-
-      const getEdgePoint = (n: FlowNode & { px: number; py: number }, isTarget: boolean) => {
-        const s = SIZE[n.size ?? "md"];
-        const w = n.shape === "circle" || n.shape === "hex" ? s.r * 2 : s.w;
-        const h = n.shape === "circle" || n.shape === "hex" ? s.r * 2 : s.h;
-
-        if (Math.abs(dx) >= Math.abs(dy)) {
-          const offsetX = (w / 2) * (isTarget ? -Math.sign(dx) : Math.sign(dx));
-          return { x: n.px + offsetX, y: n.py };
-        } else {
-          const offsetY = (h / 2) * (isTarget ? -Math.sign(dy) : Math.sign(dy));
-          return { x: n.px, y: n.py + offsetY };
-        }
-      };
-
-      const from: Point = getEdgePoint(fromNode, false);
-      const to: Point = getEdgePoint(toNode, true);
-      const points = getBezierPoints(from, to);
+      const fromDock = getNodeDockPoint(fromNode, { x: toNode.px, y: toNode.py });
+      const toDock = getNodeDockPoint(toNode, { x: fromNode.px, y: fromNode.py });
+      const points = getBezierPoints(
+        fromDock.point,
+        toDock.point,
+        fromDock.normal,
+        toDock.normal,
+      );
       const mid = getPointOnBezier(0.5, points);
       const edgeKey = `${edge.from}→${edge.to}`;
 

@@ -14,7 +14,7 @@ export default function LibraryPage() {
       <GridBackground />
       <Container className="relative z-10 space-y-10 pb-20 pt-12 xl:pr-20">
         <SectionShell className="px-6 py-8 sm:px-8 sm:py-10">
-          <SessionBadge tone="blue">Full Session Library</SessionBadge>
+          <SessionBadge tone="blue">The Agents Story Playlist</SessionBadge>
           <h1 className="mt-5 max-w-4xl text-balance text-4xl font-semibold sm:text-5xl">
             Every module, every session, one persistent learning journey.
           </h1>

@@ -22,11 +22,11 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "The Software Architect",
-    template: "%s | The Software Architect",
+    default: "The Software Story",
+    template: "%s | The Software Story",
   },
   description:
-    "The Software Architect: a story-driven GenAI course website by Youssef Fathy covering LLMs, tools, agents, and production systems from the ground up.",
+    "The Software Story: home of The Agents Story playlist by Youssef Fathy, covering LLMs, tools, agents, and production systems from the ground up.",
 };
 
 export default function RootLayout({

@@ -33,13 +33,13 @@ export default function HomePage() {
         <section className="surface-card overflow-hidden px-6 py-8 sm:px-8 sm:py-10 lg:px-10">
           <div className="grid gap-8 lg:grid-cols-[1.24fr_0.76fr] lg:items-end">
             <div className="space-y-5">
-              <SessionBadge tone="purple">The Software Architect</SessionBadge>
+              <SessionBadge tone="purple">The Software Story</SessionBadge>
               <div className="space-y-4">
                 <h1 className="max-w-5xl text-balance text-4xl font-semibold sm:text-5xl lg:text-6xl">
-                  A story-driven course that starts inside the model and ends in production.
+                  The Agents Story playlist starts inside the model and ends in production.
                 </h1>
                 <p className="max-w-3xl text-lg text-slate-300 sm:text-xl">
-                  This is not a bag of isolated tutorials. It is a guided journey from
+                  This is not a bag of isolated tutorials. It is a guided playlist from
                   the mechanics of LLMs to tools, agents, and production systems.
                 </p>
               </div>
@@ -50,7 +50,7 @@ export default function HomePage() {
                   </ButtonLink>
                 ) : null}
                 <ButtonLink href="/library" variant="secondary">
-                  Open full library
+                  Open The Agents Story
                 </ButtonLink>
               </div>
             </div>

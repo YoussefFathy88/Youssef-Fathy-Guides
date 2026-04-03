@@ -10,20 +10,20 @@ export function SiteHeader() {
       <Container className="flex min-h-18 items-center justify-between gap-4 py-4">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-sky-400/20 bg-sky-500/10 text-lg font-semibold text-sky-200">
-            SA
+            SS
           </div>
           <div className="leading-tight">
             <Link href="/" className="text-base font-semibold text-white">
-              The Software Architect
+              The Software Story
             </Link>
             <p className="text-xs text-slate-500">
-              Copyright © Youssef Fathy. All rights reserved.
+              Copyright (c) Youssef Fathy. All rights reserved.
             </p>
           </div>
         </div>
 
         <div className="hidden items-center gap-3 md:flex">
-          <SessionBadge tone="purple">App Router + Tailwind</SessionBadge>
+          <SessionBadge tone="purple">The Agents Story</SessionBadge>
           <ButtonLink href="/library" variant="secondary">
             Library
           </ButtonLink>

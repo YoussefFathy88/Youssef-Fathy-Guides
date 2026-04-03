@@ -132,7 +132,6 @@ export default function LiveTokenizer({
 
   const charCount   = inputText.length;
   const tokenCount  = tokens.length;
-  const charsPerTok = charCount > 0 && tokenCount > 0 ? (charCount / tokenCount).toFixed(2) : "—";
 
   function loadExample(i: number) {
     setActiveExample(i);
@@ -265,7 +264,7 @@ export default function LiveTokenizer({
         </AnimatePresence>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           <div className="rounded-xl bg-white px-4 py-3 text-center ring-1 ring-gray-200 dark:bg-gray-900 dark:ring-gray-700">
             <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Tokens</p>
             <p className="mt-1 font-mono text-3xl font-bold text-violet-600 dark:text-violet-400">{tokenCount}</p>
@@ -274,24 +273,7 @@ export default function LiveTokenizer({
             <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Characters</p>
             <p className="mt-1 font-mono text-3xl font-bold text-gray-800 dark:text-gray-200">{charCount}</p>
           </div>
-          <div className="rounded-xl bg-white px-4 py-3 text-center ring-1 ring-gray-200 dark:bg-gray-900 dark:ring-gray-700">
-            <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Chars / Token</p>
-            <p className={cn(
-              "mt-1 font-mono text-3xl font-bold",
-              Number(charsPerTok) < 4 ? "text-teal-500" : Number(charsPerTok) < 6 ? "text-amber-500" : "text-rose-500",
-            )}>
-              {charsPerTok}
-            </p>
-          </div>
         </div>
-
-        <p className="text-sm leading-6 text-gray-400 dark:text-gray-500">
-          {Number(charsPerTok) < 4
-            ? "✅ Efficient tokenisation — typical for English prose"
-            : Number(charsPerTok) < 5
-            ? "⚠️ Moderate density — technical terms, code or punctuation"
-            : "🔴 High token density — rare words, URLs, or non-English text cost more"}
-        </p>
       </div>
     </motion.div>
   );
