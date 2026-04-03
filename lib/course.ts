@@ -1,3 +1,5 @@
+import type { Route } from "next";
+
 import { courseModules, courseSessions } from "@/data/sessions";
 import type {
   ConceptCard,
@@ -33,8 +35,8 @@ export function getSessionBySlug(slug: string) {
   return courseSessions.find((session) => session.slug === slug);
 }
 
-export function getSessionRoute(session: Pick<CourseSession, "slug">) {
-  return `/sessions/${session.slug}`;
+export function getSessionRoute(session: Pick<CourseSession, "slug">): Route {
+  return `/sessions/${session.slug}` as Route;
 }
 
 export function getModuleUnlockDependency(moduleId: ModuleId) {

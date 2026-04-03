@@ -223,6 +223,7 @@ Pick the most specific component that fits the concept.
 | Next-token sampling distribution with temperature/top-p | `TokenProbDist` |
 | User input to simulated output | `MiniPlayground` |
 | Context budget composition and overflow/truncation risk | `ContextWindowFiller` |
+| Stepwise context-limit growth, overflow failure, and chunked-retrieval recovery | `ContextLimitSimulator` |
 | Arbitrary non-linear graph/topology with clickable node and edge detail | `DataFlowDiagram` |
 | Step-by-step concept carousel | `ConceptStepper` |
 | One-token-at-a-time training dynamics | `TrainingLoopSimulator` |
@@ -296,8 +297,11 @@ Use `states` in MDX and do not pass function props.
 
 ```ts
 interface ParameterSliderState {
+  value?: number;
   max?: number;
+  label?: string;
   description: string;
+  highlight?: string;
   examples?: string[];
   colorClassName?: string;
 }
@@ -352,6 +356,38 @@ interface ParameterSliderProps {
         "Unexpected output C",
       ],
       colorClassName: "bg-amber-500 dark:bg-amber-400",
+    },
+  ]}
+/>
+```
+
+Use `value`, `label`, and `highlight` for discrete teaching sliders where each step maps to one named state.
+
+```mdx
+<ParameterSlider
+  label="Content type"
+  min={1}
+  max={5}
+  step={1}
+  defaultValue={1}
+  states={[
+    {
+      value: 1,
+      label: "English prose — 1.0× baseline",
+      description: "Common English words map efficiently to tokens.",
+      highlight: "~1 token per word",
+      examples: [
+        "\"The model processes text\" → 5 tokens for 4 words",
+      ],
+    },
+    {
+      value: 2,
+      label: "Technical documentation — 1.3× baseline",
+      description: "Uncommon terms and abbreviations split into extra token pieces.",
+      highlight: "~1.3 tokens per word",
+      examples: [
+        "\"OAuth2 authentication flow\" → 5 tokens for 3 words",
+      ],
     },
   ]}
 />
@@ -535,6 +571,55 @@ interface ContextWindowFillerProps {
   costPer1kTokens?: number;
   blocks: ContextBlock[];
 }
+```
+
+### ContextLimitSimulator
+
+```ts
+type TokenBlock = {
+  id: string;
+  label: string;
+  tokens: number;
+  color: "rose" | "gray" | "amber" | "teal" | "blue" | "violet";
+};
+
+type ContextLimitStep = {
+  id: string;
+  label: string;
+  caption: string;
+  blocks: TokenBlock[];
+  sideNote: string | null;
+  errorState: boolean;
+  resetBar: boolean;
+};
+
+interface ContextLimitSimulatorProps {
+  title: string;
+  caption: string;
+  windowSize: number;
+  steps: ContextLimitStep[];
+}
+```
+
+```mdx
+<ContextLimitSimulator
+  title="Contract review tool: watch the context window fill up — then see the fix"
+  caption="Press Next Step to advance. Watch the token bar and running total update at each stage."
+  windowSize={128000}
+  steps={[
+    {
+      id: "s1",
+      label: "Step 1 — Lawyer pastes the full contract",
+      caption: "A 15,000-word merger agreement lands in the input box.",
+      blocks: [
+        { id: "contract", label: "Contract (20,000 tokens)", tokens: 20000, color: "rose" },
+      ],
+      sideNote: null,
+      errorState: false,
+      resetBar: false,
+    },
+  ]}
+/>
 ```
 
 ```mdx
@@ -809,6 +894,9 @@ interface FlowNode {
   color?: NodeColor;
   icon?: string;
   emoji?: string;
+  anchor?: "top" | "right" | "bottom" | "left" | "center";
+  priority?: number;
+  lane?: string;
 }
 
 interface FlowEdge {
@@ -838,6 +926,7 @@ interface DiagramStep {
 }
 
 interface NodeFlowDiagramProps {
+  diagramId?: string;
   nodes?: FlowNode[];
   edges?: FlowEdge[];
   groups?: NodeGroup[];

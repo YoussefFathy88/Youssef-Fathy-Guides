@@ -21,6 +21,13 @@ export type CourseSession = {
   slug: string;
   title: string;
   module: ModuleId;
+  moduleName?: string;
+  sessionNumber?: number;
+  duration?: string;
+  difficulty?: "beginner" | "intermediate" | "advanced";
+  tags?: string[];
+  nextSession?: string;
+  prevSession?: string | null;
   prevRecap: string;
   dependsOn: string[];
   leadsTo: string[];

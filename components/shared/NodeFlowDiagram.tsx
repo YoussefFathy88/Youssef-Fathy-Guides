@@ -36,6 +36,9 @@ export interface FlowNode {
   color?: NodeColor; // default: "gray"
   icon?: string; // e.g. "/icons/llm.svg"
   emoji?: string; // fallback if no icon
+  anchor?: "top" | "right" | "bottom" | "left" | "center";
+  priority?: number;
+  lane?: string;
 }
 
 export interface FlowEdge {
@@ -65,6 +68,7 @@ export interface DiagramStep {
 }
 
 export interface NodeFlowDiagramProps {
+  diagramId?: string;
   nodes?: FlowNode[];
   edges?: FlowEdge[];
   groups?: NodeGroup[];

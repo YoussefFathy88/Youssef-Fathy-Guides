@@ -12,6 +12,7 @@ export { default as LayerStack } from "./LayerStack";
 export { default as AnnotatedCode } from "./AnnotatedCode";
 export { default as DualPhaseFlow } from "./DualPhaseFlow";
 export { default as AgentLoopStepper } from "./AgentLoopStepper";
+export { default as ContextLimitSimulator } from "../session/ContextLimitSimulator";
 export { default as ContextWindowFiller } from "./ContextWindowFiller";
 export { default as NodeFlowDiagram } from "./NodeFlowDiagram";
 // New interactive components

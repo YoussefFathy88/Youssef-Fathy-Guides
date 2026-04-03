@@ -58,24 +58,28 @@ const nodeColorMap = {
       "border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-500/40 dark:bg-violet-500/10 dark:text-violet-200",
     glow: "shadow-[0_0_0_1px_rgba(139,92,246,0.2),0_18px_45px_-24px_rgba(139,92,246,0.65)]",
     dot: "#8b5cf6",
+    text: "text-violet-700 dark:text-violet-200",
   },
   teal: {
     surface:
       "border-teal-200 bg-teal-50 text-teal-700 dark:border-teal-500/40 dark:bg-teal-500/10 dark:text-teal-200",
     glow: "shadow-[0_0_0_1px_rgba(20,184,166,0.2),0_18px_45px_-24px_rgba(20,184,166,0.65)]",
     dot: "#14b8a6",
+    text: "text-teal-700 dark:text-teal-200",
   },
   amber: {
     surface:
       "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200",
     glow: "shadow-[0_0_0_1px_rgba(245,158,11,0.2),0_18px_45px_-24px_rgba(245,158,11,0.65)]",
     dot: "#f59e0b",
+    text: "text-amber-700 dark:text-amber-200",
   },
   gray: {
     surface:
       "border-gray-200 bg-white text-gray-700 dark:border-gray-600 dark:bg-gray-900/70 dark:text-gray-100",
     glow: "shadow-[0_18px_45px_-24px_rgba(15,23,42,0.55)]",
     dot: "#94a3b8",
+    text: "text-gray-700 dark:text-gray-100",
   },
 } as const;
 

@@ -6,8 +6,11 @@ import { useId, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export interface ParameterSliderState {
+  value?: number;
   max?: number;
+  label?: string;
   description: string;
+  highlight?: string;
   examples?: string[];
   colorClassName?: string;
 }
@@ -46,6 +49,26 @@ function getPrecision(step: number) {
 function getResolvedState(states: ParameterSliderState[] | undefined, value: number) {
   if (!states || states.length === 0) {
     return undefined;
+  }
+
+  const exactValueMatch = states.find(
+    (state) => state.value !== undefined && Math.abs(state.value - value) <= Number.EPSILON,
+  );
+
+  if (exactValueMatch) {
+    return exactValueMatch;
+  }
+
+  if (states.some((state) => state.value !== undefined)) {
+    const orderedValueStates = states
+      .filter((state) => state.value !== undefined)
+      .sort((left, right) => (left.value ?? 0) - (right.value ?? 0));
+
+    return (
+      orderedValueStates.findLast((state) => (state.value ?? Number.NEGATIVE_INFINITY) <= value) ??
+      orderedValueStates[0] ??
+      states.at(-1)
+    );
   }
 
   return states.find((state) => state.max === undefined || value <= state.max) ?? states.at(-1);
@@ -146,16 +169,32 @@ export default function ParameterSlider({
 
         <div className="min-h-16 rounded-2xl border border-gray-200 bg-white/70 p-5 dark:border-gray-700 dark:bg-gray-900/50">
           <AnimatePresence mode="wait">
-            <motion.p
+            <motion.div
               key={description}
               initial={reducedMotion ? false : { opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={reducedMotion ? undefined : { opacity: 0, y: -8 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className="text-base leading-7 text-gray-700 dark:text-gray-200"
+              className="space-y-3"
             >
-              {description}
-            </motion.p>
+              {(resolvedState?.label || resolvedState?.highlight) && (
+                <div className="flex flex-wrap items-center gap-2">
+                  {resolvedState?.label && (
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      {resolvedState.label}
+                    </p>
+                  )}
+                  {resolvedState?.highlight && (
+                    <span className="rounded-full bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700 dark:bg-violet-500/10 dark:text-violet-200">
+                      {resolvedState.highlight}
+                    </span>
+                  )}
+                </div>
+              )}
+              <p className="text-base leading-7 text-gray-700 dark:text-gray-200">
+                {description}
+              </p>
+            </motion.div>
           </AnimatePresence>
         </div>
 

@@ -11,7 +11,9 @@ nextSession: "embeddings"
 prevSession: "how-llms-work"
 ---
 
-{/* SECTION 1 - GOAL */}
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 1 — GOAL
+    ═══════════════════════════════════════════════════════════════ */}
 
 <SessionSection id="goal" label="Goal">
 
@@ -22,7 +24,9 @@ Every LLM API call you make is secretly a tokenization problem. This session sho
 </SessionSection>
 
 
-{/* SECTION 2 - BIG PICTURE */}
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 2 — BIG PICTURE
+    ═══════════════════════════════════════════════════════════════ */}
 
 <SessionSection id="big-picture" label="Big Picture">
 
@@ -34,11 +38,11 @@ Before the model runs attention or predicts anything, your text is converted to 
   title="From raw text to what the model actually reads"
   height={420}
   nodes={[
-    { id: "text",    label: "Raw Text",       sublabel: "\"Hello, world!\"",            x: 10, y: 35, color: "gray",   shape: "rect", emoji: "📝" },
-    { id: "bpe",     label: "BPE Tokenizer",  sublabel: "Byte-pair encoding",           x: 36, y: 35, color: "violet", shape: "rect", size: "lg", emoji: "✂️" },
-    { id: "tokens",  label: "Token Strings",  sublabel: "\"Hello\", \",\", \" world\"…", x: 62, y: 35, color: "teal",   shape: "rect", emoji: "🔤" },
-    { id: "ids",     label: "Token IDs",      sublabel: "[15496, 11, 995…]",            x: 86, y: 35, color: "amber",  shape: "rect", emoji: "🔢" },
-    { id: "window",  label: "Context Window", sublabel: "Max tokens the model holds",   x: 86, y: 78, color: "blue",   shape: "hex",  size: "lg", emoji: "🪟" },
+    { id: "text",   label: "Raw Text",       sublabel: "\"Hello, world!\"",             x: 10, y: 35, color: "gray",   shape: "rect", emoji: "📝" },
+    { id: "bpe",    label: "BPE Tokenizer",  sublabel: "Byte-pair encoding",            x: 36, y: 35, color: "violet", shape: "rect", size: "lg", emoji: "✂️" },
+    { id: "tokens", label: "Token Strings",  sublabel: "\"Hello\", \",\", \" world\"…", x: 62, y: 35, color: "teal",   shape: "rect", emoji: "🔤" },
+    { id: "ids",    label: "Token IDs",      sublabel: "[15496, 11, 995…]",             x: 86, y: 35, color: "amber",  shape: "rect", emoji: "🔢" },
+    { id: "window", label: "Context Window", sublabel: "Max tokens the model holds",    x: 86, y: 78, color: "blue",   shape: "hex",  size: "lg", emoji: "🪟" },
   ]}
   edges={[
     { from: "text",   to: "bpe",    animated: true, stepNumber: 1 },
@@ -47,17 +51,19 @@ Before the model runs attention or predicts anything, your text is converted to 
     { from: "ids",    to: "window", animated: true, stepNumber: 4, label: "fills up to limit" },
   ]}
   steps={[
-    { id: "s1", label: "Raw text enters",          description: "Your string — the prompt you write — enters the tokenization pipeline exactly as typed. The model never sees the characters directly.", highlightNodes: ["text"], highlightEdges: [] },
-    { id: "s2", label: "BPE splits into tokens",   description: "The tokenizer applies Byte-Pair Encoding rules learned from training data. Common words become single tokens; rare or compound words get split into subwords.", highlightNodes: ["bpe", "tokens"], highlightEdges: ["text→bpe", "bpe→tokens"] },
-    { id: "s3", label: "Tokens mapped to integers", description: "Each token string maps to a fixed integer ID in the vocabulary. \"Hello\" = 15496, \",\" = 11, \" world\" = 995. These IDs are all the model operates on.", highlightNodes: ["tokens", "ids"], highlightEdges: ["tokens→ids"] },
-    { id: "s4", label: "IDs fill the context window", description: "The integer sequence is placed into the context window. The model can only process up to a maximum number of tokens at once — this is the hard limit that shapes your entire architecture.", highlightNodes: ["ids", "window"], highlightEdges: ["ids→window"] },
+    { id: "s1", label: "Step 1 — Raw text enters",              description: "Your string — the prompt you write — enters the tokenization pipeline exactly as typed. The model never sees the characters directly.", highlightNodes: ["text"], highlightEdges: [] },
+    { id: "s2", label: "Step 2 — BPE splits into tokens",       description: "The tokenizer applies Byte-Pair Encoding rules learned from training data. Common words become single tokens; rare or compound words get split into subwords.", highlightNodes: ["bpe", "tokens"], highlightEdges: ["text→bpe", "bpe→tokens"] },
+    { id: "s3", label: "Step 3 — Tokens mapped to integers",    description: "Each token string maps to a fixed integer ID in the vocabulary. \"Hello\" = 15496, \",\" = 11, \" world\" = 995. These IDs are all the model operates on.", highlightNodes: ["tokens", "ids"], highlightEdges: ["tokens→ids"] },
+    { id: "s4", label: "Step 4 — IDs fill the context window",  description: "The integer sequence is placed into the context window. The model can only process up to a maximum number of tokens at once — this is the hard limit that shapes your entire architecture.", highlightNodes: ["ids", "window"], highlightEdges: ["ids→window"] },
   ]}
 />
 
 </SessionSection>
 
 
-{/* SECTION 3 - CORE CONCEPTS */}
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 3 — CORE CONCEPTS
+    ═══════════════════════════════════════════════════════════════ */}
 
 <SessionSection id="core-concepts" label="Core Concepts">
 
@@ -70,9 +76,9 @@ Tokenizers use Byte-Pair Encoding (BPE) -- a compression algorithm that learns c
   caption="Each colored chip is one token. Click any chip to see its integer ID and character span. Switch between examples to see how Arabic, code, and URLs compare to English prose."
 />
 
-### Token count drives cost, speed, and limits
+### The same information costs different amounts depending on how you write it
 
-Every API provider charges per token and measures latency per token. A 1000-word essay is roughly 1300 tokens. A code file with lots of rare identifiers costs more tokens per character than plain English prose. Understanding token density helps you design cheaper, faster systems.
+English prose is the baseline -- the tokenizer was trained mostly on English, so common words map cleanly to single tokens. Everything else costs more. The slider below shows the token-per-word multiplier for five content types. Select each one to see a concrete sentence with its real token count, so you can see exactly what your format choices cost before you write a single line of code.
 
 <ParameterSlider
   label="Content type"
@@ -82,29 +88,60 @@ Every API provider charges per token and measures latency per token. A 1000-word
   defaultValue={1}
   states={[
     {
-      max: 1,
-      description: "Plain English prose -- roughly 0.75 tokens per word. The model was trained mostly on English text so it tokenizes it most efficiently.",
-      examples: ["\"The model processes text\" = 5 tokens for 4 words", "\"How are you today\" = 4 tokens for 4 words", "\"The quick brown fox\" = 4 tokens for 4 words"]
+      value: 1,
+      label: "English prose — 1.0× baseline",
+      description: "The tokenizer was trained mostly on English text. Common words map one-to-one with tokens. This is the cheapest content type you will ever send to the API.",
+      highlight: "~1 token per word",
+      examples: [
+        "\"The model processes text\" → 5 tokens for 4 words (1.25×)",
+        "\"How are you today\" → 4 tokens for 4 words (1.0×)",
+        "\"The quick brown fox jumped\" → 6 tokens for 5 words (1.2×)"
+      ]
     },
     {
-      max: 2,
-      description: "Technical documentation -- roughly 1.1 tokens per word. Uncommon terms and abbreviations start to get split.",
-      examples: ["\"API endpoint configuration\" = 4 tokens for 3 words", "\"JSON serialization schema\" = 5 tokens for 3 words", "\"OAuth2 authentication flow\" = 5 tokens for 3 words"]
+      value: 2,
+      label: "Technical documentation — 1.3× baseline",
+      description: "Uncommon terms, abbreviations, and compound nouns start to split. 'OAuth2' becomes two tokens. 'serialization' may split into 'serial' + 'ization'. Still close to English, but the bill creeps up.",
+      highlight: "~1.3 tokens per word",
+      examples: [
+        "\"API endpoint configuration\" → 5 tokens for 3 words (1.67×)",
+        "\"JSON serialization schema\" → 6 tokens for 3 words (2.0×)",
+        "\"OAuth2 authentication flow\" → 5 tokens for 3 words (1.67×)"
+      ]
     },
     {
-      max: 3,
-      description: "Source code -- roughly 1.4 tokens per identifier group. Camel-case names like getUserById split into [\"get\", \"User\", \"By\", \"Id\"].",
-      examples: ["\"getUserById\" = 4 tokens", "\"handleApiResponse\" = 4 tokens", "\"const isLoading = false\" = 7 tokens"]
+      value: 3,
+      label: "Source code — 1.5–2× baseline",
+      description: "Camel-case identifiers split at every capital letter. Indentation whitespace adds tokens. A function name like getUserById becomes four tokens: get · User · By · Id. Every extra split is an extra token you pay for.",
+      highlight: "~1.5–2 tokens per word",
+      examples: [
+        "\"getUserById\" → 4 tokens (get · User · By · Id)",
+        "\"handleApiResponse\" → 4 tokens (handle · Api · Response)",
+        "\"const isLoading = false\" → 7 tokens for 4 words (1.75×)"
+      ]
     },
     {
-      max: 4,
-      description: "URLs and file paths -- roughly 2 tokens per path segment. Each slash, dot, and hyphen becomes a separate token.",
-      examples: ["\"/api/v2/users/profile\" = 9 tokens", "\"https://example.com/auth\" = 8 tokens", "\"./src/components/Button\" = 9 tokens"]
+      value: 4,
+      label: "URLs and file paths — 3–4× baseline",
+      description: "Every slash, dot, and hyphen is its own token. The tokenizer has no concept of URL structure — it sees a long chain of punctuation. A short API path costs as many tokens as a full sentence of English prose.",
+      highlight: "~3–4 tokens per character cluster",
+      examples: [
+        "\"/api/v2/users/profile\" → 9 tokens for 20 characters",
+        "\"https://example.com/auth\" → 8 tokens",
+        "\"./src/components/Button\" → 9 tokens"
+      ]
     },
     {
-      description: "Non-English text -- roughly 2-4x more tokens per word than English. The tokenizer was trained mostly on English so other languages are less efficient.",
-      examples: ["Arabic or Chinese text can use 3-4x more tokens per word", "Even European languages like German use ~1.5x more tokens", "This directly affects cost and context window capacity"]
-    },
+      value: 5,
+      label: "Non-English text — 2–4× baseline",
+      description: "The tokenizer saw mostly English during training. Arabic, Chinese, and Thai have far less vocabulary coverage, so each word fragments into many subword pieces. Sending the same information in Arabic costs 3–4× what English costs.",
+      highlight: "2–4× more tokens per word vs English",
+      examples: [
+        "Arabic sentence (~8 words) → ~32 tokens vs ~8 tokens in English (4.0×)",
+        "Chinese: each character becomes 2–3 tokens on average (2.5×)",
+        "German compound words split more than English equivalents (1.5–2×)"
+      ]
+    }
   ]}
 />
 
@@ -118,73 +155,125 @@ The context window is the total number of tokens the model can see at once -- yo
   windowSize={128000}
   costPer1kTokens={0.003}
   blocks={[
-    { id: "system", label: "System prompt", tokens: 420, color: "gray", defaultOn: true, icon: "⚙️", description: "Instructions, persona, constraints" },
-    { id: "few-shot", label: "Few-shot examples", tokens: 2800, color: "violet", defaultOn: false, icon: "📋", description: "3 example input/output pairs" },
-    { id: "history", label: "Conversation history", tokens: 14000, color: "amber", defaultOn: false, icon: "💬", description: "10 turns of back-and-forth" },
-    { id: "rag-chunks", label: "Retrieved chunks", tokens: 3200, color: "teal", defaultOn: false, icon: "📄", description: "Top-5 RAG chunks at 640 tokens each" },
-    { id: "contract", label: "Full document (contract)", tokens: 22000, color: "rose", defaultOn: false, icon: "📑", description: "A 17,000-word legal contract" },
-    { id: "message", label: "Current message", tokens: 180, color: "blue", defaultOn: true, icon: "✏️", description: "The user's current question" },
+    { id: "system",     label: "System prompt",           tokens: 420,   color: "gray",   defaultOn: true,  icon: "⚙️",  description: "Instructions, persona, constraints" },
+    { id: "few-shot",   label: "Few-shot examples",       tokens: 2800,  color: "violet", defaultOn: false, icon: "📋",  description: "3 example input/output pairs" },
+    { id: "history",    label: "Conversation history",    tokens: 14000, color: "amber",  defaultOn: false, icon: "💬",  description: "10 turns of back-and-forth" },
+    { id: "rag-chunks", label: "Retrieved chunks",        tokens: 3200,  color: "teal",   defaultOn: false, icon: "📄",  description: "Top-5 RAG chunks at 640 tokens each" },
+    { id: "contract",   label: "Full document (contract)", tokens: 22000, color: "rose",  defaultOn: false, icon: "📑",  description: "A 17,000-word legal contract" },
+    { id: "message",    label: "Current message",         tokens: 180,   color: "blue",   defaultOn: true,  icon: "✏️",  description: "The user's current question" },
   ]}
 />
 
 </SessionSection>
 
 
-{/* SECTION 4 - PRACTICAL EXAMPLE */}
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 4 — PRACTICAL EXAMPLE
+    ═══════════════════════════════════════════════════════════════ */}
 
 <SessionSection id="practical-example" label="Practical Example">
 
 ## Why a legal AI assistant keeps hitting context limits
 
-A law firm builds a contract review tool. Lawyers paste full contracts -- often 15,000 words -- plus a detailed system prompt and conversation history. At roughly 1.3 tokens per word, a 15k-word contract alone is around 20,000 tokens. Add a 1,000-token system prompt and 5 turns of history and they regularly exceed smaller models' limits. The fix is chunking: splitting the contract into sections and retrieving only the relevant chunk per question rather than pasting the whole document.
+A law firm builds a contract review tool. Lawyers paste full contracts -- often 15,000 words -- plus a detailed system prompt and conversation history. At roughly 1.3 tokens per word for technical text, a 15,000-word contract alone is around 20,000 tokens. Add a 1,000-token system prompt and five turns of history and the team regularly hits the limit on smaller models. Step through the simulation below to watch the token bar fill in real time -- and see exactly what the fix looks like.
 
-<ConceptCompare
-  title="Full document vs chunked retrieval"
-  caption="Toggle between the two approaches -- notice what fits in the window each time"
-  mode="toggle"
-  left={{
-    label: "Full document in context",
-    color: "amber",
-    points: [
-      "Paste entire 20,000-token contract",
-      "Hits context limit on smaller models",
-      "Simple to implement",
-      "Every question re-reads the whole document",
-    ]
-  }}
-  right={{
-    label: "Chunked retrieval (RAG)",
-    color: "teal",
-    points: [
-      "Split contract into 500-token sections",
-      "Only relevant chunks retrieved per question",
-      "Stays well within context limits",
-      "Scales to any document length",
-    ]
-  }}
+<ContextLimitSimulator
+  title="Contract review tool: watch the context window fill up — then see the fix"
+  caption="Press Next Step to advance. Watch the token bar and running total update at each stage."
+  windowSize={128000}
+  steps={[
+    {
+      id: "s1",
+      label: "Step 1 — Lawyer pastes the full contract",
+      caption: "A 15,000-word merger agreement lands in the input box. At 1.3 tokens per word for legal text, this is 20,000 tokens before anything else enters the context.",
+      blocks: [
+        { id: "contract", label: "Contract (20,000 tokens)", tokens: 20000, color: "rose" }
+      ],
+      sideNote: null,
+      errorState: false,
+      resetBar: false
+    },
+    {
+      id: "s2",
+      label: "Step 2 — System prompt loads",
+      caption: "The app prepends a 1,000-token system prompt: role instructions, output format rules, jurisdiction notes, and disclaimers. Running total: 21,000 tokens.",
+      blocks: [
+        { id: "contract", label: "Contract (20,000 tokens)", tokens: 20000, color: "rose" },
+        { id: "system",   label: "System prompt (1,000 tokens)", tokens: 1000, color: "gray" }
+      ],
+      sideNote: "21,000 / 128,000 tokens used",
+      errorState: false,
+      resetBar: false
+    },
+    {
+      id: "s3",
+      label: "Step 3 — Conversation history accumulates",
+      caption: "Five back-and-forth turns from earlier in the session add another 4,000 tokens. Running total: 25,000. Still under a 128k limit — but already over a 16k or 32k model.",
+      blocks: [
+        { id: "contract", label: "Contract (20,000 tokens)", tokens: 20000, color: "rose" },
+        { id: "system",   label: "System prompt (1,000 tokens)", tokens: 1000, color: "gray" },
+        { id: "history",  label: "Chat history (4,000 tokens)", tokens: 4000, color: "amber" }
+      ],
+      sideNote: "⚠️ 25,000 tokens — over 16k and 32k model limits",
+      errorState: false,
+      resetBar: false
+    },
+    {
+      id: "s4",
+      label: "Step 4 — Context limit hit on a smaller model",
+      caption: "The lawyer submits a question. The API returns context_length_exceeded. The app either crashes or silently truncates the oldest content — dropping part of the contract the answer depended on.",
+      blocks: [
+        { id: "contract", label: "Contract (20,000 tokens)", tokens: 20000, color: "rose" },
+        { id: "system",   label: "System prompt (1,000 tokens)", tokens: 1000, color: "gray" },
+        { id: "history",  label: "Chat history (4,000 tokens)", tokens: 4000, color: "amber" }
+      ],
+      sideNote: "❌ context_length_exceeded — API error or silent truncation",
+      errorState: true,
+      resetBar: false
+    },
+    {
+      id: "s5",
+      label: "Step 5 — Fix: chunk the contract, retrieve only what's needed",
+      caption: "The contract is split into 500-token sections at indexing time. Each question triggers a search over those sections. Only the 3 most relevant chunks (~1,920 tokens) enter the context instead of all 20,000. The limit is never approached.",
+      blocks: [
+        { id: "system",  label: "System prompt (1,000 tokens)", tokens: 1000, color: "gray" },
+        { id: "history", label: "Chat history (4,000 tokens)",  tokens: 4000, color: "amber" },
+        { id: "chunk1",  label: "Chunk 1 — Liability clause (640 tokens)", tokens: 640, color: "teal" },
+        { id: "chunk2",  label: "Chunk 2 — Termination terms (640 tokens)", tokens: 640, color: "teal" },
+        { id: "chunk3",  label: "Chunk 3 — Payment schedule (640 tokens)",  tokens: 640, color: "teal" }
+      ],
+      sideNote: "✅ 6,920 / 128,000 tokens — same answer, 10× fewer tokens",
+      errorState: false,
+      resetBar: true
+    }
+  ]}
 />
 
 </SessionSection>
 
 
-{/* SECTION 5 - RECAP */}
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 5 — RECAP
+    ═══════════════════════════════════════════════════════════════ */}
 
 <SessionSection id="recap" label="Recap">
 
 ## What we covered
 
 <RecapTable rows={[
-  { term: "Token", definition: "The basic unit the model processes -- roughly 4 characters of English text on average" },
+  { term: "Token", definition: "The basic unit the model processes — roughly 1 token per common English word, more for code, URLs, and non-English text" },
   { term: "Byte-Pair Encoding", definition: "Tokenization algorithm that splits text into frequent subword patterns learned from training data" },
-  { term: "Token ID", definition: "The integer that maps a token to its position in the model's vocabulary" },
-  { term: "Context window", definition: "The maximum number of tokens a model can process in a single call, covering all inputs and outputs" },
-  { term: "Token density", definition: "The ratio of tokens to source characters -- varies by content type, language, and vocabulary coverage" },
+  { term: "Token ID", definition: "The integer that maps a token to its position in the model's vocabulary — the only thing the model actually operates on" },
+  { term: "Context window", definition: "The maximum number of tokens a model can process in a single call, covering system prompt, history, documents, and the current message" },
+  { term: "Token density", definition: "The ratio of tokens to source words — English prose is the 1.0× baseline; code, URLs, and non-English text cost 1.5–4× more per word" },
 ]} />
 
 </SessionSection>
 
 
-{/* SECTION 6 - NEXT SESSION */}
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 6 — NEXT SESSION
+    ═══════════════════════════════════════════════════════════════ */}
 
 <SessionSection id="next-session" label="Next Session">
 

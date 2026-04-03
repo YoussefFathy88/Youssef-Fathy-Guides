@@ -59,6 +59,13 @@ export const courseSessions: CourseSession[] = [
     slug: "tokens-context-window",
     title: "Tokens & Context Window",
     module: 1,
+    moduleName: "The Engine Room",
+    sessionNumber: 2,
+    duration: "11 min",
+    difficulty: "beginner",
+    tags: ["tokens", "context-window", "tokenization"],
+    nextSession: "embeddings",
+    prevSession: "how-llms-work",
     prevRecap:
       "Last time, we established that the model is a prediction system rather than a magic thinker. Now we zoom into the raw material it sees: tokens, ordering, and the finite context window that shapes every response.",
     dependsOn: ["E01"],
