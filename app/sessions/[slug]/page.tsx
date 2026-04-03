@@ -23,6 +23,7 @@ import {
   ContextWindowFiller,
   DataFlowDiagram,
   DualPhaseFlow,
+  InferenceWalkthrough,
   LayerStack,
   LiveTokenizer,
   MemoryOrchestrator,
@@ -34,6 +35,7 @@ import {
   StepSequence,
   ThinkingModeSimulator,
   TokenProbDist,
+  TransformerLogitsExplainer,
   TrainingLoopSimulator,
   Vector2DPlot,
 } from "@/components/shared";
@@ -91,6 +93,8 @@ function getMdxComponents(isPresentationMode: boolean) {
     // New interactive components
     TrainingLoopSimulator,
     AutoregressiveDemo,
+    TransformerLogitsExplainer,
+    InferenceWalkthrough,
     LiveTokenizer,
     ThinkingModeSimulator,
     ChatReplay,

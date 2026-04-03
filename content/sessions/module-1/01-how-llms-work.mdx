@@ -2,7 +2,7 @@
 title: "How LLMs Work"
 slug: "how-llms-work"
 module: 1
-moduleName: "LLM Foundations"
+moduleName: "The Engine Room"
 sessionNumber: 1
 duration: "14 min"
 difficulty: "beginner"
@@ -81,8 +81,33 @@ During training, the model reads enormous amounts of text and learns one task: p
 When you send a prompt, the model runs a forward pass through all its layers and produces a probability score for every token in its vocabulary. It does not produce a sentence. It produces a distribution over what token should come next. One token is sampled from that distribution, appended to the context, and the whole process repeats until the response is complete.
 
 <AutoregressiveDemo
-  title="Inference: watch tokens appear one at a time"
-  caption="Click Generate to see the autoregressive loop in action. Toggle between Greedy and Sampled to understand why outputs vary."
+  title="Inference: a full Q&A generated token by token"
+  caption="Click 'Step Into' to reveal the next-token probabilities, then click it again to append the chosen token. Run plays the loop automatically."
+  question="What is the capital of France?"
+  contextPrefix="The capital of France is"
+  tokens={["Paris", ",", " which", " is", " also", " France", "'s", " largest", " city", "."]}
+  topCandidates={[
+    { step: 0, candidates: [{ token: "Paris", prob: 0.91 }, { token: "Lyon", prob: 0.04 }, { token: "a", prob: 0.02 }] },
+    { step: 1, candidates: [{ token: ",", prob: 0.65 }, { token: ".", prob: 0.20 }, { token: " and", prob: 0.08 }] },
+    { step: 2, candidates: [{ token: " which", prob: 0.48 }, { token: " a", prob: 0.22 }, { token: " the", prob: 0.15 }] },
+  ]}
+/>
+
+### From logits to probabilities
+
+The model does not output probabilities directly. It outputs raw scores called **logits** — one per token in its vocabulary. These scores are then passed through a softmax function to produce the probability distribution you sample from.
+
+<TransformerLogitsExplainer
+  title="Logits → softmax → probability distribution"
+  caption="Step through how raw model scores become the next-token probabilities."
+  candidates={[
+    { token: "Paris",   logit: 9.2, rawProb: 0.91 },
+    { token: "Lyon",    logit: 3.1, rawProb: 0.04 },
+    { token: "a",       logit: 1.8, rawProb: 0.02 },
+    { token: "the",     logit: 1.4, rawProb: 0.01 },
+    { token: "France",  logit: 1.3, rawProb: 0.01 },
+    { token: "located", logit: 1.2, rawProb: 0.01 },
+  ]}
 />
 
 
@@ -110,68 +135,26 @@ This is the most important thing to internalize. The model does not retrieve ans
 
 <SessionSection id="practical-example" label="Practical Example">
 
-## Why your API responses are non-deterministic by default
+## Putting it all together: one complete inference call
 
-You are building a code review tool. You send the same prompt twice and get different suggestions each time. This is not a bug. It is temperature in action. The model's distribution for code tokens is not perfectly peaked, so there are several plausible next tokens at each step. With temperature at 1.0, the model samples from that spread. Set temperature to 0 and the output becomes deterministic, which is exactly what you want for a code review tool but not for a brainstorming assistant.
+You send this prompt: *"What is the capital of France?"* Here is exactly what happens inside the model, from your API call to the first token appearing in the response.
 
-<ParameterSlider
-  label="Temperature"
-  min={0}
-  max={2}
-  step={0.1}
-  defaultValue={1.0}
-  states={[
-    {
-      max: 0,
-      description: "Fully deterministic. Identical output every run. Best for factual retrieval, code generation, and structured outputs.",
-      examples: [
-        "Bug found on line 12: index out of bounds.",
-        "Bug found on line 12: index out of bounds.",
-        "Bug found on line 12: index out of bounds.",
-      ],
-      colorClassName: "bg-violet-500 dark:bg-violet-400",
-    },
-    {
-      max: 0.3,
-      description: "Near-deterministic. Very consistent with minor variation. Good for code review, classification, and data extraction.",
-      examples: [
-        "Bug found on line 12: index out of bounds.",
-        "Bug found on line 12: index out of bounds.",
-        "Bug found on line 12: index out of bounds.",
-      ],
-      colorClassName: "bg-violet-500 dark:bg-violet-400",
-    },
-    {
-      max: 0.9,
-      description: "Balanced. Coherent and slightly varied. Default for most chat and assistant use cases.",
-      examples: [
-        "Bug found on line 12: index out of bounds.",
-        "Potential issue on line 12: array access may exceed bounds.",
-        "Line 12 may throw if the array is shorter than expected.",
-      ],
-      colorClassName: "bg-teal-500 dark:bg-teal-400",
-    },
-    {
-      max: 1.4,
-      description: "Creative. Noticeably different each run. Good for drafting, brainstorming, and content generation.",
-      examples: [
-        "Line 12 feels adventurous, perhaps too adventurous for the array.",
-        "The array on line 12 is living dangerously.",
-        "I'd have a word with whoever wrote line 12.",
-      ],
-      colorClassName: "bg-amber-500 dark:bg-amber-400",
-    },
-    {
-      description: "Chaotic. High variance and lower coherence. Useful for creative exploration but rarely for production.",
-      examples: [
-        "Line 12 feels adventurous, perhaps too adventurous for the array.",
-        "The array on line 12 is living dangerously.",
-        "I'd have a word with whoever wrote line 12.",
-      ],
-      colorClassName: "bg-amber-500 dark:bg-amber-400",
-    },
+<InferenceWalkthrough
+  title="End-to-end: from question to answer"
+  caption="Step through each stage of a real LLM inference call."
+  question="What is the capital of France?"
+  answer="The capital of France is Paris."
+  logitCandidates={[
+    { token: "Paris",   logit: 9.2, rawProb: 0.91 },
+    { token: "Lyon",    logit: 3.1, rawProb: 0.04 },
+    { token: "a",       logit: 1.8, rawProb: 0.02 },
+    { token: "the",     logit: 1.4, rawProb: 0.01 },
+    { token: "France",  logit: 1.3, rawProb: 0.01 },
+    { token: "located", logit: 1.2, rawProb: 0.01 },
   ]}
 />
+
+Notice that at Stage 5, the model samples from the probability distribution rather than always picking the top token. This is temperature at work — covered in detail in the Core Concepts section above with the `TokenProbDist` interactive.
 
 </SessionSection>
 
@@ -184,7 +167,7 @@ You are building a code review tool. You send the same prompt twice and get diff
     { term: "Training", definition: "One-time process of adjusting model weights by predicting next tokens across trillions of examples." },
     { term: "Weights", definition: "Frozen numerical parameters that encode the model's knowledge after training finishes." },
     { term: "Inference", definition: "Running a forward pass on a prompt to generate output tokens one at a time." },
-    { term: "Logits", definition: "Raw scores the model assigns to every possible next token before normalization and sampling." },
+    { term: "Logits", definition: "Raw, unnormalized scores the model assigns to every vocabulary token before softmax is applied. Higher logit = higher probability after normalization." },
     { term: "Temperature", definition: "Parameter that controls how flat or spiky the token probability distribution is at sampling time." },
   ]}
 />

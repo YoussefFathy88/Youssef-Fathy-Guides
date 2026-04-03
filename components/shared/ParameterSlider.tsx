@@ -89,13 +89,13 @@ export default function ParameterSlider({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <label
             htmlFor={sliderId}
-            className="text-sm font-medium text-gray-900 dark:text-gray-100"
+            className="text-base font-semibold text-gray-900 dark:text-gray-100"
           >
             {label}
           </label>
           <span
             className={cn(
-              "rounded-full px-3 py-1 text-sm font-mono text-white shadow-sm transition-colors",
+              "rounded-full px-3.5 py-1.5 font-mono text-base font-semibold text-white shadow-sm transition-colors",
               accentClass,
             )}
           >
@@ -132,7 +132,7 @@ export default function ParameterSlider({
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+          <div className="flex items-center justify-between text-sm font-medium text-gray-500 dark:text-gray-400">
             <span>
               Low - {min.toFixed(precision)}
               {unit}
@@ -144,7 +144,7 @@ export default function ParameterSlider({
           </div>
         </div>
 
-        <div className="min-h-16 rounded-2xl border border-gray-200 bg-white/70 p-4 dark:border-gray-700 dark:bg-gray-900/50">
+        <div className="min-h-16 rounded-2xl border border-gray-200 bg-white/70 p-5 dark:border-gray-700 dark:bg-gray-900/50">
           <AnimatePresence mode="wait">
             <motion.p
               key={description}
@@ -152,7 +152,7 @@ export default function ParameterSlider({
               animate={{ opacity: 1, y: 0 }}
               exit={reducedMotion ? undefined : { opacity: 0, y: -8 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className="text-sm text-gray-700 dark:text-gray-200"
+              className="text-base leading-7 text-gray-700 dark:text-gray-200"
             >
               {description}
             </motion.p>
@@ -165,7 +165,7 @@ export default function ParameterSlider({
               <motion.span
                 key={`${index}-${example}`}
                 layout={!reducedMotion}
-                className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs text-gray-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400"
+                className="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm leading-5 text-gray-600 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
               >
                 {example}
               </motion.span>

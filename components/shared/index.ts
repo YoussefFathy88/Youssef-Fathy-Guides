@@ -17,6 +17,8 @@ export { default as NodeFlowDiagram } from "./NodeFlowDiagram";
 // New interactive components
 export { default as TrainingLoopSimulator } from "./TrainingLoopSimulator";
 export { default as AutoregressiveDemo } from "./AutoregressiveDemo";
+export { default as TransformerLogitsExplainer } from "./TransformerLogitsExplainer";
+export { default as InferenceWalkthrough } from "./InferenceWalkthrough";
 export { default as LiveTokenizer } from "./LiveTokenizer";
 export { default as ThinkingModeSimulator } from "./ThinkingModeSimulator";
 export { default as ChatReplay } from "./ChatReplay";

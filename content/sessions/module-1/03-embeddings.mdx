@@ -112,30 +112,90 @@ Once words are vectors, "how similar are these two things?" becomes a calculatio
 
 Inside the model, every transformer layer works entirely in vector space -- it never sees raw text again after the embedding layer. Outside the model, you can call an embeddings API to get a vector for any string and store it in a vector database for retrieval.
 
-<ConceptCompare
+<ConceptStepper
   title="Embeddings inside vs outside the model"
-  caption="Toggle between the two uses -- both start from the same idea"
-  mode="toggle"
-  left={{
-    label: "Inside the model",
-    color: "violet",
-    points: [
-      "Every token becomes a vector at the first layer",
-      "Attention operates entirely in vector space",
-      "Happens automatically on every API call",
-      "You never see these vectors directly",
-    ]
-  }}
-  right={{
-    label: "Outside the model (embeddings API)",
-    color: "teal",
-    points: [
-      "Call an API to embed any text string",
-      "Store vectors in a database like Pinecone or pgvector",
-      "Search by similarity at query time",
-      "Powers RAG, semantic search, deduplication",
-    ]
-  }}
+  steps={[
+    {
+      title: "Same core idea: map text into vectors",
+      caption: "Use Next to walk both paths -- they begin with the same transformation from tokens/text into vector coordinates.",
+      visual: (
+        <div className="grid min-h-[240px] gap-4 rounded-2xl bg-blue-500/10 p-6 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-center">
+          <div className="rounded-2xl border border-blue-200 bg-white/80 p-5 dark:border-blue-500/20 dark:bg-gray-950/50">
+            <p className="text-xs uppercase tracking-[0.24em] text-blue-500 dark:text-blue-300">Input</p>
+            <p className="mt-4 font-mono text-lg font-semibold text-gray-900 dark:text-gray-100">"reset password"</p>
+            <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">Text is first split into token IDs or passed as a string to an embedding model.</p>
+          </div>
+          <div className="hidden rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200 md:block">
+            embed
+          </div>
+          <div className="rounded-2xl border border-blue-200 bg-white/80 p-5 dark:border-blue-500/20 dark:bg-gray-950/50">
+            <p className="text-xs uppercase tracking-[0.24em] text-blue-500 dark:text-blue-300">Vector</p>
+            <div className="mt-4 flex items-end gap-2">
+              <div className="h-10 flex-1 rounded-full bg-blue-500/30" />
+              <div className="h-24 flex-1 rounded-full bg-blue-500/70" />
+              <div className="h-16 flex-1 rounded-full bg-blue-500/40" />
+              <div className="h-28 flex-1 rounded-full bg-blue-500" />
+              <div className="h-14 flex-1 rounded-full bg-blue-500/50" />
+            </div>
+            <p className="mt-4 font-mono text-sm text-gray-600 dark:text-gray-300">[0.12, 0.84, 0.41, 0.93, 0.35, ...]</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Inside the model: vectors are hidden working memory",
+      caption: "Every token becomes a vector at the embedding layer, then attention and MLP blocks keep transforming those vectors until the next-token prediction.",
+      visual: (
+        <div className="grid min-h-[240px] gap-3 rounded-2xl bg-violet-500/10 p-6 md:grid-cols-4">
+          <div className="rounded-2xl border border-violet-200 bg-white/85 p-4 dark:border-violet-500/20 dark:bg-gray-950/50">
+            <p className="text-xs uppercase tracking-[0.24em] text-violet-500 dark:text-violet-300">Step 1</p>
+            <p className="mt-3 text-base font-semibold text-gray-900 dark:text-gray-100">Token IDs</p>
+            <p className="mt-2 font-mono text-sm text-gray-600 dark:text-gray-300">[1428, 9167]</p>
+          </div>
+          <div className="rounded-2xl border border-violet-200 bg-white/85 p-4 dark:border-violet-500/20 dark:bg-gray-950/50">
+            <p className="text-xs uppercase tracking-[0.24em] text-violet-500 dark:text-violet-300">Step 2</p>
+            <p className="mt-3 text-base font-semibold text-gray-900 dark:text-gray-100">Embedding lookup</p>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">Each ID becomes a learned vector automatically.</p>
+          </div>
+          <div className="rounded-2xl border border-violet-200 bg-white/85 p-4 dark:border-violet-500/20 dark:bg-gray-950/50">
+            <p className="text-xs uppercase tracking-[0.24em] text-violet-500 dark:text-violet-300">Step 3</p>
+            <p className="mt-3 text-base font-semibold text-gray-900 dark:text-gray-100">Attention + MLP stack</p>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">All internal reasoning happens in vector space.</p>
+          </div>
+          <div className="rounded-2xl border border-violet-200 bg-white/85 p-4 dark:border-violet-500/20 dark:bg-gray-950/50">
+            <p className="text-xs uppercase tracking-[0.24em] text-violet-500 dark:text-violet-300">Step 4</p>
+            <p className="mt-3 text-base font-semibold text-gray-900 dark:text-gray-100">Next-token logits</p>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">You never directly inspect those hidden vectors in normal API calls.</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Outside the model: vectors become a searchable memory layer",
+      caption: "An embeddings API gives you vectors explicitly, so you can store documents and query text in the same space and retrieve nearest matches for RAG.",
+      visual: (
+        <div className="grid min-h-[240px] gap-4 rounded-2xl bg-teal-500/10 p-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.1fr)]">
+          <div className="rounded-2xl border border-teal-200 bg-white/85 p-5 dark:border-teal-500/20 dark:bg-gray-950/50">
+            <p className="text-xs uppercase tracking-[0.24em] text-teal-500 dark:text-teal-300">Embeddings API</p>
+            <p className="mt-4 font-mono text-sm text-gray-600 dark:text-gray-300">embed("locked out of account")</p>
+            <p className="mt-4 text-sm text-gray-600 dark:text-gray-300">Returns a vector you can store, compare, and inspect as part of your retrieval pipeline.</p>
+            <div className="mt-5 rounded-2xl bg-teal-500/10 p-4 font-mono text-xs text-teal-700 dark:text-teal-200">
+              [0.09, 0.77, 0.52, 0.18, 0.88, ...]
+            </div>
+          </div>
+          <div className="space-y-3">
+            <div className="rounded-2xl border border-teal-200 bg-white/85 p-4 dark:border-teal-500/20 dark:bg-gray-950/50">
+              <p className="text-xs uppercase tracking-[0.24em] text-teal-500 dark:text-teal-300">Vector DB search</p>
+              <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">Nearest neighbors surface semantically similar records, even when the wording differs.</p>
+            </div>
+            <div className="rounded-2xl border border-teal-200 bg-teal-500/10 px-4 py-3 text-sm font-semibold text-gray-900 dark:border-teal-500/20 dark:text-gray-100">1. Can't log in after MFA reset</div>
+            <div className="rounded-2xl border border-teal-200 bg-white/85 px-4 py-3 text-sm text-gray-700 dark:border-teal-500/20 dark:bg-gray-950/50 dark:text-gray-200">2. Password change flow fails for SSO users</div>
+            <div className="rounded-2xl border border-teal-200 bg-white/85 px-4 py-3 text-sm text-gray-700 dark:border-teal-500/20 dark:bg-gray-950/50 dark:text-gray-200">3. Account recovery email arrives late</div>
+          </div>
+        </div>
+      ),
+    },
+  ]}
 />
 
 </SessionSection>
