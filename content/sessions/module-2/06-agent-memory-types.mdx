@@ -37,12 +37,12 @@ Without a memory system, your agent forgets everything the moment a session ends
     { id: "external", label: "External Storage", nodeIds: ["episodic", "semantic", "procedural"], color: "amber" },
   ]}
   nodes={[
-    { id: "agent",      label: "Agent (LLM)",    sublabel: "Makes decisions",             x: 50, y: 50, color: "violet", shape: "circle", size: "lg", emoji: "🤖" },
-    { id: "incontext",  label: "In-context",     sublabel: "Active conversation window",  x: 50, y: 12, color: "teal",   shape: "rect",   emoji: "💬" },
-    { id: "episodic",   label: "Episodic",       sublabel: "Past interaction logs",       x: 85, y: 35, color: "amber",  shape: "hex",    emoji: "📜" },
-    { id: "semantic",   label: "Semantic",       sublabel: "Facts + vector DB",           x: 85, y: 65, color: "amber",  shape: "hex",    emoji: "🔍" },
-    { id: "procedural", label: "Procedural",     sublabel: "System prompt / config",      x: 50, y: 86, color: "gray",   shape: "rect",   emoji: "📋" },
-    { id: "response",   label: "Response",       sublabel: "Output to user",              x: 14, y: 50, color: "gray",   shape: "rect",   emoji: "📤" },
+    { id: "agent",      label: "Agent (LLM)",    sublabel: "Makes decisions",             x: 40, y: 50, color: "violet", shape: "circle", size: "lg", emoji: "🤖" },
+    { id: "incontext",  label: "In-context",     sublabel: "Active conversation window",  x: 40, y: 15, color: "teal",   shape: "rect",   emoji: "💬" },
+    { id: "episodic",   label: "Episodic",       sublabel: "Past interaction logs",       x: 80, y: 25, color: "amber",  shape: "hex",    emoji: "📜" },
+    { id: "semantic",   label: "Semantic",       sublabel: "Facts + vector DB",           x: 80, y: 55, color: "amber",  shape: "hex",    emoji: "🔍" },
+    { id: "procedural", label: "Procedural",     sublabel: "System prompt / config",      x: 80, y: 85, color: "gray",   shape: "rect",   emoji: "📋" },
+    { id: "response",   label: "Response",       sublabel: "Output to user",              x: 10, y: 50, color: "gray",   shape: "rect",   emoji: "📤" },
   ]}
   edges={[
     { from: "incontext",  to: "agent",    animated: true,  label: "always present",    color: "teal" },
@@ -71,64 +71,30 @@ Without a memory system, your agent forgets everything the moment a session ends
 
 In-context memory is everything currently inside the context window: the system prompt, the conversation so far, retrieved documents, and the current user message. It needs no external infrastructure and is instantly available. Its limit is the context window itself, so old content gets truncated and disappears unless you save it somewhere else.
 
-<ConceptStepper
-  title="How in-context memory grows and gets truncated during a long conversation"
-  caption="Step through the turns -- notice the moment old content starts getting dropped"
-  autoPlay={false}
-  showDots={true}
-  steps={[
-    {
-      title: "Turn 1 -- conversation starts fresh",
-      caption: "Context window holds: system prompt (500 tokens) + first user message (50 tokens) = 550 tokens total. The agent sees everything clearly.",
-      visual: null
-    },
-    {
-      title: "Turn 10 -- history is accumulating",
-      caption: "Context now holds: system prompt (500) + 9 previous turns (1,800 tokens) + current message (60 tokens) = 2,360 tokens. Still fits -- no truncation yet.",
-      visual: null
-    },
-    {
-      title: "Turn 40 -- context window is nearly full",
-      caption: "39 turns of back-and-forth have accumulated. The oldest turns are now being dropped to make room. The agent can no longer see what was said in turns 1-15.",
-      visual: null
-    },
-    {
-      title: "Session ends -- all in-context memory is erased",
-      caption: "The context window clears completely. The next session starts blank -- unless the agent wrote important information to episodic or semantic memory before closing.",
-      visual: null
-    },
+<ContextWindowFiller
+  title="Watch the context window fill turn by turn — then disappear at session end"
+  caption="Toggle conversation turns on/off to see them fill the window. Notice: once the session ends, everything is gone unless saved to external memory."
+  windowSize={128000}
+  costPer1kTokens={0.003}
+  blocks={[
+    { id: "system",  label: "System prompt",      tokens: 500,  color: "gray",   defaultOn: true,  icon: "⚙️",  description: "Agent persona and instructions" },
+    { id: "turn1",  label: "Turns 1-10",          tokens: 1800, color: "teal",   defaultOn: true,  icon: "💬",  description: "First 10 conversation turns" },
+    { id: "turn2",  label: "Turns 11-25",         tokens: 3600, color: "teal",   defaultOn: false, icon: "💬",  description: "Next 15 turns — conversation growing" },
+    { id: "turn3",  label: "Turns 26-40",         tokens: 3600, color: "amber",  defaultOn: false, icon: "⚠️",  description: "Oldest turns start dropping here" },
+    { id: "docs",   label: "Retrieved documents", tokens: 4200, color: "violet", defaultOn: false, icon: "📄",  description: "RAG-retrieved context chunks" },
   ]}
 />
+
 
 ### Episodic memory: a searchable log of past sessions
 
 Episodic memory stores records of specific past interactions: what the user asked, what the agent did, and what happened next. Those records are saved to an external store and the most relevant ones are pulled back into context in later sessions. It answers the question, "what happened before?"
 
-<ConceptCompare
-  title="Support agent without episodic memory vs support agent with episodic memory"
-  caption="Toggle between the two -- notice what the agent can and cannot reference in a follow-up conversation"
-  mode="toggle"
-  left={{
-    label: "No episodic memory -- every session is a blank slate",
-    color: "gray",
-    points: [
-      "Agent has zero knowledge of past interactions",
-      "User must re-explain context every time: 'As I mentioned last week...'",
-      "Agent cannot reference past decisions, errors, or resolutions",
-      "Frustrating for users with ongoing issues or multi-session tasks",
-    ]
-  }}
-  right={{
-    label: "With episodic memory -- past sessions are searchable",
-    color: "teal",
-    points: [
-      "Summaries of past interactions stored in a vector database",
-      "Top 3 most relevant past episodes retrieved at session start",
-      "Agent can say: 'Last Tuesday you had a billing error -- we resolved it by resetting your subscription'",
-      "Enables coherent continuity across days, weeks, or months",
-    ]
-  }}
+<ChatReplay
+  title="Support agent without vs with episodic memory"
+  caption="Toggle between the two — notice how the agent changes when it can access past interaction records."
 />
+
 
 ### Semantic memory: facts and knowledge the agent can look up
 
@@ -196,32 +162,11 @@ Procedural memory stores rules, workflows, and decision logic: how to handle a r
 
 A SaaS company builds a support agent for enterprise customers. In-context memory holds the live conversation while episodic memory retrieves the most relevant past tickets so the agent already knows what happened before. Semantic memory supplies product facts from documentation, and procedural memory defines when to resolve the issue directly versus escalate to a human.
 
-<DataFlowDiagram
-  title="Customer support agent -- all four memory types activating together on one user message"
-  caption="Trace the flow, then click any node to see its explanation below the diagram"
-  height={360}
-  nodeDetailMode="panel"
-  nodes={[
-    { id: "msg", label: "Customer message", sublabel: "'My payment failed again -- this happened last month too'", x: 4, y: 50, color: "gray" },
-    { id: "incontext", label: "In-context memory", sublabel: "Current conversation -- already in context window", x: 30, y: 15, color: "teal" },
-    { id: "episodic", label: "Episodic memory", sublabel: "Last month's payment failure ticket -- retrieved by similarity search", x: 30, y: 50, color: "amber" },
-    { id: "semantic", label: "Semantic memory", sublabel: "Payment retry policy doc -- retrieved from vector DB", x: 30, y: 82, color: "teal" },
-    { id: "agent", label: "Agent (LLM)", sublabel: "Combines all four memory sources to form response", x: 62, y: 50, color: "violet" },
-    { id: "procedural", label: "Procedural memory", sublabel: "Escalation rules -- loaded in system prompt at session start", x: 62, y: 85, color: "gray" },
-    { id: "response", label: "Response to customer", sublabel: "'I can see last month's issue -- here is what to try first...'", x: 90, y: 50, color: "teal" },
-  ]}
-  edges={[
-    { from: "msg", to: "incontext", animated: true },
-    { from: "msg", to: "episodic", animated: true },
-    { from: "msg", to: "semantic", animated: true },
-    { from: "incontext", to: "agent", animated: true },
-    { from: "episodic", to: "agent", animated: true },
-    { from: "semantic", to: "agent", animated: true },
-    { from: "procedural", to: "agent", animated: false, dashed: true },
-    { from: "agent", to: "response", animated: true },
-  ]}
-  highlightPath={["msg", "episodic", "agent", "response"]}
+<MemoryOrchestrator
+  title="Toggle each memory type ON/OFF — watch how the agent response degrades"
+  caption="All four memory types active by default. Disable each one and run the message to see exactly what the agent loses."
 />
+
 
 </SessionSection>
 

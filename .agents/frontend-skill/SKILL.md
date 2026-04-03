@@ -26,12 +26,13 @@ Use this skill for art direction and composition. When the task also depends on 
 Default rule:
 
 - do not declare layout, spacing, motion, or readability fixes complete from code review alone
-- verify in a real browser with a fixed viewport
-- capture before and after screenshots for the same page and state
+- NEVER skip the subagent verification, even for "trivially simple" UI tweaks (e.g., changing font sizes, scaling padding, or shifting layout percentages). Scaled components often break responsive containers, flex layouts, or fixed SVG coordinates unexpectedly, causing severe overlaps.
+- dispatch the `browser_subagent` to render and interact with the page in a fixed viewport, making sure to test across the specific breakpoints relevant to the task (like presentation shells or 1920x1080 display modes).
+- review the automatically captured WebP videos and screenshots from the subagent instead of guessing
 - prefer a production-style server for final judgment, not only dev mode
 - treat component-lab routes as the source of truth for component quality and session pages as the integration check
-- do not trust a screenshot until you have confirmed it came from the intended fresh server and route
-- if a screenshot is blank, white, stale, or obviously wrong, treat it as a verification failure and debug the runtime path before changing the UI again
+- do not trust a subagent artifact until you have confirmed it came from the intended fresh server and route
+- if a subagent recording is blank, white, stale, or obviously wrong, treat it as a verification failure and debug the runtime path before changing the UI again
 
 Read [references/verification-checklist.md](./references/verification-checklist.md) when the task involves frontend polish, visual regressions, responsive fixes, presentation readiness, or screenshot-driven review.
 
@@ -105,6 +106,7 @@ If a panel can become plain layout without losing meaning, remove the card treat
 
 Imagery must do narrative work.
 
+- Use the `generate_image` tool to create fully customized, realistic placeholders or assets if real ones are missing. Never leave generic placeholder blocks.
 - Use at least one strong, real-looking image for brands, venues, editorial pages, and lifestyle products.
 - Prefer in-situ photography over abstract gradients or fake 3D objects.
 - Choose or crop images with a stable tonal area for text.
@@ -160,7 +162,7 @@ Prefer Framer Motion when available for:
 
 Motion rules:
 
-- noticeable in a quick recording
+- noticeable in a subagent WebP recording artifact
 - smooth on mobile
 - fast and restrained
 - consistent across the page

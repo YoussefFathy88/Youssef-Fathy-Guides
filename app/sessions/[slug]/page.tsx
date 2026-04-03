@@ -15,18 +15,26 @@ import {
   AgentLoopStepper,
   AnnotatedCode,
   AttentionHeatmap,
+  AutoregressiveDemo,
+  ChatReplay,
+  ChunkVisualizer,
   ConceptCompare,
   ConceptStepper,
   ContextWindowFiller,
   DataFlowDiagram,
   DualPhaseFlow,
   LayerStack,
+  LiveTokenizer,
+  MemoryOrchestrator,
   MiniPlayground,
   NodeFlowDiagram,
   ParameterSlider,
+  ParallelToolRunner,
   PipelineTrack,
   StepSequence,
+  ThinkingModeSimulator,
   TokenProbDist,
+  TrainingLoopSimulator,
   Vector2DPlot,
 } from "@/components/shared";
 import { Container } from "@/components/ui/container";
@@ -80,6 +88,15 @@ function getMdxComponents(isPresentationMode: boolean) {
     StepSequence,
     LayerStack,
     AnnotatedCode,
+    // New interactive components
+    TrainingLoopSimulator,
+    AutoregressiveDemo,
+    LiveTokenizer,
+    ThinkingModeSimulator,
+    ChatReplay,
+    MemoryOrchestrator,
+    ChunkVisualizer,
+    ParallelToolRunner,
     h2: ({ className, ...props }: ComponentPropsWithoutRef<"h2">) => (
       <h2
         {...props}

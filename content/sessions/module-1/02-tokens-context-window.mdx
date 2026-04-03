@@ -34,11 +34,11 @@ Before the model runs attention or predicts anything, your text is converted to 
   title="From raw text to what the model actually reads"
   height={420}
   nodes={[
-    { id: "text",    label: "Raw Text",       sublabel: "\"Hello, world!\"",            x: 10, y: 50, color: "gray",   shape: "rect", emoji: "📝" },
-    { id: "bpe",     label: "BPE Tokenizer",  sublabel: "Byte-pair encoding",           x: 36, y: 50, color: "violet", shape: "rect", size: "lg", emoji: "✂️" },
-    { id: "tokens",  label: "Token Strings",  sublabel: "\"Hello\", \",\", \" world\"…", x: 62, y: 50, color: "teal",   shape: "rect", emoji: "🔤" },
-    { id: "ids",     label: "Token IDs",      sublabel: "[15496, 11, 995…]",            x: 86, y: 50, color: "amber",  shape: "rect", emoji: "🔢" },
-    { id: "window",  label: "Context Window", sublabel: "Max tokens the model holds",   x: 86, y: 82, color: "blue",   shape: "hex",  size: "lg", emoji: "🪟" },
+    { id: "text",    label: "Raw Text",       sublabel: "\"Hello, world!\"",            x: 10, y: 35, color: "gray",   shape: "rect", emoji: "📝" },
+    { id: "bpe",     label: "BPE Tokenizer",  sublabel: "Byte-pair encoding",           x: 36, y: 35, color: "violet", shape: "rect", size: "lg", emoji: "✂️" },
+    { id: "tokens",  label: "Token Strings",  sublabel: "\"Hello\", \",\", \" world\"…", x: 62, y: 35, color: "teal",   shape: "rect", emoji: "🔤" },
+    { id: "ids",     label: "Token IDs",      sublabel: "[15496, 11, 995…]",            x: 86, y: 35, color: "amber",  shape: "rect", emoji: "🔢" },
+    { id: "window",  label: "Context Window", sublabel: "Max tokens the model holds",   x: 86, y: 78, color: "blue",   shape: "hex",  size: "lg", emoji: "🪟" },
   ]}
   edges={[
     { from: "text",   to: "bpe",    animated: true, stepNumber: 1 },
@@ -65,17 +65,9 @@ Before the model runs attention or predicts anything, your text is converted to 
 
 Tokenizers use Byte-Pair Encoding (BPE) -- a compression algorithm that learns common subword patterns from training data. Common words become single tokens; rare words get split into pieces. This means "unhappiness" might be 3 tokens while "the" is always 1.
 
-<StepSequence
-  title="How BPE handles different words"
-  caption="Click any step to expand -- notice how token count changes with word frequency"
-  orientation="vertical"
-  steps={[
-    { number: 1, phase: "Common", title: "\"the\" = 1 token", detail: "\"the\" = 1 token (ID: 262). Extremely common words get their own single token in the vocabulary.", color: "teal" },
-    { number: 2, phase: "Normal", title: "\"hello\" = 1 token", detail: "\"hello\" = 1 token (ID: 15496). Common enough to have its own entry in the vocabulary.", color: "teal" },
-    { number: 3, phase: "Compound", title: "\"unhappiness\" = 3 tokens", detail: "\"unhappiness\" = 3 tokens: [\"un\", \"happi\", \"ness\"]. Rare words get split into known subword pieces.", color: "amber" },
-    { number: 4, phase: "Technical", title: "\"ChatGPT\" = 3 tokens", detail: "\"ChatGPT\" = 3 tokens: [\"Chat\", \"G\", \"PT\"]. Brand names and rare proper nouns split further.", color: "amber" },
-    { number: 5, phase: "URL", title: "\"https://openai.com\" = 7+ tokens", detail: "\"https://openai.com\" = 7+ tokens. Punctuation, slashes, and dots each become separate tokens -- URLs are expensive.", color: "rose" },
-  ]}
+<LiveTokenizer
+  title="Type any text — see how the tokenizer splits it into chips"
+  caption="Each colored chip is one token. Click any chip to see its integer ID and character span. Switch between examples to see how Arabic, code, and URLs compare to English prose."
 />
 
 ### Token count drives cost, speed, and limits

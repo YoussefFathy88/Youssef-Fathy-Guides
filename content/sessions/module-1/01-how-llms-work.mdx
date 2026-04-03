@@ -27,20 +27,20 @@ Every LLM goes through two completely separate phases. Training happens once and
 
 <NodeFlowDiagram
   title="The LLM lifecycle — training runs once, inference runs every call"
-  height={580}
+  height={760}
   groups={[
     { id: "training", label: "Training Phase — runs once", nodeIds: ["data", "train", "eval"], color: "amber" },
     { id: "inference", label: "Inference Phase — every API call", nodeIds: ["prompt", "forward", "sample", "repeat"], color: "violet" },
   ]}
   nodes={[
-    { id: "data",    label: "Training Data",    sublabel: "Trillions of tokens",        x: 18, y: 22, color: "amber",  shape: "rect", emoji: "📚" },
+    { id: "data",    label: "Training Data",    sublabel: "Trillions of tokens",        x: 18, y: 15, color: "amber",  shape: "rect", emoji: "📚" },
     { id: "train",   label: "Train",            sublabel: "Predict next token",          x: 18, y: 50, color: "amber",  shape: "rect", emoji: "⚙️" },
-    { id: "eval",    label: "Align & Evaluate", sublabel: "RLHF + safety testing",       x: 18, y: 78, color: "amber",  shape: "rect", emoji: "✅" },
+    { id: "eval",    label: "Align & Evaluate", sublabel: "RLHF + safety testing",       x: 18, y: 85, color: "amber",  shape: "rect", emoji: "✅" },
     { id: "weights", label: "Model Weights",    sublabel: "Frozen after training",        x: 50, y: 50, color: "gray",   shape: "hex",  size: "lg", emoji: "🧠" },
-    { id: "prompt",  label: "User Prompt",      sublabel: "Enters context window",        x: 82, y: 22, color: "violet", shape: "rect", emoji: "💬" },
-    { id: "forward", label: "Forward Pass",     sublabel: "All transformer layers",       x: 82, y: 44, color: "violet", shape: "rect", emoji: "⚡" },
-    { id: "sample",  label: "Sample Token",     sublabel: "Logits → softmax → draw",      x: 82, y: 65, color: "violet", shape: "rect", emoji: "🎯" },
-    { id: "repeat",  label: "Repeat Loop",      sublabel: "Until stop token",             x: 82, y: 84, color: "violet", shape: "rect", emoji: "🔁" },
+    { id: "prompt",  label: "User Prompt",      sublabel: "Enters context window",        x: 82, y: 12, color: "violet", shape: "rect", emoji: "💬" },
+    { id: "forward", label: "Forward Pass",     sublabel: "All transformer layers",       x: 82, y: 38, color: "violet", shape: "rect", emoji: "⚡" },
+    { id: "sample",  label: "Sample Token",     sublabel: "Logits → softmax → draw",      x: 82, y: 64, color: "violet", shape: "rect", emoji: "🎯" },
+    { id: "repeat",  label: "Repeat Loop",      sublabel: "Until stop token",             x: 82, y: 90, color: "violet", shape: "rect", emoji: "🔁" },
   ]}
   edges={[
     { from: "data",    to: "train",   animated: false },
@@ -70,34 +70,21 @@ Every LLM goes through two completely separate phases. Training happens once and
 
 During training, the model reads enormous amounts of text and learns one task: predict the next token. It does this billions of times, adjusting its internal weights each time it gets a prediction wrong. By the end, those weights have compressed a statistical representation of language, and a surprising amount of world knowledge, into a single file.
 
-<StepSequence
-  title="How training works"
-  caption="Click any step to expand the detail"
-  orientation="vertical"
-  steps={[
-    { number: 1, phase: "Sample", title: "Sample a chunk of text", detail: "The model receives a sequence of tokens from the training corpus, such as a sentence, a paragraph, or a piece of code.", color: "violet" },
-    { number: 2, phase: "Predict", title: "Predict the next token", detail: "For each position in the sequence, the model predicts what token comes next. It outputs a probability distribution over its entire vocabulary.", color: "teal" },
-    { number: 3, phase: "Compare", title: "Compare to the real answer", detail: "The true next token is known. The model's prediction is compared against it using cross-entropy loss, a measure of how wrong the distribution was.", color: "amber" },
-    { number: 4, phase: "Adjust", title: "Adjust the weights", detail: "Backpropagation computes how much each weight contributed to the error. Gradient descent nudges every weight slightly in the direction that reduces the loss.", color: "blue" },
-    { number: 5, phase: "Repeat", title: "Repeat billions of times", detail: "This loop runs across trillions of tokens. The weights gradually converge to a state that predicts language well, encoding knowledge about the world.", color: "violet" },
-  ]}
+<TrainingLoopSimulator
+  title="Watch the model learn — probability of 'Paris' rises as training runs"
+  caption="Click Start Training to run through 80 epochs. Watch the loss fall and the distribution sharpen toward the correct answer."
 />
+
 
 ### Inference: one token at a time, every time
 
 When you send a prompt, the model runs a forward pass through all its layers and produces a probability score for every token in its vocabulary. It does not produce a sentence. It produces a distribution over what token should come next. One token is sampled from that distribution, appended to the context, and the whole process repeats until the response is complete.
 
-<StepSequence
-  title="Inference: the autoregressive loop"
-  caption="Each token becomes part of the input for the next. Click any step to expand."
-  orientation="horizontal"
-  steps={[
-    { number: 1, phase: "Input", title: "Context window", detail: "Every previous token -- from the original prompt to all tokens generated so far -- is the input to this step.", color: "gray" },
-    { number: 2, phase: "Forward", title: "Forward pass", detail: "The context passes through every transformer layer in sequence. Each layer refines the vector representations toward the final output.", color: "violet" },
-    { number: 3, phase: "Score", title: "Logits", detail: "The final layer produces a raw score for every token in the vocabulary. These scores are called logits.", color: "teal" },
-    { number: 4, phase: "Sample", title: "Sample one token", detail: "Logits are turned into probabilities with softmax. Temperature scales the distribution. One token is drawn and appended -- then the loop repeats.", color: "amber" },
-  ]}
+<AutoregressiveDemo
+  title="Inference: watch tokens appear one at a time"
+  caption="Click Generate to see the autoregressive loop in action. Toggle between Greedy and Sampled to understand why outputs vary."
 />
+
 
 ### The output is a probability distribution, not a lookup
 

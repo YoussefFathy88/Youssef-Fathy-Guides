@@ -30,7 +30,7 @@ Without tools, an LLM can only generate text based on what it knows from trainin
 
 <NodeFlowDiagram
   title="The tool-use loop — the LLM decides, your code executes, results come back"
-  height={640}
+  height={720}
   groups={[
     { id: "tools", label: "Available Tools", nodeIds: ["api", "db", "service", "code"], color: "amber" },
   ]}
@@ -38,12 +38,12 @@ Without tools, an LLM can only generate text based on what it knows from trainin
     { id: "user",     label: "User",          sublabel: "Sends a request",              x: 10, y: 50, color: "gray",   shape: "circle", emoji: "👤" },
     { id: "llm",      label: "LLM",           sublabel: "Reasons + decides",            x: 35, y: 50, color: "violet", shape: "circle", size: "lg", emoji: "🤖" },
     { id: "toolcall", label: "Tool Call",      sublabel: "Structured JSON output",       x: 60, y: 50, color: "blue",   shape: "rect",   emoji: "🔧" },
-    { id: "api",      label: "REST API",       sublabel: "get_weather(), prices…",       x: 84, y: 18, color: "amber",  shape: "rect",   emoji: "🌐" },
+    { id: "api",      label: "REST API",       sublabel: "get_weather(), prices…",       x: 84, y: 15, color: "amber",  shape: "rect",   emoji: "🌐" },
     { id: "db",       label: "Database",       sublabel: "get_orders(), SQL…",           x: 84, y: 38, color: "amber",  shape: "rect",   emoji: "🗄️" },
-    { id: "service",  label: "Service",        sublabel: "send_email(), notify…",        x: 84, y: 60, color: "amber",  shape: "rect",   emoji: "📨" },
-    { id: "code",     label: "Code Runner",    sublabel: "run_python(), compute…",       x: 84, y: 80, color: "amber",  shape: "rect",   emoji: "⚙️" },
-    { id: "result",   label: "Tool Result",    sublabel: "JSON back to context",         x: 60, y: 82, color: "blue",   shape: "rect",   emoji: "📥" },
-    { id: "answer",   label: "Final Answer",   sublabel: "Informed by real-world data",  x: 10, y: 82, color: "teal",   shape: "rect",   emoji: "✅" },
+    { id: "service",  label: "Service",        sublabel: "send_email(), notify…",        x: 84, y: 62, color: "amber",  shape: "rect",   emoji: "📨" },
+    { id: "code",     label: "Code Runner",    sublabel: "run_python(), compute…",       x: 84, y: 85, color: "amber",  shape: "rect",   emoji: "⚙️" },
+    { id: "result",   label: "Tool Result",    sublabel: "JSON back to context",         x: 60, y: 88, color: "blue",   shape: "rect",   emoji: "📥" },
+    { id: "answer",   label: "Final Answer",   sublabel: "Informed by real-world data",  x: 10, y: 88, color: "teal",   shape: "rect",   emoji: "✅" },
   ]}
   edges={[
     { from: "user",     to: "llm",      animated: true, stepNumber: 1 },
@@ -212,30 +212,9 @@ A tool definition has three parts: name (what your code calls), description (wha
 
 A user asks: "Can I afford to fly from Cairo to London next weekend, and what is the weather like?" This requires three tools: get_flight_prices (hits a flight search API for available routes and prices), get_exchange_rate (converts GBP to EGP so the user sees local currency), and get_weather_forecast (returns London weather for next weekend). All three are independent -- the model requests all three in one response, your application runs them in parallel, and the results come back together. The model then generates one coherent answer: "The cheapest flight is £320 (approximately 16,000 EGP). London next weekend will be 12°C and rainy."
 
-<DataFlowDiagram
-  title="Travel assistant -- three parallel tool calls answering one user question"
-  caption="Follow the flow -- notice all three tools run in parallel between the first and second model call"
-  height={380}
-  nodes={[
-    { id: "user-q", label: "User question", sublabel: "Can I afford Cairo to London next weekend? What's the weather?", x: 4, y: 50, color: "gray" },
-    { id: "model-1", label: "Model call 1", sublabel: "Model reads question and 3 tool descriptions -- requests all three in one response", x: 22, y: 50, color: "violet" },
-    { id: "flight", label: "get_flight_prices", sublabel: "Hits flight search API -- returns available flights and prices in GBP", x: 50, y: 15, color: "amber" },
-    { id: "exchange", label: "get_exchange_rate", sublabel: "Hits currency API -- returns GBP to EGP conversion rate", x: 50, y: 50, color: "amber" },
-    { id: "weather", label: "get_weather_forecast", sublabel: "Hits weather API -- returns London forecast for next weekend", x: 50, y: 82, color: "amber" },
-    { id: "model-2", label: "Model call 2", sublabel: "Model receives all 3 results -- generates one combined answer", x: 76, y: 50, color: "violet" },
-    { id: "final", label: "Final answer", sublabel: "Cheapest flight: £320 (~16,000 EGP). London: 12°C and rainy next weekend", x: 93, y: 50, color: "teal" },
-  ]}
-  edges={[
-    { from: "user-q", to: "model-1", animated: true },
-    { from: "model-1", to: "flight", animated: true, label: "Parallel request" },
-    { from: "model-1", to: "exchange", animated: true, label: "Parallel request" },
-    { from: "model-1", to: "weather", animated: true, label: "Parallel request" },
-    { from: "flight", to: "model-2", animated: true },
-    { from: "exchange", to: "model-2", animated: true },
-    { from: "weather", to: "model-2", animated: true },
-    { from: "model-2", to: "final", animated: true },
-  ]}
-  highlightPath={["user-q", "model-1", "flight", "model-2", "final"]}
+<ParallelToolRunner
+  title="Watch all three tools fire simultaneously — then receive one combined answer"
+  caption="Toggle between Parallel and Sequential modes, then click Run to see the time difference. The parallel mode is limited only by the slowest tool."
 />
 
 </SessionSection>

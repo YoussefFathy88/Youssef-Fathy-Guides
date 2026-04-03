@@ -14,3 +14,12 @@ export { default as DualPhaseFlow } from "./DualPhaseFlow";
 export { default as AgentLoopStepper } from "./AgentLoopStepper";
 export { default as ContextWindowFiller } from "./ContextWindowFiller";
 export { default as NodeFlowDiagram } from "./NodeFlowDiagram";
+// New interactive components
+export { default as TrainingLoopSimulator } from "./TrainingLoopSimulator";
+export { default as AutoregressiveDemo } from "./AutoregressiveDemo";
+export { default as LiveTokenizer } from "./LiveTokenizer";
+export { default as ThinkingModeSimulator } from "./ThinkingModeSimulator";
+export { default as ChatReplay } from "./ChatReplay";
+export { default as MemoryOrchestrator } from "./MemoryOrchestrator";
+export { default as ChunkVisualizer } from "./ChunkVisualizer";
+export { default as ParallelToolRunner } from "./ParallelToolRunner";

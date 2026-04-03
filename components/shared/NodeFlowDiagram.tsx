@@ -144,19 +144,24 @@ const COLOR = {
 // ─── Node size constants ───────────────────────────────────────────────────────
 
 const SIZE = {
-  sm: { r: 30, w: 110, h: 58,  fontSize: 12, subSize: 10.5 },
-  md: { r: 42, w: 148, h: 74,  fontSize: 14, subSize: 12  },
-  lg: { r: 58, w: 190, h: 96,  fontSize: 16, subSize: 13  },
+  sm: { r: 35, w: 140, h: 65,  fontSize: 14, subSize: 12   },
+  md: { r: 50, w: 180, h: 80,  fontSize: 16, subSize: 13.5 },
+  lg: { r: 70, w: 240, h: 100, fontSize: 18, subSize: 15   },
 } as const;
 
 // ─── Geometry helpers ─────────────────────────────────────────────────────────
 
 type Point = { x: number; y: number };
 
-const PADDING = 68;
+const PADDING_X = 180;
+const PADDING_Y = 25;
 
-function toPx(pct: number, dimension: number): number {
-  return PADDING + (pct / 100) * (dimension - PADDING * 2);
+function toPxX(pct: number, width: number): number {
+  return PADDING_X + (pct / 100) * (width - PADDING_X * 2);
+}
+
+function toPxY(pct: number, height: number): number {
+  return PADDING_Y + (pct / 100) * (height - PADDING_Y * 2);
 }
 
 function hexPath(cx: number, cy: number, r: number): string {
@@ -222,7 +227,7 @@ function EdgeParticle({
 
   return (
     <motion.circle
-      r={3.5}
+      r={5}
       cx={cx}
       cy={cy}
       fill={color}
@@ -309,7 +314,7 @@ function CircleNode({ node, cx, cy, dimmed, highlighted }: NodeProps) {
       {node.sublabel && (
         <text
           x={cx}
-          y={cy + r + 14}
+          y={cy + r + 24}
           textAnchor="middle"
           dominantBaseline="central"
           fontSize={s.subSize}
@@ -349,18 +354,18 @@ function RectNode({ node, cx, cy, dimmed, highlighted }: NodeProps) {
       />
       {node.emoji && (
         <text
-          x={cx - w / 2 + 20}
+          x={cx - w / 2 + 28}
           y={cy}
           textAnchor="middle"
           dominantBaseline="central"
-          fontSize={s.fontSize + 4}
+          fontSize={s.fontSize + 8}
         >
           {node.emoji}
         </text>
       )}
       <text
-        x={node.emoji ? cx + 8 : cx}
-        y={node.sublabel ? cy - 9 : cy}
+        x={node.emoji ? cx + 12 : cx}
+        y={node.sublabel ? cy - 14 : cy}
         textAnchor="middle"
         dominantBaseline="central"
         fontSize={s.fontSize}
@@ -371,8 +376,8 @@ function RectNode({ node, cx, cy, dimmed, highlighted }: NodeProps) {
       </text>
       {node.sublabel && (
         <text
-          x={node.emoji ? cx + 8 : cx}
-          y={cy + 13}
+          x={node.emoji ? cx + 12 : cx}
+          y={cy + 22}
           textAnchor="middle"
           dominantBaseline="central"
           fontSize={s.subSize}
@@ -429,7 +434,7 @@ function HexNode({ node, cx, cy, dimmed, highlighted }: NodeProps) {
       {node.sublabel && (
         <text
           x={cx}
-          y={cy + r + 14}
+          y={cy + r + 24}
           textAnchor="middle"
           dominantBaseline="central"
           fontSize={s.subSize}
@@ -552,8 +557,8 @@ export default function NodeFlowDiagram({
     for (const node of safeNodes) {
       map.set(node.id, {
         ...node,
-        px: toPx(node.x, dims.width),
-        py: toPx(node.y, dims.height),
+        px: toPxX(node.x, dims.width),
+        py: toPxY(node.y, dims.height),
       });
     }
     return map;
@@ -561,26 +566,33 @@ export default function NodeFlowDiagram({
 
   // Compute group bounding boxes
   const groupBBoxes = useMemo(() => {
-    const GROUP_PAD = 22;
+    const GROUP_PAD = 40;
     return safeGroups.map((group) => {
       const members = group.nodeIds
         .map((id) => nodeMap.get(id))
         .filter((n): n is NonNullable<typeof n> => !!n);
       if (!members.length) return null;
 
+      const topH = (n: FlowNode & { px: number; py: number }) => {
+        const s = SIZE[n.size ?? "md"];
+        return n.shape === "circle" || n.shape === "hex" ? s.r : s.h / 2;
+      };
+      
+      const bottomH = (n: FlowNode & { px: number; py: number }) => {
+        const s = SIZE[n.size ?? "md"];
+        const base = n.shape === "circle" || n.shape === "hex" ? s.r : s.h / 2;
+        return n.sublabel && n.shape !== "rect" ? base + 32 : base;
+      };
+
       const halfW = (n: FlowNode & { px: number; py: number }) => {
         const s = SIZE[n.size ?? "md"];
         return n.shape === "circle" || n.shape === "hex" ? s.r : s.w / 2;
       };
-      const halfH = (n: FlowNode & { px: number; py: number }) => {
-        const s = SIZE[n.size ?? "md"];
-        return n.shape === "circle" || n.shape === "hex" ? s.r : s.h / 2;
-      };
 
       const minX = Math.min(...members.map((m) => m.px - halfW(m))) - GROUP_PAD;
-      const minY = Math.min(...members.map((m) => m.py - halfH(m))) - GROUP_PAD;
+      const minY = Math.min(...members.map((m) => m.py - topH(m))) - GROUP_PAD;
       const maxX = Math.max(...members.map((m) => m.px + halfW(m))) + GROUP_PAD;
-      const maxY = Math.max(...members.map((m) => m.py + halfH(m))) + GROUP_PAD + 6;
+      const maxY = Math.max(...members.map((m) => m.py + bottomH(m))) + GROUP_PAD + 6;
 
       return { group, x: minX, y: minY, w: maxX - minX, h: maxY - minY };
     }).filter((b): b is NonNullable<typeof b> => b !== null);
@@ -667,26 +679,26 @@ export default function NodeFlowDiagram({
               <marker
                 key={`arrow-${col}`}
                 id={`arrow-${col}`}
-                markerWidth="8"
-                markerHeight="8"
-                refX="7"
-                refY="3"
+                markerWidth="10"
+                markerHeight="10"
+                refX="8"
+                refY="4"
                 orient="auto"
               >
-                <path d="M0,0 L0,6 L8,3 Z" fill={COLOR[col].dot} opacity="0.9" />
+                <path d="M0,0 L0,8 L10,4 Z" fill={COLOR[col].dot} opacity="0.9" />
               </marker>
             ))}
             {usedColors.map((col) => (
               <marker
                 key={`arrow-start-${col}`}
                 id={`arrow-start-${col}`}
-                markerWidth="8"
-                markerHeight="8"
-                refX="1"
-                refY="3"
+                markerWidth="10"
+                markerHeight="10"
+                refX="2"
+                refY="4"
                 orient="auto-start-reverse"
               >
-                <path d="M0,0 L0,6 L8,3 Z" fill={COLOR[col].dot} opacity="0.9" />
+                <path d="M0,0 L0,8 L10,4 Z" fill={COLOR[col].dot} opacity="0.9" />
               </marker>
             ))}
           </defs>
@@ -708,12 +720,12 @@ export default function NodeFlowDiagram({
                   strokeDasharray="5 4"
                 />
                 <text
-                  x={x + 14}
-                  y={y + 20}
-                  fontSize={11}
+                  x={x + 18}
+                  y={y + 24}
+                  fontSize={15}
                   fontWeight="700"
                   fill={c.groupText}
-                  letterSpacing="0.07em"
+                  letterSpacing="0.08em"
                 >
                   {group.label.toUpperCase()}
                 </text>
@@ -766,11 +778,11 @@ export default function NodeFlowDiagram({
                 {/* Step number badge */}
                 {edge.stepNumber != null && !edge.isDimmed && (
                   <g transform={`translate(${edge.mid.x},${edge.mid.y})`}>
-                    <circle r={13} fill="#0f1728" stroke={c.dot} strokeWidth={1.5} />
+                    <circle r={16} fill="#0f1728" stroke={c.dot} strokeWidth={1.5} />
                     <text
                       textAnchor="middle"
                       dominantBaseline="central"
-                      fontSize={11}
+                      fontSize={14}
                       fontWeight="700"
                       fill={c.dot}
                     >
@@ -783,11 +795,11 @@ export default function NodeFlowDiagram({
                 {edge.label && !edge.isDimmed && (
                   <text
                     x={edge.mid.x}
-                    y={edge.mid.y - (edge.stepNumber != null ? 22 : 12)}
+                    y={edge.mid.y - (edge.stepNumber != null ? 28 : 16)}
                     textAnchor="middle"
                     dominantBaseline="central"
-                    fontSize={11}
-                    fill="rgba(148,163,184,0.8)"
+                    fontSize={14}
+                    fill="rgba(148,163,184,0.9)"
                   >
                     {edge.label}
                   </text>

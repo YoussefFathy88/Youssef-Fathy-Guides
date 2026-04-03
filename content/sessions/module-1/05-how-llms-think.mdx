@@ -38,13 +38,13 @@ Thinking mode does not use a different model or a smarter architecture. It gives
     { id: "think",   label: "Thinking Mode", nodeIds: ["prompt-t", "llm-t", "scratchpad", "answer-t"], color: "violet" },
   ]}
   nodes={[
-    { id: "prompt-f",   label: "User Prompt",      sublabel: "Identical input",               x: 14, y: 22, color: "gray",   shape: "rect", emoji: "💬" },
-    { id: "llm-f",      label: "LLM",              sublabel: "Generates immediately",          x: 50, y: 22, color: "teal",   shape: "circle", size: "lg", emoji: "🤖" },
-    { id: "answer-f",   label: "Answer",           sublabel: "First token = first word",       x: 84, y: 22, color: "teal",   shape: "rect", emoji: "✅" },
-    { id: "prompt-t",   label: "User Prompt",      sublabel: "Identical input",               x: 14, y: 72, color: "gray",   shape: "rect", emoji: "💬" },
-    { id: "llm-t",      label: "LLM",              sublabel: "Generates scratchpad first",     x: 50, y: 60, color: "violet", shape: "circle", size: "lg", emoji: "🤖" },
-    { id: "scratchpad", label: "Scratchpad",       sublabel: "Hidden reasoning tokens",        x: 50, y: 84, color: "violet", shape: "rect", emoji: "📝" },
-    { id: "answer-t",   label: "Refined Answer",   sublabel: "After scratchpad ends",          x: 84, y: 72, color: "violet", shape: "rect", emoji: "✅" },
+    { id: "prompt-f",   label: "User Prompt",      sublabel: "Identical input",               x: 14, y: 15, color: "gray",   shape: "rect", emoji: "💬" },
+    { id: "llm-f",      label: "LLM",              sublabel: "Generates immediately",          x: 50, y: 15, color: "teal",   shape: "circle", size: "lg", emoji: "🤖" },
+    { id: "answer-f",   label: "Answer",           sublabel: "First token = first word",       x: 84, y: 15, color: "teal",   shape: "rect", emoji: "✅" },
+    { id: "prompt-t",   label: "User Prompt",      sublabel: "Identical input",               x: 14, y: 65, color: "gray",   shape: "rect", emoji: "💬" },
+    { id: "llm-t",      label: "LLM",              sublabel: "Generates scratchpad first",     x: 50, y: 50, color: "violet", shape: "circle", size: "lg", emoji: "🤖" },
+    { id: "scratchpad", label: "Scratchpad",       sublabel: "Hidden reasoning tokens",        x: 50, y: 90, color: "violet", shape: "rect", emoji: "📝" },
+    { id: "answer-t",   label: "Refined Answer",   sublabel: "After scratchpad ends",          x: 84, y: 65, color: "violet", shape: "rect", emoji: "✅" },
   ]}
   edges={[
     { from: "prompt-f",   to: "llm-f",      animated: true },
@@ -73,19 +73,11 @@ Thinking mode does not use a different model or a smarter architecture. It gives
 
 Remember from Session 1: every token the model predicts gets added to the context window and influences the next prediction. The scratchpad exploits this directly. When the model writes "wait -- this approach fails if the input is empty... let me try differently..." that correction is now in the context. The model predicts the final answer starting from a context that includes a full worked solution -- not a cold start. It is the same mechanism as normal prediction, used as rough work.
 
-<StepSequence
-  title="The same prompt -- fast mode vs thinking mode, step by step"
-  caption="Click any step to expand -- notice when the visible answer actually appears in each mode"
-  orientation="vertical"
-  steps={[
-    { number: 1, phase: "Prompt", title: "The prompt is identical in both modes", detail: "Question sent: 'Write a function that finds the longest palindrome substring in a string.' Same words, same tokens, same context entering the model.", color: "gray" },
-    { number: 2, phase: "Fast", title: "Fast mode: answer token 1 arrives immediately", detail: "No delay. The model outputs the first word of the function directly. It commits to an approach with no working out.", color: "teal" },
-    { number: 3, phase: "Fast", title: "Fast mode: answer grows token by token", detail: "Each new token is predicted based only on the original prompt plus the answer tokens so far. No opportunity to catch a mistake mid-way.", color: "teal" },
-    { number: 4, phase: "Think", title: "Thinking mode: scratchpad begins (hidden)", detail: "Instead of an answer token, the model writes an internal token: 'A palindrome reads the same forwards and backwards. I could use expand-around-centre...'", color: "violet" },
-    { number: 5, phase: "Think", title: "Thinking mode: model catches a mistake mid-scratchpad", detail: "Scratchpad continues: '...wait, I need to handle even-length palindromes separately. My first approach only handles odd-length. Revising...' This correction is now in context.", color: "violet" },
-    { number: 6, phase: "Answer", title: "Thinking mode: visible answer begins after scratchpad", detail: "Model decides it has a good approach. First visible token appears -- starting from a context that includes a complete worked solution with the mistake already corrected.", color: "amber" },
-  ]}
+<ThinkingModeSimulator
+  title="Same prompt — watch fast mode and thinking mode race side by side"
+  caption="Press Play to run both simultaneously. Notice when the first visible answer token appears in each mode, and read the scratchpad self-correction in thinking mode."
 />
+
 
 ### Thinking budget controls how long the scratchpad can be
 

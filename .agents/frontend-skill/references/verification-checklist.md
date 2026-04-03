@@ -12,21 +12,23 @@ Use this checklist when frontend quality depends on the real rendered result rat
 - If the port is already occupied, do not assume the running process is correct; restart on a fresh port or stop the old process first.
 - After rebuilding, restart the verification server before judging the UI.
 
-## Screenshot Loop
+## Subagent Recording Loop
 
-- Use one fixed desktop viewport for before/after comparisons.
-- If the task targets demos, teaching, slides, or YouTube, also verify the presentation viewport.
-- Capture the same route, same state, and same viewport before and after every meaningful change.
-- Save both whole-page and component-level screenshots when possible.
-- If a screenshot is blank, all-white, obviously stale, or missing the expected component, do not use it as evidence.
-- Cross-check suspicious screenshots against page HTML, measured metrics, and a direct browser route check before concluding anything about the UI.
-- Prefer timestamped artifacts so you can prove which capture belongs to which run.
+- Instruct the `browser_subagent` to use one fixed desktop viewport for before/after comparisons.
+- If the task targets demos, teaching, slides, or YouTube, also verify the presentation viewport using the subagent.
+- Dispatch the subagent to capture the same route, same state, and same interaction before and after every meaningful change.
+- Review the automatic WebP recording and screenshot artifacts returned.
+- If an artifact is blank, all-white, obviously stale, or missing the expected component, do not use it as evidence.
+- Cross-check suspicious visual artifacts against the DOM HTML returned by the subagent and measured metrics before concluding anything about the UI.
+- Prefer relying on the subagent's deterministic artifacts rather than assumed runtime states.
 
 ## Scope Of Truth
 
 - Use isolated component-lab routes to judge component quality.
 - Use integrated app routes to judge layout, spacing, and page-level consistency.
 - If a component looks good in isolation but bad in the app, debug the page container before changing the component geometry again.
+- Beware of `ResizeObserver` edge cases in presentation views or scaled frameworks (like Reveal.js). Scaling a parent's CSS transform can drastically reduce available viewport boundaries for child SVGs or Flex elements!
+- When scaling up components for legibility, check the coordinate mapping constraints (like MDX percentage-based `X` and `Y` values). Increasing component fixed sizes without adjusting their coordinate layout mapping will cause intersections in scaled containers. 
 - If the app route and lab route disagree, first verify runtime freshness and prop delivery before redesigning the component.
 
 ## Acceptance Rules
@@ -50,5 +52,5 @@ Use this checklist when frontend quality depends on the real rendered result rat
 
 - Separate confirmed improvements from remaining issues.
 - Separate UI findings from unrelated repo debt such as existing lint or build warnings.
-- Do not call a visual issue fixed until the rendered output has been checked.
-- If verification confidence is reduced by stale servers, bad screenshots, or inconsistent artifacts, say that explicitly.
+- Do not call a visual issue fixed until the rendered output has been checked via `browser_subagent`.
+- If verification confidence is reduced by stale servers, bad visual artifacts, or inconsistent states, say that explicitly.

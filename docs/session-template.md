@@ -134,6 +134,142 @@ prevSession: {{ "slug-from-canonical-table" | null }}
   title="..."
   slug="..."
   teaser="..."
+# Session MDX Template
+## Project: Joee's GenAI from the Ground Up
+
+---
+
+## How it works
+
+Each session is one `.mdx` file. Components are injected via a registry — no imports needed.
+The MDX file owns the session page content only. Navigation and library views read from `data/sessions.ts`.
+
+**Every time you add a session, two steps are required:**
+1. Create `content/sessions/module-{N}/{index}-{slug}.mdx`
+2. Add its entry to `data/sessions.ts`
+
+---
+
+## Canonical Slugs
+
+| ID  | Slug | Title | Module |
+|-----|------|-------|--------|
+| E01 | how-llms-work | How LLMs Work | 1 |
+| E02 | tokens-context-window | Tokens & Context Window | 1 |
+| E03 | embeddings | Embeddings | 1 |
+| E04 | transformer-attention | Transformer & Attention | 1 |
+| E05 | how-llms-think | How LLMs Think: Reasoning, Planning & Sampling | 1 |
+| E06 | agent-memory-types | Agent Memory Types | 2 |
+| E07 | rag | RAG | 2 |
+| E08 | tools-and-function-calling | Tools & Function Calling | 2 |
+| E09 | mcp | MCP | 2 |
+| E10 | agent-skills | Agent Skills | 2 |
+| E11 | context-engineering | Context Engineering | 2 |
+| E12 | ai-workflows | AI Workflows | 3 |
+| E13 | ai-agents | AI Agents | 3 |
+| E14 | planning-in-ai-agents | Planning in AI Agents | 3 |
+| E15 | tools-vs-skills-vs-mcp | Tools vs Skills vs MCP | 3 |
+| E16 | human-in-the-loop | Human-in-the-Loop | 3 |
+| E17 | multi-agent-systems | Multi-Agent Systems | 3 |
+| E18 | guardrails-and-safety | Guardrails & Safety | 4 |
+| E19 | evals | Evals | 4 |
+| E20 | observability-and-tracing | Observability & Tracing | 4 |
+| E21 | cost-latency-reliability | Cost, Latency & Reliability | 4 |
+| E22 | prompt-engineering-vs-fine-tuning-vs-rag | Prompt Engineering vs Fine-Tuning vs RAG | 4 |
+
+---
+
+## Template
+
+```mdx
+---
+title: "{{ Session Title }}"
+slug: "{{ slug from canonical table }}"
+module: {{ 1 | 2 | 3 | 4 }}
+moduleName: "{{ Module display name }}"
+sessionNumber: {{ 1-22 }}
+duration: "{{ e.g. 12 min }}"
+difficulty: "{{ beginner | intermediate | advanced }}"
+tags: ["tag1", "tag2", "tag3"]
+nextSession: "{{ slug from canonical table }}"
+prevSession: {{ "slug-from-canonical-table" | null }}
+---
+
+{/* SECTION 1 - GOAL */}
+<SessionSection id="goal" label="Goal">
+
+## {{ What the viewer will understand }}
+
+{{ 2-3 sentences. }}
+
+</SessionSection>
+
+
+{/* SECTION 2 - BIG PICTURE */}
+<SessionSection id="big-picture" label="Big Picture">
+
+## {{ Where this fits }}
+
+{{ 2-3 sentences. }}
+
+<{{ Component }} title="..." caption="..." {{ ...props }} />
+
+</SessionSection>
+
+
+{/* SECTION 3 - CORE CONCEPTS — 2-4 concepts, one component each, narration before every component */}
+<SessionSection id="core-concepts" label="Core Concepts">
+
+## {{ First concept }}
+
+{{ 2-3 sentences. }}
+
+<{{ Component }} title="..." caption="..." {{ ...props }} />
+
+### {{ Second concept }}
+
+{{ 2-3 sentences. }}
+
+<{{ Component }} title="..." caption="..." {{ ...props }} />
+
+</SessionSection>
+
+
+{/* SECTION 4 - PRACTICAL EXAMPLE */}
+<SessionSection id="practical-example" label="Practical Example">
+
+## {{ Scenario title }}
+
+{{ 2-4 sentences. Specific company, specific problem. }}
+
+<{{ Component }} title="..." caption="..." {{ ...props }} />
+
+</SessionSection>
+
+
+{/* SECTION 5 - RECAP — RecapTable only, no prose */}
+<SessionSection id="recap" label="Recap">
+
+## What we covered
+
+<RecapTable rows={[
+  { term: "Term 1", definition: "One sentence definition" },
+  { term: "Term 2", definition: "One sentence definition" },
+  { term: "Term 3", definition: "One sentence definition" },
+  { term: "Term 4", definition: "One sentence definition" },
+  { term: "Term 5", definition: "One sentence definition" },
+]} />
+
+</SessionSection>
+
+
+{/* SECTION 6 - NEXT SESSION — NextSessionCard only, no prose */}
+<SessionSection id="next-session" label="Next Session">
+
+<NextSessionCard
+  title="..."
+  slug="..."
+  teaser="..."
   module={1}
 />
 
@@ -143,6 +279,23 @@ prevSession: {{ "slug-from-canonical-table" | null }}
 ---
 
 ## Critical Rules
+
+> [!IMPORTANT]
+> **Interactive-First Principle — Non-negotiable**
+>
+> Every concept that can be shown interactively **must** be shown interactively.
+> Static diagrams and bullet-only layouts are a last resort, not a default.
+>
+> **Priority order when choosing a component:**
+> 1. **Fully interactive simulators** — if a purpose-built component exists for the concept, use it. These always beat static alternatives:
+>    `TrainingLoopSimulator`, `AutoregressiveDemo`, `LiveTokenizer`, `ThinkingModeSimulator`, `ChatReplay`, `MemoryOrchestrator`, `ChunkVisualizer`, `ParallelToolRunner`
+> 2. **Interactive diagrams** — components where the viewer clicks, hovers, or toggles something:
+>    `AttentionHeatmap`, `Vector2DPlot`, `TokenProbDist`, `ParameterSlider`, `MiniPlayground`, `ConceptCompare`, `StepSequence`, `ContextWindowFiller`, `PipelineTrack`, `LayerStack`, `AnnotatedCode`
+> 3. **Node flow diagrams** — use only when no interactive component fits the concept:
+>    `NodeFlowDiagram`, `DataFlowDiagram`
+> 4. **Pure prose** — never acceptable as the sole explanation of any visual concept.
+>
+> If you are about to write a `StepSequence` for training, inference, tokenization, chunking, thinking mode, memory, or tool calling — **stop**. A purpose-built interactive component already exists for that. Use it.
 
 ### Frontmatter
 - `slug` must match the canonical table exactly
@@ -156,7 +309,10 @@ prevSession: {{ "slug-from-canonical-table" | null }}
 - String props use double quotes
 - Array props multiline — one item per line
 - Never nest components inside each other
-- For `DataFlowDiagram`, keep the canvas minimal â€” short labels in boxes, full descriptions in the detail panel
+- No prose in Section 6 — NextSessionCard only
+- Max 4 sub-concepts in Section 3
+- Max 5 rows in RecapTable
+- Captions are instructions: "Try dragging..." not "This shows..."
 
 ### Content
 - Max 3 sentences per narration block
@@ -230,15 +386,23 @@ Pick the **most specific** component for the content type. Avoid `DataFlowDiagra
 | User types input → sees live output | `MiniPlayground` |
 | Arbitrary node graph with non-linear edges | `DataFlowDiagram` |
 | Sequential concept reveal (use sparingly) | `ConceptStepper` |
+| Watch training loss fall + distribution sharpen | `TrainingLoopSimulator` |
+| Token-by-token generation with greedy vs sampled toggle | `AutoregressiveDemo` |
+| Type text → colored token chips with IDs | `LiveTokenizer` |
+| Fast mode vs thinking mode side-by-side race | `ThinkingModeSimulator` |
+| Before/after chat conversation comparison (memory, retrieval, etc.) | `ChatReplay` |
+| Toggle memory types ON/OFF → watch agent response degrade | `MemoryOrchestrator` |
+| Slider-driven chunking of a real text passage | `ChunkVisualizer` |
+| Parallel vs sequential tool execution race with timer | `ParallelToolRunner` |
 
 ### When `DataFlowDiagram` is still appropriate
 Only use `DataFlowDiagram` for **non-linear** graphs where nodes connect in arbitrary directions (e.g. memory type topology, multi-agent routing). For any ordered, left-to-right flow use `PipelineTrack` instead.
 
 ### `DataFlowDiagram` authoring rules
-- Default behavior is **panel mode** â€” clicking a box or line shows its description below the diagram
-- Keep `nodes[].label` short â€” usually one short phrase only
-- Put node explanations in `nodes[].sublabel` â€” they appear in the panel when the box is clicked
-- Put line explanations in `edges[].label` â€” they stay hidden on the canvas and appear in the panel when the line is clicked
+- Default behavior is **panel mode** — clicking a box or line shows its description below the diagram
+- Keep `nodes[].label` short — usually one short phrase only
+- Put node explanations in `nodes[].sublabel` — they appear in the panel when the box is clicked
+- Put line explanations in `edges[].label` — they stay hidden on the canvas and appear in the panel when the line is clicked
 - Do not rely on bold text inside boxes to signal importance
 - Use solid lines for actual runtime flow and `edges[].dashed` only for supporting or shared relationships that are not themselves the main data path
 - If solid and dashed lines have diagram-specific meaning, always set `solidLegendLabel` and `dashedLegendLabel`
@@ -260,17 +424,6 @@ All components are always available without importing:
 | `AttentionHeatmap` | `tokens`, `weights`, `colorRamp?`, `title?`, `caption?` |
 | `ConceptStepper` | `steps`, `autoPlay?`, `showDots?`, `title?`, `caption?` |
 | `DataFlowDiagram` | `nodes`, `edges` (`dashed?` supported), `height?`, `highlightPath?`, `title?`, `caption?`, `nodeDetailMode?`, `solidLegendLabel?`, `dashedLegendLabel?` |
-| `ConceptCompare` | `left`, `right`, `mode?`, `title?`, `caption?` |
-| `MiniPlayground` | `placeholder?`, `simulationFn?`, `title?`, `caption?` |
-| `Vector2DPlot` | `points`, `showDistances?`, `showClusters?`, `title?`, `caption?` |
-| `TokenProbDist` | `candidates`, `showTemperature?`, `showTopP?`, `title?`, `caption?` |
-| `SessionSection` | Section wrapper (always required) |
-| `RecapTable` | Section 5 recap only — `rows` array |
-| `NextSessionCard` | Section 6 next session only |
-
----
-
-## New Component Examples
 
 ### PipelineTrack
 ```mdx
