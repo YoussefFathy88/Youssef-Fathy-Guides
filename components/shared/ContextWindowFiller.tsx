@@ -110,8 +110,8 @@ export default function ContextWindowFiller({
     >
       {(title || caption) && (
         <div className="mb-5 space-y-1">
-          {title && <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{title}</p>}
-          {caption && <p className="text-xs text-gray-500 dark:text-gray-400">{caption}</p>}
+          {title && <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</p>}
+          {caption && <p className="text-sm leading-6 text-gray-500 dark:text-gray-400">{caption}</p>}
         </div>
       )}
 
@@ -133,17 +133,17 @@ export default function ContextWindowFiller({
               )}
             >
               {block.icon && (
-                <span className="shrink-0 text-base leading-none">{block.icon}</span>
+                <span className="shrink-0 text-lg leading-none">{block.icon}</span>
               )}
               <div className="min-w-0">
-                <p className="text-[11px] font-semibold leading-none">{block.label}</p>
-                <p className={cn("mt-0.5 text-[10px] font-medium leading-none", tone.count)}>
+                <p className="text-sm font-semibold leading-none">{block.label}</p>
+                <p className={cn("mt-1 text-xs font-semibold leading-none", tone.count)}>
                   {formatTokens(block.tokens)} tokens
                 </p>
               </div>
               <span
                 className={cn(
-                  "ml-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-bold",
+                  "ml-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
                   on
                     ? "bg-gray-800 text-white dark:bg-gray-200 dark:text-gray-900"
                     : "bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-500",
@@ -195,7 +195,7 @@ export default function ContextWindowFiller({
         {/* Live token label inside bar */}
         {totalTokens > 0 && (
           <div className="pointer-events-none absolute inset-0 flex items-center px-3">
-            <span className="text-[11px] font-bold text-white drop-shadow-sm">
+            <span className="text-sm font-bold text-white drop-shadow-sm">
               {totalTokens.toLocaleString()} tokens
             </span>
           </div>
@@ -205,7 +205,7 @@ export default function ContextWindowFiller({
         <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
           <span
             className={cn(
-              "text-[10px] font-semibold",
+              "text-xs font-semibold",
               overLimit
                 ? "text-rose-500 dark:text-rose-400"
                 : nearLimit
@@ -226,42 +226,42 @@ export default function ContextWindowFiller({
       <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1">
         <div className="flex items-center gap-1.5">
           <div className="h-2 w-3 rounded-sm bg-teal-400" />
-          <span className="text-[10px] text-gray-400">0–75% safe</span>
+          <span className="text-xs text-gray-400">0–75% safe</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="h-2 w-3 rounded-sm bg-amber-400" />
-          <span className="text-[10px] text-gray-400">75–100% getting full</span>
+          <span className="text-xs text-gray-400">75–100% getting full</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="h-2 w-3 rounded-sm bg-rose-400" />
-          <span className="text-[10px] text-gray-400">over limit — truncated</span>
+          <span className="text-xs text-gray-400">over limit — truncated</span>
         </div>
       </div>
 
       {/* Stats row */}
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-900/60">
         <div>
-          <p className="text-[10px] uppercase tracking-wide text-gray-400">tokens used</p>
+          <p className="text-xs uppercase tracking-wide text-gray-400">tokens used</p>
           <p
             className={cn(
-              "text-lg font-bold tabular-nums leading-tight",
+              "text-2xl font-bold tabular-nums leading-tight",
               overLimit
                 ? "text-rose-600 dark:text-rose-400"
                 : "text-gray-900 dark:text-gray-100",
             )}
           >
             {totalTokens.toLocaleString()}
-            <span className="ml-1 text-xs font-normal text-gray-400">
+            <span className="ml-1 text-sm font-normal text-gray-400">
               / {windowSize.toLocaleString()}
             </span>
           </p>
         </div>
 
         <div>
-          <p className="text-[10px] uppercase tracking-wide text-gray-400">window fill</p>
+          <p className="text-xs uppercase tracking-wide text-gray-400">window fill</p>
           <p
             className={cn(
-              "text-lg font-bold tabular-nums leading-tight",
+              "text-2xl font-bold tabular-nums leading-tight",
               overLimit
                 ? "text-rose-600 dark:text-rose-400"
                 : nearLimit
@@ -274,14 +274,14 @@ export default function ContextWindowFiller({
         </div>
 
         <div>
-          <p className="text-[10px] uppercase tracking-wide text-gray-400">est. input cost</p>
-          <p className="text-lg font-bold tabular-nums leading-tight text-gray-900 dark:text-gray-100">
+          <p className="text-xs uppercase tracking-wide text-gray-400">est. input cost</p>
+          <p className="text-2xl font-bold tabular-nums leading-tight text-gray-900 dark:text-gray-100">
             {totalTokens > 0 ? formatCost(totalTokens, costPer1kTokens) : "—"}
           </p>
         </div>
 
         {totalTokens === 0 && (
-          <p className="text-xs italic text-gray-400">Toggle blocks above to fill the window</p>
+          <p className="text-sm italic text-gray-400">Toggle blocks above to fill the window</p>
         )}
       </div>
 
@@ -297,7 +297,7 @@ export default function ContextWindowFiller({
             className="mt-3 flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 dark:border-rose-500/30 dark:bg-rose-500/10"
           >
             <span className="mt-0.5 shrink-0 text-base leading-none">⚠️</span>
-            <p className="text-xs leading-snug text-rose-700 dark:text-rose-300">
+            <p className="text-sm leading-6 text-rose-700 dark:text-rose-300">
               <strong>Over limit by {formatTokens(totalTokens - windowSize)} tokens.</strong>{" "}
               The API will error or truncate the oldest messages to fit. Remove blocks or reduce their size.
             </p>

@@ -148,9 +148,9 @@ const COLOR = {
 // ─── Node size constants ───────────────────────────────────────────────────────
 
 const SIZE = {
-  sm: { r: 35, w: 140, h: 65,  fontSize: 14, subSize: 12   },
-  md: { r: 50, w: 180, h: 80,  fontSize: 16, subSize: 13.5 },
-  lg: { r: 70, w: 240, h: 100, fontSize: 18, subSize: 15   },
+  sm: { r: 35, w: 140, h: 65,  fontSize: 15, subSize: 12   },
+  md: { r: 50, w: 180, h: 80,  fontSize: 17, subSize: 13.5 },
+  lg: { r: 70, w: 240, h: 100, fontSize: 19, subSize: 15   },
 } as const;
 
 // ─── Geometry helpers ─────────────────────────────────────────────────────────
@@ -275,7 +275,7 @@ function CircleNode({ node, cx, cy, dimmed, highlighted }: NodeProps) {
       </defs>
       <motion.circle
         cx={cx}
-        cy={cy}
+        cy={node.icon || node.emoji ? cy + r * 0.35 : cy}
         r={r}
         fill={c.fill}
         stroke={highlighted ? c.dot : c.stroke}
@@ -306,7 +306,7 @@ function CircleNode({ node, cx, cy, dimmed, highlighted }: NodeProps) {
       ) : null}
       <text
         x={cx}
-        y={cy + r * 0.45}
+        y={node.icon || node.emoji ? cy + r * 0.35 : cy}
         textAnchor="middle"
         dominantBaseline="central"
         fontSize={s.fontSize}
@@ -315,18 +315,7 @@ function CircleNode({ node, cx, cy, dimmed, highlighted }: NodeProps) {
       >
         {node.label}
       </text>
-      {node.sublabel && (
-        <text
-          x={cx}
-          y={cy + r + 24}
-          textAnchor="middle"
-          dominantBaseline="central"
-          fontSize={s.subSize}
-          fill="rgba(148,163,184,0.9)"
-        >
-          {node.sublabel}
-        </text>
-      )}
+      
     </motion.g>
   );
 }
@@ -369,7 +358,7 @@ function RectNode({ node, cx, cy, dimmed, highlighted }: NodeProps) {
       )}
       <text
         x={node.emoji ? cx + 12 : cx}
-        y={node.sublabel ? cy - 14 : cy}
+        y={cy}
         textAnchor="middle"
         dominantBaseline="central"
         fontSize={s.fontSize}
@@ -378,18 +367,7 @@ function RectNode({ node, cx, cy, dimmed, highlighted }: NodeProps) {
       >
         {node.label}
       </text>
-      {node.sublabel && (
-        <text
-          x={node.emoji ? cx + 12 : cx}
-          y={cy + 22}
-          textAnchor="middle"
-          dominantBaseline="central"
-          fontSize={s.subSize}
-          fill="rgba(148,163,184,0.9)"
-        >
-          {node.sublabel}
-        </text>
-      )}
+      
     </motion.g>
   );
 }
@@ -426,7 +404,7 @@ function HexNode({ node, cx, cy, dimmed, highlighted }: NodeProps) {
       ) : null}
       <text
         x={cx}
-        y={cy + r * 0.42}
+        y={node.emoji ? cy + r * 0.35 : cy}
         textAnchor="middle"
         dominantBaseline="central"
         fontSize={s.fontSize}
@@ -435,18 +413,7 @@ function HexNode({ node, cx, cy, dimmed, highlighted }: NodeProps) {
       >
         {node.label}
       </text>
-      {node.sublabel && (
-        <text
-          x={cx}
-          y={cy + r + 24}
-          textAnchor="middle"
-          dominantBaseline="central"
-          fontSize={s.subSize}
-          fill="rgba(148,163,184,0.8)"
-        >
-          {node.sublabel}
-        </text>
-      )}
+      
     </motion.g>
   );
 }
@@ -584,8 +551,7 @@ export default function NodeFlowDiagram({
       
       const bottomH = (n: FlowNode & { px: number; py: number }) => {
         const s = SIZE[n.size ?? "md"];
-        const base = n.shape === "circle" || n.shape === "hex" ? s.r : s.h / 2;
-        return n.sublabel && n.shape !== "rect" ? base + 32 : base;
+        return n.shape === "circle" || n.shape === "hex" ? s.r : s.h / 2;
       };
 
       const halfW = (n: FlowNode & { px: number; py: number }) => {
@@ -609,8 +575,25 @@ export default function NodeFlowDiagram({
       const toNode = nodeMap.get(edge.to);
       if (!fromNode || !toNode) return null;
 
-      const from: Point = { x: fromNode.px, y: fromNode.py };
-      const to: Point = { x: toNode.px, y: toNode.py };
+            const dx = toNode.px - fromNode.px;
+      const dy = toNode.py - fromNode.py;
+
+      const getEdgePoint = (n: FlowNode & { px: number; py: number }, isTarget: boolean) => {
+        const s = SIZE[n.size ?? "md"];
+        const w = n.shape === "circle" || n.shape === "hex" ? s.r * 2 : s.w;
+        const h = n.shape === "circle" || n.shape === "hex" ? s.r * 2 : s.h;
+
+        if (Math.abs(dx) >= Math.abs(dy)) {
+          const offsetX = (w / 2) * (isTarget ? -Math.sign(dx) : Math.sign(dx));
+          return { x: n.px + offsetX, y: n.py };
+        } else {
+          const offsetY = (h / 2) * (isTarget ? -Math.sign(dy) : Math.sign(dy));
+          return { x: n.px, y: n.py + offsetY };
+        }
+      };
+
+      const from: Point = getEdgePoint(fromNode, false);
+      const to: Point = getEdgePoint(toNode, true);
       const points = getBezierPoints(from, to);
       const mid = getPointOnBezier(0.5, points);
       const edgeKey = `${edge.from}→${edge.to}`;
@@ -862,7 +845,7 @@ export default function NodeFlowDiagram({
                 )}
               />
             ))}
-            <span className="ml-auto text-[11px] font-medium text-slate-500">
+            <span className="ml-auto text-[12px] font-medium text-slate-500">
               {currentStep >= 0 ? `${currentStep + 1} / ${safeSteps.length}` : `${safeSteps.length} steps`}
             </span>
           </div>
@@ -917,8 +900,23 @@ export default function NodeFlowDiagram({
                   exit={{ x: direction * -20, opacity: 0 }}
                   transition={{ duration: 0.22, ease: "easeOut" }}
                 >
-                  <p className="mb-1 text-xs font-semibold text-slate-200">{activeStep.label}</p>
-                  <p className="text-xs leading-relaxed text-slate-400">{activeStep.description}</p>
+                  <p className="mb-1 text-base font-semibold text-slate-100">{activeStep.label}</p>
+                  <p className="text-[13.5px] leading-relaxed text-slate-300">{activeStep.description}</p>
+                  {activeStep.highlightNodes && activeStep.highlightNodes.length > 0 && (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {activeStep.highlightNodes.map((id) => {
+                        const n = nodeMap.get(id);
+                        if (!n || !n.sublabel) return null;
+                        return (
+                          <div key={id} className="flex flex-wrap items-center gap-1.5 rounded-md bg-slate-800/60 px-3 py-1.5 border border-white/5 shadow-sm">
+                            {n.emoji && <span className="text-[15px]">{n.emoji}</span>}
+                            <span className="text-[13px] font-semibold text-slate-200">{n.label}:</span>
+                            <span className="text-[13px] text-slate-400">{n.sublabel}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </motion.div>
               ) : (
                 <motion.p
@@ -926,7 +924,7 @@ export default function NodeFlowDiagram({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="text-xs text-slate-500"
+                  className="text-sm text-slate-500"
                 >
                   Press <span className="font-mono">Play</span> or click a step dot to walk through the diagram.
                 </motion.p>

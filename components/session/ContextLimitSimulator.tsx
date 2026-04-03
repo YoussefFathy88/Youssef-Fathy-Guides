@@ -378,9 +378,9 @@ export default function ContextLimitSimulator({
     >
       <div className="space-y-6">
         <div className="space-y-2">
-          <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{title}</p>
+          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</p>
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-violet-600 dark:text-violet-300">
+            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-violet-600 dark:text-violet-300">
               Step {currentStepIndex + 1} of {steps.length} - {getStepSummary(currentStep.label)}
             </p>
             <div className="flex items-center gap-2">
@@ -389,7 +389,7 @@ export default function ContextLimitSimulator({
                   type="button"
                   onClick={handlePrevStep}
                   disabled={isAnimating}
-                  className="rounded-full border border-gray-200 bg-white px-4 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
+                  className="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
                 >
                   ← Prev Step
                 </button>
@@ -399,7 +399,7 @@ export default function ContextLimitSimulator({
                 onClick={handleNextStep}
                 disabled={complete || isAnimating}
                 className={cn(
-                  "rounded-full px-4 py-2 text-xs font-semibold transition disabled:cursor-not-allowed",
+                  "rounded-full px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed",
                   complete
                     ? "border border-gray-300 bg-gray-200 text-gray-500 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-400"
                     : "border border-violet-300 bg-violet-600 text-white hover:bg-violet-500 disabled:opacity-60 dark:border-violet-500 dark:bg-violet-500 dark:hover:bg-violet-400",
@@ -423,7 +423,7 @@ export default function ContextLimitSimulator({
                   ? { duration: 0 }
                   : { type: "spring", stiffness: 500, damping: 28, duration: 0.2 }
               }
-              className="inline-flex w-fit items-center rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-bold text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200"
+              className="inline-flex w-fit items-center rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-sm font-bold text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200"
             >
               ❌ context_length_exceeded
             </motion.div>
@@ -432,7 +432,7 @@ export default function ContextLimitSimulator({
 
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-start">
           <div className="space-y-3">
-            <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">
+            <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">
               <span>0 tokens</span>
               <span>{formatTokens(windowSize)} tokens</span>
             </div>
@@ -448,7 +448,7 @@ export default function ContextLimitSimulator({
                   style={{ left: `${(tick.tokens / maxTotal) * 100}%` }}
                 >
                   <div className="h-full w-px bg-gray-400/40 dark:bg-gray-500/50" />
-                  <span className="absolute left-2 top-2 rounded-full bg-white/90 px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-gray-500 dark:bg-gray-950/80 dark:text-gray-400">
+                  <span className="absolute left-2 top-2 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500 dark:bg-gray-950/80 dark:text-gray-400">
                     {tick.label}
                   </span>
                 </div>
@@ -475,7 +475,7 @@ export default function ContextLimitSimulator({
                       }}
                     >
                       {showInlineLabel && (
-                        <span className="truncate text-[11px] font-bold text-white drop-shadow-sm">
+                        <span className="truncate text-xs font-bold text-white drop-shadow-sm">
                           {block.label}
                         </span>
                       )}
@@ -499,17 +499,17 @@ export default function ContextLimitSimulator({
 
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-gray-200 bg-white/70 px-4 py-3 dark:border-gray-700 dark:bg-gray-900/50">
               <div className="space-y-1">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-gray-500 dark:text-gray-400">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gray-500 dark:text-gray-400">
                   Running total
                 </p>
-                <p className="font-mono text-2xl font-bold text-gray-900 dark:text-gray-100">
+                <p className="font-mono text-3xl font-bold text-gray-900 dark:text-gray-100">
                   {formatTokens(runningTotal)}
-                  <span className="ml-2 text-sm font-semibold text-gray-400 dark:text-gray-500">
+                  <span className="ml-2 text-base font-semibold text-gray-400 dark:text-gray-500">
                     / {formatTokens(windowSize)} tokens
                   </span>
                 </p>
               </div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-gray-500 dark:text-gray-400">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gray-500 dark:text-gray-400">
                 Full window scale
               </p>
             </div>
@@ -520,7 +520,7 @@ export default function ContextLimitSimulator({
                   <span
                     key={`legend-${block.id}`}
                     className={cn(
-                      "inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[11px] font-semibold",
+                      "inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-semibold",
                       colorStyles[block.color].pill,
                     )}
                   >
@@ -544,10 +544,10 @@ export default function ContextLimitSimulator({
                 transition={{ duration: 0.2, ease: "easeOut" }}
                 className="rounded-2xl border border-gray-200 bg-white/70 p-4 dark:border-gray-700 dark:bg-gray-900/50"
               >
-                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-gray-500 dark:text-gray-400">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gray-500 dark:text-gray-400">
                   Status
                 </p>
-                <p className={cn("mt-3 text-sm font-semibold leading-6", noteToneClass)}>
+                <p className={cn("mt-3 text-base font-semibold leading-7", noteToneClass)}>
                   {currentStep.sideNote}
                 </p>
               </motion.div>
@@ -571,13 +571,13 @@ export default function ContextLimitSimulator({
             animate={{ opacity: 1, y: 0 }}
             exit={reducedMotion ? undefined : { opacity: 0, y: -6 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="rounded-2xl border border-gray-200 bg-white/70 p-4 text-sm leading-7 text-gray-700 dark:border-gray-700 dark:bg-gray-900/50 dark:text-gray-200"
+            className="rounded-2xl border border-gray-200 bg-white/70 p-5 text-base leading-8 text-gray-700 dark:border-gray-700 dark:bg-gray-900/50 dark:text-gray-200"
           >
             {currentStep.caption}
           </motion.p>
         </AnimatePresence>
 
-        <p className="text-xs leading-6 text-gray-500 dark:text-gray-400">{caption}</p>
+        <p className="text-sm leading-6 text-gray-500 dark:text-gray-400">{caption}</p>
       </div>
 
       <style jsx>{`
