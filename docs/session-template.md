@@ -164,7 +164,7 @@ prevSession: {{ "previous-slug-from-canonical-slugs" | null }}
 ### Component priority
 
 1. Purpose-built simulators:
-   `TrainingLoopSimulator`, `AutoregressiveDemo`, `TransformerLogitsExplainer`, `InferenceWalkthrough`, `LiveTokenizer`, `ThinkingModeSimulator`, `ChatReplay`, `MemoryOrchestrator`, `ChunkVisualizer`, `ParallelToolRunner`
+   `TrainingLoopSimulator`, `AutoregressiveDemo`, `TransformerLogitsExplainer`, `InferenceWalkthrough`, `LiveTokenizer`, `ThinkingModeSimulator`, `ChatReplay`, `MemoryOrchestrator`, `ChunkVisualizer`, `ParallelToolRunner`, `EmbeddingSearchSimulator`
 2. Interactive teaching components:
    `AttentionHeatmap`, `Vector2DPlot`, `TokenProbDist`, `ParameterSlider`, `MiniPlayground`, `ConceptCompare`, `StepSequence`, `ContextWindowFiller`, `PipelineTrack`, `LayerStack`, `AnnotatedCode`
 3. Graph-style diagrams:
@@ -236,6 +236,7 @@ Pick the most specific component that fits the concept.
 | Toggle memory types and watch retrieval/response quality change | `MemoryOrchestrator` |
 | Chunk size + overlap tradeoffs on a real passage | `ChunkVisualizer` |
 | Parallel vs sequential tool-call latency | `ParallelToolRunner` |
+| Semantic routing: manual step-through (Next) of tokenize → embed → similarity → route | `EmbeddingSearchSimulator` |
 | Arbitrary node graph with grouped nodes and scripted walkthrough steps | `NodeFlowDiagram` |
 
 ### When `DataFlowDiagram` is appropriate
@@ -448,13 +449,25 @@ interface SequenceStep {
   color?: "violet" | "teal" | "amber" | "gray" | "blue" | "rose";
 }
 
+interface NarrativeSequenceStep {
+  id: string;
+  label: string;
+  description: string;
+  highlight?: "shared" | "inside" | "outside" | "contrast";
+  detail: string;
+}
+
 interface StepSequenceProps {
-  steps?: SequenceStep[];
+  steps?: SequenceStep[] | NarrativeSequenceStep[];
   title?: string;
   caption?: string;
   orientation?: "horizontal" | "vertical";
+  /** Narrative steps only: auto-advance on a timer. Phased `SequenceStep` lists ignore this. */
+  autoPlay?: boolean;
 }
 ```
+
+Use `NarrativeSequenceStep` for serializable, text-only ordered explanations (no JSX). The optional `highlight` key tints each row (shared → blue, inside → violet, outside → teal, contrast → amber). When `steps` are narrative, layout is always vertical regardless of `orientation`.
 
 ### LayerStack
 
@@ -617,6 +630,75 @@ interface ContextLimitSimulatorProps {
       sideNote: null,
       errorState: false,
       resetBar: false,
+    },
+  ]}
+/>
+```
+
+### EmbeddingSearchSimulator
+
+Interactive ticket (or free-text) router: **Start walkthrough** opens stage 1; the learner presses **Next** to advance through tokenize → embed → cosine similarity vs category rows → final routing result. Short in-stage animations run when each step is active; **Next** stays disabled until those finish. All props are serializable strings and plain objects. Deterministic demo scores (no live API).
+
+```ts
+interface EmbeddingSearchStage {
+  id: string;
+  label: string;
+  description: string;
+}
+
+interface EmbeddingSearchCategory {
+  id: string;
+  label: string;
+  centroidLabel: string;
+  color: "blue" | "amber" | "red" | "teal" | "violet";
+  icon: string;
+}
+
+interface EmbeddingSearchSimulatorProps {
+  title: string;
+  caption: string;
+  placeholder: string;
+  presets: string[];
+  categories: EmbeddingSearchCategory[];
+  stages: EmbeddingSearchStage[];
+}
+```
+
+```mdx
+<EmbeddingSearchSimulator
+  title="Semantic ticket router — powered by embeddings"
+  caption="Start walkthrough, then press Next at each stage to step through the pipeline."
+  placeholder="e.g. I can't log into my account after the update"
+  presets={["can't log in after resetting my password"]}
+  categories={[
+    {
+      id: "auth",
+      label: "Authentication & Access",
+      centroidLabel: "login, password, MFA, locked out",
+      color: "blue",
+      icon: "🔐",
+    },
+  ]}
+  stages={[
+    {
+      id: "tokenize",
+      label: "Stage 1 — Tokenize the ticket",
+      description: "The ticket text is split into tokens.",
+    },
+    {
+      id: "embed",
+      label: "Stage 2 — Embed into vector space",
+      description: "The embedding model maps the text to a vector.",
+    },
+    {
+      id: "compare",
+      label: "Stage 3 — Cosine similarity against every category",
+      description: "Compare the ticket vector to each category centroid.",
+    },
+    {
+      id: "route",
+      label: "Stage 4 — Route to the winning category",
+      description: "The highest similarity wins.",
     },
   ]}
 />

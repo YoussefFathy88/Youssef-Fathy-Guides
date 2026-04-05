@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -14,11 +14,36 @@ export interface SequenceStep {
   color?: "violet" | "teal" | "amber" | "gray" | "blue" | "rose";
 }
 
+/** Serializable narrative steps (e.g. embeddings inside vs outside). No JSX in props. */
+export interface NarrativeSequenceStep {
+  id: string;
+  label: string;
+  description: string;
+  highlight?: "shared" | "inside" | "outside" | "contrast";
+  detail: string;
+}
+
 export interface StepSequenceProps {
-  steps?: SequenceStep[];
+  steps?: SequenceStep[] | NarrativeSequenceStep[];
   title?: string;
   caption?: string;
   orientation?: "horizontal" | "vertical";
+  /** When true, narrative steps auto-advance on a timer. Phased steps (`SequenceStep`) ignore this. */
+  autoPlay?: boolean;
+}
+
+function isNarrativeSequenceSteps(
+  steps: (SequenceStep | NarrativeSequenceStep)[],
+): steps is NarrativeSequenceStep[] {
+  const first = steps[0];
+  return (
+    steps.length > 0 &&
+    typeof first === "object" &&
+    first !== null &&
+    "description" in first &&
+    "label" in first &&
+    !("number" in first)
+  );
 }
 
 const colorMap = {
@@ -89,6 +114,145 @@ const colorMap = {
     line: "bg-gray-300",
   },
 } as const;
+
+const highlightToColor: Record<
+  NonNullable<NarrativeSequenceStep["highlight"]>,
+  keyof typeof colorMap
+> = {
+  shared: "blue",
+  inside: "violet",
+  outside: "teal",
+  contrast: "amber",
+};
+
+function NarrativeVerticalSequence({
+  steps = [],
+  reducedMotion,
+  autoPlay = false,
+}: {
+  steps: NarrativeSequenceStep[];
+  reducedMotion: boolean | null;
+  autoPlay?: boolean;
+}) {
+  const safeSteps = Array.isArray(steps) ? steps : [];
+  const [activeStep, setActiveStep] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!autoPlay || safeSteps.length === 0) return;
+    let i = 0;
+    setActiveStep(0);
+    const tick = () => {
+      i = (i + 1) % safeSteps.length;
+      setActiveStep(i);
+    };
+    const id = setInterval(tick, 5200);
+    return () => clearInterval(id);
+  }, [autoPlay, safeSteps.length]);
+
+  return (
+    <div className="space-y-0">
+      {safeSteps.map((step, i) => {
+        const colorKey = step.highlight ? highlightToColor[step.highlight] : "violet";
+        const tone = colorMap[colorKey];
+        const isActive = activeStep === i;
+        const isLast = i === safeSteps.length - 1;
+
+        return (
+          <div key={step.id} className="flex gap-4">
+            <div className="flex flex-col items-center">
+              <motion.div
+                initial={reducedMotion ? false : { scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.3, delay: i * 0.07, ease: "easeOut" }}
+                className={cn(
+                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white shadow-sm",
+                  tone.bg,
+                  isActive && "shadow-md",
+                )}
+              >
+                {i + 1}
+              </motion.div>
+              {!isLast && (
+                <motion.div
+                  initial={reducedMotion ? false : { scaleY: 0 }}
+                  animate={{ scaleY: 1 }}
+                  transition={{ duration: 0.3, delay: i * 0.07 + 0.15, ease: "easeOut" }}
+                  style={{ transformOrigin: "top" }}
+                  className={cn("my-1 w-0.5 flex-1 opacity-30", tone.line)}
+                />
+              )}
+            </div>
+
+            <motion.button
+              type="button"
+              initial={reducedMotion ? false : { opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: i * 0.07, ease: "easeOut" }}
+              onClick={() => setActiveStep(isActive ? null : i)}
+              className={cn(
+                "mb-4 min-w-0 flex-1 rounded-xl border px-4 py-3 text-left transition-all duration-200",
+                tone.light,
+                tone.border,
+                isActive ? `ring-2 ${tone.ring} ${tone.glow}` : "hover:shadow-md",
+              )}
+              aria-expanded={isActive}
+            >
+              <div className="flex min-w-0 items-center justify-between gap-2">
+                <span className="min-w-0 flex-1 text-sm font-semibold leading-snug text-gray-900 dark:text-gray-100">
+                  {step.label}
+                </span>
+                <motion.svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 14 14"
+                  fill="none"
+                  animate={{ rotate: isActive ? 180 : 0 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="shrink-0 text-gray-400"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M2.5 5L7 9.5L11.5 5"
+                    stroke="currentColor"
+                    strokeWidth={1.8}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </motion.svg>
+              </div>
+
+              {!isActive && (
+                <p className="mt-1.5 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">
+                  {step.description}
+                </p>
+              )}
+
+              <AnimatePresence initial={false}>
+                {isActive && (
+                  <motion.div
+                    key="detail"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25, ease: "easeOut" }}
+                    className="overflow-hidden"
+                  >
+                    <p className="mt-2 text-xs leading-relaxed text-gray-600 dark:text-gray-400">
+                      {step.description}
+                    </p>
+                    <p className="mt-2 border-t border-gray-200 pt-2 font-mono text-[11px] leading-relaxed text-gray-700 dark:border-gray-600 dark:text-gray-300">
+                      {step.detail}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.button>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 function HorizontalSequence({
   steps = [],
@@ -337,9 +501,11 @@ export default function StepSequence({
   title,
   caption,
   orientation = "vertical",
+  autoPlay = false,
 }: StepSequenceProps) {
   const safeSteps = Array.isArray(steps) ? steps : [];
   const reducedMotion = useReducedMotion();
+  const narrative = isNarrativeSequenceSteps(safeSteps as (SequenceStep | NarrativeSequenceStep)[]);
 
   return (
     <motion.div
@@ -355,10 +521,16 @@ export default function StepSequence({
         </div>
       )}
 
-      {orientation === "horizontal" ? (
-        <HorizontalSequence steps={safeSteps} reducedMotion={reducedMotion} />
+      {narrative ? (
+        <NarrativeVerticalSequence
+          steps={safeSteps as NarrativeSequenceStep[]}
+          reducedMotion={reducedMotion}
+          autoPlay={autoPlay}
+        />
+      ) : orientation === "horizontal" ? (
+        <HorizontalSequence steps={safeSteps as SequenceStep[]} reducedMotion={reducedMotion} />
       ) : (
-        <VerticalSequence steps={safeSteps} reducedMotion={reducedMotion} />
+        <VerticalSequence steps={safeSteps as SequenceStep[]} reducedMotion={reducedMotion} />
       )}
     </motion.div>
   );

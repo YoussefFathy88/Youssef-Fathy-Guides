@@ -112,127 +112,138 @@ Once words are vectors, "how similar are these two things?" becomes a calculatio
 
 Inside the model, every transformer layer works entirely in vector space -- it never sees raw text again after the embedding layer. Outside the model, you can call an embeddings API to get a vector for any string and store it in a vector database for retrieval.
 
-<ConceptStepper
+<StepSequence
   title="Embeddings inside vs outside the model"
+  caption="Step through both paths — notice where the vectors go and what you can access"
+  autoPlay={false}
   steps={[
     {
-      title: "Same core idea: map text into vectors",
-      caption: "Use Next to walk both paths -- they begin with the same transformation from tokens/text into vector coordinates.",
-      visual: (
-        <div className="grid min-h-[240px] gap-4 rounded-2xl bg-blue-500/10 p-6 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-center">
-          <div className="rounded-2xl border border-blue-200 bg-white/80 p-5 dark:border-blue-500/20 dark:bg-gray-950/50">
-            <p className="text-xs uppercase tracking-[0.24em] text-blue-500 dark:text-blue-300">Input</p>
-            <p className="mt-4 font-mono text-lg font-semibold text-gray-900 dark:text-gray-100">"reset password"</p>
-            <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">Text is first split into token IDs or passed as a string to an embedding model.</p>
-          </div>
-          <div className="hidden rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200 md:block">
-            embed
-          </div>
-          <div className="rounded-2xl border border-blue-200 bg-white/80 p-5 dark:border-blue-500/20 dark:bg-gray-950/50">
-            <p className="text-xs uppercase tracking-[0.24em] text-blue-500 dark:text-blue-300">Vector</p>
-            <div className="mt-4 flex items-end gap-2">
-              <div className="h-10 flex-1 rounded-full bg-blue-500/30" />
-              <div className="h-24 flex-1 rounded-full bg-blue-500/70" />
-              <div className="h-16 flex-1 rounded-full bg-blue-500/40" />
-              <div className="h-28 flex-1 rounded-full bg-blue-500" />
-              <div className="h-14 flex-1 rounded-full bg-blue-500/50" />
-            </div>
-            <p className="mt-4 font-mono text-sm text-gray-600 dark:text-gray-300">[0.12, 0.84, 0.41, 0.93, 0.35, ...]</p>
-          </div>
-        </div>
-      ),
+      id: "s1",
+      label: "Step 1 — Both paths start the same way",
+      description: "Text arrives as token IDs. The embedding layer converts each ID into a vector via a learned lookup table. This happens identically whether the vectors are headed into the transformer or out to a database.",
+      highlight: "shared",
+      detail: "Token: 'reset' → ID 4521 → vector [0.12, 0.84, 0.41, 0.93, ...]  (same operation both paths)"
     },
     {
-      title: "Inside the model: vectors are hidden working memory",
-      caption: "Every token becomes a vector at the embedding layer, then attention and MLP blocks keep transforming those vectors until the next-token prediction.",
-      visual: (
-        <div className="grid min-h-[240px] gap-3 rounded-2xl bg-violet-500/10 p-6 md:grid-cols-4">
-          <div className="rounded-2xl border border-violet-200 bg-white/85 p-4 dark:border-violet-500/20 dark:bg-gray-950/50">
-            <p className="text-xs uppercase tracking-[0.24em] text-violet-500 dark:text-violet-300">Step 1</p>
-            <p className="mt-3 text-base font-semibold text-gray-900 dark:text-gray-100">Token IDs</p>
-            <p className="mt-2 font-mono text-sm text-gray-600 dark:text-gray-300">[1428, 9167]</p>
-          </div>
-          <div className="rounded-2xl border border-violet-200 bg-white/85 p-4 dark:border-violet-500/20 dark:bg-gray-950/50">
-            <p className="text-xs uppercase tracking-[0.24em] text-violet-500 dark:text-violet-300">Step 2</p>
-            <p className="mt-3 text-base font-semibold text-gray-900 dark:text-gray-100">Embedding lookup</p>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">Each ID becomes a learned vector automatically.</p>
-          </div>
-          <div className="rounded-2xl border border-violet-200 bg-white/85 p-4 dark:border-violet-500/20 dark:bg-gray-950/50">
-            <p className="text-xs uppercase tracking-[0.24em] text-violet-500 dark:text-violet-300">Step 3</p>
-            <p className="mt-3 text-base font-semibold text-gray-900 dark:text-gray-100">Attention + MLP stack</p>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">All internal reasoning happens in vector space.</p>
-          </div>
-          <div className="rounded-2xl border border-violet-200 bg-white/85 p-4 dark:border-violet-500/20 dark:bg-gray-950/50">
-            <p className="text-xs uppercase tracking-[0.24em] text-violet-500 dark:text-violet-300">Step 4</p>
-            <p className="mt-3 text-base font-semibold text-gray-900 dark:text-gray-100">Next-token logits</p>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">You never directly inspect those hidden vectors in normal API calls.</p>
-          </div>
-        </div>
-      ),
+      id: "s2",
+      label: "Step 2 — Inside path: vectors become hidden working memory",
+      description: "Inside the model, vectors flow into the transformer stack. Attention layers read all token vectors simultaneously and update each one based on context. You never directly see or access these internal vectors through the API.",
+      highlight: "inside",
+      detail: "Input vectors → 96 attention layers → refined vectors → next-token logits. The model never converts back to text until the final prediction."
     },
     {
-      title: "Outside the model: vectors become a searchable memory layer",
-      caption: "An embeddings API gives you vectors explicitly, so you can store documents and query text in the same space and retrieve nearest matches for RAG.",
-      visual: (
-        <div className="grid min-h-[240px] gap-4 rounded-2xl bg-teal-500/10 p-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.1fr)]">
-          <div className="rounded-2xl border border-teal-200 bg-white/85 p-5 dark:border-teal-500/20 dark:bg-gray-950/50">
-            <p className="text-xs uppercase tracking-[0.24em] text-teal-500 dark:text-teal-300">Embeddings API</p>
-            <p className="mt-4 font-mono text-sm text-gray-600 dark:text-gray-300">embed("locked out of account")</p>
-            <p className="mt-4 text-sm text-gray-600 dark:text-gray-300">Returns a vector you can store, compare, and inspect as part of your retrieval pipeline.</p>
-            <div className="mt-5 rounded-2xl bg-teal-500/10 p-4 font-mono text-xs text-teal-700 dark:text-teal-200">
-              [0.09, 0.77, 0.52, 0.18, 0.88, ...]
-            </div>
-          </div>
-          <div className="space-y-3">
-            <div className="rounded-2xl border border-teal-200 bg-white/85 p-4 dark:border-teal-500/20 dark:bg-gray-950/50">
-              <p className="text-xs uppercase tracking-[0.24em] text-teal-500 dark:text-teal-300">Vector DB search</p>
-              <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">Nearest neighbors surface semantically similar records, even when the wording differs.</p>
-            </div>
-            <div className="rounded-2xl border border-teal-200 bg-teal-500/10 px-4 py-3 text-sm font-semibold text-gray-900 dark:border-teal-500/20 dark:text-gray-100">1. Can't log in after MFA reset</div>
-            <div className="rounded-2xl border border-teal-200 bg-white/85 px-4 py-3 text-sm text-gray-700 dark:border-teal-500/20 dark:bg-gray-950/50 dark:text-gray-200">2. Password change flow fails for SSO users</div>
-            <div className="rounded-2xl border border-teal-200 bg-white/85 px-4 py-3 text-sm text-gray-700 dark:border-teal-500/20 dark:bg-gray-950/50 dark:text-gray-200">3. Account recovery email arrives late</div>
-          </div>
-        </div>
-      ),
+      id: "s3",
+      label: "Step 3 — Outside path: vectors become a searchable store",
+      description: "Outside the model, you call an embeddings API endpoint. It returns the raw vector for your string. You store those vectors in a vector database. This is the retrieval layer that powers RAG.",
+      highlight: "outside",
+      detail: "embed('reset password') → [0.12, 0.84, 0.41, 0.93, ...] → stored in Pinecone/Weaviate/pgvector alongside your document chunks"
     },
+    {
+      id: "s4",
+      label: "Step 4 — Outside path: query meets documents",
+      description: "At query time, the user's question is embedded with the same model. The vector database computes cosine similarity between the query vector and every stored document vector. The nearest chunks are returned and injected into the prompt.",
+      highlight: "outside",
+      detail: "embed('how do I unlock my account?') → cosine sim against 50,000 stored chunks → top 5 returned in ~10ms → injected as context"
+    },
+    {
+      id: "s5",
+      label: "Step 5 — The key difference",
+      description: "Inside the model you cannot inspect vectors — they are the model's internal scratchpad. Outside the model you own the vectors: you store them, query them, update them, and combine them with filters. Same math, completely different access model.",
+      highlight: "contrast",
+      detail: "Inside: opaque, automatic, refined by attention. Outside: explicit, inspectable, queryable by cosine similarity."
+    }
   ]}
 />
 
 </SessionSection>
 
 
-{/* SECTION 4 - PRACTICAL EXAMPLE */}
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 4 — PRACTICAL EXAMPLE
+    ═══════════════════════════════════════════════════════════════ */}
 
 <SessionSection id="practical-example" label="Practical Example">
 
-## How a support ticket router uses embeddings to replace keyword rules
+## Type a support ticket — watch embeddings route it in real time
 
-A SaaS company receives thousands of support tickets daily. Their old keyword-matching system breaks whenever customers phrase things differently -- "can't log in" misses "access denied" and "locked out". They replace it with an embeddings router: embed every ticket, embed every issue category label, then route each new ticket to the nearest category by cosine similarity. New categories are added by writing a description and embedding it -- no retraining, no new rules.
+This is the moment the theory becomes tangible. A real SaaS support queue receives
+thousands of tickets a day. The old keyword system fails the instant a customer uses
+a synonym. The embedding router never breaks on wording — it routes by meaning. Type
+any ticket description below and watch the system embed it, compare it against every
+category centroid, and assign a department. The closest category wins.
 
-<ConceptCompare
-  title="Keyword matching vs embedding similarity"
-  caption="See which approach handles the same problem more robustly"
-  mode="side-by-side"
-  left={{
-    label: "Keyword matching",
-    color: "gray",
-    points: [
-      "Breaks when customers use synonyms",
-      "Misses \"locked out\" if rule says \"can't log in\"",
-      "Every new phrasing needs a new rule",
-      "Brittle at scale",
-    ]
-  }}
-  right={{
-    label: "Embedding similarity",
-    color: "teal",
-    points: [
-      "Captures meaning not exact words",
-      "\"Locked out\" and \"can't log in\" land near each other",
-      "New categories added by writing a description",
-      "Robust to spelling variations and paraphrasing",
-    ]
-  }}
+<EmbeddingSearchSimulator
+  title="Semantic ticket router — powered by embeddings"
+  caption="Type a ticket (or pick a preset), press Start walkthrough, then use Next at each stage to see tokenizing, embedding, similarity scores, and the final route."
+  placeholder="e.g. I can't log into my account after the update"
+  presets={[
+    "can't log in after resetting my password",
+    "my invoice shows the wrong amount",
+    "the app crashes when I open the dashboard",
+    "how do I add a new team member?",
+    "I was charged twice this month",
+    "export to CSV is not working",
+    "forgot my two-factor auth device"
+  ]}
+  categories={[
+    {
+      id: "auth",
+      label: "Authentication & Access",
+      centroidLabel: "login, password, MFA, locked out, access denied",
+      color: "blue",
+      icon: "🔐"
+    },
+    {
+      id: "billing",
+      label: "Billing & Payments",
+      centroidLabel: "invoice, charge, refund, subscription, payment failed",
+      color: "amber",
+      icon: "💳"
+    },
+    {
+      id: "bugs",
+      label: "Bug Reports",
+      centroidLabel: "crash, error, broken, not working, unexpected behaviour",
+      color: "red",
+      icon: "🐛"
+    },
+    {
+      id: "account",
+      label: "Account Management",
+      centroidLabel: "add user, team, permissions, role, invite, settings",
+      color: "teal",
+      icon: "👥"
+    },
+    {
+      id: "data",
+      label: "Data & Exports",
+      centroidLabel: "export, download, CSV, report, sync, import",
+      color: "violet",
+      icon: "📊"
+    }
+  ]}
+  stages={[
+    {
+      id: "tokenize",
+      label: "Stage 1 — Tokenize the ticket",
+      description: "The ticket text is split into tokens, the same process covered in the previous session."
+    },
+    {
+      id: "embed",
+      label: "Stage 2 — Embed into vector space",
+      description: "The embedding model maps the token sequence to a single fixed-length vector. This vector is the semantic fingerprint of the ticket."
+    },
+    {
+      id: "compare",
+      label: "Stage 3 — Cosine similarity against every category",
+      description: "The ticket vector is compared to each category centroid. The score is the cosine of the angle between them — 1.0 is identical direction, 0.0 is orthogonal."
+    },
+    {
+      id: "route",
+      label: "Stage 4 — Route to the winning category",
+      description: "The category with the highest cosine similarity score is assigned. No keywords. No rules. Just geometry."
+    }
+  ]}
 />
 
 </SessionSection>
