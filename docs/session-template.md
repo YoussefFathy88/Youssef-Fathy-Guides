@@ -744,6 +744,8 @@ interface EmbeddingSearchSimulatorProps {
 `ConceptCompare` is still supported and is the right component for two-way comparisons.
 Use `mode="toggle"` for compact before/after switches and `mode="side-by-side"` for direct contrast. On mobile, it automatically falls back to toggle mode.
 
+It also supports a row-driven comparison mode for staged reveal sequences where each clickable row opens both sides in parallel. For that mode, use `rows`, `leftLabel`, `rightLabel`, `leftColor`, `rightColor`, and `layout` (`layout` is an alias for `mode` and is preferred in row-driven MDX).
+
 ```ts
 interface ComparePanel {
   label: string;
@@ -753,12 +755,28 @@ interface ComparePanel {
   color?: "violet" | "teal" | "amber" | "gray" | "rose" | "blue";
 }
 
+interface CompareRow {
+  id: string;
+  leftTitle: string;
+  leftBody: string;
+  leftDetail?: string;
+  rightTitle: string;
+  rightBody: string;
+  rightDetail?: string;
+}
+
 interface ConceptCompareProps {
   left?: ComparePanel;
   right?: ComparePanel;
   mode?: "side-by-side" | "toggle";
+  layout?: "side-by-side" | "toggle";
   title?: string;
   caption?: string;
+  leftLabel?: string;
+  rightLabel?: string;
+  leftColor?: "violet" | "teal" | "amber" | "gray" | "rose" | "blue";
+  rightColor?: "violet" | "teal" | "amber" | "gray" | "rose" | "blue";
+  rows?: CompareRow[];
 }
 ```
 
@@ -785,6 +803,36 @@ interface ConceptCompareProps {
       "Behavior is baked into weights",
     ],
   }}
+/>
+```
+
+```mdx
+<ConceptCompare
+  title="Inside the model vs outside the model"
+  caption="Click each row to expand the stage and compare both paths in parallel."
+  layout="side-by-side"
+  leftLabel="Inside the Model"
+  rightLabel="Outside the Model"
+  leftColor="violet"
+  rightColor="amber"
+  rows={[
+    {
+      id: "r1",
+      leftTitle: "Stage 1 -- Token IDs enter the embedding layer",
+      leftBody: "Text is tokenised into integer IDs before the transformer sees anything.",
+      leftDetail: "Token 'reset' -> ID 4521 -> vector [0.12, 0.84, 0.41, ...]",
+      rightTitle: "Stage 1 -- Token IDs enter the embedding layer",
+      rightBody: "Exactly the same operation happens on the retrieval path.",
+      rightDetail: "Shared lookup table -> same vector output",
+    },
+    {
+      id: "r2",
+      leftTitle: "Stage 2 -- Vectors flow into the transformer stack",
+      leftBody: "The vectors become hidden state inside the model.",
+      rightTitle: "Stage 2 -- Vectors are returned to you via API",
+      rightBody: "The embeddings endpoint returns the raw vector for storage.",
+    },
+  ]}
 />
 ```
 
@@ -951,6 +999,7 @@ interface DataFlowDiagramProps {
 
 Use this when you need grouped nodes plus a scripted step-through controller.
 `highlightEdges` entries inside `steps` must use the exact `"from→to"` format.
+On the canvas, each node shows **title + optional `emoji`/`icon` only** — `sublabel` is accepted on `FlowNode` for authoring notes but is **not rendered** on shapes or in the step-detail chips (keeps blocks compact). For `shape="rect"` with `emoji`, the glyph is drawn **above** the title so it does not overlap long labels.
 
 ```ts
 type NodeColor = "violet" | "teal" | "amber" | "blue" | "rose" | "gray";
@@ -968,7 +1017,7 @@ type NodeFlowDensity = "comfortable" | "compact";
 interface FlowNode {
   id: string;
   label: string;
-  sublabel?: string;
+  sublabel?: string; // optional author note; not shown in NodeFlowDiagram UI
   x: number;
   y: number;
   shape?: NodeShape;

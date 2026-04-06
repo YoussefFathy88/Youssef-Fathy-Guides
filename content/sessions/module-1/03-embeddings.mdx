@@ -52,10 +52,10 @@ Before attention, before generation, before any tool call -- the model converts 
     { from: "vectors",     to: "vectordb",    animated: true, stepNumber: 5, label: "retrieval path", dashed: true },
   ]}
   steps={[
-    { id: "s1", label: "Token IDs enter",           description: "Every token in your input starts as an integer ID — the same output from the tokenizer covered in the last session.", highlightNodes: ["tokens"], highlightEdges: [] },
-    { id: "s2", label: "Embedding layer maps to vectors", description: "The embedding layer is a lookup table. Each token ID maps to a fixed list of numbers (a vector). These numbers were learned during training — you do not design them.", highlightNodes: ["embed", "vectors"], highlightEdges: ["tokens→embed", "embed→vectors"] },
+    { id: "s1", label: "Token IDs enter", description: "Every token in your input starts as an integer ID -- the same output from the tokenizer covered in the last session.", highlightNodes: ["tokens"], highlightEdges: [] },
+    { id: "s2", label: "Embedding layer maps to vectors", description: "The embedding layer is a lookup table. Each token ID maps to a fixed list of numbers (a vector). These numbers were learned during training -- you do not design them.", highlightNodes: ["embed", "vectors"], highlightEdges: ["tokens→embed", "embed→vectors"] },
     { id: "s3", label: "Vectors enter the transformer", description: "For the model path, vectors flow into transformer layers. Attention and feed-forward networks refine them, building up context and meaning across the sequence.", highlightNodes: ["vectors", "transformer"], highlightEdges: ["vectors→transformer"] },
-    { id: "s4", label: "Model generates a response", description: "After passing through all transformer layers, the final vectors are used to predict the next token — and the cycle continues until the response is complete.", highlightNodes: ["transformer", "response"], highlightEdges: ["transformer→response"] },
+    { id: "s4", label: "Model generates a response", description: "After passing through all transformer layers, the final vectors are used to predict the next token -- and the cycle continues until the response is complete.", highlightNodes: ["transformer", "response"], highlightEdges: ["transformer→response"] },
     { id: "s5", label: "Same vectors power retrieval", description: "The exact same embedding process runs outside the model for RAG: your documents and queries are both embedded, then compared in the vector database by similarity. This is semantic search.", highlightNodes: ["vectors", "vectordb"], highlightEdges: ["vectors→vectordb"] },
   ]}
 />
@@ -108,67 +108,80 @@ Once words are vectors, "how similar are these two things?" becomes a calculatio
   ]}
 />
 
-### Embeddings live inside models and outside them
+### Embeddings capture meaning — keywords only match characters
 
-Inside the model, every transformer layer works entirely in vector space -- it never sees raw text again after the embedding layer. Outside the model, you can call an embeddings API to get a vector for any string and store it in a vector database for retrieval.
+A keyword search for "car won't start" finds nothing if the support doc says
+"vehicle fails to turn on". The words don't overlap. An embedding search finds
+it instantly — because both phrases map to nearby points in vector space.
 
-<StepSequence
-  title="Embeddings inside vs outside the model"
-  caption="Step through both paths — notice where the vectors go and what you can access"
-  autoPlay={false}
-  steps={[
-    {
-      id: "s1",
-      label: "Step 1 — Both paths start the same way",
-      description: "Text arrives as token IDs. The embedding layer converts each ID into a vector via a learned lookup table. This happens identically whether the vectors are headed into the transformer or out to a database.",
-      highlight: "shared",
-      detail: "Token: 'reset' → ID 4521 → vector [0.12, 0.84, 0.41, 0.93, ...]  (same operation both paths)"
-    },
-    {
-      id: "s2",
-      label: "Step 2 — Inside path: vectors become hidden working memory",
-      description: "Inside the model, vectors flow into the transformer stack. Attention layers read all token vectors simultaneously and update each one based on context. You never directly see or access these internal vectors through the API.",
-      highlight: "inside",
-      detail: "Input vectors → 96 attention layers → refined vectors → next-token logits. The model never converts back to text until the final prediction."
-    },
-    {
-      id: "s3",
-      label: "Step 3 — Outside path: vectors become a searchable store",
-      description: "Outside the model, you call an embeddings API endpoint. It returns the raw vector for your string. You store those vectors in a vector database. This is the retrieval layer that powers RAG.",
-      highlight: "outside",
-      detail: "embed('reset password') → [0.12, 0.84, 0.41, 0.93, ...] → stored in Pinecone/Weaviate/pgvector alongside your document chunks"
-    },
-    {
-      id: "s4",
-      label: "Step 4 — Outside path: query meets documents",
-      description: "At query time, the user's question is embedded with the same model. The vector database computes cosine similarity between the query vector and every stored document vector. The nearest chunks are returned and injected into the prompt.",
-      highlight: "outside",
-      detail: "embed('how do I unlock my account?') → cosine sim against 50,000 stored chunks → top 5 returned in ~10ms → injected as context"
-    },
-    {
-      id: "s5",
-      label: "Step 5 — The key difference",
-      description: "Inside the model you cannot inspect vectors — they are the model's internal scratchpad. Outside the model you own the vectors: you store them, query them, update them, and combine them with filters. Same math, completely different access model.",
-      highlight: "contrast",
-      detail: "Inside: opaque, automatic, refined by attention. Outside: explicit, inspectable, queryable by cosine similarity."
-    }
+Embeddings encode what a sentence means, not which characters it contains.
+
+<ConceptCompare
+  title="Keyword search vs semantic search — same query, opposite results"
+  caption="Toggle between methods — notice which queries keyword search fails on and why"
+  mode="toggle"
+  left={{
+    label: "Keyword search",
+    color: "gray",
+    points: [
+      "Matches exact character sequences — 'car' does not match 'vehicle' or 'automobile'",
+      "Query: 'car won't start' → 0 results if docs say 'vehicle fails to turn on'",
+      "Query: 'I can't log in' → misses docs titled 'authentication failure' or 'access denied'",
+      "Query: 'bill is wrong' → misses 'incorrect invoice' and 'overcharge on statement'",
+      "Adding synonyms manually fixes one case — and breaks two others"
+    ]
+  }}
+  right={{
+    label: "Semantic search (embeddings)",
+    color: "blue",
+    points: [
+      "Matches by meaning — 'car', 'vehicle', 'automobile' all land in the same region of vector space",
+      "Query: 'car won't start' → finds 'vehicle fails to turn on' with similarity score 0.91",
+      "Query: 'I can't log in' → finds 'authentication failure' and 'access denied' with scores 0.88–0.93",
+      "Query: 'bill is wrong' → finds 'incorrect invoice' and 'overcharge on statement' with scores 0.87–0.90",
+      "No synonym lists. No rule maintenance. Meaning is encoded in the numbers."
+    ]
+  }}
+/>
+
+### Why nearby points mean similar meanings
+
+The Vector2DPlot below shows the same queries and documents from the ConceptCompare
+above — but now projected into 2D embedding space. Words that mean similar things
+cluster together regardless of spelling. The distance between two points is the gap
+the keyword search could not cross.
+
+<Vector2DPlot
+  title="Semantic clusters — meaning determines position, not spelling"
+  caption="Hover any point to see its cluster — notice that synonyms land near each other even though they share no characters"
+  height={380}
+  showDistances={true}
+  showClusters={true}
+  points={[
+    { id: "q1", label: "car won't start",           x: 24, y: 28, cluster: "vehicle-failure", isQuery: true },
+    { id: "d1", label: "vehicle fails to turn on",  x: 28, y: 32, cluster: "vehicle-failure" },
+    { id: "d2", label: "automobile won't ignite",   x: 21, y: 35, cluster: "vehicle-failure" },
+    { id: "q2", label: "can't log in",              x: 72, y: 22, cluster: "auth-failure", isQuery: true },
+    { id: "d3", label: "authentication failure",    x: 76, y: 26, cluster: "auth-failure" },
+    { id: "d4", label: "access denied",             x: 69, y: 19, cluster: "auth-failure" },
+    { id: "q3", label: "bill is wrong",             x: 48, y: 75, cluster: "billing", isQuery: true },
+    { id: "d5", label: "incorrect invoice",         x: 52, y: 79, cluster: "billing" },
+    { id: "d6", label: "overcharge on statement",   x: 44, y: 72, cluster: "billing" },
   ]}
 />
 
 </SessionSection>
 
 
-{/* ═══════════════════════════════════════════════════════════════
-    SECTION 4 — PRACTICAL EXAMPLE
-    ═══════════════════════════════════════════════════════════════ */}
+{/* SECTION 4 - PRACTICAL EXAMPLE */}
 
 <SessionSection id="practical-example" label="Practical Example">
 
-## Type a support ticket — watch embeddings route it in real time
+## Type a support ticket -- watch embeddings route it in real time
 
 This is the moment the theory becomes tangible. A real SaaS support queue receives
 thousands of tickets a day. The old keyword system fails the instant a customer uses
-a synonym. The embedding router never breaks on wording — it routes by meaning. Type
+a synonym. The embedding router never breaks on wording -- it routes by meaning. Type
 any ticket description below and watch the system embed it, compare it against every
 category centroid, and assign a department. The closest category wins.
 

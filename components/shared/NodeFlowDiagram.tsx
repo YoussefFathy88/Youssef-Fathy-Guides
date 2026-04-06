@@ -28,6 +28,7 @@ export type NodeFlowDensity = "comfortable" | "compact";
 export interface FlowNode {
   id: string;
   label: string;
+  /** Optional detail for authors; not drawn on the diagram or step chips (title + emoji only). */
   sublabel?: string;
   x: number; // percentage 0-100
   y: number; // percentage 0-100
@@ -482,6 +483,12 @@ function RectNode({ node, cx, cy, dimmed, highlighted }: NodeProps) {
   const w = s.w;
   const h = s.h;
   const rx = 10;
+  const hasEmoji = !!node.emoji;
+
+  /** Emoji above title only — no sublabel on canvas (avoids cramped IO-style blocks). */
+  const emojiY = cy - h * 0.26;
+  const emojiSize = Math.min(s.fontSize + 12, Math.max(22, h * 0.28));
+  const labelY = hasEmoji ? cy + h * 0.1 : cy;
 
   return (
     <motion.g
@@ -501,20 +508,20 @@ function RectNode({ node, cx, cy, dimmed, highlighted }: NodeProps) {
         animate={highlighted ? { filter: `drop-shadow(0 0 8px ${c.glow})` } : { filter: "none" }}
         transition={{ duration: 0.3 }}
       />
-      {node.emoji && (
+      {node.emoji ? (
         <text
-          x={cx - w / 2 + 28}
-          y={cy}
+          x={cx}
+          y={emojiY}
           textAnchor="middle"
           dominantBaseline="central"
-          fontSize={s.fontSize + 8}
+          fontSize={emojiSize}
         >
           {node.emoji}
         </text>
-      )}
+      ) : null}
       <text
-        x={node.emoji ? cx + 12 : cx}
-        y={cy}
+        x={cx}
+        y={labelY}
         textAnchor="middle"
         dominantBaseline="central"
         fontSize={s.fontSize}
@@ -523,7 +530,6 @@ function RectNode({ node, cx, cy, dimmed, highlighted }: NodeProps) {
       >
         {node.label}
       </text>
-      
     </motion.g>
   );
 }
@@ -1065,12 +1071,14 @@ export default function NodeFlowDiagram({
                     <div className="mt-4 flex flex-wrap gap-2">
                       {activeStep.highlightNodes.map((id) => {
                         const n = nodeMap.get(id);
-                        if (!n || !n.sublabel) return null;
+                        if (!n) return null;
                         return (
-                          <div key={id} className="flex flex-wrap items-center gap-1.5 rounded-md bg-slate-800/60 px-3 py-1.5 border border-white/5 shadow-sm">
-                            {n.emoji && <span className="text-[15px]">{n.emoji}</span>}
-                            <span className="text-[13px] font-semibold text-slate-200">{n.label}:</span>
-                            <span className="text-[13px] text-slate-400">{n.sublabel}</span>
+                          <div
+                            key={id}
+                            className="flex flex-wrap items-center gap-2 rounded-md border border-white/5 bg-slate-800/60 px-3 py-2 shadow-sm"
+                          >
+                            {n.emoji ? <span className="text-base leading-none">{n.emoji}</span> : null}
+                            <span className="text-sm font-semibold text-slate-100">{n.label}</span>
                           </div>
                         );
                       })}

@@ -43,12 +43,128 @@ const clusterColors = [
   { fill: "#f97316", badge: "bg-orange-500 dark:bg-orange-400" },
 ] as const;
 
+const DOT_R = 9;
+const QUERY_R = 11;
+const FONT_SIZE = 13;
+
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
 function distPx(ax: number, ay: number, bx: number, by: number) {
   return Math.hypot(ax - bx, ay - by);
+}
+
+type LabelBox = { left: number; top: number; right: number; bottom: number };
+
+function approxLabelWidth(label: string, charPx = 7.2) {
+  return Math.min(300, Math.max(40, label.length * charPx));
+}
+
+function boxesOverlap(a: LabelBox, b: LabelBox) {
+  return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+}
+
+type ResolvedPoint = PlotPoint & { px: number; py: number };
+
+type LabelLayout = {
+  lx: number;
+  ly: number;
+  textAnchor: "start" | "end";
+};
+
+/** Avoid stacked labels when many points share a neighborhood (same fixed offset). */
+function computeLabelLayouts(
+  points: ResolvedPoint[],
+  plotW: number,
+  plotH: number,
+  dotR: number,
+  queryR: number,
+  pad = 8,
+): Map<string, LabelLayout> {
+  const lineH = 16;
+  const margin = 5;
+  const placed: LabelBox[] = [];
+
+  const sorted = [...points].sort((a, b) => {
+    if (a.isQuery !== b.isQuery) return a.isQuery ? -1 : 1;
+    return a.py - b.py || a.px - b.px;
+  });
+
+  const result = new Map<string, LabelLayout>();
+
+  const pushBox = (left: number, top: number, right: number, bottom: number): LabelBox => ({
+    left: left - margin,
+    top: top - margin,
+    right: right + margin,
+    bottom: bottom + margin,
+  });
+
+  for (const p of sorted) {
+    const r = p.isQuery ? queryR : dotR;
+    const w = approxLabelWidth(p.label);
+
+    const candidates: LabelLayout[] = [];
+    const ySteps = [0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6];
+    const xCols = [0, 36, 72, 108];
+
+    for (const col of xCols) {
+      for (const ys of ySteps) {
+        const dy = ys * 17;
+        candidates.push({
+          lx: p.px + r + 5 + col,
+          ly: p.py + 4 + dy,
+          textAnchor: "start",
+        });
+        candidates.push({
+          lx: p.px - r - 5 - col,
+          ly: p.py + 4 + dy,
+          textAnchor: "end",
+        });
+      }
+    }
+
+    let chosen: LabelLayout | null = null;
+
+    for (const c of candidates) {
+      const left = c.textAnchor === "start" ? c.lx : c.lx - w;
+      const right = c.textAnchor === "start" ? c.lx + w : c.lx;
+      const top = c.ly - lineH + 3;
+      const bottom = c.ly + 5;
+      const box = pushBox(left, top, right, bottom);
+
+      if (box.left < pad || box.right > plotW - pad || box.top < pad || box.bottom > plotH - pad) {
+        continue;
+      }
+
+      const overlapsLabel = placed.some((pb) => boxesOverlap(box, pb));
+      const overlapsDot = points.some((op) => {
+        if (op.id === p.id) return false;
+        const or = op.isQuery ? queryR : dotR;
+        const closestX = clamp(op.px, box.left, box.right);
+        const closestY = clamp(op.py, box.top, box.bottom);
+        return distPx(op.px, op.py, closestX, closestY) < or + 8;
+      });
+
+      if (!overlapsLabel && !overlapsDot) {
+        chosen = c;
+        placed.push(box);
+        break;
+      }
+    }
+
+    if (!chosen) {
+      const lx = clamp(p.px + r + 5, pad, plotW - pad - w);
+      const ly = clamp(p.py + 4, pad + lineH, plotH - pad);
+      chosen = { lx, ly, textAnchor: "start" };
+      const box = pushBox(lx, ly - lineH + 3, lx + w, ly + 5);
+      placed.push(box);
+    }
+
+    result.set(p.id, chosen);
+  }
+
+  return result;
 }
 
 export default function Vector2DPlot({
@@ -118,6 +234,11 @@ export default function Vector2DPlot({
   const activeId = lockedId ?? hoveredId;
   const activePoint = resolvedPoints.find((p) => p.id === activeId) ?? null;
 
+  const labelLayouts = useMemo(
+    () => computeLabelLayouts(resolvedPoints, dims.width, dims.height, DOT_R, QUERY_R),
+    [resolvedPoints, dims.width, dims.height],
+  );
+
   const nearestPoints = useMemo(
     () =>
       resolvedPoints
@@ -135,10 +256,6 @@ export default function Vector2DPlot({
     const yPct = clamp(((e.clientY - bounds.top) / bounds.height) * 100, 5, 95);
     setQueryPct({ x: xPct, y: yPct });
   };
-
-  const DOT_R = 9;        // circle radius in px
-  const QUERY_R = 11;     // query point radius in px
-  const FONT_SIZE = 13;   // label font size in px
 
   return (
     <motion.div
@@ -212,6 +329,24 @@ export default function Vector2DPlot({
                   ? clusterColors[0]
                   : (clusterMap.get(point.cluster ?? "") ?? clusterColors[0]);
                 const r = point.isQuery ? QUERY_R : DOT_R;
+                const layout = labelLayouts.get(point.id) ?? {
+                  lx: point.px + r + 5,
+                  ly: point.py + 4,
+                  textAnchor: "start" as const,
+                };
+
+                const lw = approxLabelWidth(point.label);
+                const attachX =
+                  layout.textAnchor === "start"
+                    ? layout.lx - 2
+                    : layout.lx - lw + 4;
+                const attachY = layout.ly - 2;
+                const legDx = attachX - point.px;
+                const legDy = attachY - point.py;
+                const legLen = Math.hypot(legDx, legDy) || 1;
+                const rimX = point.px + (legDx / legLen) * (r + 2);
+                const rimY = point.py + (legDy / legLen) * (r + 2);
+                const showLeader = Math.hypot(attachX - rimX, attachY - rimY) > 16;
 
                 return (
                   <g key={point.id}>
@@ -265,10 +400,23 @@ export default function Vector2DPlot({
                       />
                     )}
 
-                    {/* Label — rendered in px so it's always crisp */}
+                    {showLeader && (
+                      <line
+                        x1={rimX}
+                        y1={rimY}
+                        x2={attachX}
+                        y2={attachY}
+                        stroke="rgba(148,163,184,0.35)"
+                        strokeWidth="1"
+                        strokeLinecap="round"
+                      />
+                    )}
+
+                    {/* Label — position computed to reduce overlap in tight clusters */}
                     <text
-                      x={point.px + r + 5}
-                      y={point.py + 4}
+                      x={layout.lx}
+                      y={layout.ly}
+                      textAnchor={layout.textAnchor}
                       fontSize={FONT_SIZE}
                       fontWeight={500}
                       fill="rgba(226,232,240,0.9)"
