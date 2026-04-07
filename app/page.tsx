@@ -1,26 +1,11 @@
-import { JourneyMap } from "@/components/JourneyMap";
+import { AnatomySection } from "@/components/AnatomySection";
+import { ColonySection } from "@/components/ColonySection";
 import { ProgressSummary } from "@/components/ProgressSummary";
 import { ButtonLink } from "@/components/ui/button-link";
 import { Container } from "@/components/ui/container";
 import { GridBackground } from "@/components/ui/grid-background";
-import { SectionShell } from "@/components/ui/section-shell";
 import { SessionBadge } from "@/components/ui/session-badge";
 import { getModules, getSessionById, getSessionRoute } from "@/lib/course";
-
-const storyPoints = [
-  {
-    title: "Start in the engine room",
-    text: "The course begins with the internal mechanics of LLMs so the later workflow and agent lessons land on real understanding.",
-  },
-  {
-    title: "Add capability with intent",
-    text: "RAG, tools, memory, MCP, and skills are introduced as system upgrades, not disconnected buzzwords.",
-  },
-  {
-    title: "Ship with production discipline",
-    text: "The final module brings observability, performance, and deployment patterns into the story so the course ends where real systems live.",
-  },
-];
 
 export default function HomePage() {
   const firstSession = getSessionById("E01");
@@ -80,21 +65,9 @@ export default function HomePage() {
 
         <ProgressSummary />
 
-        <JourneyMap />
+        <AnatomySection />
 
-        <SectionShell>
-          <div className="grid gap-4 lg:grid-cols-3">
-            {storyPoints.map((point) => (
-              <div
-                key={point.title}
-                className="surface-panel p-5 transition duration-300 hover:-translate-y-1"
-              >
-                <h2 className="text-2xl font-semibold text-white">{point.title}</h2>
-                <p className="mt-3 text-base text-slate-300">{point.text}</p>
-              </div>
-            ))}
-          </div>
-        </SectionShell>
+        <ColonySection />
       </Container>
     </main>
   );

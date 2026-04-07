@@ -97,3 +97,74 @@ body::before {
     text-wrap: balance;
   }
 }
+
+@keyframes anatomy-pulse {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1;   }
+}
+
+/* Fix 5: blink fires in first 2% of a 7.2s cycle, silent for the rest */
+@keyframes blink {
+  0%    { transform: scaleY(1);    }
+  1%    { transform: scaleY(0.08); }
+  2%    { transform: scaleY(1);    }
+  100%  { transform: scaleY(1);    }
+}
+
+/* Fix 5: reduced bob from 6px → 3px */
+@keyframes gentleBob {
+  0%, 100% { transform: translateY(0px);  }
+  50%       { transform: translateY(-3px); }
+}
+
+/* Fix 6: eye glow pulse */
+@keyframes eyeGlow {
+  0%, 100% { opacity: 0.7; filter: brightness(1);   }
+  50%       { opacity: 1;   filter: brightness(1.4); }
+}
+
+/* Fix 7: chest breathing, very subtle scale */
+@keyframes chestBreathe {
+  0%, 100% { transform: scale(1);    }
+  50%       { transform: scale(1.02); }
+}
+
+/* Fix 1 replacement: sequential spine glow — electricity-through-wire effect */
+@keyframes spineGlow {
+  0%, 100% { opacity: 0.3; }
+  50%       { opacity: 1.0; }
+}
+
+/* Fix 9: brain scan sweeps head in first 13% of 9.2s, then waits (84 SVG units ≈ 176 CSS px) */
+@keyframes brainScan {
+  0%   { transform: translateY(0px);   opacity: 0;   }
+  2%   { opacity: 0.4; }
+  13%  { transform: translateY(176px); opacity: 0;   }
+  100% { transform: translateY(176px); opacity: 0;   }
+}
+
+/* Fix 5: updated blink duration to 7.2s */
+.eye-blink {
+  animation: blink 7.2s ease-in-out 0s infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.eye-blink-delayed {
+  animation: blink 7.2s ease-in-out 0.38s infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* Fix 7: chest breathing wrappers */
+.chest-breathe-heart {
+  animation: chestBreathe 4s ease-in-out 0s infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.chest-breathe-memory {
+  animation: chestBreathe 4s ease-in-out 0.6s infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
