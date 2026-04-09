@@ -27,3 +27,24 @@ export { default as ChatReplay } from "./ChatReplay";
 export { default as MemoryOrchestrator } from "./MemoryOrchestrator";
 export { default as ChunkVisualizer } from "./ChunkVisualizer";
 export { default as ParallelToolRunner } from "./ParallelToolRunner";
+// New diagram & code components
+export { default as AlgorithmStepper } from "./AlgorithmStepper";
+export { default as CallStackVisualizer } from "./CallStackVisualizer";
+export { default as NeuralNetworkForwardPass } from "./NeuralNetworkForwardPass";
+export { default as GradientDescentSimulator } from "./GradientDescentSimulator";
+export { default as PromptAnatomyVisualizer } from "./PromptAnatomyVisualizer";
+export { default as ApiLifecycleFlow } from "./ApiLifecycleFlow";
+export { default as TabbedCodeExplorer } from "./TabbedCodeExplorer";
+export { default as CodeEvolutionStepper } from "./CodeEvolutionStepper";
+// OS / Networking / Distributed-systems session components
+export { default as PacketJourneyVisualizer } from "../session/PacketJourneyVisualizer";
+export { default as ConsensusSimulator } from "../session/ConsensusSimulator";
+export { default as ProcessSchedulerViz } from "../session/ProcessSchedulerViz";
+export { default as MemoryLayoutExplorer } from "../session/MemoryLayoutExplorer";
+export { default as MutexRaceDetector } from "../session/MutexRaceDetector";
+// Data structures, databases, auth, distributed systems
+export { default as BTreeExplorer } from "../session/BTreeExplorer";
+export { default as TransactionIsolationSim } from "../session/TransactionIsolationSim";
+export { default as OAuthFlowStepper } from "../session/OAuthFlowStepper";
+export { default as MessageQueueSim } from "../session/MessageQueueSim";
+export { default as RateLimiterVisualizer } from "../session/RateLimiterVisualizer";

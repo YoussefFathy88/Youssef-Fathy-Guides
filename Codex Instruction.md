@@ -1,17 +1,23 @@
 # Codex Instructions - Joee's GenAI from the Ground Up
 
-## Golden Reference for Session Authoring
+## Golden references for session authoring
 
-`docs/session-template.md` is the single source of truth for session structure, available MDX components, and component prop APIs used by the session maker expert.
+| Document | Use |
+|---|---|
+| `docs/session-template.md` | Session structure, frontmatter, canonical modules/slugs, six-section MDX skeleton, narrative rules. |
+| `docs/component-gallery.md` | Every MDX component: chooser tables, summary, and prop / TypeScript interfaces. |
 
-## Critical Sync Rule
+## Critical sync rule
 
-Whenever any shared session component is added, updated, renamed, or removed, `docs/session-template.md` must be updated in the same change so it always reflects the current component API.
+Whenever any shared session component is **added, updated, renamed, or removed**, or its **props** change:
+
+- Update **`docs/component-gallery.md`** in the **same change** (chooser, summary table, and interface sections).
+- Update **`docs/session-template.md`** only if **session-level** authoring rules change (not for routine prop-only edits).
 
 This applies to:
-- Components under `components/shared/`
-- Session components under `components/session/`
-- New or changed props on existing components
-- Registry/injection changes that alter which components are available in MDX
 
-Do not leave `docs/session-template.md` stale.
+- Components under `components/shared/`
+- Session components under `components/session/` and `components/ui/` that appear in MDX
+- Registry/injection changes in `app/sessions/[slug]/page.tsx` (`getMdxComponents`)
+
+Do not leave **`docs/component-gallery.md`** stale.

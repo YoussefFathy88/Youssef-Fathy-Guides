@@ -1,16 +1,22 @@
 # Gemini Instructions - Joee's GenAI from the Ground Up
 
-## Session Maker Expert Reference
+## Session maker expert reference
 
-`docs/session-template.md` is the **golden reference** for the session Maker expert. It defines the session structure, available MDX components, and component prop APIs.
+| Document | Use |
+|---|---|
+| `docs/session-template.md` | Session structure, frontmatter, canonical registry, six-section skeleton, content rules. |
+| `docs/component-gallery.md` | Available MDX components, when to use each, and exact prop shapes. |
 
-## Critical Task Requirement
+## Critical task requirement
 
-**Whenever a component is updated, added, modified, or removed**, you MUST ensure that `docs/session-template.md` is kept up-to-date in the same change so it always reflects the exact current component API.
+**Whenever a component is updated, added, modified, or removed** (or its props change), you MUST update **`docs/component-gallery.md`** in the same change so it reflects the current component API.
 
-This rule applies specifically to:
-- Any component under `components/shared/`, `components/session/`, or `components/ui/`
-- Any prop added, renamed, removed, or changed on an existing component
-- Any changes affecting available components within MDX sessions
+Update **`docs/session-template.md`** only when session-level authoring policy changes, not for every prop tweak.
 
-Do not leave `docs/session-template.md` out of date.
+This rule applies to:
+
+- Any component under `components/shared/`, `components/session/`, or `components/ui/` used in session MDX
+- Any prop added, renamed, removed, or changed on an existing session-facing component
+- Any changes affecting which components are available in MDX (`getMdxComponents`)
+
+Do not leave **`docs/component-gallery.md`** out of date.
