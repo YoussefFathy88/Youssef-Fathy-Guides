@@ -19,3 +19,8 @@ pnpm-debug.log*
 playwright-report/
 test-results/
 output/playwright/
+
+# Portable Node.js
+.node_portable/
+setup_node.ps1
+dev.ps1

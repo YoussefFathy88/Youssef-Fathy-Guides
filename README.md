@@ -76,3 +76,20 @@ Open `http://localhost:3000`.
 
 - Use the **fast dev run** by default.
 - Use the **safest clean restart** only when the browser still shows an old error, screenshots look stale/blank, or dependency/Docker config changed.
+
+## Run with Antigravity (No-Admin / Portable Node)
+
+If you don't have Node.js or Docker installed (or lack admin rights), use the portable setup:
+
+1. **One-time Setup** (Downloads Node.js locally):
+   ```powershell
+   .\setup_node.ps1
+   ```
+
+2. **Run the Website**:
+   ```powershell
+   .\dev.ps1
+   ```
+
+3. **Test from another laptop**:
+   Ensure you are on the same network and open `http://<your-ip>:3000` on the other device.
