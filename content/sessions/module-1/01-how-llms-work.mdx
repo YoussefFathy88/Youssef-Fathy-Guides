@@ -1,186 +1,396 @@
 ---
+
 title: "How LLMs Work"
+
 slug: "how-llms-work"
+
 module: 1
+
 moduleName: "The Engine Room"
+
 sessionNumber: 1
+
 duration: "14 min"
+
 difficulty: "beginner"
+
 tags: ["training", "inference", "transformer"]
+
 nextSession: "tokens-context-window"
+
 prevSession: null
+
 ---
+
+
 
 <SessionSection id="goal" label="Goal">
 
+
+
 ## Understand what actually happens when you call an LLM
+
+
 
 You have called LLM APIs, seen the output stream back token by token, and noticed that the same prompt gives different answers each time. This session explains the full mechanical picture from how the model was built, to how it generates each word, to why it behaves the way it does.
 
+
+
 </SessionSection>
+
+
 
 <SessionSection id="big-picture" label="Big Picture">
 
+
+
 ## Two distinct phases: training and inference
+
+
 
 Every LLM goes through two completely separate phases. Training happens once and is enormously expensive. It produces the model weights. Inference happens every time you send a prompt. It is fast and uses those frozen weights to generate a response. As a developer, you only ever interact with the inference phase.
 
+
+
 <NodeFlowDiagram
+
   title="The LLM lifecycle — training runs once, inference runs every call"
-  height={760}
+
+  height={780}
+
   groups={[
+
     { id: "training", label: "Training Phase — runs once", nodeIds: ["data", "train", "eval"], color: "amber" },
+
     { id: "inference", label: "Inference Phase — every API call", nodeIds: ["prompt", "forward", "sample", "repeat"], color: "violet" },
+
   ]}
+
   nodes={[
-    { id: "data",    label: "Training Data",    sublabel: "Trillions of tokens",        x: 18, y: 15, color: "amber",  shape: "rect", emoji: "📚" },
-    { id: "train",   label: "Train",            sublabel: "Predict next token",          x: 18, y: 50, color: "amber",  shape: "rect", emoji: "⚙️" },
-    { id: "eval",    label: "Align & Evaluate", sublabel: "RLHF + safety testing",       x: 18, y: 85, color: "amber",  shape: "rect", emoji: "✅" },
-    { id: "weights", label: "Model Weights",    sublabel: "Frozen after training",        x: 50, y: 50, color: "gray",   shape: "hex",  size: "lg", emoji: "🧠" },
-    { id: "prompt",  label: "User Prompt",      sublabel: "Enters context window",        x: 82, y: 12, color: "violet", shape: "rect", emoji: "💬" },
-    { id: "forward", label: "Forward Pass",     sublabel: "All transformer layers",       x: 82, y: 38, color: "violet", shape: "rect", emoji: "⚡" },
-    { id: "sample",  label: "Sample Token",     sublabel: "Logits → softmax → draw",      x: 82, y: 64, color: "violet", shape: "rect", emoji: "🎯" },
-    { id: "repeat",  label: "Repeat Loop",      sublabel: "Until stop token",             x: 82, y: 90, color: "violet", shape: "rect", emoji: "🔁" },
+
+    { id: "data",    label: "Training Data",    sublabel: "Trillions of tokens",                          x: 18, y: 15, color: "amber",  shape: "rect", emoji: "📚" },
+
+    { id: "train",   label: "Train",            sublabel: "Predict next token",                           x: 18, y: 50, color: "amber",  shape: "rect", emoji: "⚙️" },
+
+    { id: "eval",    label: "Align & Evaluate", sublabel: "RLHF + safety testing",                        x: 18, y: 85, color: "amber",  shape: "rect", emoji: "✅" },
+
+    { id: "weights", label: "Model Weights",    sublabel: "Frozen after training",                        x: 50, y: 50, color: "gray",   shape: "hex",  size: "lg", emoji: "🧠" },
+
+    { id: "prompt",  label: "User Prompt",      sublabel: "Enters context window",                        x: 82, y: 12, color: "violet", shape: "rect", emoji: "💬" },
+
+    { id: "forward", label: "Forward Pass",     sublabel: "Tokenize → Embed → Transformer layers",        x: 82, y: 38, color: "violet", shape: "rect", emoji: "⚡" },
+
+    { id: "sample",  label: "Sample Token",     sublabel: "Logits → softmax → draw",                      x: 82, y: 64, color: "violet", shape: "rect", emoji: "🎯" },
+
+    { id: "repeat",  label: "Repeat Loop",      sublabel: "Until stop token",                             x: 82, y: 90, color: "violet", shape: "rect", emoji: "🔁" },
+
   ]}
+
   edges={[
+
     { from: "data",    to: "train",   animated: false },
+
     { from: "train",   to: "eval",    animated: false },
+
     { from: "eval",    to: "weights", animated: false, label: "produces" },
+
     { from: "weights", to: "forward", animated: true,  label: "loaded once", dashed: true },
+
     { from: "prompt",  to: "forward", animated: true },
+
     { from: "forward", to: "sample",  animated: true },
+
     { from: "sample",  to: "repeat",  animated: true },
+
     { from: "repeat",  to: "forward", animated: true,  dashed: true, label: "next token" },
+
   ]}
+
   steps={[
-    { id: "s1", label: "Collect training data",   description: "Trillions of tokens from text across the internet are assembled into the training corpus — books, code, web pages, scientific papers.", highlightNodes: ["data"], highlightEdges: [] },
-    { id: "s2", label: "Train the model",         description: "The model predicts the next token billions of times, adjusting weights on every error via backpropagation. This runs for weeks on thousands of GPUs.", highlightNodes: ["data", "train"], highlightEdges: ["data→train"] },
-    { id: "s3", label: "Align and evaluate",      description: "RLHF, safety filtering, and benchmark evaluation shape the final model behavior. This is what makes the model helpful and safe.", highlightNodes: ["train", "eval"], highlightEdges: ["train→eval"] },
-    { id: "s4", label: "Freeze the weights",      description: "Training ends. The weights are frozen and saved. They are never changed during inference — only read. This artifact is the model.", highlightNodes: ["eval", "weights"], highlightEdges: ["eval→weights"] },
+
+    { id: "s1", label: "Collect training data",       description: "Trillions of tokens from text across the internet are assembled into the training corpus — books, code, web pages, scientific papers.", highlightNodes: ["data"], highlightEdges: [] },
+
+    { id: "s2", label: "Train the model",             description: "The model predicts the next token billions of times, adjusting weights on every error via backpropagation. This runs for weeks on thousands of GPUs.", highlightNodes: ["data", "train"], highlightEdges: ["data→train"] },
+
+    { id: "s3", label: "Align and evaluate",          description: "RLHF, safety filtering, and benchmark evaluation shape the final model behavior. This is what makes the model helpful and safe.", highlightNodes: ["train", "eval"], highlightEdges: ["train→eval"] },
+
+    { id: "s4", label: "Freeze the weights",          description: "Training ends. The weights are frozen and saved. They are never changed during inference — only read. This artifact is the model.", highlightNodes: ["eval", "weights"], highlightEdges: ["eval→weights"] },
+
     { id: "s5", label: "Prompt enters, weights load", description: "Your API call sends a prompt. The frozen weights are loaded from storage. As a developer, you only ever interact with this inference phase.", highlightNodes: ["prompt", "weights", "forward"], highlightEdges: ["weights→forward", "prompt→forward"] },
-    { id: "s6", label: "Autoregressive token loop", description: "One token is sampled per loop: forward pass → logits → softmax → sample. That token is appended to context and the loop restarts — every single word is generated this way.", highlightNodes: ["forward", "sample", "repeat"], highlightEdges: ["forward→sample", "sample→repeat", "repeat→forward"] },
+
+    { id: "s6", label: "Inside the forward pass",     description: "The forward pass is not a black box — it has three stages: the prompt text is first tokenized into integer IDs, those IDs are converted into embedding vectors, then the vectors flow through the transformer layers to produce logits (raw scores per vocabulary token).", highlightNodes: ["forward"], highlightEdges: ["prompt→forward", "weights→forward"] },
+
+    { id: "s7", label: "Autoregressive token loop",   description: "One token is sampled per loop: forward pass (through logits) → softmax → sample. That token is appended to context and the loop restarts — every single word is generated this way.", highlightNodes: ["forward", "sample", "repeat"], highlightEdges: ["forward→sample", "sample→repeat", "repeat→forward"] },
+
   ]}
+
 />
+
+
 
 </SessionSection>
 
+
+
 <SessionSection id="core-concepts" label="Core Concepts">
 
-## Training: compressing the internet into weights
 
-During training, the model reads enormous amounts of text and learns one task: predict the next token. It does this billions of times, adjusting its internal weights each time it gets a prediction wrong. By the end, those weights have compressed a statistical representation of language, and a surprising amount of world knowledge, into a single file.
 
-<TrainingLoopSimulator
-  title="Watch the model learn — probability of 'Paris' rises as training runs"
-  caption="Click Start Training to run through 80 epochs. Watch the loss fall and the distribution sharpen toward the correct answer."
+## Inside the network forward pass
+
+
+
+The **forward pass** is the part of every token loop where the model turns your prompt into **logits** — raw scores for every token in its vocabulary. The deep stack inside that pass always runs the same three stages: **tokenization**, **embedding**, and the **transformer**. Each of these is a full topic in its own right — the next sessions cover them in depth. After the stack, **softmax** turns logits into probabilities and **sampling** draws the next token; that decode step is where randomness enters, while the path through logits is deterministic for fixed weights. For now, the goal is to hold the full pipeline in your head so everything that follows has a place to land.
+
+
+
+<PipelineTrack
+
+  title="One autoregressive step — from raw text to a sampled token"
+
+  caption="The token moves one hop at a time. Stations through Logits are the network forward pass; Sample is softmax plus a draw. Hover a station to repeat the short stage hint."
+
+  nodes={[
+
+    { id: "text", label: "Raw Text", sublabel: "Your prompt string", color: "gray" },
+
+    { id: "tokenize", label: "Tokenize", sublabel: "Text → integer token IDs", color: "teal" },
+
+    { id: "embed", label: "Embed", sublabel: "IDs → dense vectors", color: "blue" },
+
+    { id: "transformer", label: "Transformer", sublabel: "N layers of attention + FFN", color: "violet" },
+
+    { id: "logits", label: "Logits", sublabel: "Score for every vocab token", color: "rose" },
+
+    { id: "sample", label: "Sample", sublabel: "Softmax → draw next token", color: "amber" },
+
+  ]}
+
+  lines={[
+
+    { nodes: ["text", "tokenize", "embed", "transformer", "logits", "sample"], color: "#8b5cf6", label: "One token step" },
+
+  ]}
+
 />
 
 
-### Inference: one token at a time, every time
 
-When you send a prompt, the model runs a forward pass through all its layers and produces a probability score for every token in its vocabulary. It does not produce a sentence. It produces a distribution over what token should come next. One token is sampled from that distribution, appended to the context, and the whole process repeats until the response is complete.
+## Inference: one token at a time, every time
+
+
+
+When you send a prompt, the model runs a forward pass through all its layers and emits **logits** — one raw score per vocabulary token. **Softmax** turns those logits into a probability distribution; it does not produce a finished sentence by itself. One token is **sampled** from that distribution, appended to the context, and the whole process repeats until the response is complete.
+
+
 
 <AutoregressiveDemo
+
   title="Inference: a full Q&A generated token by token"
+
   caption="Click 'Step Into' to reveal the next-token probabilities, then click it again to append the chosen token. Run plays the loop automatically."
+
   question="What is the capital of France?"
+
   contextPrefix="The capital of France is"
+
   tokens={["Paris", ",", " which", " is", " also", " France", "'s", " largest", " city", "."]}
+
   topCandidates={[
+
     { step: 0, candidates: [{ token: "Paris", prob: 0.91 }, { token: "Lyon", prob: 0.04 }, { token: "a", prob: 0.02 }] },
+
     { step: 1, candidates: [{ token: ",", prob: 0.65 }, { token: ".", prob: 0.20 }, { token: " and", prob: 0.08 }] },
+
     { step: 2, candidates: [{ token: " which", prob: 0.48 }, { token: " a", prob: 0.22 }, { token: " the", prob: 0.15 }] },
+
   ]}
+
 />
 
 ### From logits to probabilities
 
-The model does not output probabilities directly. It outputs raw scores called **logits** — one per token in its vocabulary. These scores are then passed through a softmax function to produce the probability distribution you sample from.
+
+
+The model does not output probabilities directly. It outputs raw scores called logits — one per token in its vocabulary. These scores are then passed through a softmax function to produce the probability distribution you sample from.
+
+
 
 <TransformerLogitsExplainer
-  title="Logits → softmax → probability distribution"
-  caption="Step through how raw model scores become the next-token probabilities."
-  candidates={[
-    { token: "Paris",   logit: 9.2, rawProb: 0.91 },
-    { token: "Lyon",    logit: 3.1, rawProb: 0.04 },
-    { token: "a",       logit: 1.8, rawProb: 0.02 },
-    { token: "the",     logit: 1.4, rawProb: 0.01 },
-    { token: "France",  logit: 1.3, rawProb: 0.01 },
-    { token: "located", logit: 1.2, rawProb: 0.01 },
-  ]}
-/>
 
+  title="Logits → softmax → probability distribution"
+
+  caption="Step through how raw model scores become the next-token probabilities."
+
+  candidates={[
+
+    { token: "Paris",   logit: 9.2, rawProb: 0.91 },
+
+    { token: "Lyon",    logit: 3.1, rawProb: 0.04 },
+
+    { token: "a",       logit: 1.8, rawProb: 0.02 },
+
+    { token: "the",     logit: 1.4, rawProb: 0.01 },
+
+    { token: "France",  logit: 1.3, rawProb: 0.01 },
+
+    { token: "located", logit: 1.2, rawProb: 0.01 },
+
+  ]}
+
+/>
 
 ### The output is a probability distribution, not a lookup
 
+
+
 This is the most important thing to internalize. The model does not retrieve answers from a database. For every token position, it produces a ranked probability distribution across its possible next tokens. The token actually emitted depends on that distribution and on the sampling strategy, which is why the same prompt can yield different outputs.
 
+
+
 <TokenProbDist
+
   title="Next-token distribution after 'The capital of France is'"
+
   caption="Click Sample to draw a token. Run it several times to see variance at different temperatures."
+
   showTemperature={true}
+
   defaultTemperature={0.8}
+
   highlightTop={1}
+
   candidates={[
+
     { token: "Paris", rawProb: 0.91 },
+
     { token: "Lyon", rawProb: 0.04 },
+
     { token: "a", rawProb: 0.02 },
+
     { token: "the", rawProb: 0.01 },
+
     { token: "France", rawProb: 0.01 },
+
     { token: "located", rawProb: 0.01 },
+
   ]}
+
 />
 
+
+
 </SessionSection>
+
+
 
 <SessionSection id="practical-example" label="Practical Example">
 
+
+
 ## Putting it all together: one complete inference call
 
-You send this prompt: *"What is the capital of France?"* Here is exactly what happens inside the model, from your API call to the first token appearing in the response.
+
+
+You send this prompt: *"What is the capital of France?"* Here is exactly what happens inside the model — from your API call through **one full autoregressive step** (network forward pass to logits, then softmax and sampling) until the first token appears in the response.
+
+
+
+
+
+
 
 <InferenceWalkthrough
+
   title="End-to-end: from question to answer"
+
   caption="Step through each stage of a real LLM inference call."
+
   question="What is the capital of France?"
+
   answer="The capital of France is Paris."
+
   logitCandidates={[
+
     { token: "Paris",   logit: 9.2, rawProb: 0.91 },
+
     { token: "Lyon",    logit: 3.1, rawProb: 0.04 },
+
     { token: "a",       logit: 1.8, rawProb: 0.02 },
+
     { token: "the",     logit: 1.4, rawProb: 0.01 },
+
     { token: "France",  logit: 1.3, rawProb: 0.01 },
+
     { token: "located", logit: 1.2, rawProb: 0.01 },
+
   ]}
+
 />
 
-Notice that at Stage 5, the model samples from the probability distribution rather than always picking the top token. This is temperature at work — covered in detail in the Core Concepts section above with the `TokenProbDist` interactive.
+
 
 </SessionSection>
+
+
 
 <SessionSection id="recap" label="Recap">
 
+
+
 ## What we covered
 
+
+
 <RecapTable
+
   rows={[
+
     { term: "Training", definition: "One-time process of adjusting model weights by predicting next tokens across trillions of examples." },
+
     { term: "Weights", definition: "Frozen numerical parameters that encode the model's knowledge after training finishes." },
-    { term: "Inference", definition: "Running a forward pass on a prompt to generate output tokens one at a time." },
+
+    { term: "Inference", definition: "Serving the model at runtime: repeat a full token step (network forward pass to logits, then softmax and sampling, then append) until the response is complete." },
+
+    { term: "Forward pass", definition: "The deterministic stack from raw text through tokenization, embedding, and transformer layers to logits — one raw score per vocabulary token, before softmax." },
+
+    { term: "Tokenization", definition: "Splitting raw text into subword tokens and mapping each to an integer ID — the very first stage of every forward pass." },
+
+    { term: "Embedding", definition: "Converting token IDs into dense vectors so the transformer can do mathematical operations on meaning." },
+
+    { term: "Transformer", definition: "The N-layer attention-based network that processes the embedded vectors and builds a contextual representation of the full prompt." },
+
     { term: "Logits", definition: "Raw, unnormalized scores the model assigns to every vocabulary token before softmax is applied. Higher logit = higher probability after normalization." },
+
     { term: "Temperature", definition: "Parameter that controls how flat or spiky the token probability distribution is at sampling time." },
+
   ]}
+
 />
 
+
+
 </SessionSection>
+
+
 
 <SessionSection id="next-session" label="Next Session">
 
+
+
 <NextSessionCard
+
   title="Tokens & Context Window"
+
   slug="tokens-context-window"
+
   teaser="You now know the model processes tokens. Next we make those tokens concrete and see how tokenization plus the context window constrain everything from pricing to prompt design."
+
   module={1}
+
 />
 
+
+
 </SessionSection>
+

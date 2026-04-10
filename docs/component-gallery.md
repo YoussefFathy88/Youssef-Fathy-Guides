@@ -199,7 +199,7 @@ interface AgentLoopStepperProps {
 
 ### NodeFlowDiagram
 
-**Description:** Rich flow canvas with optional `groups` and `steps`. `highlightEdges` in each step use `"from→to"`. `sublabel` on nodes is for authoring notes and is not shown on the canvas.
+**Description:** Rich flow canvas with optional `groups` and `steps`. `highlightEdges` in each step use `"from→to"`. `sublabel` on nodes is for authoring notes and is not shown on the canvas. Edge `stepNumber` is accepted for backwards compatibility but is **not rendered** (no on-connector badges); use scripted `steps` and the footer controls for ordering.
 
 ```ts
 type NodeColor = "violet" | "teal" | "amber" | "blue" | "rose" | "gray";
@@ -594,13 +594,15 @@ interface TokenProbDistProps {
 
 ### PipelineTrack
 
-**Description:** Stations per `TrackLine.nodes` (ids); animated dots on solid lines.
+**Description:** Stations per `TrackLine.nodes` (ids); solid lines use a **segment-by-segment** forward token (travel + dwell per hop). Optional `badge` marks junctions (e.g. retrieval). Per-station stroke uses `TrackNode.color`; the rail uses `TrackLine.color`. With **six or more** stations on a line, label/sublabel SVG type uses a **compact** scale (still larger than body copy) so captions stay readable without overlap.
 
 ```ts
 interface TrackNode {
   id: string;
   label: string;
   sublabel?: string;
+  /** Small pill above the station (e.g. external knowledge at Retrieve). */
+  badge?: string;
   color?: "violet" | "teal" | "amber" | "gray" | "blue" | "rose";
 }
 
@@ -750,7 +752,7 @@ interface TransformerLogitsExplainerProps {
 
 ### InferenceWalkthrough
 
-**Description:** Narrated stages from question to final answer.
+**Description:** Narrated stages from question to final answer. The **Network forward (to logits)** stage lists four static rows (raw text → tokenize → embed → transformer); the transformer row notes that **logits** are its output, without duplicating the dedicated Logits / Softmax stages.
 
 ```ts
 interface InferenceWalkthroughCandidate {

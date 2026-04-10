@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(npx tsc:*)",
-      "Bash(powershell -Command \"cd ''C:\\\\Users\\\\youss\\\\Desktop\\\\Youtube Sessions''; npx tsc --noEmit 2>&1 | Select-Object -First 40\")",
-      "Bash(find /c/Users/youss/AppData/Roaming/Claude -type f \\\\\\(-name components.md -o -name component-props.md -o -path *youtube-readable-script* -o -path *session-brief-to-mdx* \\\\\\))"
-    ]
-  }
-}

@@ -612,12 +612,33 @@ export const GALLERY_ITEMS: GalleryItem[] = [
     node: (
       <PipelineTrack
         title="Request path through the stack"
-        caption="Animated tokens move along each track."
+        caption="The token advances one hop at a time (Input → Embed → …), pausing at each station so the forward path reads clearly."
         nodes={[
-          { id: "in", label: "Input", color: "gray" },
-          { id: "embed", label: "Embed", color: "violet" },
-          { id: "retrieve", label: "Retrieve", color: "teal" },
-          { id: "gen", label: "Generate", color: "amber" },
+          {
+            id: "in",
+            label: "Input",
+            sublabel: "User query + system prompt as raw text.",
+            color: "gray",
+          },
+          {
+            id: "embed",
+            label: "Embed",
+            sublabel: "Text → token IDs → dense vectors the model can score.",
+            color: "violet",
+          },
+          {
+            id: "retrieve",
+            label: "Retrieve",
+            badge: "External KB",
+            sublabel: "Vector search pulls chunks; they are merged into context before generation.",
+            color: "teal",
+          },
+          {
+            id: "gen",
+            label: "Generate",
+            sublabel: "Transformer forward pass + sample loop emits the answer tokens.",
+            color: "amber",
+          },
         ]}
         lines={[
           { nodes: ["in", "embed", "retrieve", "gen"], color: "#8b5cf6", label: "RAG path" },

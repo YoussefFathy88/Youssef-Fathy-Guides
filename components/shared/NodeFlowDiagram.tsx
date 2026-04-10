@@ -46,6 +46,7 @@ export interface FlowEdge {
   from: string;
   to: string;
   label?: string;
+  /** @deprecated Ignored at render time; kept so existing MDX props still type-check. */
   stepNumber?: number;
   animated?: boolean; // default: true
   dashed?: boolean;
@@ -927,27 +928,11 @@ export default function NodeFlowDiagram({
                   />
                 )}
 
-                {/* Step number badge */}
-                {edge.stepNumber != null && !edge.isDimmed && (
-                  <g transform={`translate(${edge.mid.x},${edge.mid.y})`}>
-                    <circle r={16} fill="#0f1728" stroke={c.dot} strokeWidth={1.5} />
-                    <text
-                      textAnchor="middle"
-                      dominantBaseline="central"
-                      fontSize={14}
-                      fontWeight="700"
-                      fill={c.dot}
-                    >
-                      {edge.stepNumber}
-                    </text>
-                  </g>
-                )}
-
                 {/* Edge label */}
                 {edge.label && !edge.isDimmed && (
                   <text
                     x={edge.mid.x}
-                    y={edge.mid.y - (edge.stepNumber != null ? 28 : 16)}
+                    y={edge.mid.y - 16}
                     textAnchor="middle"
                     dominantBaseline="central"
                     fontSize={14}

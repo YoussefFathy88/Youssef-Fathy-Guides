@@ -1,14 +1,17 @@
 "use client";
 
 import { motion, useAnimationFrame, useMotionValue, useReducedMotion } from "framer-motion";
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
 export interface TrackNode {
   id: string;
   label: string;
+  /** Short hint shown under the label (always visible at small type). */
   sublabel?: string;
+  /** Optional pill above the station (e.g. "External KB" at Retrieve). */
+  badge?: string;
   color?: "violet" | "teal" | "amber" | "gray" | "blue" | "rose";
 }
 
@@ -65,38 +68,73 @@ const nodeColorMap: Record<string, { ring: string; bg: string; text: string; dot
   },
 };
 
-function TrackDot({
-  lineColor,
-  startX,
-  endX,
+const TRAVEL_MS = 1500;
+const DWELL_MS = 420;
+const LOOP_GAP_MS = 700;
+
+function easeInOutQuad(t: number) {
+  return t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
+}
+
+/** Token moves forward one segment at a time, pausing at each station (clear forward path). */
+function ForwardPathToken({
+  xs,
   y,
-  delay,
+  accentColor,
+  filterId,
 }: {
-  lineColor: string;
-  startX: number;
-  endX: number;
+  xs: number[];
   y: number;
-  delay: number;
+  accentColor: string;
+  filterId: string;
 }) {
   const reducedMotion = useReducedMotion();
-  const cx = useMotionValue(startX);
+  const cx = useMotionValue(xs[0] ?? 0);
 
   useAnimationFrame((time) => {
-    if (reducedMotion) return;
-    const progress = ((time / 2800) + delay) % 1;
-    cx.set(startX + (endX - startX) * progress);
+    if (reducedMotion || xs.length < 2) return;
+    const segments = xs.length - 1;
+    const segmentSpan = TRAVEL_MS + DWELL_MS;
+    const cycle = segments * segmentSpan + LOOP_GAP_MS;
+    const t = time % cycle;
+    if (t >= segments * segmentSpan) {
+      cx.set(xs[segments]);
+      return;
+    }
+    const seg = Math.min(segments - 1, Math.floor(t / segmentSpan));
+    const local = t - seg * segmentSpan;
+    const x0 = xs[seg];
+    const x1 = xs[seg + 1];
+    if (local < TRAVEL_MS) {
+      const u = easeInOutQuad(local / TRAVEL_MS);
+      cx.set(x0 + (x1 - x0) * u);
+    } else {
+      cx.set(x1);
+    }
   });
 
-  if (reducedMotion) return null;
+  if (reducedMotion) {
+    return (
+      <g>
+        <circle cx={xs[0]} cy={y} r={12} fill={accentColor} opacity={0.35} />
+        <circle cx={xs[0]} cy={y} r={7} fill={accentColor} />
+      </g>
+    );
+  }
 
   return (
-    <motion.circle
-      r={5}
-      cx={cx}
-      cy={y}
-      fill={lineColor}
-      opacity={0.9}
-    />
+    <g>
+      <motion.circle
+        r={15}
+        cx={cx}
+        cy={y}
+        fill={accentColor}
+        opacity={0.22}
+        filter={`url(#${filterId})`}
+      />
+      <motion.circle r={10} cx={cx} cy={y} fill={accentColor} opacity={0.95} />
+      <motion.circle r={4} cx={cx} cy={y} fill="white" opacity={0.95} />
+    </g>
   );
 }
 
@@ -110,13 +148,16 @@ export default function PipelineTrack({
   const nodeMap = new Map(nodes.map((n) => [n.id, n]));
   const [tooltip, setTooltip] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const reactId = useId().replace(/:/g, "");
+  const svgUid = `pt-${reactId}`;
+  const glowFilterId = `${svgUid}-glow`;
 
-  const TRACK_HEIGHT = 80;
-  const PADDING_X = 80;
-  const PADDING_Y = 36;
-  const STATION_R = 10;
-  const TRACK_LABEL_HEIGHT = 24;
-  const TRACK_LABEL_WIDTH = 140;
+  const TRACK_HEIGHT = 142;
+  const PADDING_X = 72;
+  const PADDING_Y = 58;
+  const STATION_R = 15;
+  const TRACK_LABEL_HEIGHT = 26;
+  const TRACK_LABEL_MIN_WIDTH = 96;
 
   const totalHeight = lines.length * TRACK_HEIGHT + PADDING_Y * 2;
 
@@ -127,6 +168,7 @@ export default function PipelineTrack({
     const count = stationNodes.length;
     return {
       line,
+      lineIdx,
       y,
       stations: stationNodes.map((node, i) => ({
         node,
@@ -145,9 +187,9 @@ export default function PipelineTrack({
       className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800"
     >
       {(title || caption) && (
-        <div className="mb-5 space-y-1">
-          {title && <h2 className="text-sm font-medium text-gray-900 dark:text-gray-100">{title}</h2>}
-          {caption && <p className="text-xs text-gray-500 dark:text-gray-400">{caption}</p>}
+        <div className="mb-5 space-y-1.5">
+          {title && <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">{title}</h2>}
+          {caption && <p className="text-sm text-gray-500 dark:text-gray-400">{caption}</p>}
         </div>
       )}
 
@@ -165,58 +207,94 @@ export default function PipelineTrack({
           style={{ height: totalHeight }}
           aria-label={title}
         >
-          {lineLayouts.map(({ line, y, stations }) => {
+          <defs>
+            <filter id={glowFilterId} x="-80%" y="-80%" width="260%" height="260%">
+              <feGaussianBlur stdDeviation="4" result="b" />
+              <feMerge>
+                <feMergeNode in="b" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+            {lines.map((line, i) => (
+              <linearGradient
+                key={`grad-${i}`}
+                id={`${svgUid}-rail-${i}`}
+                x1="0%"
+                y1="0%"
+                x2="100%"
+                y2="0%"
+              >
+                <stop offset="0%" stopColor={line.color} stopOpacity={0.35} />
+                <stop offset="35%" stopColor={line.color} stopOpacity={1} />
+                <stop offset="100%" stopColor={line.color} stopOpacity={0.4} />
+              </linearGradient>
+            ))}
+          </defs>
+
+          {lineLayouts.map(({ line, lineIdx, y, stations }) => {
             if (stations.length < 2) return null;
             const x1 = stations[0].x;
             const x2 = stations[stations.length - 1].x;
+            const midX = (x1 + x2) / 2;
+            const labelW = line.label
+              ? Math.max(TRACK_LABEL_MIN_WIDTH, line.label.length * 7.8 + 32)
+              : 0;
 
             return (
-              <g key={`track-${line.label ?? y}`}>
-                {/* Track rail */}
+              <g key={`track-${line.label ?? lineIdx}`}>
                 <line
                   x1={x1}
                   y1={y}
                   x2={x2}
                   y2={y}
-                  stroke={line.color}
+                  stroke="currentColor"
+                  className="text-gray-300 dark:text-gray-700"
+                  strokeWidth={12}
+                  strokeLinecap="round"
+                  opacity={0.55}
+                />
+                <line
+                  x1={x1}
+                  y1={y}
+                  x2={x2}
+                  y2={y}
+                  stroke={line.dashed ? line.color : `url(#${svgUid}-rail-${lineIdx})`}
                   strokeWidth={6}
                   strokeLinecap="round"
-                  strokeDasharray={line.dashed ? "14 8" : undefined}
-                  opacity={0.85}
+                  strokeDasharray={line.dashed ? "14 11" : undefined}
+                  opacity={line.dashed ? 0.65 : 0.92}
                 />
 
-                {/* Animated dot */}
                 {!line.dashed && (
-                  <TrackDot
-                    lineColor={line.color}
-                    startX={x1}
-                    endX={x2}
+                  <ForwardPathToken
+                    xs={stations.map((s) => s.x)}
                     y={y}
-                    delay={lineLayouts.findIndex((l) => l.y === y) * 0.33}
+                    accentColor={line.color}
+                    filterId={glowFilterId}
                   />
                 )}
 
-                {/* Track label on the left */}
                 {line.label && (
                   <>
                     <rect
-                      x={Math.max(12, x1 - TRACK_LABEL_WIDTH / 2)}
-                      y={y - 30}
-                      width={TRACK_LABEL_WIDTH}
+                      x={midX - labelW / 2}
+                      y={y - STATION_R - 52}
+                      width={labelW}
                       height={TRACK_LABEL_HEIGHT}
                       rx={TRACK_LABEL_HEIGHT / 2}
                       fill={line.color}
-                      opacity={0.12}
+                      opacity={0.14}
                     />
                     <text
-                      x={Math.max(12 + TRACK_LABEL_WIDTH / 2, x1)}
-                      y={y - 18}
+                      x={midX}
+                      y={y - STATION_R - 39}
                       textAnchor="middle"
                       dominantBaseline="central"
-                      fontSize={11}
-                      fontWeight={600}
+                      fontSize={12}
+                      fontWeight={700}
+                      letterSpacing={0.02}
                       fill={line.color}
-                      opacity={0.95}
+                      opacity={0.98}
                     >
                       {line.label}
                     </text>
@@ -226,58 +304,102 @@ export default function PipelineTrack({
             );
           })}
 
-          {/* Station circles — rendered above all lines */}
-          {lineLayouts.map(({ line, y, stations }) =>
+          {lineLayouts.map(({ lineIdx, y, stations }) =>
             stations.map(({ node, x }) => {
               const tone = nodeColorMap[node.color ?? "gray"];
-              const isHovered = tooltip === node.id;
+              const compact = stations.length >= 6;
+              const labelFs = compact ? 12 : 14;
+              const subFs = compact ? 9 : 10.5;
+              const tipKey = `${lineIdx}:${node.id}`;
+              const isHovered = tooltip === tipKey;
+              const badge = node.badge;
+              const badgeW = badge
+                ? Math.min(220, Math.max(64, badge.length * 7.2 + 24))
+                : 0;
+              const showTip = !!(node.sublabel || node.badge);
               return (
                 <g
-                  key={`station-${node.id}`}
-                  style={{ cursor: "pointer" }}
-                  onMouseEnter={() => setTooltip(node.id)}
+                  key={`station-${lineIdx}-${node.id}`}
+                  style={{ cursor: showTip ? "pointer" : "default" }}
+                  onMouseEnter={() => showTip && setTooltip(tipKey)}
                   onMouseLeave={() => setTooltip(null)}
-                  onFocus={() => setTooltip(node.id)}
+                  onFocus={() => showTip && setTooltip(tipKey)}
                   onBlur={() => setTooltip(null)}
-                  tabIndex={0}
-                  role="button"
+                  tabIndex={showTip ? 0 : -1}
+                  role={showTip ? "button" : "presentation"}
                   aria-label={node.label}
                 >
-                  {/* Outer glow ring when hovered */}
                   {isHovered && (
                     <circle
                       cx={x}
                       cy={y}
-                      r={STATION_R + 5}
+                      r={STATION_R + 8}
                       fill={tone.dot}
-                      opacity={0.18}
+                      opacity={0.12}
                     />
                   )}
-                  {/* Station circle */}
+                  {badge && (
+                    <>
+                      <rect
+                        x={x - badgeW / 2}
+                        y={y - STATION_R - 36}
+                        width={badgeW}
+                        height={22}
+                        rx={11}
+                        fill={tone.dot}
+                        opacity={0.16}
+                      />
+                      <rect
+                        x={x - badgeW / 2}
+                        y={y - STATION_R - 36}
+                        width={badgeW}
+                        height={22}
+                        rx={11}
+                        fill="none"
+                        stroke={tone.dot}
+                        strokeWidth={1}
+                        opacity={0.45}
+                      />
+                      <text
+                        x={x}
+                        y={y - STATION_R - 25}
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                        fontSize={10.5}
+                        fontWeight={600}
+                        fill={tone.dot}
+                        opacity={0.95}
+                      >
+                        {badge}
+                      </text>
+                    </>
+                  )}
+                  <circle
+                    cx={x}
+                    cy={y}
+                    r={STATION_R + 2}
+                    fill="none"
+                    stroke={tone.dot}
+                    strokeWidth={1}
+                    opacity={0.25}
+                  />
                   <circle
                     cx={x}
                     cy={y}
                     r={STATION_R}
                     fill="white"
-                    stroke={line.color}
-                    strokeWidth={3}
-                    className="dark:fill-gray-900"
+                    stroke={tone.dot}
+                    strokeWidth={3.25}
+                    className="dark:fill-gray-950"
                   />
-                  <circle
-                    cx={x}
-                    cy={y}
-                    r={STATION_R - 4}
-                    fill={line.color}
-                    opacity={0.85}
-                  />
-                  {/* Node label below station */}
+                  <circle cx={x} cy={y} r={4.5} fill={tone.dot} opacity={0.92} />
                   <text
                     x={x}
-                    y={y + STATION_R + 14}
+                    y={y + STATION_R + 18}
                     textAnchor="middle"
-                    fontSize={11}
-                    fontWeight={600}
-                    className="fill-gray-800 dark:fill-gray-200"
+                    fontSize={labelFs}
+                    fontWeight={700}
+                    className="fill-gray-800 dark:fill-gray-100"
                     fill="currentColor"
                   >
                     {node.label}
@@ -285,9 +407,9 @@ export default function PipelineTrack({
                   {node.sublabel && (
                     <text
                       x={x}
-                      y={y + STATION_R + 26}
+                      y={y + STATION_R + (compact ? 32 : 36)}
                       textAnchor="middle"
-                      fontSize={9.5}
+                      fontSize={subFs}
                       className="fill-gray-500 dark:fill-gray-400"
                       fill="currentColor"
                     >
@@ -302,36 +424,44 @@ export default function PipelineTrack({
 
         {/* Tooltip — rendered as HTML over the SVG for crisp text */}
         {tooltip && (() => {
-          const node = nodeMap.get(tooltip);
-          if (!node?.sublabel) return null;
-          // Find station position
-          for (const { stations, y } of lineLayouts) {
-            const st = stations.find((s) => s.node.id === tooltip);
-            if (st) {
-              const pctX = (st.x / 800) * 100;
-              const showBelow = y < 64;
-              const tone = nodeColorMap[node.color ?? "gray"];
-              return (
-                <div
-                  key="tooltip"
-                  className={cn(
-                    "pointer-events-none absolute z-10 max-w-[220px] -translate-x-1/2 rounded-xl border px-3 py-2 shadow-lg",
-                    showBelow ? "translate-y-0" : "-translate-y-full",
-                    tone.bg,
-                    tone.ring.replace("ring-", "border-").split(" ")[0],
-                  )}
-                  style={{
-                    left: `${pctX}%`,
-                    top: showBelow ? y + STATION_R + 12 : y - STATION_R - 12,
-                  }}
-                >
-                  <p className={cn("text-xs font-semibold", tone.text)}>{node.label}</p>
-                  <p className="mt-0.5 text-[11px] leading-snug text-gray-600 dark:text-gray-400">{node.sublabel}</p>
-                </div>
-              );
-            }
-          }
-          return null;
+          const sep = tooltip.indexOf(":");
+          const nodeId = sep >= 0 ? tooltip.slice(sep + 1) : tooltip;
+          const lineIdxParsed = sep >= 0 ? Number(tooltip.slice(0, sep)) : 0;
+          const node = nodeMap.get(nodeId);
+          if (!node?.sublabel && !node?.badge) return null;
+          const layout = lineLayouts[lineIdxParsed];
+          if (!layout) return null;
+          const st = layout.stations.find((s) => s.node.id === nodeId);
+          if (!st) return null;
+          const { y } = layout;
+          const pctX = (st.x / 800) * 100;
+          const showBelow = y < 95;
+          const tone = nodeColorMap[node.color ?? "gray"];
+          return (
+            <div
+              key="tooltip"
+              className={cn(
+                "pointer-events-none absolute z-10 max-w-[260px] -translate-x-1/2 rounded-xl border px-3.5 py-2.5 shadow-lg",
+                showBelow ? "translate-y-0" : "-translate-y-full",
+                tone.bg,
+                tone.ring.replace("ring-", "border-").split(" ")[0],
+              )}
+              style={{
+                left: `${pctX}%`,
+                top: showBelow ? y + STATION_R + 42 : y - STATION_R - 14,
+              }}
+            >
+              <p className={cn("text-sm font-semibold", tone.text)}>{node.label}</p>
+              {node.badge && (
+                <p className="mt-1 text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                  {node.badge}
+                </p>
+              )}
+              {node.sublabel && (
+                <p className="mt-0.5 text-[13px] leading-snug text-gray-600 dark:text-gray-400">{node.sublabel}</p>
+              )}
+            </div>
+          );
         })()}
       </div>
     </motion.div>

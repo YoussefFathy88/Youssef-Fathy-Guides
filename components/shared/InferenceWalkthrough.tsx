@@ -40,8 +40,9 @@ const stages = [
     tone: "gray",
   },
   {
-    label: "Forward pass",
-    description: "The prompt representation flows through each transformer layer.",
+    label: "Network forward (to logits)",
+    description:
+      "Raw text → tokenize → embed → transformer. The stack outputs logits (covered next); softmax and sampling follow in the stages after.",
     tone: "teal",
   },
   {
@@ -162,6 +163,78 @@ function ScoreBars({
           </div>
         );
       })}
+    </div>
+  );
+}
+
+const FORWARD_PASS_ROWS = [
+  {
+    label: "Raw Text",
+    sublabel: "Your prompt string",
+    symbol: "prompt",
+    border: "border-gray-200 dark:border-gray-600",
+    bg: "bg-gray-50 dark:bg-gray-800/70",
+  },
+  {
+    label: "Tokenize",
+    sublabel: "Text → integer token IDs",
+    symbol: "token_ids[]",
+    border: "border-slate-200 dark:border-slate-600",
+    bg: "bg-slate-50 dark:bg-slate-900/50",
+  },
+  {
+    label: "Embed",
+    sublabel: "IDs → dense vectors",
+    symbol: "h₀",
+    border: "border-teal-200 dark:border-teal-500/30",
+    bg: "bg-teal-50 dark:bg-teal-500/10",
+  },
+  {
+    label: "Transformer",
+    sublabel: "N layers of attention + FFN — logits produced (one score per vocab token)",
+    symbol: "h_L → z",
+    border: "border-cyan-200 dark:border-cyan-500/30",
+    bg: "bg-cyan-50 dark:bg-cyan-950/40",
+  },
+] as const;
+
+function ForwardPassPipeline({ promptText }: { promptText: string }) {
+  return (
+    <div className="space-y-4">
+      <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/70">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Active context</p>
+        <p className="mt-2 font-mono text-sm text-gray-900 dark:text-gray-100">{promptText}</p>
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+          Forward pass — full pipeline
+        </p>
+        <div className="space-y-2">
+          {FORWARD_PASS_ROWS.map((row) => (
+            <div
+              key={row.label}
+              className={cn(
+                "rounded-2xl border px-3.5 py-2.5",
+                row.border,
+                row.bg,
+              )}
+            >
+              <div className="flex flex-col gap-0.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                <div className="min-w-0">
+                  <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{row.label}</span>
+                  <span className="mt-0.5 block text-[10px] leading-snug text-gray-500 dark:text-gray-400 sm:mt-0 sm:inline sm:pl-2">
+                    — {row.sublabel}
+                  </span>
+                </div>
+                <span className="shrink-0 font-mono text-[11px] font-medium tabular-nums text-gray-600 dark:text-gray-300">
+                  {row.symbol}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -330,64 +403,7 @@ export default function InferenceWalkthrough({
   }
 
   function renderForwardPassStage() {
-    const layers = ["Embedding + positions", "Transformer layer 1", "Transformer layer 2", "Transformer layer N"];
-
-    return (
-      <div className="space-y-4">
-        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/70">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
-            Active context
-          </p>
-          <p className="mt-2 font-mono text-sm text-gray-900 dark:text-gray-100">
-            {question}
-          </p>
-        </div>
-
-        <div className="space-y-3">
-          {layers.map((layer, index) => (
-            <div
-              key={layer}
-              className="relative overflow-hidden rounded-2xl border border-teal-200 bg-teal-50 px-4 py-3 dark:border-teal-500/30 dark:bg-teal-500/10"
-            >
-              <div className="relative z-10 flex items-center justify-between gap-3">
-                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                  {layer}
-                </span>
-                <span className="font-mono text-[11px] text-teal-700 dark:text-teal-300">
-                  h_{index + 1}
-                </span>
-              </div>
-              {!reducedMotion ? (
-                <span
-                  className="layer-pulse absolute inset-y-1 left-0 w-24 rounded-full bg-gradient-to-r from-transparent via-teal-400/70 to-transparent"
-                  style={{ animationDelay: `${index * 0.18}s` }}
-                />
-              ) : null}
-            </div>
-          ))}
-        </div>
-
-        <style jsx>{`
-          .layer-pulse {
-            animation: layer-sweep 1.65s ease-in-out infinite;
-          }
-
-          @keyframes layer-sweep {
-            0% {
-              opacity: 0;
-              transform: translateX(-30%);
-            }
-            35% {
-              opacity: 1;
-            }
-            100% {
-              opacity: 0;
-              transform: translateX(520%);
-            }
-          }
-        `}</style>
-      </div>
-    );
+    return <ForwardPassPipeline promptText={question} />;
   }
 
   function renderDistributionStage(mode: "logits" | "probabilities") {
