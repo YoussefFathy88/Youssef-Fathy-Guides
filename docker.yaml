@@ -10,6 +10,8 @@ services:
       - /app/node_modules
       # Host .next (e.g. from Windows) must not be used inside Linux — breaks dev routing (404s on most routes).
       - /app/.next
+      # Huge compose logs showing "fdprocessedid" on <button> vs missing on server HTML are usually browser
+      # extensions (password managers) mutating the DOM — hydration mismatch noise, not the Node server.
     environment:
       WATCHPACK_POLLING: "true"
     command: npm run dev -- --hostname 0.0.0.0 --port 3000

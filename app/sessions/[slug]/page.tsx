@@ -273,7 +273,14 @@ export async function generateMetadata({
       },
       description: frontmatter.title,
     };
-  } catch {
+  } catch (error) {
+    if (process.env.NODE_ENV === "development") {
+      console.error(
+        `[sessions route] generateMetadata failed for slug "${slug}":`,
+        error instanceof Error ? error.message : error,
+        error instanceof Error ? error.stack : "",
+      );
+    }
     return {
       title: {
         absolute: "Session Not Found - GenAI from the Ground Up",
@@ -351,7 +358,14 @@ export default async function SessionPage({ params, searchParams }: SessionPageP
         </Container>
       </main>
     );
-  } catch {
+  } catch (error) {
+    if (process.env.NODE_ENV === "development") {
+      console.error(
+        `[sessions route] SessionPage failed for slug "${slug}" (returning 404; see error below):`,
+        error instanceof Error ? error.message : error,
+        error instanceof Error ? error.stack : "",
+      );
+    }
     return notFound();
   }
 }
