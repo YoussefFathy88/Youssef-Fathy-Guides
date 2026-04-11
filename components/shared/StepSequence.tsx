@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -21,6 +21,13 @@ export interface NarrativeSequenceStep {
   description: string;
   highlight?: "shared" | "inside" | "outside" | "contrast";
   detail: string;
+  /** Shown below animated detail after all floats finish revealing (only when `animateDetail` is true). */
+  detailNote?: string;
+  /**
+   * When true, expanding the step reveals float literals in `detail` left-to-right (60ms apart);
+   * unrevealed floats show as "···". Defaults to false when omitted.
+   */
+  animateDetail?: boolean;
 }
 
 export interface StepSequenceProps {
@@ -124,6 +131,111 @@ const highlightToColor: Record<
   outside: "teal",
   contrast: "amber",
 };
+
+/** Matches float literals in narrative `detail` strings for `animateDetail` reveal. */
+const DETAIL_FLOAT_PATTERN = /-?[0-9]+\.[0-9]+/g;
+
+type NarrativeDetailSegment =
+  | { type: "text"; value: string }
+  | { type: "num"; value: string; index: number };
+
+function splitNarrativeDetailSegments(detail: string): NarrativeDetailSegment[] {
+  const re = new RegExp(DETAIL_FLOAT_PATTERN.source, "g");
+  const out: NarrativeDetailSegment[] = [];
+  let last = 0;
+  let numIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(detail)) !== null) {
+    if (m.index > last) {
+      out.push({ type: "text", value: detail.slice(last, m.index) });
+    }
+    out.push({ type: "num", value: m[0], index: numIndex++ });
+    last = m.index + m[0].length;
+  }
+  if (last < detail.length) {
+    out.push({ type: "text", value: detail.slice(last) });
+  }
+  return out;
+}
+
+function NarrativeAnimatedDetailLine({
+  detail,
+  detailNote,
+  isActive,
+  reducedMotion,
+  monoClassName,
+}: {
+  detail: string;
+  detailNote?: string;
+  isActive: boolean;
+  reducedMotion: boolean | null;
+  monoClassName: string;
+}) {
+  const segments = useMemo(() => splitNarrativeDetailSegments(detail), [detail]);
+  const floatCount = useMemo(
+    () => segments.filter((s) => s.type === "num").length,
+    [segments],
+  );
+
+  const [revealedFloats, setRevealedFloats] = useState(0);
+  const [noteVisible, setNoteVisible] = useState(false);
+
+  useEffect(() => {
+    if (!isActive) {
+      setRevealedFloats(0);
+      setNoteVisible(false);
+      return;
+    }
+    if (reducedMotion) {
+      setRevealedFloats(floatCount);
+      setNoteVisible(Boolean(detailNote));
+      return;
+    }
+    setRevealedFloats(0);
+    setNoteVisible(false);
+    if (floatCount === 0) {
+      if (detailNote) setNoteVisible(true);
+      return;
+    }
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    for (let i = 1; i <= floatCount; i++) {
+      timers.push(setTimeout(() => setRevealedFloats(i), 60 * i));
+    }
+    if (detailNote) {
+      timers.push(setTimeout(() => setNoteVisible(true), 60 * floatCount + 80));
+    }
+    return () => timers.forEach(clearTimeout);
+  }, [isActive, reducedMotion, floatCount, detailNote, detail]);
+
+  return (
+    <>
+      <p className={monoClassName}>
+        {segments.map((seg, i) =>
+          seg.type === "text" ? (
+            <span key={i}>{seg.value}</span>
+          ) : (
+            <span
+              key={i}
+              className="inline-block transition-opacity duration-200 ease-out tabular-nums"
+            >
+              {seg.index < revealedFloats ? seg.value : "···"}
+            </span>
+          ),
+        )}
+      </p>
+      {detailNote ? (
+        <p
+          className={cn(
+            "mt-1.5 text-[11px] leading-relaxed text-gray-600 transition-opacity duration-300 ease-out dark:text-gray-400",
+            noteVisible ? "opacity-100" : "opacity-0",
+          )}
+        >
+          {detailNote}
+        </p>
+      ) : null}
+    </>
+  );
+}
 
 function NarrativeVerticalSequence({
   steps = [],
@@ -240,9 +352,19 @@ function NarrativeVerticalSequence({
                     <p className="mt-2 text-xs leading-relaxed text-gray-600 dark:text-gray-400">
                       {step.description}
                     </p>
-                    <p className="mt-2 border-t border-gray-200 pt-2 font-mono text-[11px] leading-relaxed text-gray-700 dark:border-gray-600 dark:text-gray-300">
-                      {step.detail}
-                    </p>
+                    {step.animateDetail ? (
+                      <NarrativeAnimatedDetailLine
+                        detail={step.detail}
+                        detailNote={step.detailNote}
+                        isActive={isActive}
+                        reducedMotion={reducedMotion}
+                        monoClassName="mt-2 border-t border-gray-200 pt-2 font-mono text-[11px] leading-relaxed text-gray-700 dark:border-gray-600 dark:text-gray-300"
+                      />
+                    ) : (
+                      <p className="mt-2 border-t border-gray-200 pt-2 font-mono text-[11px] leading-relaxed text-gray-700 dark:border-gray-600 dark:text-gray-300">
+                        {step.detail}
+                      </p>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>

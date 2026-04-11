@@ -76,91 +76,117 @@ Tokenizers use Byte-Pair Encoding (BPE) -- a compression algorithm that learns c
   caption="Each colored chip is one token. Click any chip to see its integer ID and character span. Switch between examples to see how Arabic, code, and URLs compare to English prose."
 />
 
-### The same information costs different amounts depending on how you write it
-
-English prose is the baseline -- the tokenizer was trained mostly on English, so common words map cleanly to single tokens. Everything else costs more. The slider below shows the token-per-word multiplier for five content types. Select each one to see a concrete sentence with its real token count, so you can see exactly what your format choices cost before you write a single line of code.
-
-<ParameterSlider
-  label="Content type"
-  min={1}
-  max={5}
-  step={1}
-  defaultValue={1}
-  states={[
-    {
-      value: 1,
-      label: "English prose — 1.0× baseline",
-      description: "The tokenizer was trained mostly on English text. Common words map one-to-one with tokens. This is the cheapest content type you will ever send to the API.",
-      highlight: "~1 token per word",
-      examples: [
-        "\"The model processes text\" → 5 tokens for 4 words (1.25×)",
-        "\"How are you today\" → 4 tokens for 4 words (1.0×)",
-        "\"The quick brown fox jumped\" → 6 tokens for 5 words (1.2×)"
-      ]
-    },
-    {
-      value: 2,
-      label: "Technical documentation — 1.3× baseline",
-      description: "Uncommon terms, abbreviations, and compound nouns start to split. 'OAuth2' becomes two tokens. 'serialization' may split into 'serial' + 'ization'. Still close to English, but the bill creeps up.",
-      highlight: "~1.3 tokens per word",
-      examples: [
-        "\"API endpoint configuration\" → 5 tokens for 3 words (1.67×)",
-        "\"JSON serialization schema\" → 6 tokens for 3 words (2.0×)",
-        "\"OAuth2 authentication flow\" → 5 tokens for 3 words (1.67×)"
-      ]
-    },
-    {
-      value: 3,
-      label: "Source code — 1.5–2× baseline",
-      description: "Camel-case identifiers split at every capital letter. Indentation whitespace adds tokens. A function name like getUserById becomes four tokens: get · User · By · Id. Every extra split is an extra token you pay for.",
-      highlight: "~1.5–2 tokens per word",
-      examples: [
-        "\"getUserById\" → 4 tokens (get · User · By · Id)",
-        "\"handleApiResponse\" → 4 tokens (handle · Api · Response)",
-        "\"const isLoading = false\" → 7 tokens for 4 words (1.75×)"
-      ]
-    },
-    {
-      value: 4,
-      label: "URLs and file paths — 3–4× baseline",
-      description: "Every slash, dot, and hyphen is its own token. The tokenizer has no concept of URL structure — it sees a long chain of punctuation. A short API path costs as many tokens as a full sentence of English prose.",
-      highlight: "~3–4 tokens per character cluster",
-      examples: [
-        "\"/api/v2/users/profile\" → 9 tokens for 20 characters",
-        "\"https://example.com/auth\" → 8 tokens",
-        "\"./src/components/Button\" → 9 tokens"
-      ]
-    },
-    {
-      value: 5,
-      label: "Non-English text — 2–4× baseline",
-      description: "The tokenizer saw mostly English during training. Arabic, Chinese, and Thai have far less vocabulary coverage, so each word fragments into many subword pieces. Sending the same information in Arabic costs 3–4× what English costs.",
-      highlight: "2–4× more tokens per word vs English",
-      examples: [
-        "Arabic sentence (~8 words) → ~32 tokens vs ~8 tokens in English (4.0×)",
-        "Chinese: each character becomes 2–3 tokens on average (2.5×)",
-        "German compound words split more than English equivalents (1.5–2×)"
-      ]
-    }
-  ]}
-/>
 
 ### The context window is the model's working memory
 
 The context window is the total number of tokens the model can see at once -- your system prompt, conversation history, retrieved documents, and the current message all count toward it. When you exceed the limit, either the API errors or old content gets truncated.
 
 <ContextWindowFiller
-  title="What fills the context window -- toggle blocks on and off"
-  caption="Toggle each block to see how different content types compete for the same fixed space"
-  windowSize={128000}
+  title="What fills the context window — toggle blocks on and off"
+  caption="Toggle each block to see how different content types compete for the same fixed space. Window size reflects Claude Sonnet 4's actual 200k token limit."
+  windowSize={200000}
   costPer1kTokens={0.003}
   blocks={[
-    { id: "system",     label: "System prompt",           tokens: 420,   color: "gray",   defaultOn: true,  icon: "⚙️",  description: "Instructions, persona, constraints" },
-    { id: "few-shot",   label: "Few-shot examples",       tokens: 2800,  color: "violet", defaultOn: false, icon: "📋",  description: "3 example input/output pairs" },
-    { id: "history",    label: "Conversation history",    tokens: 14000, color: "amber",  defaultOn: false, icon: "💬",  description: "10 turns of back-and-forth" },
-    { id: "rag-chunks", label: "Retrieved chunks",        tokens: 3200,  color: "teal",   defaultOn: false, icon: "📄",  description: "Top-5 RAG chunks at 640 tokens each" },
-    { id: "contract",   label: "Full document (contract)", tokens: 22000, color: "rose",  defaultOn: false, icon: "📑",  description: "A 17,000-word legal contract" },
-    { id: "message",    label: "Current message",         tokens: 180,   color: "blue",   defaultOn: true,  icon: "✏️",  description: "The user's current question" },
+    { id: "system",     label: "System prompt",             tokens: 420,   color: "gray",   defaultOn: true,  icon: "⚙️",  description: "Instructions, persona, constraints" },
+    { id: "few-shot",   label: "Few-shot examples",         tokens: 2800,  color: "violet", defaultOn: false, icon: "📋",  description: "3 example input/output pairs" },
+    { id: "history",    label: "Conversation history",      tokens: 14000, color: "amber",  defaultOn: false, icon: "💬",  description: "10 turns of back-and-forth" },
+    { id: "rag-chunks", label: "Retrieved chunks",          tokens: 3200,  color: "teal",   defaultOn: false, icon: "📄",  description: "Top-5 RAG chunks at 640 tokens each" },
+    { id: "contract",   label: "Full document (contract)",  tokens: 22000, color: "rose",   defaultOn: false, icon: "📑",  description: "A 17,000-word legal contract" },
+    { id: "codebase",   label: "Medium codebase snapshot",  tokens: 80000, color: "violet", defaultOn: false, icon: "💻",  description: "~60,000 words of source code across 40 files" },
+    { id: "message",    label: "Current message",           tokens: 180,   color: "blue",   defaultOn: true,  icon: "✏️",  description: "The user's current question" },
+  ]}
+/>
+
+### When the context fills up, Claude Code compresses it with `/compact`
+
+In AI Agents (ex: Claude Code / Cursor), your terminal conversation is also a context window. Every file you read, every command output, every back-and-forth with the agent accumulates tokens. When the window approaches its limit, Claude Code offers a `/compact` command — it summarizes the entire conversation history into a condensed handoff block, then continues from that summary instead of the raw transcript. You keep full working continuity; the token count resets to a fraction of what it was.
+
+<CompactCommandSimulator
+  title="/compact in Claude Code — watch a full context get compressed into a summary handoff"
+  caption="Press Next Step to advance through the compression. Watch the token bar drain and the summary block build line by line."
+  windowSize={200000}
+  steps={[
+    {
+      id: "s1",
+      label: "Step 1 — Session starts fresh",
+      caption: "A new Claude Code session opens. The context window is empty. The agent is ready for instructions.",
+      blocks: [],
+      tokenCount: 0,
+      sideNote: "0 / 200,000 tokens used",
+      phase: "normal"
+    },
+    {
+      id: "s2",
+      label: "Step 2 — Files and commands accumulate",
+      caption: "You ask Claude Code to read three source files, run the test suite, and explain a failing test. Each operation dumps output into the context.",
+      blocks: [
+        { id: "files",   label: "3 source files read",          tokens: 18400, color: "teal"   },
+        { id: "tests",   label: "Test runner output",           tokens: 6200,  color: "amber"  },
+        { id: "history", label: "Conversation (12 turns)",      tokens: 9100,  color: "gray"   }
+      ],
+      tokenCount: 33700,
+      sideNote: "33,700 / 200,000 tokens — 17% full",
+      phase: "normal"
+    },
+    {
+      id: "s3",
+      label: "Step 3 — Deep refactor session, context grows",
+      caption: "An hour later: more files, more diffs, more explanations. The refactor touched 11 files. Context is now carrying the full edit history.",
+      blocks: [
+        { id: "files",    label: "3 source files read",          tokens: 18400, color: "teal"   },
+        { id: "tests",    label: "Test runner output",           tokens: 6200,  color: "amber"  },
+        { id: "history",  label: "Conversation (12 turns)",      tokens: 9100,  color: "gray"   },
+        { id: "diffs",    label: "11 file diffs applied",        tokens: 31500, color: "violet" },
+        { id: "moreconv", label: "Conversation (31 more turns)", tokens: 27800, color: "gray"   },
+        { id: "newfiles", label: "8 additional files read",      tokens: 44200, color: "teal"   }
+      ],
+      tokenCount: 137200,
+      sideNote: "137,200 / 200,000 tokens — 69% full",
+      phase: "warning"
+    },
+    {
+      id: "s4",
+      label: "Step 4 — Claude Code warns: context is nearly full",
+      caption: "Claude Code detects the window is approaching its limit and surfaces a warning. You can run /compact now or risk losing older context on the next large response.",
+      blocks: [
+        { id: "files",    label: "3 source files read",          tokens: 18400, color: "teal"   },
+        { id: "tests",    label: "Test runner output",           tokens: 6200,  color: "amber"  },
+        { id: "history",  label: "Conversation (12 turns)",      tokens: 9100,  color: "gray"   },
+        { id: "diffs",    label: "11 file diffs applied",        tokens: 31500, color: "violet" },
+        { id: "moreconv", label: "Conversation (31 more turns)", tokens: 27800, color: "gray"   },
+        { id: "newfiles", label: "8 additional files read",      tokens: 44200, color: "teal"   }
+      ],
+      tokenCount: 137200,
+      sideNote: "⚠️ Context window 69% full — /compact recommended",
+      phase: "warning"
+    },
+    {
+      id: "s5",
+      label: "Step 5 — You run /compact",
+      caption: "You type /compact. Claude Code reads the entire conversation and generates a structured summary: goals, decisions made, files changed, current state, next steps. This summary replaces the raw history.",
+      blocks: [
+        { id: "files",    label: "3 source files read",          tokens: 18400, color: "teal"   },
+        { id: "tests",    label: "Test runner output",           tokens: 6200,  color: "amber"  },
+        { id: "history",  label: "Conversation (12 turns)",      tokens: 9100,  color: "gray"   },
+        { id: "diffs",    label: "11 file diffs applied",        tokens: 31500, color: "violet" },
+        { id: "moreconv", label: "Conversation (31 more turns)", tokens: 27800, color: "gray"   },
+        { id: "newfiles", label: "8 additional files read",      tokens: 44200, color: "teal"   }
+      ],
+      tokenCount: 137200,
+      sideNote: "Compressing… generating structured summary",
+      phase: "compressing"
+    },
+    {
+      id: "s6",
+      label: "Step 6 — Context replaced with compact summary",
+      caption: "The raw transcript is gone. In its place: a 3,200-token summary block containing everything the agent needs to continue. Token count drops from 137,200 to 3,200. The session continues with full context awareness.",
+      blocks: [
+        { id: "summary", label: "Compact summary (goals, decisions, file changes, next steps)", tokens: 3200, color: "blue" }
+      ],
+      tokenCount: 3200,
+      sideNote: "✅ 3,200 / 200,000 tokens — context reset, continuity preserved",
+      phase: "compacted"
+    }
   ]}
 />
 
@@ -173,78 +199,151 @@ The context window is the total number of tokens the model can see at once -- yo
 
 <SessionSection id="practical-example" label="Practical Example">
 
-## Why a legal AI assistant keeps hitting context limits
+## Why Cursor can't just paste your whole codebase into the prompt
 
-A law firm builds a contract review tool. Lawyers paste full contracts -- often 15,000 words -- plus a detailed system prompt and conversation history. At roughly 1.3 tokens per word for technical text, a 15,000-word contract alone is around 20,000 tokens. Add a 1,000-token system prompt and five turns of history and the team regularly hits the limit on smaller models. Step through the simulation below to watch the token bar fill in real time -- and see exactly what the fix looks like.
+A developer opens Cursor on a mid-sized production codebase — 400 files, roughly 1,800 functions. The naive approach would be to dump the entire codebase into the context window before every question. The problem: the code files in a mid-sized company add up to at least 750,000 tokens — far beyond any single context window. Even if a model supported it, sending 750,000 tokens on every question would be slow and expensive. Cursor solves this with the same pattern you'll learn in the RAG session: index the codebase as semantic chunks, then retrieve only the relevant ones per query. **Retrieval keeps each question small, but chat history and tool output still accumulate** in the same thread. When usage gets too high, the product can **run compact automatically** (or you can trigger `/compact`) so the long transcript collapses into a short summary handoff. One simulation below walks through retrieval, then the same auth-debugging thread growing, then automatic compact.
 
 <ContextLimitSimulator
-  title="Contract review tool: watch the context window fill up — then see the fix"
-  caption="Press Next Step to advance. Watch the token bar and running total update at each stage."
-  windowSize={128000}
+  title="Cursor context: retrieval, growing history, then automatic compact"
+  caption="Press Next Step. The first steps use the wide segmented bar; when history swamps the window, the view switches to a stacked context list with a compress sweep, then a single summary row."
+  windowSize={200000}
   steps={[
     {
       id: "s1",
-      label: "Step 1 — Lawyer pastes the full contract",
-      caption: "A 15,000-word merger agreement lands in the input box. At 1.3 tokens per word for legal text, this is 20,000 tokens before anything else enters the context.",
+      label: "Step 1 — Developer opens a 400-file codebase",
+      caption: "A mid-sized React + Node.js project: 400 files, ~1,800 functions, ~180,000 lines. The total codebase is roughly 750,000 tokens. No AI tool can fit this in one context window — so it is never sent whole.",
       blocks: [
-        { id: "contract", label: "Contract (20,000 tokens)", tokens: 20000, color: "rose" }
+        { id: "codebase", label: "Entire codebase — 750,000 tokens (does NOT fit)", tokens: 200000, color: "rose" }
       ],
-      sideNote: null,
-      errorState: false,
+      sideNote: "❌ 750,000 tokens — 3.75× over the 200k window limit",
+      errorState: true,
       resetBar: false
     },
     {
       id: "s2",
-      label: "Step 2 — System prompt loads",
-      caption: "The app prepends a 1,000-token system prompt: role instructions, output format rules, jurisdiction notes, and disclaimers. Running total: 21,000 tokens.",
-      blocks: [
-        { id: "contract", label: "Contract (20,000 tokens)", tokens: 20000, color: "rose" },
-        { id: "system",   label: "System prompt (1,000 tokens)", tokens: 1000, color: "gray" }
-      ],
-      sideNote: "21,000 / 128,000 tokens used",
+      label: "Step 2 — Cursor indexes the codebase at semantic chunk boundaries",
+      caption: "At indexing time, Cursor splits every file at function and class boundaries — not arbitrary line counts. Each chunk is ~60–120 lines of real code. The chunks are embedded and stored in a vector index. No source code leaves your machine at this stage.",
+      blocks: [],
+      sideNote: "Indexing complete — 400 files split into ~2,400 semantic chunks",
       errorState: false,
-      resetBar: false
+      resetBar: true
     },
     {
       id: "s3",
-      label: "Step 3 — Conversation history accumulates",
-      caption: "Five back-and-forth turns from earlier in the session add another 4,000 tokens. Running total: 25,000. Still under a 128k limit — but already over a 16k or 32k model.",
+      label: "Step 3 — Developer asks: \"Why is the auth token expiring early?\"",
+      caption: "The question is converted to an embedding vector. Cursor queries the vector index for the most semantically similar code chunks. It returns the top matches ranked by similarity — auth middleware, token refresh logic, session config. Only those chunks leave your machine.",
       blocks: [
-        { id: "contract", label: "Contract (20,000 tokens)", tokens: 20000, color: "rose" },
-        { id: "system",   label: "System prompt (1,000 tokens)", tokens: 1000, color: "gray" },
-        { id: "history",  label: "Chat history (4,000 tokens)", tokens: 4000, color: "amber" }
+        { id: "query", label: "Query embedding + system prompt", tokens: 1100, color: "gray" }
       ],
-      sideNote: "⚠️ 25,000 tokens — over 16k and 32k model limits",
+      sideNote: "1,100 / 200,000 tokens — retrieval in progress",
       errorState: false,
       resetBar: false
     },
     {
       id: "s4",
-      label: "Step 4 — Context limit hit on a smaller model",
-      caption: "The lawyer submits a question. The API returns context_length_exceeded. The app either crashes or silently truncates the oldest content — dropping part of the contract the answer depended on.",
+      label: "Step 4 — Top 5 relevant chunks retrieved and injected",
+      caption: "Cursor injects the 5 highest-ranked chunks into the context: the JWT middleware (410 tokens), the token refresh handler (380 tokens), the session config (290 tokens), the auth route entry point (340 tokens), and the expiry utility function (260 tokens). Total retrieved: 1,680 tokens.",
       blocks: [
-        { id: "contract", label: "Contract (20,000 tokens)", tokens: 20000, color: "rose" },
-        { id: "system",   label: "System prompt (1,000 tokens)", tokens: 1000, color: "gray" },
-        { id: "history",  label: "Chat history (4,000 tokens)", tokens: 4000, color: "amber" }
+        { id: "query",   label: "Query + system prompt",             tokens: 1100, color: "gray"   },
+        { id: "chunk1",  label: "JWT middleware — verifyToken()",    tokens: 410,  color: "teal"   },
+        { id: "chunk2",  label: "Token refresh handler",             tokens: 380,  color: "teal"   },
+        { id: "chunk3",  label: "Session config — expiresIn field",  tokens: 290,  color: "teal"   },
+        { id: "chunk4",  label: "Auth route — /api/auth/login",      tokens: 340,  color: "teal"   },
+        { id: "chunk5",  label: "Expiry utility — getTokenExpiry()", tokens: 260,  color: "teal"   }
       ],
-      sideNote: "❌ context_length_exceeded — API error or silent truncation",
-      errorState: true,
+      sideNote: "2,780 / 200,000 tokens — 5 chunks retrieved",
+      errorState: false,
       resetBar: false
     },
     {
       id: "s5",
-      label: "Step 5 — Fix: chunk the contract, retrieve only what's needed",
-      caption: "The contract is split into 500-token sections at indexing time. Each question triggers a search over those sections. Only the 3 most relevant chunks (~1,920 tokens) enter the context instead of all 20,000. The limit is never approached.",
+      label: "Step 5 — Conversation history appended",
+      caption: "The current chat thread (4 prior turns) adds another 2,100 tokens. The model now sees: system prompt, conversation history, and the 5 retrieved chunks. It has exactly the context it needs to answer — nothing else.",
       blocks: [
-        { id: "system",  label: "System prompt (1,000 tokens)", tokens: 1000, color: "gray" },
-        { id: "history", label: "Chat history (4,000 tokens)",  tokens: 4000, color: "amber" },
-        { id: "chunk1",  label: "Chunk 1 — Liability clause (640 tokens)", tokens: 640, color: "teal" },
-        { id: "chunk2",  label: "Chunk 2 — Termination terms (640 tokens)", tokens: 640, color: "teal" },
-        { id: "chunk3",  label: "Chunk 3 — Payment schedule (640 tokens)",  tokens: 640, color: "teal" }
+        { id: "query",   label: "Query + system prompt",             tokens: 1100, color: "gray"   },
+        { id: "history", label: "Chat history (4 turns)",            tokens: 2100, color: "amber"  },
+        { id: "chunk1",  label: "JWT middleware — verifyToken()",    tokens: 410,  color: "teal"   },
+        { id: "chunk2",  label: "Token refresh handler",             tokens: 380,  color: "teal"   },
+        { id: "chunk3",  label: "Session config — expiresIn field",  tokens: 290,  color: "teal"   },
+        { id: "chunk4",  label: "Auth route — /api/auth/login",      tokens: 340,  color: "teal"   },
+        { id: "chunk5",  label: "Expiry utility — getTokenExpiry()", tokens: 260,  color: "teal"   }
       ],
-      sideNote: "✅ 6,920 / 128,000 tokens — same answer, 10× fewer tokens",
+      sideNote: "✅ 4,880 / 200,000 tokens — model answers with full context, 0.6% of window used",
       errorState: false,
-      resetBar: true
+      resetBar: false
+    },
+    {
+      id: "s6",
+      label: "Step 6 — Same thread, more follow-ups",
+      caption: "You keep debugging: refresh-token rotation, cookie domain, staging vs prod. Each reply and tool output stays in context. Retrieved chunks stay modest; **history and tools** are what grow.",
+      blocks: [
+        { id: "query",   label: "Query + system prompt",             tokens: 1100, color: "gray"  },
+        { id: "history", label: "Chat history (22 turns)",           tokens: 28600, color: "amber" },
+        { id: "chunk1",  label: "JWT middleware — verifyToken()",    tokens: 410,  color: "teal"   },
+        { id: "chunk2",  label: "Token refresh handler",             tokens: 380,  color: "teal"   },
+        { id: "chunk3",  label: "Session config — expiresIn field",  tokens: 290,  color: "teal"   },
+        { id: "chunk4",  label: "Auth route — /api/auth/login",      tokens: 340,  color: "teal"   },
+        { id: "chunk5",  label: "Expiry utility — getTokenExpiry()", tokens: 260,  color: "teal"   },
+        { id: "tools",   label: "Tool output (logs, curl, stack traces)", tokens: 12400, color: "rose" }
+      ],
+      sideNote: "43,780 / 200,000 tokens — history + tools dominate",
+      errorState: false,
+      resetBar: false
+    },
+    {
+      id: "s7",
+      label: "Step 7 — Window under pressure",
+      caption: "Dozens of turns and repeated test runs. The model still does not need the whole codebase — but the **thread** is huge. Past a safe threshold, Cursor-style products can **compact automatically** so the next long operation does not truncate blindly.",
+      blocks: [
+        { id: "query",   label: "Query + system prompt",             tokens: 1100, color: "gray"  },
+        { id: "history", label: "Chat history (48 turns)",           tokens: 95200, color: "amber" },
+        { id: "chunk1",  label: "JWT middleware — verifyToken()",    tokens: 410,  color: "teal"   },
+        { id: "chunk2",  label: "Token refresh handler",             tokens: 380,  color: "teal"   },
+        { id: "chunk3",  label: "Session config — expiresIn field",  tokens: 290,  color: "teal"   },
+        { id: "chunk4",  label: "Auth route — /api/auth/login",      tokens: 340,  color: "teal"   },
+        { id: "chunk5",  label: "Expiry utility — getTokenExpiry()", tokens: 260,  color: "teal"   },
+        { id: "tools",   label: "Tool output (logs, tests, diffs)", tokens: 51800, color: "rose" },
+        { id: "reads",   label: "Extra file reads beyond top chunks", tokens: 24600, color: "teal"  }
+      ],
+      sideNote: "⚠️ 174,380 / 200,000 — ~87% full; automatic compact can trigger",
+      errorState: false,
+      resetBar: false,
+      layout: "stack",
+      stackPhase: "warning"
+    },
+    {
+      id: "s8",
+      label: "Step 8 — Automatic compact runs",
+      caption: "The product scans the stacked context and summarizes it: auth hypothesis, files inspected, env findings, what failed, next steps. The same thing can happen when **you** run `/compact`; here the story is **automatic** once pressure is high.",
+      blocks: [
+        { id: "query",   label: "Query + system prompt",             tokens: 1100, color: "gray"  },
+        { id: "history", label: "Chat history (48 turns)",           tokens: 95200, color: "amber" },
+        { id: "chunk1",  label: "JWT middleware — verifyToken()",    tokens: 410,  color: "teal"   },
+        { id: "chunk2",  label: "Token refresh handler",             tokens: 380,  color: "teal"   },
+        { id: "chunk3",  label: "Session config — expiresIn field",  tokens: 290,  color: "teal"   },
+        { id: "chunk4",  label: "Auth route — /api/auth/login",      tokens: 340,  color: "teal"   },
+        { id: "chunk5",  label: "Expiry utility — getTokenExpiry()", tokens: 260,  color: "teal"   },
+        { id: "tools",   label: "Tool output (logs, tests, diffs)", tokens: 51800, color: "rose" },
+        { id: "reads",   label: "Extra file reads beyond top chunks", tokens: 24600, color: "teal"  }
+      ],
+      sideNote: "Compressing… summarizing the full thread",
+      errorState: false,
+      resetBar: false,
+      layout: "stack",
+      stackPhase: "compressing"
+    },
+    {
+      id: "s9",
+      label: "Step 9 — Summary handoff, room to continue",
+      caption: "Verbose history and tool dumps are replaced by one compact block. On the next question, fresh retrieval can pull code again. Same session, a fraction of the tokens.",
+      blocks: [
+        { id: "summary", label: "Compact summary (auth thread: goals, files, attempts, next steps)", tokens: 6200, color: "blue" }
+      ],
+      sideNote: "✅ 6,200 / 200,000 tokens — continuity preserved",
+      errorState: false,
+      resetBar: false,
+      layout: "stack",
+      stackPhase: "compacted"
     }
   ]}
 />
@@ -264,7 +363,8 @@ A law firm builds a contract review tool. Lawyers paste full contracts -- often 
   { term: "Token", definition: "The basic unit the model processes — roughly 1 token per common English word, more for code, URLs, and non-English text" },
   { term: "Byte-Pair Encoding", definition: "Tokenization algorithm that splits text into frequent subword patterns learned from training data" },
   { term: "Token ID", definition: "The integer that maps a token to its position in the model's vocabulary — the only thing the model actually operates on" },
-  { term: "Context window", definition: "The maximum number of tokens a model can process in a single call, covering system prompt, history, documents, and the current message" },
+  { term: "Context window", definition: "The maximum number of tokens a model can process in a single call — Claude Sonnet 4 supports up to 200,000 tokens" },
+  { term: "/compact", definition: "Claude Code command that summarizes the full conversation history into a compact handoff block, resetting token count while preserving continuity" },
 ]} />
 
 </SessionSection>

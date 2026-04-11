@@ -40,6 +40,7 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | Typed prompt → simulated output | `MiniPlayground` (no function props from MDX) |
 | Toggle blocks that fill context budget | `ContextWindowFiller` |
 | Step story: context overflow → fix | `ContextLimitSimulator` |
+| Claude Code `/compact` compression story | `CompactCommandSimulator` |
 | Index vs query phases + shared artifact | `DualPhaseFlow` |
 | Ticket/text → embed → route walkthrough | `EmbeddingSearchSimulator` |
 | Training dynamics (loss + distribution) | `TrainingLoopSimulator` |
@@ -89,7 +90,8 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | `ParameterSlider` | Interactive | Slider with `states` driving copy and styling. |
 | `AttentionHeatmap` | Interactive | Token × token attention weights. |
 | `ConceptStepper` | Interactive | Multi-step carousel; `visual` is TSX-only. |
-| `ContextLimitSimulator` | Interactive | Story steps that fill a token bar and show overflow/fix. |
+| `ContextLimitSimulator` | Interactive | Stepped token bar story; optional `layout: "stack"` + `stackPhase` for compress sweep and summary in the same flow. |
+| `CompactCommandSimulator` | Interactive | Step-through `/compact`: token bar, stacked blocks, compress sweep, summary handoff. |
 | `ContextWindowFiller` | Interactive | Toggle context blocks against `windowSize`. |
 | `DataFlowDiagram` | Diagram | Positioned nodes and edges, optional `highlightPath`. |
 | `DualPhaseFlow` | Diagram | Two phases + central artifact (e.g. index vs query). |
@@ -335,7 +337,7 @@ interface ConceptStepperProps {
 
 ### ContextLimitSimulator
 
-**Description:** Stepped narrative with token blocks and optional error/reset.
+**Description:** Stepped narrative with token blocks and optional error/reset. Steps can use `layout: "stack"` with `stackPhase` (`warning` → `compressing` → `compacted`) to show a Claude Code–style compress sweep and summary handoff in the same flow as segmented-bar steps.
 
 ```ts
 type TokenBlock = {
@@ -345,6 +347,9 @@ type TokenBlock = {
   color: "rose" | "gray" | "amber" | "teal" | "blue" | "violet";
 };
 
+type ContextLimitLayout = "track" | "stack";
+type ContextStackPhase = "default" | "warning" | "compressing" | "compacted";
+
 type ContextLimitStep = {
   id: string;
   label: string;
@@ -353,6 +358,10 @@ type ContextLimitStep = {
   sideNote: string | null;
   errorState: boolean;
   resetBar: boolean;
+  /** `"stack"` = thin budget bar + stacked rows, compress sweep, summary (default: `"track"` segmented bar). */
+  layout?: ContextLimitLayout;
+  /** When `layout` is `"stack"`, sets bar tint and compress/summary animation. */
+  stackPhase?: ContextStackPhase;
 };
 
 interface ContextLimitSimulatorProps {
@@ -360,6 +369,38 @@ interface ContextLimitSimulatorProps {
   caption: string;
   windowSize: number;
   steps: ContextLimitStep[];
+}
+```
+
+### CompactCommandSimulator
+
+**Description:** Stepped narrative for Claude Code-style `/compact`: token budget bar, stacked context blocks, compressing scan + collapse, then a compact summary row. Tailwind-only animations (no Framer Motion). Step 0 is visible immediately (no “start” click required).
+
+```ts
+type CompactPhase = "normal" | "warning" | "compressing" | "compacted";
+
+type CompactBlock = {
+  id: string;
+  label: string;
+  tokens: number;
+  color: "rose" | "gray" | "amber" | "teal" | "blue" | "violet";
+};
+
+type CompactStep = {
+  id: string;
+  label: string;
+  caption: string;
+  blocks: CompactBlock[];
+  tokenCount: number;
+  sideNote: string;
+  phase: CompactPhase;
+};
+
+interface CompactCommandSimulatorProps {
+  title: string;
+  caption: string;
+  windowSize: number;
+  steps: CompactStep[];
 }
 ```
 
@@ -641,6 +682,10 @@ interface NarrativeSequenceStep {
   description: string;
   highlight?: "shared" | "inside" | "outside" | "contrast";
   detail: string;
+  /** Fades in after animated floats finish when `animateDetail` is true. */
+  detailNote?: string;
+  /** When true, expanding reveals float literals in `detail` left-to-right (~60ms apart); unrevealed show `···`. Defaults to false. */
+  animateDetail?: boolean;
 }
 
 interface StepSequenceProps {

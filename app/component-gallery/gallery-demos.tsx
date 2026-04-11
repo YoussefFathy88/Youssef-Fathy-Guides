@@ -29,6 +29,7 @@ import {
   CodeEvolutionStepper,
   ConceptCompare,
   ConceptStepper,
+  CompactCommandSimulator,
   ContextLimitSimulator,
   ContextWindowFiller,
   DataFlowDiagram,
@@ -402,6 +403,67 @@ export const GALLERY_ITEMS: GalleryItem[] = [
         caption="Press Next Step to advance. Watch the token bar and running total update at each stage."
         windowSize={128000}
         steps={[...contextLimitStepsFixture]}
+      />
+    ),
+  },
+  {
+    name: "CompactCommandSimulator",
+    node: (
+      <CompactCommandSimulator
+        title="/compact — compress terminal context into a summary handoff"
+        caption="Prev / Next below. On the compressing step, a scan runs and blocks collapse; the next step shows the summary row."
+        windowSize={200000}
+        steps={[
+          {
+            id: "c1",
+            label: "Step 1 — Fresh session",
+            caption: "Empty window; nothing in the stack yet.",
+            blocks: [],
+            tokenCount: 0,
+            sideNote: "0 / 200,000 tokens",
+            phase: "normal",
+          },
+          {
+            id: "c2",
+            label: "Step 2 — Context loaded",
+            caption: "Files, tests, and chat turns add tokens.",
+            blocks: [
+              { id: "a", label: "Source files read", tokens: 12000, color: "teal" },
+              { id: "b", label: "Test output", tokens: 4000, color: "amber" },
+            ],
+            tokenCount: 16000,
+            sideNote: "16,000 / 200,000 — room to work",
+            phase: "normal",
+          },
+          {
+            id: "c3",
+            label: "Step 3 — Run /compact",
+            caption: "Scan and collapse the stacked context.",
+            blocks: [
+              { id: "a", label: "Source files read", tokens: 12000, color: "teal" },
+              { id: "b", label: "Test output", tokens: 4000, color: "amber" },
+            ],
+            tokenCount: 16000,
+            sideNote: "Compressing…",
+            phase: "compressing",
+          },
+          {
+            id: "c4",
+            label: "Step 4 — Summary only",
+            caption: "A small summary block replaces the raw transcript.",
+            blocks: [
+              {
+                id: "sum",
+                label: "Compact summary (goals, files, next steps)",
+                tokens: 2400,
+                color: "blue",
+              },
+            ],
+            tokenCount: 2400,
+            sideNote: "✅ 2,400 / 200,000 — continuity preserved",
+            phase: "compacted",
+          },
+        ]}
       />
     ),
   },

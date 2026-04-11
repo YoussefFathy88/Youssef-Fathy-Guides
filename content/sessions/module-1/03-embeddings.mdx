@@ -69,11 +69,34 @@ Before attention, before generation, before any tool call -- the model converts 
 
 ## Words become points in space
 
-The embedding layer is a lookup table. Each token ID maps to a fixed list of numbers -- called a vector. These numbers are learned during training so that tokens used in similar contexts end up at nearby points. You do not design them -- they emerge from predicting billions of next tokens.
+The embedding layer is a lookup table. Each token ID maps to a fixed list of numbers — called a vector. A real embedding model uses 768, 1536, or even 3072 numbers per token. These numbers are learned during training so that tokens used in similar contexts end up at nearby points. You do not design them — they emerge from predicting billions of next tokens.
+
+The two steps below show how that process works: first you see the raw numbers, then you see what those numbers mean spatially.
+
+<StepSequence
+  title="From token ID to point in space — two steps"
+  caption="Step through to see how a token becomes a vector, then how that vector becomes a position"
+  steps={[
+    {
+      id: "raw-vector",
+      label: "Step 1 — The raw numbers",
+      description: "The word 'king' maps to a vector of 1536 numbers. Each number is a float — a position along one dimension of meaning. You never read them directly. What matters is their relationship to every other vector in the space.",
+      detail: "king → [ 0.21, -0.87, 0.54, 0.03, -0.66, 0.91, 0.14, -0.33, 0.77, 0.02, -0.55, 0.88, … +1524 more ]",
+      detailNote: "Each number is one dimension. Real models use 768–3072 dimensions per token.",
+      animateDetail: true
+    },
+    {
+      id: "projected",
+      label: "Step 2 — Projected to 2D",
+      description: "1536 dimensions cannot be drawn. Researchers run a compression algorithm (PCA or t-SNE) on a large batch of vectors to produce a 2D plot. The clusters are real — similar words land near each other — but the x/y positions below are illustrative, not coordinates derived from any real vector. The plot shows the shape of the space, not a formula.",
+      detail: "king → (72, 25) in 2D    queen → (68, 32)    dog → (22, 68)"
+    }
+  ]}
+/>
 
 <Vector2DPlot
   title="Word embeddings projected to 2D"
-  caption="Hover any point to see its distance from the query -- notice which words cluster together"
+  caption="Hover any point to see its distance from the query — positions are illustrative (real coordinates come from running PCA or t-SNE on a full dataset, not from a single vector)"
   height={340}
   showDistances={true}
   showClusters={true}
@@ -89,13 +112,15 @@ The embedding layer is a lookup table. Each token ID maps to a fixed list of num
   ]}
 />
 
-### Similarity is distance
+### Similarity is cosine similarity
 
-Once words are vectors, "how similar are these two things?" becomes a calculation -- cosine similarity or dot product. Two sentences are similar if their vectors point in roughly the same direction. This is what powers search, RAG retrieval, and duplicate detection.
+Once words are vectors, "how similar are these two things?" becomes a single calculation. The standard measure is **cosine similarity** — it looks at the angle between two vectors, not their raw distance. If two vectors point in the same direction, the angle between them is 0° and the cosine is 1.0 — identical meaning. If they point in completely different directions, the angle is 90° and the cosine is 0.0 — unrelated. A score of 0.85 means the vectors are nearly aligned — close in meaning even if the words look nothing alike.
+
+This is why "car won't start" and "vehicle fails to turn on" score 0.91 — the vectors point almost the same direction. Keyword search sees zero character overlap and returns nothing.
 
 <AttentionHeatmap
   title="Cosine similarity between word pairs"
-  caption="Click any word row to see which other words are most similar to it"
+  caption="Click any word row to see which other words are most similar to it — notice the sharp boundary between clusters"
   colorRamp="violet"
   tokens={["king", "queen", "prince", "dog", "cat", "car"]}
   weights={[
@@ -142,32 +167,6 @@ Embeddings encode what a sentence means, not which characters it contains.
       "No synonym lists. No rule maintenance. Meaning is encoded in the numbers."
     ]
   }}
-/>
-
-### Why nearby points mean similar meanings
-
-The Vector2DPlot below shows the same queries and documents from the ConceptCompare
-above — but now projected into 2D embedding space. Words that mean similar things
-cluster together regardless of spelling. The distance between two points is the gap
-the keyword search could not cross.
-
-<Vector2DPlot
-  title="Semantic clusters — meaning determines position, not spelling"
-  caption="Hover any point to see its cluster — notice that synonyms land near each other even though they share no characters"
-  height={380}
-  showDistances={true}
-  showClusters={true}
-  points={[
-    { id: "q1", label: "car won't start",           x: 24, y: 28, cluster: "vehicle-failure", isQuery: true },
-    { id: "d1", label: "vehicle fails to turn on",  x: 28, y: 32, cluster: "vehicle-failure" },
-    { id: "d2", label: "automobile won't ignite",   x: 21, y: 35, cluster: "vehicle-failure" },
-    { id: "q2", label: "can't log in",              x: 72, y: 22, cluster: "auth-failure", isQuery: true },
-    { id: "d3", label: "authentication failure",    x: 76, y: 26, cluster: "auth-failure" },
-    { id: "d4", label: "access denied",             x: 69, y: 19, cluster: "auth-failure" },
-    { id: "q3", label: "bill is wrong",             x: 48, y: 75, cluster: "billing", isQuery: true },
-    { id: "d5", label: "incorrect invoice",         x: 52, y: 79, cluster: "billing" },
-    { id: "d6", label: "overcharge on statement",   x: 44, y: 72, cluster: "billing" },
-  ]}
 />
 
 </SessionSection>
@@ -269,11 +268,11 @@ category centroid, and assign a department. The closest category wins.
 ## What we covered
 
 <RecapTable rows={[
-  { term: "Embedding", definition: "A vector representation of a token where similar meanings are placed close together in space" },
-  { term: "Vector", definition: "A fixed-length list of numbers representing a point in high-dimensional space" },
-  { term: "Cosine similarity", definition: "A measure of how similar two vectors are based on the angle between them" },
-  { term: "Embedding layer", definition: "The lookup table at a model's input that converts token IDs into their vector representations" },
-  { term: "Semantic search", definition: "Retrieval based on meaning similarity between query and document embeddings rather than keyword overlap" },
+  { term: "Embedding", definition: "A vector that represents a token's meaning — learned during training so similar tokens land at nearby points" },
+  { term: "Vector", definition: "A fixed-length list of numbers (e.g. 1536 floats) that positions a token as a point in high-dimensional space" },
+  { term: "Cosine similarity", definition: "A score from 0 to 1 based on the angle between two vectors — 1.0 means identical direction, 0.0 means completely unrelated" },
+  { term: "Embedding layer", definition: "The lookup table at a model's input that converts each token ID into its vector before any processing happens" },
+  { term: "Semantic search", definition: "Retrieval that compares meaning by cosine similarity between query and document vectors — not by matching characters" },
 ]} />
 
 </SessionSection>

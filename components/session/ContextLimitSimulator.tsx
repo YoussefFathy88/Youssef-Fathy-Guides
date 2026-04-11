@@ -12,6 +12,12 @@ export type TokenBlock = {
   color: "rose" | "gray" | "amber" | "teal" | "blue" | "violet";
 };
 
+/** `track` = segmented window bar (default). `stack` = thin budget bar + stacked block rows, compress animation, summary handoff. */
+export type ContextLimitLayout = "track" | "stack";
+
+/** Used when `layout` is `"stack"`. Drives bar color and compress/summary motion. */
+export type ContextStackPhase = "default" | "warning" | "compressing" | "compacted";
+
 export type ContextLimitStep = {
   id: string;
   label: string;
@@ -20,6 +26,8 @@ export type ContextLimitStep = {
   sideNote: string | null;
   errorState: boolean;
   resetBar: boolean;
+  layout?: ContextLimitLayout;
+  stackPhase?: ContextStackPhase;
 };
 
 export interface ContextLimitSimulatorProps {
@@ -73,6 +81,40 @@ const colorStyles = {
     dot: "bg-violet-500",
   },
 } as const;
+
+const stackRowStyles: Record<
+  TokenBlock["color"],
+  { row: string; dot: string }
+> = {
+  rose: {
+    row: "border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-100",
+    dot: "bg-rose-500",
+  },
+  gray: {
+    row: "border-gray-200 bg-gray-50 text-gray-800 dark:border-gray-600 dark:bg-gray-800/70 dark:text-gray-100",
+    dot: "bg-gray-500",
+  },
+  amber: {
+    row: "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100",
+    dot: "bg-amber-500",
+  },
+  teal: {
+    row: "border-teal-200 bg-teal-50 text-teal-900 dark:border-teal-500/30 dark:bg-teal-500/10 dark:text-teal-100",
+    dot: "bg-teal-500",
+  },
+  blue: {
+    row: "border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-100",
+    dot: "bg-blue-500",
+  },
+  violet: {
+    row: "border-violet-200 bg-violet-50 text-violet-900 dark:border-violet-500/30 dark:bg-violet-500/10 dark:text-violet-100",
+    dot: "bg-violet-500",
+  },
+};
+
+function isStackStep(step: ContextLimitStep) {
+  return (step.layout ?? "track") === "stack";
+}
 
 const BLOCK_TRANSITION_MS = 400;
 const BLOCK_STAGGER_MS = 120;
@@ -136,6 +178,8 @@ export default function ContextLimitSimulator({
   const [showSideNote, setShowSideNote] = useState(false);
   const [showErrorBadge, setShowErrorBadge] = useState(false);
   const [pulseKey, setPulseKey] = useState(0);
+  const [compressStage, setCompressStage] = useState<"idle" | "scan" | "exiting" | "done">("idle");
+  const [summaryIn, setSummaryIn] = useState(false);
 
   const currentStep = steps[currentStepIndex];
   const maxTotal = Math.max(windowSize, 1);
@@ -196,6 +240,55 @@ export default function ContextLimitSimulator({
     },
     [],
   );
+
+  useEffect(() => {
+    const step = steps[currentStepIndex];
+    const compressing =
+      Boolean(step) &&
+      hasStarted &&
+      isStackStep(step!) &&
+      (step!.stackPhase ?? "default") === "compressing";
+
+    if (!compressing) {
+      setCompressStage("idle");
+      return;
+    }
+
+    if (reducedMotion) {
+      setCompressStage("done");
+      return;
+    }
+
+    setCompressStage("scan");
+    const tExit = window.setTimeout(() => setCompressStage("exiting"), 400);
+    const tDone = window.setTimeout(() => setCompressStage("done"), 1500);
+    return () => {
+      window.clearTimeout(tExit);
+      window.clearTimeout(tDone);
+    };
+  }, [currentStepIndex, hasStarted, steps, reducedMotion]);
+
+  useEffect(() => {
+    const step = steps[currentStepIndex];
+    const compacted =
+      Boolean(step) &&
+      hasStarted &&
+      isStackStep(step!) &&
+      (step!.stackPhase ?? "default") === "compacted";
+
+    if (!compacted) {
+      setSummaryIn(false);
+      return;
+    }
+
+    if (reducedMotion) {
+      setSummaryIn(true);
+      return;
+    }
+
+    const id = window.requestAnimationFrame(() => setSummaryIn(true));
+    return () => window.cancelAnimationFrame(id);
+  }, [currentStepIndex, hasStarted, steps, reducedMotion]);
 
   if (!currentStep) {
     return null;
@@ -274,6 +367,34 @@ export default function ContextLimitSimulator({
     setIsAnimating(true);
     setShowSideNote(false);
     setShowErrorBadge(false);
+
+    if (!toPristine && isStackStep(targetStep)) {
+      setCurrentStepIndex(targetIndex);
+
+      const targetTotal = getStepTotal(targetStep);
+      animateRunningTotal(targetTotal);
+      setRenderedBlocks([]);
+      setHasStarted(true);
+
+      const revealDelay = reducedMotion
+        ? 0
+        : Math.max(getAnimationDurationMs(targetStep.blocks.length), ERROR_BADGE_MIN_DELAY_MS);
+
+      window.setTimeout(() => {
+        if (transitionTokenRef.current !== transitionToken) {
+          return;
+        }
+
+        if (targetStep.sideNote) {
+          setShowSideNote(true);
+        }
+
+        setIsAnimating(false);
+      }, revealDelay + NOTE_DELAY_MS);
+
+      return;
+    }
+
     setCurrentStepIndex(targetIndex);
 
     const targetTotal = toPristine ? 0 : getStepTotal(targetStep);
@@ -363,11 +484,35 @@ export default function ContextLimitSimulator({
   };
 
   const complete = hasStarted && currentStepIndex === steps.length - 1;
-  const noteToneClass = currentStep.errorState
-    ? "text-rose-600 dark:text-rose-300"
-    : currentStep.resetBar
-      ? "text-emerald-600 dark:text-emerald-300"
-      : "text-gray-700 dark:text-gray-300";
+  const useStackLayout = hasStarted && isStackStep(currentStep);
+  const stackPhase = currentStep.stackPhase ?? "default";
+  const isCompressingStack = useStackLayout && stackPhase === "compressing";
+  const isCompactedStack = useStackLayout && stackPhase === "compacted";
+  const hideBlocksWhileCompressing =
+    isCompressingStack && (compressStage === "exiting" || compressStage === "done");
+
+  const stackBarFillClass =
+    stackPhase === "warning"
+      ? "bg-amber-400 dark:bg-amber-500"
+      : stackPhase === "compressing"
+        ? "bg-violet-500 dark:bg-violet-400 motion-safe:animate-pulse"
+        : stackPhase === "compacted"
+          ? "bg-blue-500 dark:bg-blue-400"
+          : "bg-gray-400 dark:bg-gray-500";
+
+  const stackFillPct = Math.min((runningTotal / maxTotal) * 100, 100);
+
+  const noteToneClass = useStackLayout
+    ? stackPhase === "warning"
+      ? "text-amber-700 dark:text-amber-300"
+      : stackPhase === "compacted"
+        ? "text-emerald-700 dark:text-emerald-300"
+        : "text-gray-700 dark:text-gray-300"
+    : currentStep.errorState
+      ? "text-rose-600 dark:text-rose-300"
+      : currentStep.resetBar
+        ? "text-emerald-600 dark:text-emerald-300"
+        : "text-gray-700 dark:text-gray-300";
 
   return (
     <motion.div
@@ -376,6 +521,27 @@ export default function ContextLimitSimulator({
       transition={{ duration: 0.3, ease: "easeOut" }}
       className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800"
     >
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+@keyframes context-limit-compact-scan {
+  from { top: 0; }
+  to { top: calc(100% - 6px); }
+}
+.context-limit-compact-scan-beam {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  height: 6px;
+  border-radius: 9999px;
+  animation: context-limit-compact-scan 1.5s ease-in-out forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .context-limit-compact-scan-beam { animation: none; opacity: 0; }
+}
+`,
+        }}
+      />
       <div className="space-y-6">
         <div className="space-y-2">
           <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</p>
@@ -412,7 +578,7 @@ export default function ContextLimitSimulator({
         </div>
 
         <AnimatePresence>
-          {showErrorBadge && currentStep.errorState && (
+          {showErrorBadge && currentStep.errorState && !useStackLayout && (
             <motion.div
               key="context-error-badge"
               initial={reducedMotion ? false : { opacity: 0, scale: 0 }}
@@ -437,65 +603,151 @@ export default function ContextLimitSimulator({
               <span>{formatTokens(windowSize)} tokens</span>
             </div>
 
-            <div
-              ref={trackRef}
-              className="relative h-16 overflow-hidden rounded-2xl border border-gray-200 bg-gray-100 dark:border-gray-700 dark:bg-gray-900/50"
-            >
-              {ticks.map((tick) => (
-                <div
-                  key={tick.tokens}
-                  className="pointer-events-none absolute inset-y-0 z-10"
-                  style={{ left: `${(tick.tokens / maxTotal) * 100}%` }}
-                >
-                  <div className="h-full w-px bg-gray-400/40 dark:bg-gray-500/50" />
-                  <span className="absolute left-2 top-2 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500 dark:bg-gray-950/80 dark:text-gray-400">
-                    {tick.label}
-                  </span>
-                </div>
-              ))}
-
-              <div className="flex h-full w-full">
-                {renderedBlocks.map((block) => {
-                  const tone = colorStyles[block.color];
-                  const showInlineLabel = inlineBlocks.has(block.id);
-
-                  return (
+            {useStackLayout ? (
+              <>
+                <div className="space-y-2">
+                  <div className="relative h-4 overflow-hidden rounded-full border border-gray-200 bg-gray-100 dark:border-gray-700 dark:bg-gray-900/60">
                     <div
-                      key={block.id}
                       className={cn(
-                        "relative flex h-full shrink-0 items-center overflow-hidden border-r border-white/30 px-3 last:border-r-0 dark:border-gray-950/20",
-                        tone.bar,
+                        "h-full rounded-full transition-[width] duration-500 ease-out",
+                        stackBarFillClass,
                       )}
-                      style={{
-                        width: `${Math.min(block.widthPct, 100)}%`,
-                        transition: reducedMotion
-                          ? "none"
-                          : "width 400ms ease-out",
-                        transitionDelay: reducedMotion ? "0ms" : `${block.delayMs}ms`,
-                      }}
-                    >
-                      {showInlineLabel && (
-                        <span className="truncate text-xs font-bold text-white drop-shadow-sm">
-                          {block.label}
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+                      style={{ width: `${stackFillPct}%` }}
+                    />
+                  </div>
+                  <p className="text-center font-mono text-sm font-semibold text-gray-800 dark:text-gray-200">
+                    {formatTokens(runningTotal)} / {formatTokens(windowSize)} tokens
+                  </p>
+                </div>
 
-              <AnimatePresence>
-                {showErrorBadge && currentStep.errorState && (
-                  <motion.div
-                    key={`context-pulse-${pulseKey}`}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="context-limit-pulse pointer-events-none absolute inset-0"
-                  />
-                )}
-              </AnimatePresence>
-            </div>
+                <div className="relative min-h-[7rem] overflow-hidden rounded-xl border border-gray-200 bg-white/70 dark:border-gray-700 dark:bg-gray-900/40">
+                  {isCompressingStack && compressStage !== "idle" && (
+                    <div
+                      className="context-limit-compact-scan-beam pointer-events-none z-20 bg-gradient-to-r from-transparent via-white to-transparent shadow-[0_0_14px_rgba(139,92,246,0.85)] dark:via-violet-200"
+                      aria-hidden="true"
+                    />
+                  )}
+
+                  <div className="relative z-10 space-y-2 p-3">
+                    {isCompactedStack
+                      ? currentStep.blocks.map((block) => {
+                          const tone = stackRowStyles[block.color];
+                          return (
+                            <div
+                              key={block.id}
+                              className={cn(
+                                "flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5 text-sm font-medium transition-all duration-500 ease-out motion-reduce:transition-none",
+                                tone.row,
+                                summaryIn
+                                  ? "translate-y-0 opacity-100"
+                                  : "translate-y-2 opacity-0",
+                              )}
+                            >
+                              <span className="flex min-w-0 items-center gap-2">
+                                <span className={cn("h-2 w-2 shrink-0 rounded-full", tone.dot)} />
+                                <span className="leading-snug">{block.label}</span>
+                              </span>
+                              <span className="shrink-0 font-mono text-xs font-semibold tabular-nums">
+                                {formatTokens(block.tokens)}
+                              </span>
+                            </div>
+                          );
+                        })
+                      : currentStep.blocks.length === 0 ? (
+                          <div className="flex min-h-[6.5rem] items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-50/80 text-sm text-gray-500 dark:border-gray-600 dark:bg-gray-900/30 dark:text-gray-400">
+                            Context stack is empty for this step.
+                          </div>
+                        ) : (
+                          currentStep.blocks.map((block) => {
+                            const tone = stackRowStyles[block.color];
+                            const collapsing = isCompressingStack && hideBlocksWhileCompressing;
+
+                            return (
+                              <div
+                                key={block.id}
+                                className={cn(
+                                  "flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5 text-sm font-medium transition-all duration-700 ease-out motion-reduce:transition-none",
+                                  tone.row,
+                                  collapsing
+                                    ? "pointer-events-none max-h-0 translate-y-1 scale-95 overflow-hidden border-transparent py-0 opacity-0"
+                                    : "max-h-40 opacity-100",
+                                )}
+                              >
+                                <span className="flex min-w-0 items-center gap-2">
+                                  <span className={cn("h-2 w-2 shrink-0 rounded-full", tone.dot)} />
+                                  <span className="truncate">{block.label}</span>
+                                </span>
+                                <span className="shrink-0 font-mono text-xs font-semibold tabular-nums">
+                                  {formatTokens(block.tokens)}
+                                </span>
+                              </div>
+                            );
+                          })
+                        )}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div
+                ref={trackRef}
+                className="relative h-16 overflow-hidden rounded-2xl border border-gray-200 bg-gray-100 dark:border-gray-700 dark:bg-gray-900/50"
+              >
+                {ticks.map((tick) => (
+                  <div
+                    key={tick.tokens}
+                    className="pointer-events-none absolute inset-y-0 z-10"
+                    style={{ left: `${(tick.tokens / maxTotal) * 100}%` }}
+                  >
+                    <div className="h-full w-px bg-gray-400/40 dark:bg-gray-500/50" />
+                    <span className="absolute left-2 top-2 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500 dark:bg-gray-950/80 dark:text-gray-400">
+                      {tick.label}
+                    </span>
+                  </div>
+                ))}
+
+                <div className="flex h-full w-full">
+                  {renderedBlocks.map((block) => {
+                    const tone = colorStyles[block.color];
+                    const showInlineLabel = inlineBlocks.has(block.id);
+
+                    return (
+                      <div
+                        key={block.id}
+                        className={cn(
+                          "relative flex h-full shrink-0 items-center overflow-hidden border-r border-white/30 px-3 last:border-r-0 dark:border-gray-950/20",
+                          tone.bar,
+                        )}
+                        style={{
+                          width: `${Math.min(block.widthPct, 100)}%`,
+                          transition: reducedMotion
+                            ? "none"
+                            : "width 400ms ease-out",
+                          transitionDelay: reducedMotion ? "0ms" : `${block.delayMs}ms`,
+                        }}
+                      >
+                        {showInlineLabel && (
+                          <span className="truncate text-xs font-bold text-white drop-shadow-sm">
+                            {block.label}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <AnimatePresence>
+                  {showErrorBadge && currentStep.errorState && !useStackLayout && (
+                    <motion.div
+                      key={`context-pulse-${pulseKey}`}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="context-limit-pulse pointer-events-none absolute inset-0"
+                    />
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
 
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-gray-200 bg-white/70 px-4 py-3 dark:border-gray-700 dark:bg-gray-900/50">
               <div className="space-y-1">
@@ -514,7 +766,7 @@ export default function ContextLimitSimulator({
               </p>
             </div>
 
-            {narrowBlocks.length > 0 && (
+            {!useStackLayout && narrowBlocks.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {narrowBlocks.map((block) => (
                   <span

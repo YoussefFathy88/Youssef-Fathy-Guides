@@ -14,4 +14,6 @@ services:
       # extensions (password managers) mutating the DOM — hydration mismatch noise, not the Node server.
     environment:
       WATCHPACK_POLLING: "true"
-    command: npm run dev -- --hostname 0.0.0.0 --port 3000
+    # Next.js 16 defaults to Turbopack; with a bind-mounted repo (especially from Windows),
+    # dynamic app routes like /sessions/[slug] often return 404 in dev. Webpack avoids that.
+    command: npm run dev -- --hostname 0.0.0.0 --port 3000 --webpack

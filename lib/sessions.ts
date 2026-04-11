@@ -140,10 +140,21 @@ async function collectSessionFiles(directory: string): Promise<string[]> {
 }
 
 const loadSessionFiles = cache(async (): Promise<ParsedSessionFile[]> => {
-  const filePaths = await collectSessionFiles(SESSIONS_ROOT);
+  let filePaths: string[];
+  try {
+    filePaths = await collectSessionFiles(SESSIONS_ROOT);
+  } catch (cause) {
+    throw new Error(
+      `Could not read session MDX under ${SESSIONS_ROOT} (process.cwd()=${process.cwd()}). ` +
+        "If you use Docker, run compose from the repo root so `.:/app` includes `content/sessions`.",
+      { cause },
+    );
+  }
 
   if (filePaths.length === 0) {
-    throw new Error(`No MDX session files were found under ${SESSIONS_ROOT}.`);
+    throw new Error(
+      `No MDX session files were found under ${SESSIONS_ROOT} (process.cwd()=${process.cwd()}).`,
+    );
   }
 
   const parsedFiles = await Promise.all(
