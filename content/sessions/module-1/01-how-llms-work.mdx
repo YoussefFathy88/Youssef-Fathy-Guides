@@ -240,11 +240,9 @@ The model does not output probabilities directly. It outputs raw scores called l
 
 />
 
-### The output is a probability distribution, not a lookup
+### Controlling randomness with Temperature
 
-
-
-This is the most important thing to internalize. The model does not retrieve answers from a database. For every token position, it produces a ranked probability distribution across its possible next tokens. The token actually emitted depends on that distribution and on the sampling strategy, which is why the same prompt can yield different outputs.
+Because the model gives us a probability distribution rather than a single fixed token, we can control how it samples from that distribution using a parameter called **Temperature**. A temperature of 0 always picks the most likely token (deterministic), while a higher temperature flattens the distribution, giving lower-probability tokens a greater chance to be selected. This is the primary lever you have for controlling the trade-off between predictable accuracy and creative variance.
 
 
 

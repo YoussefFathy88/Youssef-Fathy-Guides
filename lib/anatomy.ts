@@ -44,7 +44,7 @@ export const ANATOMY_MODULES: readonly AnatomyModule[] = [
       },
       {
         id: "brain-04",
-        title: "Transformer & Attention",
+        title: "The Transformer: Attention Is All You Need",
         slug: "transformer-attention",
         status: "available",
       },

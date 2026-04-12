@@ -159,8 +159,8 @@ const SIZE = {
 
 type Point = { x: number; y: number };
 
-const PADDING_X = 180;
-const PADDING_Y = 25;
+const PADDING_X = 80;
+const PADDING_Y = 56;
 const GEOMETRY_EPSILON = 1e-6;
 
 function toPxX(pct: number, width: number): number {

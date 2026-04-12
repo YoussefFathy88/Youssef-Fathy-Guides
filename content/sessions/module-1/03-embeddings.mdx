@@ -37,12 +37,12 @@ Before attention, before generation, before any tool call -- the model converts 
     { id: "vector-space", label: "Vector Space", nodeIds: ["embed", "vectors"], color: "blue" },
   ]}
   nodes={[
-    { id: "tokens",      label: "Token IDs",          sublabel: "Integers from vocab",         x: 10, y: 50, color: "gray",   shape: "rect", emoji: "🔢" },
-    { id: "embed",       label: "Embedding Layer",     sublabel: "Learned lookup table",         x: 36, y: 50, color: "blue",   shape: "rect", size: "lg", emoji: "📐" },
-    { id: "vectors",     label: "Vectors",             sublabel: "e.g. 1536 numbers each",       x: 60, y: 50, color: "blue",   shape: "hex",  size: "lg", emoji: "📊" },
-    { id: "transformer", label: "Transformer Layers",  sublabel: "Attention + reasoning",        x: 88, y: 20, color: "violet", shape: "rect", emoji: "⚡" },
-    { id: "response",    label: "Model Response",      sublabel: "Generated tokens",             x: 88, y: 50, color: "teal",   shape: "rect", emoji: "💬" },
-    { id: "vectordb",    label: "Vector Database",     sublabel: "Semantic search / RAG",        x: 88, y: 80, color: "amber",  shape: "hex",  emoji: "🗄️" },
+    { id: "tokens",      label: "Token IDs",          sublabel: "Integers from vocab",         x: 15, y: 50, color: "gray",   shape: "rect", emoji: "🔢" },
+    { id: "embed",       label: "Embedding Layer",     sublabel: "Learned lookup table",         x: 42, y: 50, color: "blue",   shape: "rect", size: "lg", emoji: "📐" },
+    { id: "vectors",     label: "Vectors",             sublabel: "e.g. 1536 numbers each",       x: 68, y: 50, color: "blue",   shape: "hex",  size: "lg", emoji: "📊" },
+    { id: "transformer", label: "Transformer Layers",  sublabel: "Attention + reasoning",        x: 92, y: 20, color: "violet", shape: "rect", emoji: "⚡" },
+    { id: "response",    label: "Model Response",      sublabel: "Generated tokens",             x: 92, y: 50, color: "teal",   shape: "rect", emoji: "💬" },
+    { id: "vectordb",    label: "Vector Database",     sublabel: "Semantic search / RAG",        x: 92, y: 80, color: "amber",  shape: "hex",  emoji: "🗄️" },
   ]}
   edges={[
     { from: "tokens",      to: "embed",       animated: true, stepNumber: 1 },
@@ -283,9 +283,9 @@ category centroid, and assign a department. The closest category wins.
 <SessionSection id="next-session" label="Next Session">
 
 <NextSessionCard
-  title="Transformer & Attention"
+  title="The Transformer: Attention Is All You Need"
   slug="transformer-attention"
-  teaser="Now that tokens have become vectors, the next question is how the model relates them to each other -- which is exactly what the transformer's attention mechanism does."
+  teaser="Vectors are in place; next is the full stack — encoder and decoder, self-attention and cross-attention — so you can trace a sentence from text to the next predicted token."
   module={1}
 />
 

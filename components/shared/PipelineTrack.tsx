@@ -22,9 +22,18 @@ export interface TrackLine {
   dashed?: boolean;
 }
 
+export interface PipelineStation {
+  id: string;
+  label: string;
+  sublabel?: string;
+  color?: "violet" | "teal" | "amber" | "gray" | "blue" | "rose";
+  detail: string;
+}
+
 export interface PipelineTrackProps {
-  nodes: TrackNode[];
-  lines: TrackLine[];
+  nodes?: TrackNode[];
+  lines?: TrackLine[];
+  stations?: PipelineStation[];
   title?: string;
   caption?: string;
 }
@@ -116,8 +125,8 @@ function ForwardPathToken({
   if (reducedMotion) {
     return (
       <g>
-        <circle cx={xs[0]} cy={y} r={12} fill={accentColor} opacity={0.35} />
-        <circle cx={xs[0]} cy={y} r={7} fill={accentColor} />
+        <circle cx={xs[0]} cy={y} r={20} fill={accentColor} opacity={0.35} />
+        <circle cx={xs[0]} cy={y} r={12} fill={accentColor} />
       </g>
     );
   }
@@ -125,25 +134,36 @@ function ForwardPathToken({
   return (
     <g>
       <motion.circle
-        r={15}
+        r={24}
         cx={cx}
         cy={y}
         fill={accentColor}
         opacity={0.22}
         filter={`url(#${filterId})`}
       />
-      <motion.circle r={10} cx={cx} cy={y} fill={accentColor} opacity={0.95} />
-      <motion.circle r={4} cx={cx} cy={y} fill="white" opacity={0.95} />
+      <motion.circle r={14} cx={cx} cy={y} fill={accentColor} opacity={0.95} />
+      <motion.circle r={6} cx={cx} cy={y} fill="white" opacity={0.95} />
     </g>
   );
 }
 
 export default function PipelineTrack({
-  nodes,
-  lines,
+  nodes = [],
+  lines = [],
+  stations,
   title,
   caption,
 }: PipelineTrackProps) {
+  // Stations mode — simple clickable card pipeline
+  if (stations && stations.length > 0) {
+    return (
+      <StationPipeline
+        stations={stations}
+        title={title}
+        caption={caption}
+      />
+    );
+  }
   const reducedMotion = useReducedMotion();
   const nodeMap = new Map(nodes.map((n) => [n.id, n]));
   const [tooltip, setTooltip] = useState<string | null>(null);
@@ -152,12 +172,12 @@ export default function PipelineTrack({
   const svgUid = `pt-${reactId}`;
   const glowFilterId = `${svgUid}-glow`;
 
-  const TRACK_HEIGHT = 142;
-  const PADDING_X = 72;
-  const PADDING_Y = 58;
-  const STATION_R = 15;
-  const TRACK_LABEL_HEIGHT = 26;
-  const TRACK_LABEL_MIN_WIDTH = 96;
+  const TRACK_HEIGHT = 160;
+  const PADDING_X = 85;
+  const PADDING_Y = 65;
+  const STATION_R = 24;
+  const TRACK_LABEL_HEIGHT = 28;
+  const TRACK_LABEL_MIN_WIDTH = 110;
 
   const totalHeight = lines.length * TRACK_HEIGHT + PADDING_Y * 2;
 
@@ -187,9 +207,9 @@ export default function PipelineTrack({
       className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800"
     >
       {(title || caption) && (
-        <div className="mb-5 space-y-1.5">
-          {title && <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">{title}</h2>}
-          {caption && <p className="text-sm text-gray-500 dark:text-gray-400">{caption}</p>}
+        <div className="mb-5 space-y-2">
+          {title && <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{title}</h2>}
+          {caption && <p className="text-base text-gray-500 dark:text-gray-400">{caption}</p>}
         </div>
       )}
 
@@ -278,7 +298,7 @@ export default function PipelineTrack({
                   <>
                     <rect
                       x={midX - labelW / 2}
-                      y={y - STATION_R - 52}
+                      y={y - STATION_R - 58}
                       width={labelW}
                       height={TRACK_LABEL_HEIGHT}
                       rx={TRACK_LABEL_HEIGHT / 2}
@@ -287,10 +307,10 @@ export default function PipelineTrack({
                     />
                     <text
                       x={midX}
-                      y={y - STATION_R - 39}
+                      y={y - STATION_R - 44}
                       textAnchor="middle"
                       dominantBaseline="central"
-                      fontSize={12}
+                      fontSize={14}
                       fontWeight={700}
                       letterSpacing={0.02}
                       fill={line.color}
@@ -308,8 +328,8 @@ export default function PipelineTrack({
             stations.map(({ node, x }) => {
               const tone = nodeColorMap[node.color ?? "gray"];
               const compact = stations.length >= 6;
-              const labelFs = compact ? 12 : 14;
-              const subFs = compact ? 9 : 10.5;
+              const labelFs = compact ? 15 : 18;
+              const subFs = compact ? 12 : 14;
               const tipKey = `${lineIdx}:${node.id}`;
               const isHovered = tooltip === tipKey;
               const badge = node.badge;
@@ -333,7 +353,7 @@ export default function PipelineTrack({
                     <circle
                       cx={x}
                       cy={y}
-                      r={STATION_R + 8}
+                      r={STATION_R + 10}
                       fill={tone.dot}
                       opacity={0.12}
                     />
@@ -342,19 +362,19 @@ export default function PipelineTrack({
                     <>
                       <rect
                         x={x - badgeW / 2}
-                        y={y - STATION_R - 36}
+                        y={y - STATION_R - 42}
                         width={badgeW}
-                        height={22}
-                        rx={11}
+                        height={24}
+                        rx={12}
                         fill={tone.dot}
                         opacity={0.16}
                       />
                       <rect
                         x={x - badgeW / 2}
-                        y={y - STATION_R - 36}
+                        y={y - STATION_R - 42}
                         width={badgeW}
-                        height={22}
-                        rx={11}
+                        height={24}
+                        rx={12}
                         fill="none"
                         stroke={tone.dot}
                         strokeWidth={1}
@@ -362,10 +382,10 @@ export default function PipelineTrack({
                       />
                       <text
                         x={x}
-                        y={y - STATION_R - 25}
+                        y={y - STATION_R - 30}
                         textAnchor="middle"
                         dominantBaseline="central"
-                        fontSize={10.5}
+                        fontSize={12}
                         fontWeight={600}
                         fill={tone.dot}
                         opacity={0.95}
@@ -377,7 +397,7 @@ export default function PipelineTrack({
                   <circle
                     cx={x}
                     cy={y}
-                    r={STATION_R + 2}
+                    r={STATION_R + 3}
                     fill="none"
                     stroke={tone.dot}
                     strokeWidth={1}
@@ -389,13 +409,13 @@ export default function PipelineTrack({
                     r={STATION_R}
                     fill="white"
                     stroke={tone.dot}
-                    strokeWidth={3.25}
+                    strokeWidth={4.5}
                     className="dark:fill-gray-950"
                   />
-                  <circle cx={x} cy={y} r={4.5} fill={tone.dot} opacity={0.92} />
+                  <circle cx={x} cy={y} r={7} fill={tone.dot} opacity={0.92} />
                   <text
                     x={x}
-                    y={y + STATION_R + 18}
+                    y={y + STATION_R + 24}
                     textAnchor="middle"
                     fontSize={labelFs}
                     fontWeight={700}
@@ -404,18 +424,7 @@ export default function PipelineTrack({
                   >
                     {node.label}
                   </text>
-                  {node.sublabel && (
-                    <text
-                      x={x}
-                      y={y + STATION_R + (compact ? 32 : 36)}
-                      textAnchor="middle"
-                      fontSize={subFs}
-                      className="fill-gray-500 dark:fill-gray-400"
-                      fill="currentColor"
-                    >
-                      {node.sublabel}
-                    </text>
-                  )}
+                  {/* Sublabels have been removed from rendering below the node to prevent overlapping text. They will still appear in the hover tooltip! */}
                 </g>
               );
             }),
@@ -465,5 +474,142 @@ export default function PipelineTrack({
         })()}
       </div>
     </motion.div>
+  );
+}
+
+const stationColorMap: Record<string, { border: string; bg: string; text: string; sub: string; detail: string }> = {
+  violet: {
+    border: "#8b5cf6",
+    bg: "#8b5cf618",
+    text: "#7c3aed",
+    sub: "#a78bfa",
+    detail: "border-violet-200 bg-violet-50 text-violet-800 dark:border-violet-500/30 dark:bg-violet-500/10 dark:text-violet-200",
+  },
+  teal: {
+    border: "#14b8a6",
+    bg: "#14b8a618",
+    text: "#0f766e",
+    sub: "#5eead4",
+    detail: "border-teal-200 bg-teal-50 text-teal-800 dark:border-teal-500/30 dark:bg-teal-500/10 dark:text-teal-200",
+  },
+  amber: {
+    border: "#f59e0b",
+    bg: "#f59e0b18",
+    text: "#b45309",
+    sub: "#fcd34d",
+    detail: "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200",
+  },
+  blue: {
+    border: "#3b82f6",
+    bg: "#3b82f618",
+    text: "#1d4ed8",
+    sub: "#93c5fd",
+    detail: "border-blue-200 bg-blue-50 text-blue-800 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200",
+  },
+  rose: {
+    border: "#f43f5e",
+    bg: "#f43f5e18",
+    text: "#be123c",
+    sub: "#fda4af",
+    detail: "border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200",
+  },
+  gray: {
+    border: "#94a3b8",
+    bg: "#94a3b818",
+    text: "#475569",
+    sub: "#cbd5e1",
+    detail: "border-gray-200 bg-gray-50 text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300",
+  },
+};
+
+function StationPipeline({
+  stations,
+  title,
+  caption,
+}: {
+  stations: PipelineStation[];
+  title?: string;
+  caption?: string;
+}) {
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  return (
+    <div className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800">
+      {(title || caption) && (
+        <div className="mb-5 space-y-1">
+          {title && (
+            <h2 className="text-sm font-medium text-gray-900 dark:text-gray-100">{title}</h2>
+          )}
+          {caption && (
+            <p className="text-xs text-gray-500 dark:text-gray-400">{caption}</p>
+          )}
+        </div>
+      )}
+
+      <div className="overflow-x-auto">
+        <div className="flex min-w-max items-center gap-2 pb-2">
+          {stations.map((station, si) => {
+            const tone = stationColorMap[station.color ?? "gray"];
+            const isActive = activeId === station.id;
+
+            return (
+              <div key={station.id} className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveId(isActive ? null : station.id)}
+                  className="flex min-w-[80px] flex-col items-center rounded-xl px-4 py-3 text-center transition-all duration-200"
+                  style={{
+                    border: isActive ? `2px solid ${tone.border}` : "2px solid #e5e7eb",
+                    background: isActive ? tone.bg : "white",
+                  }}
+                >
+                  <span
+                    className="text-xs font-semibold"
+                    style={{ color: isActive ? tone.text : "#374151" }}
+                  >
+                    {station.label}
+                  </span>
+                  {station.sublabel && (
+                    <span
+                      className="mt-0.5 text-[10px]"
+                      style={{ color: isActive ? tone.text : "#6b7280", opacity: 0.8 }}
+                    >
+                      {station.sublabel}
+                    </span>
+                  )}
+                </button>
+
+                {si < stations.length - 1 && (
+                  <svg width="20" height="14" viewBox="0 0 20 14" fill="none" className="shrink-0">
+                    <path
+                      d="M1 7h14M11 2l5 5-5 5"
+                      stroke="#d1d5db"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Detail panel */}
+      {activeId && (() => {
+        const station = stations.find((s) => s.id === activeId);
+        if (!station) return null;
+        const tone = stationColorMap[station.color ?? "gray"];
+        return (
+          <div
+            className={cn("mt-4 rounded-xl border px-4 py-3 text-sm leading-relaxed", tone.detail)}
+          >
+            <span className="mr-1.5 font-semibold">{station.label}:</span>
+            {station.detail}
+          </div>
+        );
+      })()}
+    </div>
   );
 }

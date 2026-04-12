@@ -1,194 +1,447 @@
 ---
-title: "Transformer & Attention"
+title: "The Transformer: Attention Is All You Need"
 slug: "transformer-attention"
 module: 1
 moduleName: "The Engine Room"
 sessionNumber: 4
-duration: "13 min"
-difficulty: "beginner"
-tags: ["attention", "transformer", "qkv"]
+duration: "22 min"
+difficulty: "intermediate"
+tags: ["attention", "transformer", "encoder-decoder"]
 nextSession: "how-llms-think"
 prevSession: "embeddings"
 ---
 
-{/* SECTION 1 - GOAL */}
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 1 — GOAL
+    ═══════════════════════════════════════════════════════════════ */}
 
 <SessionSection id="goal" label="Goal">
 
-## Understand how the transformer lets every token talk to every other token
+## Trace a sentence from raw text to the predicted next token
 
-The last session turned tokens into vectors. This session shows what happens next -- how the transformer uses attention to let every token look at every other token simultaneously and decide which ones matter for understanding its own meaning.
+Every LLM you use — GPT, Claude, Gemini — runs on the Transformer. This session moves from why sequential models hit a wall to how the 2017 *Attention Is All You Need* design replaced them with pure attention.
+
+By the end, you can follow one sentence through tokenization, embeddings, positional encoding, encoder and decoder stacks, and the final vocabulary scores — and know why each stage exists.
+
+The lesson path matches that order in **Core Concepts**: after the RNN motivation, we nail **positional encoding** with a small animation, then **one encoder layer** and **one decoder layer** as interactive stacks, then the **attention math** (Q/K/V), and finally the **full pipeline** walkthrough that ties everything together.
 
 </SessionSection>
 
 
-{/* SECTION 2 - BIG PICTURE */}
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 2 — BIG PICTURE
+    ═══════════════════════════════════════════════════════════════ */}
 
 <SessionSection id="big-picture" label="Big Picture">
 
-## The transformer block is the engine inside every modern LLM
+## The problem, the fix, and the pipeline
 
-A transformer is a stack of identical blocks. Each block has two jobs: attention (tokens talk to each other) and a feed-forward layer (each token processes what it learned). This repeats across many layers -- GPT-4 has 96 layers, each refining the vectors further before the final output.
+Imagine reading a book by only being allowed to remember the last sentence you read. Every time you turn the page, the earlier chapters fade. That was the core problem with the architecture that came before the Transformer — it could only pass meaning forward one word at a time through a single bottleneck.
+
+The Transformer solves this with one radical idea: read the entire sentence at once, and let every word talk directly to every other word simultaneously. No chain. No bottleneck. Everything in parallel.
+
+The classic *encoder–decoder* design (think machine translation) has two stacks: the **encoder** reads the whole source in parallel and builds a memory; the **decoder** generates the target **one token at a time** while consulting that memory. The interactive **big picture** below is the same journey drawn as **six stages** from raw string to the predicted token: tokenize, embed, add position, encode, decode, predict.
 
 <NodeFlowDiagram
-  title="What happens inside one transformer block — repeated 96× in GPT-4"
+  diagramId="raw-text-to-predicted-token-pipeline"
+  title="The six stages: raw text to predicted token"
   height={540}
-  groups={[
-    { id: "block", label: "One Transformer Block (×96 in GPT-4)", nodeIds: ["attn", "attn2", "attn3", "ffn"], color: "violet" },
-  ]}
   nodes={[
-    { id: "input",  label: "Input Vectors",      sublabel: "From embedding or prior block",    x: 50, y: 10, color: "gray",   shape: "rect", size: "lg", emoji: "📥" },
-    { id: "attn",   label: "Attention Head 1",   sublabel: "Q·K·V: tokens talk to each other", x: 15, y: 42, color: "violet", shape: "rect", emoji: "👁️" },
-    { id: "attn2",  label: "Attention Head 2",   sublabel: "Different subspace focus",          x: 50, y: 42, color: "violet", shape: "rect", emoji: "👁️" },
-    { id: "attn3",  label: "Attention Head 3…",  sublabel: "Up to 96 heads in parallel",        x: 85, y: 42, color: "violet", shape: "rect", emoji: "👁️" },
-    { id: "ffn",    label: "Feed-Forward Net",   sublabel: "Each token processed independently", x: 50, y: 70, color: "teal",   shape: "rect", size: "lg", emoji: "⚡" },
-    { id: "output", label: "Output Vectors",     sublabel: "Richer, context-aware vectors",     x: 50, y: 92, color: "amber",  shape: "rect", size: "lg", emoji: "📤" },
+    { id: "tokenize", label: "Tokenize", sublabel: "text → IDs", x: 10, y: 34, color: "gray", shape: "rect", size: "sm", emoji: "🔤" },
+    { id: "embed", label: "Embed", sublabel: "IDs → vectors", x: 26, y: 34, color: "teal", shape: "rect", size: "sm", emoji: "📊" },
+    { id: "posenc", label: "Positional encode", sublabel: "add order", x: 44, y: 34, color: "rose", shape: "rect", size: "sm", emoji: "📍" },
+    { id: "encode", label: "Encode", sublabel: "understand all", x: 64, y: 34, color: "violet", shape: "rect", size: "sm", emoji: "🧠" },
+    { id: "decode", label: "Decode", sublabel: "generate next", x: 52, y: 72, color: "amber", shape: "rect", size: "sm", emoji: "✍️" },
+    { id: "predict", label: "Predict", sublabel: "scores → token", x: 76, y: 72, color: "blue", shape: "rect", size: "sm", emoji: "🎯" },
   ]}
   edges={[
-    { from: "input",  to: "attn",   animated: true, stepNumber: 1 },
-    { from: "input",  to: "attn2",  animated: true },
-    { from: "input",  to: "attn3",  animated: true },
-    { from: "attn",   to: "ffn",    animated: true, stepNumber: 2 },
-    { from: "attn2",  to: "ffn",    animated: true },
-    { from: "attn3",  to: "ffn",    animated: true },
-    { from: "ffn",    to: "output", animated: true, stepNumber: 3 },
+    { from: "tokenize", to: "embed", animated: true, color: "gray" },
+    { from: "embed", to: "posenc", animated: true, color: "teal" },
+    { from: "posenc", to: "encode", animated: true, color: "rose" },
+    { from: "encode", to: "decode", animated: true, color: "violet" },
+    { from: "decode", to: "predict", animated: true, color: "amber" },
   ]}
   steps={[
-    { id: "s1", label: "Input vectors enter the block", description: "Each token arrives as a vector — from the embedding layer on the first block, or from the previous transformer block output for all subsequent blocks.", highlightNodes: ["input"], highlightEdges: [] },
-    { id: "s2", label: "Multiple attention heads run in parallel", description: "Every attention head computes Q, K, V for every token simultaneously. Each head focuses on a different learned subspace — one might track syntax, another semantics, another coreference. GPT-4 runs 96 of these in parallel per block.", highlightNodes: ["attn", "attn2", "attn3"], highlightEdges: ["input→attn", "input→attn2", "input→attn3"] },
-    { id: "s3", label: "Feed-forward network refines each token", description: "The attention outputs are combined, then passed through a small two-layer neural network — independently for each token. This is where most of the model's factual knowledge lives in its weights.", highlightNodes: ["ffn"], highlightEdges: ["attn→ffn", "attn2→ffn", "attn3→ffn"] },
-    { id: "s4", label: "Richer vectors move to the next block", description: "The output vectors carry more context than the inputs. This block repeats dozens of times — each pass deepens the model's understanding before the final token prediction.", highlightNodes: ["ffn", "output"], highlightEdges: ["ffn→output"] },
+    {
+      id: "s1",
+      label: "Tokenize — text → IDs",
+      description: "The sentence is split into tokens — subword pieces — each mapped to an integer. This is the only form the model can read.",
+      highlightNodes: ["tokenize"],
+      highlightEdges: [],
+    },
+    {
+      id: "s2",
+      label: "Embed — IDs → vectors",
+      description: "Each integer is looked up in a learned table and becomes a dense vector that encodes its meaning. Similar words end up with similar vectors.",
+      highlightNodes: ["tokenize", "embed"],
+      highlightEdges: ["tokenize→embed"],
+    },
+    {
+      id: "s3",
+      label: "Positional encode — add order",
+      description: "The Transformer sees all tokens at once, so embeddings alone do not say whether \"cat\" came before \"sat\". A fixed vector from the token's index (sine/cosine at different frequencies) is added to each embedding so order is explicit before attention runs.",
+      highlightNodes: ["tokenize", "embed", "posenc"],
+      highlightEdges: ["tokenize→embed", "embed→posenc"],
+    },
+    {
+      id: "s4",
+      label: "Encode — understand all",
+      description: "The encoder reads every token at once. Self-attention lets every word attend to every other word — building a rich understanding of the full sentence.",
+      highlightNodes: ["tokenize", "embed", "posenc", "encode"],
+      highlightEdges: ["tokenize→embed", "embed→posenc", "posenc→encode"],
+    },
+    {
+      id: "s5",
+      label: "Decode — generate next",
+      description: "The decoder generates one token at a time. It uses masked attention (only past tokens) and cross-attention (reads the encoder's memory).",
+      highlightNodes: ["tokenize", "embed", "posenc", "encode", "decode"],
+      highlightEdges: ["tokenize→embed", "embed→posenc", "posenc→encode", "encode→decode"],
+    },
+    {
+      id: "s6",
+      label: "Predict — scores → token",
+      description: "A linear layer produces one score per vocabulary word (often tens of thousands). Softmax converts them to probabilities. The highest-scoring token is selected.",
+      highlightNodes: ["tokenize", "embed", "posenc", "encode", "decode", "predict"],
+      highlightEdges: ["tokenize→embed", "embed→posenc", "posenc→encode", "encode→decode", "decode→predict"],
+    },
   ]}
 />
+
+Use **Play**, **Prev / Next**, or the step dots to walk the pipeline; the panel below matches the highlighted stretch of the graph — same pattern as the token and lifecycle diagrams earlier in the course.
+
+Each stage above is a concept you will understand by the end of this session. The sections below unpack them one by one — starting with the problem that made the Transformer necessary.
 
 </SessionSection>
 
 
-{/* SECTION 3 - CORE CONCEPTS */}
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 3 — CORE CONCEPTS
+    ═══════════════════════════════════════════════════════════════ */}
 
 <SessionSection id="core-concepts" label="Core Concepts">
 
-## Attention lets every token ask a question about every other token
+### The RNN bottleneck: why the old approach broke
 
-For each token, the model creates three vectors from its embedding: a Query (what am I looking for?), a Key (what do I offer?), and a Value (what should I contribute if selected?). The token compares its Query against every other token's Key to get a score, turns those scores into weights with softmax, then blends all the Values using those weights. The result is a new vector for that token -- one that now carries context from the whole sequence.
+Before the Transformer, language models used Recurrent Neural Networks. Think of an RNN like a game of telephone. The first person whispers a message to the second, the second whispers to the third, and so on. By the time the message reaches person 30, the original words are distorted or lost entirely.
+
+Concretely: when an RNN reads "The cat sat on the mat", it processes one word at a time. Each new word partially overwrites the previous hidden state. By the time it reaches "mat", the signal from "The" has been diluted through five overwrite operations. There is no direct connection between "cat" and "mat" — information must travel through every word in between.
+
+The diagram below unrolls **The capital of Egypt is Cairo** in time: one RNN cell reused at every step, hidden vectors **h** passed forward (orange), and a next-token head at each step (ŷ₁, ŷ₂, …). Step through it once so it lines up with the passing and failure demos that follow.
+
+<RNNUnrolledOverview />
+
+Before seeing what breaks in longer text, see a short clause work in detail. The next diagram walks **The capital of Egypt is Cairo.** through the RNN and shows next-token prediction: after “… Egypt is”, the model should autocomplete “Cairo”.
+
+<RNNWorkingExample
+  title="RNN working correctly — short clause, next token is Cairo"
+  caption="Step through the sentence, then open “Next-token prediction” to see high-confidence autocomplete after the prefix … Egypt is."
+/>
+
+That worked because the clause is short and the city name is still strong in the hidden state. Now extend the same setup with more text after “Cairo” — autocomplete after “includes” can break when the city signal has decayed.
+
+<RNNFailureDemo
+  title="Longer context — decay breaks a logical autocomplete"
+  caption="The dashed ? marks where the next token goes — after includes, before Egyptian. See how decay lets the RNN guess Alexandria (wrong city and broken phrase) instead of the, and how attention restores the."
+/>
+
+LSTMs added memory gates that helped slow the forgetting, and Seq2Seq + Attention (2014) let the decoder look back at every step. Both were improvements. But both still read one word at a time. The Transformer asked: what if we skip the telephone game entirely and let every word talk to every other word directly, all at once?
+
+### Positional encoding: why order must be added
+
+Attention compares tokens **in parallel**. If you only had word embeddings, shuffling words could leave the same multiset of vectors — the model would not know who came first. Real systems add a **positional** vector (in the original paper: fixed sine/cosine patterns by index) to each embedding so “dog bites man” and “man bites dog” land in different places.
+
+<PositionalEncodingVisualizer
+  title="Positional encoding in three beats"
+  caption="Order (swap), a tiny position wave by index, then meaning + position summed — same story as the paper, stripped to the essentials."
+  tokens={["dog", "bites", "man"]}
+/>
+
+You already walked **text → tokens → embeddings** in the Embeddings session and the **six-stage** diagram above; the positional visualizer just above shows **meaning + position** summed into one vector per token. With that combined vector ready, the next step is what happens inside a single **encoder layer**.
+
+### Encoder block: one layer, two residuals
+
+<TransformerSubstackExplorer
+  variant="encoder"
+  title="Encoder — self-attention, feed-forward, residuals"
+  caption="Use the pills or tap a block to change the focus. Green arrows show data moving up the stack; each colored block is a sub-layer you can explore."
+  layerCount={6}
+/>
+
+### Self-attention: every word talks to every word
+
+Self-attention is the core mechanism that replaced the RNN chain. Here is the simplest way to understand it: every word simultaneously asks a question, advertises what it knows, and holds information others can borrow.
+
+For every token the model creates three vectors. The Query (Q) asks: "what am I looking for?" The Key (K) advertises: "what do I offer?" The Value (V) holds: "what information can I contribute?" The model computes a dot product between every Query and every Key, applies softmax to get weights that sum to 1.0, then blends the Values using those weights. The result for each token is a new vector that reflects the context of the entire sentence.
+
+Click any word below to see its Query, how it scores every other token's Key, and how those scores become the attention weights that determine what context it absorbs.
+
+<SelfAttentionScoreExplorer
+  title="Self-attention: click any word to see what it attends to"
+  caption="Click a token to see its query question and how it scores every other token."
+  tokens={["The", "cat", "sat", "on", "the", "mat"]}
+  queries={[
+    "which noun follows?",
+    "what am I doing? where?",
+    "who did this? where?",
+    "what does this connect?",
+    "which noun follows?",
+    "who sat on me?"
+  ]}
+  attentionRows={[
+    { token: "The",  scores: [0.05, 0.55, 0.15, 0.05, 0.08, 0.12] },
+    { token: "cat",  scores: [0.08, 0.14, 0.35, 0.05, 0.06, 0.32] },
+    { token: "sat",  scores: [0.05, 0.38, 0.12, 0.06, 0.05, 0.34] },
+    { token: "on",   scores: [0.04, 0.10, 0.14, 0.12, 0.14, 0.46] },
+    { token: "the",  scores: [0.10, 0.06, 0.07, 0.05, 0.12, 0.60] },
+    { token: "mat",  scores: [0.05, 0.28, 0.28, 0.14, 0.10, 0.15] }
+  ]}
+  defaultSelected={2}
+/>
+
+The heatmap below makes all attention weights visible at once. Each row is one word. The brighter the cell, the more that word attended to the column word. Notice "sat" lights up strongly on "cat" and "mat" — exactly the scores you just saw.
 
 <AttentionHeatmap
-  title='Attention weights for "The cat sat on the mat"'
-  caption='Click any token row to see what it attends to -- notice how "sat" strongly attends to "cat"'
-  colorRamp="amber"
+  title="Attention weights: all tokens at once"
+  caption="Click any row to highlight that token's full attention pattern across the sentence."
+  colorRamp="violet"
   tokens={["The", "cat", "sat", "on", "the", "mat"]}
   weights={[
-    [0.40, 0.25, 0.15, 0.08, 0.07, 0.05],
-    [0.10, 0.55, 0.20, 0.05, 0.05, 0.05],
-    [0.05, 0.50, 0.25, 0.08, 0.05, 0.07],
-    [0.10, 0.15, 0.30, 0.25, 0.10, 0.10],
-    [0.30, 0.10, 0.10, 0.10, 0.25, 0.15],
-    [0.05, 0.10, 0.15, 0.15, 0.20, 0.35],
+    [0.05, 0.55, 0.15, 0.05, 0.08, 0.12],
+    [0.08, 0.14, 0.35, 0.05, 0.06, 0.32],
+    [0.05, 0.38, 0.12, 0.06, 0.05, 0.34],
+    [0.04, 0.10, 0.14, 0.12, 0.14, 0.46],
+    [0.10, 0.06, 0.07, 0.05, 0.12, 0.60],
+    [0.05, 0.28, 0.28, 0.14, 0.10, 0.15]
   ]}
 />
 
-### Q, K, V is a learned search engine
+One attention head captures one kind of relationship. But a sentence has many relationship types happening simultaneously — subject-verb links, co-references, prepositional targets. Multi-head attention runs 8 independent attention operations in parallel, each with its own learned weights looking at a different 64-dimension slice of the input. Their outputs are concatenated and projected back to 512 dimensions. Same compute cost as one full-size head — eight times the relationship types captured. Use the **Multi-head** pill on the encoder stack above for a one-screen recap of that idea.
 
-Think of it like a YouTube search. Your search query is Q. Each video's title is a K. The video itself is V. Attention compares your Q against every K, scores the matches, and returns a weighted blend of the matching Vs. The key difference from a real search engine: the weights are soft -- every token contributes something, just with different amounts.
+### Decoder block: masked attention, cross-attention, FFN
 
-<StepSequence
-  title="How Q, K, V works step by step"
-  caption="Click any step to expand the detail for that stage"
-  orientation="vertical"
-  steps={[
-    { number: 1, phase: "Project", title: "Create Q, K, V for every token", detail: "Each token's vector is multiplied by three learned weight matrices to produce its Query, Key, and Value vectors. These matrices are learned during training.", color: "violet" },
-    { number: 2, phase: "Score", title: "Compare Q against every K", detail: "The Query for each token is dot-producted against the Key of every other token. For \"sat\", the Key of \"cat\" scores highest because sat needs to know who is doing the sitting.", color: "teal" },
-    { number: 3, phase: "Normalise", title: "Scale and apply softmax", detail: "The raw scores are divided by the square root of the vector dimension to keep numbers stable, then softmax converts them into weights that sum to 1.0.", color: "amber" },
-    { number: 4, phase: "Blend", title: "Blend the Values", detail: "Each token's Value vector is multiplied by its weight. All weighted Values are summed to produce one output vector per token.", color: "blue" },
-    { number: 5, phase: "Output", title: "Output is context-aware", detail: "The new vector for \"sat\" now carries information from \"cat\", \"mat\", and all other tokens -- weighted by relevance. Attention is complete for this layer.", color: "violet" },
-  ]}
+The decoder generates one token at a time. **Masked** self-attention blocks “looking right” at tokens that are not supposed to exist yet. **Cross-attention** is where the decoder’s queries read the encoder’s memory (keys and values from the encoder output). Then the same style of **feed-forward** and **residual + layer norm** wraps appear again.
+
+<TransformerSubstackExplorer
+  variant="decoder"
+  title="Decoder — mask, cross-attend, refine"
+  caption="Three sub-layers per decoder block in the classic diagram: masked self-attention, cross-attention into encoder memory, then FFN — each followed by add + norm."
+  layerCount={6}
 />
 
-### Multi-head attention runs this process in parallel
-
-A single attention pass captures one type of relationship. Multi-head attention runs several passes in parallel -- each head learns to focus on different patterns like subject-verb, pronoun-reference, or position. The outputs are concatenated and projected back to the original dimension. Most modern models use 12 to 96 heads per layer.
-
-<ConceptCompare
-  title="Single-head vs multi-head attention"
-  caption="Toggle to see what changes when you add more heads"
-  mode="toggle"
-  left={{
-    label: "Single-head attention",
-    color: "gray",
-    points: [
-      "One set of Q, K, V matrices",
-      "Captures one relationship type per layer",
-      "Cheaper to compute",
-      "Misses parallel patterns like syntax AND semantics simultaneously",
-    ]
-  }}
-  right={{
-    label: "Multi-head attention",
-    color: "violet",
-    points: [
-      "Multiple Q, K, V sets run in parallel",
-      "Each head specializes in a different relationship",
-      "Outputs concatenated then projected back to original size",
-      "GPT-4 uses 96 heads per layer",
-    ]
-  }}
-/>
+Many chat LLMs you use day to day are **decoder-only** (no separate encoder stack): they still use positional encoding and masked self-attention over the prompt; the encoder–decoder picture is the cleanest way to see **cross-attention** when a source and a target sequence both exist.
 
 </SessionSection>
 
 
-{/* SECTION 4 - PRACTICAL EXAMPLE */}
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 4 — PRACTICAL EXAMPLE
+    ═══════════════════════════════════════════════════════════════ */}
 
 <SessionSection id="practical-example" label="Practical Example">
 
-## Why "she" in a sentence gets resolved correctly
+## Every concept, one sentence, one flow
 
-A developer builds a document summarizer. The model receives: "The contract was signed by the CEO because she approved it." The pronoun "she" needs to resolve to "CEO" not "contract". Attention handles this -- "she" produces a Query that scores highly against the Key of "CEO" and low against "contract". The updated vector for "she" carries the CEO's context. Without attention, the model would have no mechanism to link pronouns to their referents across long distances.
+You have now walked the **encoder** and **decoder** stacks, the **positional** story, and the **Q/K/V** mechanics. This walkthrough strings the same ideas into one timeline: tokenizer → embeddings + position → encoder → decoder → logits. Each numbered step nudges a stage or an internal chip so you can map the story back to the diagrams above.
 
-<AttentionHeatmap
-  title='How "she" attends to resolve its reference'
-  caption='Click the "she" row -- notice it attends strongly to "CEO" and weakly to "contract"'
-  colorRamp="amber"
-  tokens={["contract", "CEO", "because", "she", "approved", "it", "."]}
-  weights={[
-    [0.35, 0.20, 0.10, 0.10, 0.10, 0.10, 0.05],
-    [0.15, 0.40, 0.10, 0.15, 0.10, 0.05, 0.05],
-    [0.10, 0.10, 0.35, 0.15, 0.15, 0.10, 0.05],
-    [0.05, 0.65, 0.05, 0.10, 0.08, 0.05, 0.02],
-    [0.10, 0.20, 0.10, 0.25, 0.20, 0.10, 0.05],
-    [0.30, 0.10, 0.10, 0.10, 0.15, 0.20, 0.05],
-    [0.10, 0.10, 0.10, 0.10, 0.15, 0.10, 0.35],
+<TransformerPipelineWalkthrough
+  title='"The cat sat on the mat" — full pipeline, one step at a time'
+  caption="Next / Prev walks the timeline. Click a stage card to jump to its first step — same order as Core Concepts: tokens, vectors + position, encoder, then decoder."
+  inputText="The cat sat on the mat"
+  outputToken="mat"
+  stages={[
+    {
+      id: "raw",
+      label: "Raw text",
+      sublabel: "input string",
+      color: "gray",
+      internals: []
+    },
+    {
+      id: "tok",
+      label: "Tokenizer",
+      sublabel: "text → IDs",
+      color: "gray",
+      internals: [
+        { label: "BPE split", detail: "Sentence split into subword pieces" },
+        { label: "6 tokens", detail: "The / cat / sat / on / the / mat" },
+        { label: "Integer IDs", detail: "Each token maps to a row in the vocab table" }
+      ]
+    },
+    {
+      id: "emb",
+      label: "Embeddings",
+      sublabel: "meaning vectors",
+      color: "teal",
+      internals: [
+        { label: "512-dim each", detail: "Each integer becomes a 512-number vector" },
+        { label: "Learned table", detail: "50k rows trained on billions of tokens" },
+        { label: "Pos encoding added", detail: "Sine/cosine position vectors added to meaning vectors" }
+      ]
+    },
+    {
+      id: "enc",
+      label: "Encoder",
+      sublabel: "understand all",
+      color: "violet",
+      internals: [
+        { label: "Self-attention ×6", detail: "Every token attends to every other — sat scores cat and mat highest" },
+        { label: "8 heads parallel", detail: "8 relationship types captured simultaneously per layer" },
+        { label: "FFN + residual", detail: "Per-token refinement with original signal preserved" }
+      ]
+    },
+    {
+      id: "dec",
+      label: "Decoder",
+      sublabel: "generate next",
+      color: "amber",
+      internals: [
+        { label: "Masked attention", detail: "Only attends to already-generated tokens — no future peeking" },
+        { label: "Cross-attention", detail: "Decoder queries encoder memory — K and V come from encoder output" },
+        { label: "FFN + residual ×6", detail: "Same structure as encoder, repeated 6 times" }
+      ]
+    },
+    {
+      id: "out",
+      label: "\"mat\"",
+      sublabel: "54% probability",
+      color: "teal",
+      internals: []
+    }
+  ]}
+  steps={[
+    {
+      id: "s1",
+      label: "① Raw text enters",
+      description: "The sentence \"The cat sat on the mat\" is the raw input. The model cannot read letters or words — it needs integers. The tokenizer handles that conversion next.",
+      activeStageId: "raw",
+      activeInternalId: null
+    },
+    {
+      id: "s2",
+      label: "② Tokenizer — text becomes 6 integer IDs",
+      description: "The sentence splits into 6 tokens. Each maps to an integer in the vocabulary. The model reads only these integers — never letters, never raw characters. This is the only language it understands.",
+      activeStageId: "tok",
+      activeInternalId: "BPE split"
+    },
+    {
+      id: "s3",
+      label: "③ Embeddings — integers become meaning",
+      description: "Each integer is looked up in a learned 50,000-row table and becomes a 512-number vector. \"cat\" and \"kitten\" end up with similar vectors because they appear in similar contexts in training data.",
+      activeStageId: "emb",
+      activeInternalId: "512-dim each"
+    },
+    {
+      id: "s4",
+      label: "④ Positional encoding — order is added",
+      description: "Because the Transformer reads all 6 tokens at once, it has no built-in sense of order. A second 512-number vector encoding each token's position is added to its meaning vector. Without this, \"cat sat\" and \"sat cat\" look identical.",
+      activeStageId: "emb",
+      activeInternalId: "Pos encoding added"
+    },
+    {
+      id: "s5",
+      label: "⑤ Encoder — self-attention runs",
+      description: "All 6 combined vectors enter the encoder simultaneously. Self-attention runs: \"sat\" attends strongly to \"cat\" (who sat?) and \"mat\" (sat where?). These are not rules — patterns the model learned from training data.",
+      activeStageId: "enc",
+      activeInternalId: "Self-attention ×6"
+    },
+    {
+      id: "s6",
+      label: "⑥ 8 heads — 8 relationship types at once",
+      description: "Multi-head attention runs 8 independent attention operations in parallel. One head may track subject-verb links, another co-references, another prepositional targets. All run simultaneously then merge back to 512 dimensions.",
+      activeStageId: "enc",
+      activeInternalId: "8 heads parallel"
+    },
+    {
+      id: "s7",
+      label: "⑦ 6 encoder layers — deep context refinement",
+      description: "The full attention + FFN + residual cycle repeats 6 times. By layer 6, every token's vector has been refined by 6 rounds of global attention. Each vector now carries the context of the entire sentence.",
+      activeStageId: "enc",
+      activeInternalId: "FFN + residual"
+    },
+    {
+      id: "s8",
+      label: "⑧ Decoder — masked attention on past output",
+      description: "The decoder starts generating. Masked self-attention means each position can only attend to previously generated tokens — never future positions. This enforces the left-to-right generation order.",
+      activeStageId: "dec",
+      activeInternalId: "Masked attention"
+    },
+    {
+      id: "s9",
+      label: "⑨ Cross-attention — decoder reads encoder memory",
+      description: "This is the bridge. The decoder asks: given what I have generated so far, which parts of the source sentence matter most? It forms Queries from its own state and searches the encoder's Keys and Values for the answer.",
+      activeStageId: "dec",
+      activeInternalId: "Cross-attention"
+    },
+    {
+      id: "s10",
+      label: "⑩ Feed-forward × 6 decoder layers",
+      description: "The same FFN + residual cycle runs 6 times in the decoder. After 6 layers, the final decoder vector passes through a linear layer producing one score per vocabulary word — about 50,000 scores.",
+      activeStageId: "dec",
+      activeInternalId: "FFN + residual ×6"
+    },
+    {
+      id: "s11",
+      label: "⑪ Softmax → \"mat\" at 54%",
+      description: "Softmax converts the 50,000 raw scores to probabilities summing to 100%. \"mat\" scores highest at 54%. It is selected and appended to the context. The entire pipeline now restarts with a 7-token input — this is autoregressive generation.",
+      activeStageId: "out",
+      activeInternalId: null
+    }
   ]}
 />
 
 </SessionSection>
 
 
-{/* SECTION 5 - RECAP */}
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 5 — RECAP
+    ═══════════════════════════════════════════════════════════════ */}
 
 <SessionSection id="recap" label="Recap">
 
 ## What we covered
 
-<RecapTable rows={[
-  { term: "Attention", definition: "A mechanism that lets each token create a context-aware vector by blending information from all other tokens" },
-  { term: "Query (Q)", definition: "A vector representing what a token is looking for in other tokens" },
-  { term: "Key (K)", definition: "A vector representing what a token offers to other tokens searching for it" },
-  { term: "Value (V)", definition: "A vector representing the actual content a token contributes when selected by attention" },
-  { term: "Multi-head attention", definition: "Running multiple attention passes in parallel, each capturing a different type of relationship" },
-]} />
+<RecapTable
+  rows={[
+    {
+      term: "Self-attention",
+      definition: "Each token builds Q, K, and V vectors, scores all keys with its query, softmaxes the scores, and blends the values — producing one context-aware output vector per token."
+    },
+    {
+      term: "Masked self-attention (decoder)",
+      definition: "In the decoder, each position may only attend to itself and earlier positions so the model cannot peek at future tokens while generating left-to-right."
+    },
+    {
+      term: "Multi-head attention",
+      definition: "8 independent attention heads run in parallel on 64-dim slices of the input, then concatenate and project — capturing 8 different relationship types in one layer."
+    },
+    {
+      term: "Positional encoding",
+      definition: "Sine and cosine vectors computed from each token's position index, added to its embedding so the model knows word order despite reading all tokens at once."
+    },
+    {
+      term: "Residual connection",
+      definition: "The sub-layer's input is added to its output before normalization, preserving the original signal across all 6 stacked layers so nothing is lost during deep training."
+    },
+    {
+      term: "Cross-attention",
+      definition: "The decoder's attention mechanism where Queries come from the decoder's own state but Keys and Values come from the encoder output — the bridge that grounds generation in the source."
+    }
+  ]}
+/>
 
 </SessionSection>
 
 
-{/* SECTION 6 - NEXT SESSION */}
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 6 — NEXT SESSION
+    ═══════════════════════════════════════════════════════════════ */}
 
 <SessionSection id="next-session" label="Next Session">
 
 <NextSessionCard
   title="How LLMs Think"
   slug="how-llms-think"
-  teaser="Now that you understand how the transformer builds context, the next question is what the model does with that context -- and how temperature and sampling shape what actually comes out."
+  teaser="You have the architecture; next we look at what the model does with context — and how temperature and sampling shape the tokens you actually read."
   module={1}
 />
 

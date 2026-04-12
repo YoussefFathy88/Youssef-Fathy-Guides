@@ -71,6 +71,15 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | OAuth 2.0 Authorization Code flow with JWT decoder | `OAuthFlowStepper` |
 | Message queue with producers, consumers, backpressure, DLQ | `MessageQueueSim` |
 | Rate limiting: Token Bucket / Sliding Window / Fixed Window | `RateLimiterVisualizer` |
+| RNN hidden-state signal decay with animated bars + ghost line | `HiddenStateDecayDiagram` |
+| RNN unrolled over time — h₀→hₙ chain, ŷ heads, one column per token (Prev/Next) | `RNNUnrolledOverview` |
+| RNN walkthrough — short declarative clause, survival into h₇, next-token autocomplete | `RNNWorkingExample` |
+| RNN failure vs Transformer — slot after includes, Cairo decay, Alexandria vs the, arcs to slot | `RNNFailureDemo` |
+| Positional encoding — swap tokens, sine-by-index sketch, meaning+position bars | `PositionalEncodingVisualizer` |
+| Encoder or decoder sub-stack — pills; **surface-panel** chrome; stack blocks use `surface-strong` + left accents from site tokens (`--purple`, `--success`, `--warning`) | `TransformerSubstackExplorer` |
+| Self-attention Q/K/V score explorer — click a token, watch bars animate | `SelfAttentionScoreExplorer` |
+| Full Transformer pipeline walkthrough — stage cards + internal chip trays + step panel | `TransformerPipelineWalkthrough` |
+| Three-panel side-by-side token animation showing Base → Instruct → Aligned model responses | `ModelBehaviorEvolution` |
 
 **`DataFlowDiagram` vs `PipelineTrack`:** use `DataFlowDiagram` for non-linear graphs with arbitrary edges; use `PipelineTrack` for ordered left-to-right pipelines.
 
@@ -101,6 +110,7 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | `Vector2DPlot` | Interactive | Draggable 2D semantic plot. |
 | `TokenProbDist` | Interactive | Sampling UI over next-token candidates. |
 | `PipelineTrack` | Diagram | Stations and animated lines between node ids. |
+| `PositionalEncodingVisualizer` | Interactive | Three-step mini-lesson: token swap, positional wave, schematic embedding+position sum. |
 | `StepSequence` | Interactive | Phased steps or narrative steps; optional `autoPlay` (narrative). |
 | `LayerStack` | Interactive | Clickable vertical stack of layers. |
 | `AnnotatedCode` | Interactive | Code string + line `annotations`. |
@@ -132,6 +142,13 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | `OAuthFlowStepper` | Interactive | Step-through OAuth flow (Authorization Code / Client Credentials / Implicit) with JWT anatomy panel. |
 | `MessageQueueSim` | Interactive | Producer, slot queue, multi-consumer progress bars, backpressure, Kill Consumer, DLQ on failure. |
 | `RateLimiterVisualizer` | Interactive | Token Bucket / Sliding Window / Fixed Window with live request stream, burst button, and rate slider. |
+| `HiddenStateDecayDiagram` | Interactive | Animated bar chart showing RNN hidden-state signal decay token-by-token, with ghost reference line and Play/Pause/Reset. |
+| `RNNUnrolledOverview` | Interactive | Unrolled RNN strip: start h₀, per-timestep RNN cell + word + ŷₙ, orange hidden-state arrows, teal active column; Prev/Next + dots + step panel. |
+| `RNNWorkingExample` | Interactive | Three tabs: read “The capital of Egypt is Cairo.” with hₜ panel, survival-into-h₇ bars (stagger on tab), next-token chips (Cairo, then “.”) with probabilities. |
+| `RNNFailureDemo` | Interactive | Strip with ? slot after includes (before Egyptian Museum); decay bars; RNN Alexandria ✗ vs the ✓ with fragment lines; Transformer arcs to slot. |
+| `SelfAttentionScoreExplorer` | Interactive | Click any token to see its Query question and attention scores over all other tokens; bars animate in with stagger. |
+| `TransformerPipelineWalkthrough` | Interactive | Horizontal stage cards with internal chip trays, token strip, step panel, and Prev/Next controls for full Transformer pipeline story. |
+| `TransformerSubstackExplorer` | Interactive | Encoder or decoder: muted pills (purple / warning tints); **Full** stack and focus panel use `globals.css` surfaces and token-colored left accents—not saturated Tailwind primaries. Illustrations in `transformer-substack-illustrations.tsx` match the same tokens. |
 
 ---
 
@@ -635,7 +652,7 @@ interface TokenProbDistProps {
 
 ### PipelineTrack
 
-**Description:** Stations per `TrackLine.nodes` (ids); solid lines use a **segment-by-segment** forward token (travel + dwell per hop). Optional `badge` marks junctions (e.g. retrieval). Per-station stroke uses `TrackNode.color`; the rail uses `TrackLine.color`. With **six or more** stations on a line, label/sublabel SVG type uses a **compact** scale (still larger than body copy) so captions stay readable without overlap.
+**Description:** Two rendering modes. **SVG animation mode** (`nodes` + `lines`): stations per `TrackLine.nodes` (ids); solid lines use a segment-by-segment forward token (travel + dwell per hop). **Stations mode** (`stations`): simple clickable HTML cards laid out horizontally with arrows; clicking a card expands a detail panel — ideal for teaching pipeline stages without animation. Do not mix both modes on the same instance.
 
 ```ts
 interface TrackNode {
@@ -654,9 +671,21 @@ interface TrackLine {
   dashed?: boolean;
 }
 
+/** Used in stations mode only — no nodes/lines required. */
+interface PipelineStation {
+  id: string;
+  label: string;
+  sublabel?: string;
+  color?: "violet" | "teal" | "amber" | "gray" | "blue" | "rose";
+  detail: string;  // shown in the detail panel when this station is clicked
+}
+
 interface PipelineTrackProps {
-  nodes: TrackNode[];
-  lines: TrackLine[];
+  /** SVG animation mode */
+  nodes?: TrackNode[];
+  lines?: TrackLine[];
+  /** Stations mode — if provided, nodes/lines are ignored */
+  stations?: PipelineStation[];
   title?: string;
   caption?: string;
 }
@@ -1236,5 +1265,183 @@ interface RateLimiterVisualizerProps {
   defaultAlgorithm?: RateLimitAlgorithm; // default "TokenBucket"
   requestsPerSecond?: number;            // refill rate / window limit, default 5
   burstCapacity?: number;                // Token Bucket max tokens, default 10
+}
+```
+
+---
+
+### RNNUnrolledOverview
+
+**Description:** Teaches the unrolled RNN picture on a short sentence (default **The capital of Egypt is Cairo**). Each timestep is one column: next-token scores **ŷₙ** (dashed link), **RNN step n** box, input word below; **h₀** at the start and **h₁…hₙ** on orange arrows between columns. **Prev / Next** and step dots change the active column (teal highlight); a panel shows `stepDescriptions[i]`. Same weights every step — only hidden vector and input change.
+
+```ts
+interface RNNUnrolledOverviewProps {
+  title?: string;
+  caption?: string;
+  tokens?: string[];           // default six-word sentence
+  stepDescriptions?: string[]; // one per token; must align length with tokens when both are set from MDX
+}
+```
+
+---
+
+### HiddenStateDecayDiagram
+
+**Description:** Animated bar chart illustrating RNN hidden-state signal decay. Tokens are laid out horizontally; pressing Play advances one token at a time at 1.1-second intervals, growing each bar to its `decayHeights[i]` value with a CSS cubic-bezier height transition. A dashed ghost line persists at the first token's original height after token 0 activates, providing a visual reference for how far the signal has fallen. Step dots below the controls track progress; clicking any dot jumps to that step. Play/Pause/Reset/Replay controls. No framer-motion.
+
+```ts
+interface HiddenStateDecayDiagramProps {
+  title?: string;
+  caption?: string;
+  tokens: string[];               // e.g. ["The","cat","sat","on","the","mat"]
+  decayHeights: number[];         // bar height in px at that step (max 88px container)
+  colors: ("teal"|"amber"|"rose"|"violet"|"gray"|"blue")[];  // one per token
+  sublabels: string[];            // shown under token word when active, e.g. "full signal"
+  stepDescriptions: string[];     // one per token — shown in description panel below controls
+}
+```
+
+---
+
+### RNNWorkingExample
+
+**Description:** Self-contained “RNN works” demo for the short clause `The capital of Egypt is Cairo.` **Tab 1:** seven token chips (including `.`) with Prev/Next + dots; active chip teal border/fill; panel shows hₜ and copy about building a declarative fact. **Tab 2:** seven survival-into-h₇ bars (stagger on each tab visit). **Tab 3 — Next-token prediction:** after the prefix `… Egypt is`, two purple chips (`Cairo`, `.`) step with probabilities; active chip scales 1.05 + teal % badge.
+
+```ts
+interface RNNWorkingExampleProps {
+  title?: string;
+  caption?: string;
+}
+```
+
+---
+
+### RNNFailureDemo
+
+**Description:** Token strip includes a dashed **`?` slot** after `includes` (before `Egyptian` / `Museum`). Step 0 shows full-sense prose; steps ≥1 show a teal cue: prediction is **immediately after “includes”**. Five pills → decay bars on Cairo milestones → RNN **`Alexandria` ✗** vs **`the` ✓** with monospace continuation fragments → Transformer arcs to the **slot** (Cairo, Egypt, includes → `?`). Pills use explicit light/dark text contrast on tinted backgrounds.
+
+```ts
+interface RNNFailureDemoProps {
+  title?: string;
+  caption?: string;
+}
+```
+
+---
+
+### PositionalEncodingVisualizer
+
+**Description:** Client-only explainer with three internal steps (pills + Prev/Next): (1) swap two middle tokens to motivate order, (2) draw a simple sine-like curve over position indices, (3) animate three schematic bars for meaning, position, and sum. Respects reduced motion (no path/bar animation). Optional `autoPlay` advances steps on a timer.
+
+```ts
+interface PositionalEncodingVisualizerProps {
+  title?: string;
+  caption?: string;
+  /** Token row for the order demo; needs length ≥ 3 (swaps indices 1 and 2). */
+  tokens?: string[];
+  initialStep?: number;       // 0–2
+  autoPlay?: boolean;
+  autoPlayIntervalMs?: number;
+}
+```
+
+---
+
+### TransformerSubstackExplorer
+
+**Description:** Vertical stack diagram for **one** Transformer layer (`variant: "encoder" | "decoder"`). Topic pills select a **focus**. Styling aligns with the app shell: outer **`surface-panel`**, inner stack/focus areas use **`--surface-strong`** blocks with **`border-white/10`**, **2px left accents** mapped to **`--purple`** (attention), **`--success`** (add/norm), **`--warning`** (FFN), **slate** (input). Active stack block rings use **`--primary`** (encoder) or **`--warning`** (decoder) at low opacity; pills use translucent fills, not solid `violet-600` / `amber-600`. Non-overview focuses: thin left accent, title + sub + optional body, **tall illustration well** (`bg-white/[0.04]`). **`transformer-substack-illustrations.tsx`** uses the same CSS variables and slate text for minis. Encoder: self-attention → add/norm → FFN → add/norm. Decoder: input → masked self-attention → add/norm → cross-attention → add/norm → FFN → add/norm. `layerCount` affects the “× layers” copy and the layer-stack animation.
+
+```ts
+type TransformerSubstackVariant = "encoder" | "decoder";
+
+interface TransformerSubstackExplorerProps {
+  variant: TransformerSubstackVariant;
+  title?: string;
+  caption?: string;
+  layerCount?: number;  // default 6 — used in layers-focus copy
+}
+```
+
+---
+
+### SelfAttentionScoreExplorer
+
+**Description:** Click any token button to see its Query question and attention scores toward all other tokens. Score bars animate in left-to-right with a 60ms stagger using CSS width transitions. Bar color: ≥0.25 → teal, ≥0.12 → amber, <0.12 → gray, self-attention → always gray. Scores are displayed as integer percentages. A relationship label (strong/related/weak/distant/self) sits after each bar. The `defaultSelected` token is pre-loaded on mount so the component is never empty.
+
+```ts
+interface AttentionScoreRow {
+  token: string;
+  scores: number[];  // must sum to 1.0; one per token
+}
+
+interface SelfAttentionScoreExplorerProps {
+  title?: string;
+  caption?: string;
+  tokens: string[];
+  queries: string[];              // one query question per token
+  attentionRows: AttentionScoreRow[];  // one row per token
+  defaultSelected?: number;       // pre-selected token index (default: 0)
+}
+```
+
+---
+
+### TransformerPipelineWalkthrough
+
+**Description:** Full-pipeline walkthrough with four UI zones. **Token chip strip**: input sentence chips light up (teal) when the active stage processes tokens (`tok`/`emb`/`enc`/`dec`); output token chip fades in with probability badge on the final step. **Pipeline row**: horizontal stage cards connected by chevron arrows; active stage gets a color-tinted border + expanded internal chip tray (max-height CSS transition); clicking any stage card jumps to the first step for that stage. **Step panel**: step N-of-M counter, step label, description. **Controls**: Prev/Next buttons + clickable step dots.
+
+```ts
+interface PipelineInternal {
+  label: string;   // chip label shown in the tray
+  detail: string;  // (stored for future use; not currently rendered in a tooltip)
+}
+
+interface PipelineStage {
+  id: string;
+  label: string;
+  sublabel: string;
+  color: "gray"|"teal"|"violet"|"amber"|"blue"|"rose";
+  internals: PipelineInternal[];  // shown as chips when this stage is active
+}
+
+interface PipelineStep {
+  id: string;
+  label: string;              // step title in the panel
+  description: string;        // full explanation text
+  activeStageId: string;      // which stage card to highlight
+  activeInternalId: string | null;  // which internal chip to highlight (null = none)
+}
+
+interface TransformerPipelineWalkthroughProps {
+  title?: string;
+  caption?: string;
+  inputText: string;          // split by spaces → token chips
+  outputToken: string;        // appears on the final step with a probability badge
+  stages: PipelineStage[];
+  steps: PipelineStep[];
+}
+```
+
+---
+
+### ModelBehaviorEvolution
+
+**Description:** Three-panel side-by-side component that animates the same prompt through three LLM training checkpoints (Base → Instruct → Aligned). A shared prompt box sits above three equal-width panels. On "▶ Run Pipeline", stages animate sequentially: tokens append one at a time (200 ms interval) with a blinking cursor; the active panel gets a colored glowing border while inactive panels dim to 40% opacity; when a stage completes its explanation strip fades in. After all three stages finish, the button switches to "↺ Replay". Resting state shows empty panels with placeholder text.
+
+```ts
+type BadgeColor = "gray" | "teal" | "amber" | "violet" | "rose" | "blue";
+
+interface ModelBehaviorStage {
+  label: string;        // panel header, e.g. "Base Model (Pre-training only)"
+  badgeColor: BadgeColor;
+  explanation: string;  // explanation strip shown after stage completes — complete the sentence "This output happened because…"
+  tokens: string[];     // full token sequence to animate, one element per token
+}
+
+interface ModelBehaviorEvolutionProps {
+  title: string;
+  caption: string;
+  prompt: string;               // the single shared prompt shown above all panels
+  stages: ModelBehaviorStage[]; // exactly 3 items: Base → Instruct → Aligned
 }
 ```

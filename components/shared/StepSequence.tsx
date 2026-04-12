@@ -226,7 +226,7 @@ function NarrativeAnimatedDetailLine({
       {detailNote ? (
         <p
           className={cn(
-            "mt-1.5 text-[11px] leading-relaxed text-gray-600 transition-opacity duration-300 ease-out dark:text-gray-400",
+            "mt-2 text-sm leading-relaxed text-gray-600 transition-opacity duration-300 ease-out dark:text-gray-400",
             noteVisible ? "opacity-100" : "opacity-0",
           )}
         >
@@ -277,7 +277,7 @@ function NarrativeVerticalSequence({
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.3, delay: i * 0.07, ease: "easeOut" }}
                 className={cn(
-                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white shadow-sm",
+                  "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-base font-bold text-white shadow-sm",
                   tone.bg,
                   isActive && "shadow-md",
                 )}
@@ -310,12 +310,12 @@ function NarrativeVerticalSequence({
               aria-expanded={isActive}
             >
               <div className="flex min-w-0 items-center justify-between gap-2">
-                <span className="min-w-0 flex-1 text-sm font-semibold leading-snug text-gray-900 dark:text-gray-100">
+                <span className="min-w-0 flex-1 text-lg font-semibold leading-snug text-gray-900 dark:text-gray-100">
                   {step.label}
                 </span>
                 <motion.svg
-                  width="14"
-                  height="14"
+                  width="18"
+                  height="18"
                   viewBox="0 0 14 14"
                   fill="none"
                   animate={{ rotate: isActive ? 180 : 0 }}
@@ -334,7 +334,7 @@ function NarrativeVerticalSequence({
               </div>
 
               {!isActive && (
-                <p className="mt-1.5 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">
+                <p className="mt-2 line-clamp-2 text-base text-gray-500 dark:text-gray-400">
                   {step.description}
                 </p>
               )}
@@ -349,7 +349,7 @@ function NarrativeVerticalSequence({
                     transition={{ duration: 0.25, ease: "easeOut" }}
                     className="overflow-hidden"
                   >
-                    <p className="mt-2 text-xs leading-relaxed text-gray-600 dark:text-gray-400">
+                    <p className="mt-3 text-base leading-relaxed text-gray-600 dark:text-gray-400">
                       {step.description}
                     </p>
                     {step.animateDetail ? (
@@ -358,10 +358,10 @@ function NarrativeVerticalSequence({
                         detailNote={step.detailNote}
                         isActive={isActive}
                         reducedMotion={reducedMotion}
-                        monoClassName="mt-2 border-t border-gray-200 pt-2 font-mono text-[11px] leading-relaxed text-gray-700 dark:border-gray-600 dark:text-gray-300"
+                        monoClassName="mt-3 border-t border-gray-200 pt-3 font-mono text-[13px] leading-relaxed text-gray-700 dark:border-gray-600 dark:text-gray-300"
                       />
                     ) : (
-                      <p className="mt-2 border-t border-gray-200 pt-2 font-mono text-[11px] leading-relaxed text-gray-700 dark:border-gray-600 dark:text-gray-300">
+                      <p className="mt-3 border-t border-gray-200 pt-3 font-mono text-[13px] leading-relaxed text-gray-700 dark:border-gray-600 dark:text-gray-300">
                         {step.detail}
                       </p>
                     )}
@@ -423,18 +423,18 @@ function HorizontalSequence({
                   }
                   transition={{ duration: 0.4, ease: "easeInOut" }}
                   className={cn(
-                    "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white",
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-base font-bold text-white",
                     tone.bg,
                   )}
                 >
                   {step.number}
                 </motion.span>
-                <span className={cn("text-[11px] font-semibold uppercase tracking-wide", tone.text)}>
+                <span className={cn("text-sm font-semibold uppercase tracking-wide", tone.text)}>
                   {step.phase}
                 </span>
-                {step.icon && <span className="ml-auto text-base">{step.icon}</span>}
+                {step.icon && <span className="ml-auto text-xl">{step.icon}</span>}
               </div>
-              <p className="text-xs font-semibold text-gray-900 dark:text-gray-100">{step.title}</p>
+              <p className="text-base font-semibold text-gray-900 dark:text-gray-100">{step.title}</p>
 
               {/* Detail — expands when active */}
               <AnimatePresence initial={false}>
@@ -447,7 +447,7 @@ function HorizontalSequence({
                     transition={{ duration: 0.25, ease: "easeOut" }}
                     className="overflow-hidden"
                   >
-                    <p className="mt-1.5 text-[11px] leading-relaxed text-gray-600 dark:text-gray-400">
+                    <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
                       {step.detail}
                     </p>
                   </motion.div>
@@ -459,7 +459,7 @@ function HorizontalSequence({
                 <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="mt-1 line-clamp-2 text-[10px] text-gray-400 dark:text-gray-500"
+                  className="mt-2 line-clamp-2 text-xs text-gray-400 dark:text-gray-500"
                 >
                   {step.detail.slice(0, 80)}…
                 </motion.p>
@@ -467,7 +467,7 @@ function HorizontalSequence({
 
               {/* "Click to expand" hint when idle */}
               {!isActive && !isHovered && (
-                <p className="mt-1 text-[10px] text-gray-400 opacity-60 dark:text-gray-600">
+                <p className="mt-2 text-xs text-gray-400 opacity-60 dark:text-gray-600">
                   Click to expand ↓
                 </p>
               )}
@@ -523,7 +523,7 @@ function VerticalSequence({
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.3, delay: i * 0.07, ease: "easeOut" }}
                 className={cn(
-                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white shadow-sm",
+                  "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-base font-bold text-white shadow-sm",
                   tone.bg,
                   isActive && "shadow-md",
                 )}
@@ -558,17 +558,17 @@ function VerticalSequence({
             >
               <div className="flex min-w-0 items-center justify-between gap-2">
                 <div className="flex min-w-0 items-start gap-2 sm:items-center">
-                  <span className={cn("shrink-0 text-[11px] font-semibold uppercase tracking-wide", tone.text)}>
+                  <span className={cn("shrink-0 text-sm font-semibold uppercase tracking-wide", tone.text)}>
                     {step.phase}
                   </span>
-                  <span className="min-w-0 flex-1 text-sm font-semibold leading-snug text-gray-900 dark:text-gray-100">
+                  <span className="min-w-0 flex-1 text-lg font-semibold leading-snug text-gray-900 dark:text-gray-100">
                     {step.title}
                   </span>
                 </div>
                 {/* Chevron */}
                 <motion.svg
-                  width="14"
-                  height="14"
+                  width="18"
+                  height="18"
                   viewBox="0 0 14 14"
                   fill="none"
                   animate={{ rotate: isActive ? 180 : 0 }}
@@ -588,7 +588,7 @@ function VerticalSequence({
 
               {/* Preview line when collapsed */}
               {!isActive && (
-                <p className="mt-1.5 line-clamp-1 text-xs text-gray-400 dark:text-gray-500">
+                <p className="mt-2 line-clamp-1 text-sm text-gray-400 dark:text-gray-500">
                   {step.detail}
                 </p>
               )}
@@ -604,7 +604,7 @@ function VerticalSequence({
                     transition={{ duration: 0.25, ease: "easeOut" }}
                     className="overflow-hidden"
                   >
-                    <p className="mt-2 text-xs leading-relaxed text-gray-600 dark:text-gray-400">
+                    <p className="mt-3 text-base leading-relaxed text-gray-600 dark:text-gray-400">
                       {step.detail}
                     </p>
                   </motion.div>
@@ -637,9 +637,9 @@ export default function StepSequence({
       className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800"
     >
       {(title || caption) && (
-        <div className="mb-5 space-y-1">
-          {title && <h2 className="text-sm font-medium text-gray-900 dark:text-gray-100">{title}</h2>}
-          {caption && <p className="text-xs text-gray-500 dark:text-gray-400">{caption}</p>}
+        <div className="mb-6 space-y-2">
+          {title && <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{title}</h2>}
+          {caption && <p className="text-base text-gray-500 dark:text-gray-400">{caption}</p>}
         </div>
       )}
 

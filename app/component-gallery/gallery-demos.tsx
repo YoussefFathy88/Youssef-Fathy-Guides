@@ -46,13 +46,16 @@ import {
   ParameterSlider,
   ParallelToolRunner,
   PipelineTrack,
+  PositionalEncodingVisualizer,
   PromptAnatomyVisualizer,
+  RNNUnrolledOverview,
   StepSequence,
   TabbedCodeExplorer,
   ThinkingModeSimulator,
   TokenProbDist,
   TrainingLoopSimulator,
   TransformerLogitsExplainer,
+  TransformerSubstackExplorer,
   Vector2DPlot,
 } from "@/components/shared";
 import { contextLimitStepsFixture, embeddingSearchFixture } from "./gallery-fixtures";
@@ -392,6 +395,26 @@ export const GALLERY_ITEMS: GalleryItem[] = [
     ),
   },
   {
+    name: "PositionalEncodingVisualizer",
+    node: (
+      <PositionalEncodingVisualizer
+        title="Positional encoding — order, wave, sum"
+        caption="Three steps: swap middle tokens, see a position-only wave, then meaning + position bars."
+        tokens={["dog", "bites", "man"]}
+        initialStep={0}
+      />
+    ),
+  },
+  {
+    name: "TransformerSubstackExplorer",
+    node: (
+      <div className="flex flex-col gap-8">
+        <TransformerSubstackExplorer variant="encoder" layerCount={6} />
+        <TransformerSubstackExplorer variant="decoder" layerCount={6} />
+      </div>
+    ),
+  },
+  {
     name: "ConceptStepper",
     node: <ConceptStepper steps={ragConceptStepperSteps} title="RAG pipeline walkthrough" />,
   },
@@ -652,6 +675,15 @@ export const GALLERY_ITEMS: GalleryItem[] = [
         title="Semantic clusters in embedding space"
         caption="Drag the query point around to see which cluster becomes closest."
         points={vectorPoints}
+      />
+    ),
+  },
+  {
+    name: "RNNUnrolledOverview",
+    node: (
+      <RNNUnrolledOverview
+        title="RNN unrolled — The capital of Egypt is Cairo"
+        caption="Default six timesteps; Prev/Next highlights one column and the hidden-state arrow feeding it."
       />
     ),
   },

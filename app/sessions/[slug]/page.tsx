@@ -59,6 +59,15 @@ import {
   TransformerLogitsExplainer,
   TrainingLoopSimulator,
   Vector2DPlot,
+  HiddenStateDecayDiagram,
+  RNNUnrolledOverview,
+  RNNWorkingExample,
+  RNNFailureDemo,
+  SelfAttentionScoreExplorer,
+  TransformerPipelineWalkthrough,
+  PositionalEncodingVisualizer,
+  TransformerSubstackExplorer,
+  ModelBehaviorEvolution,
 } from "@/components/shared";
 import { Container } from "@/components/ui/container";
 import { GridBackground } from "@/components/ui/grid-background";
@@ -132,13 +141,24 @@ function getMdxComponents(isPresentationMode: boolean) {
     MemoryLayoutExplorer,
     MutexRaceDetector,
     // Data structures, databases, auth, distributed systems
-    BTreeExplorer,
-    TransactionIsolationSim,
-    OAuthFlowStepper,
-    MessageQueueSim,
-    RateLimiterVisualizer,
-    // Diagram & code navigation components
-    AlgorithmStepper,
+  BTreeExplorer,
+  TransactionIsolationSim,
+  OAuthFlowStepper,
+  MessageQueueSim,
+  RateLimiterVisualizer,
+  // Transformer session components
+  HiddenStateDecayDiagram,
+  RNNUnrolledOverview,
+  RNNWorkingExample,
+  RNNFailureDemo,
+  SelfAttentionScoreExplorer,
+  TransformerPipelineWalkthrough,
+  PositionalEncodingVisualizer,
+  TransformerSubstackExplorer,
+  // Training pipeline components
+  ModelBehaviorEvolution,
+  // Diagram & code navigation components
+  AlgorithmStepper,
     CallStackVisualizer,
     NeuralNetworkForwardPass,
     GradientDescentSimulator,

@@ -1,24 +1,14 @@
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
 
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
-import { cn } from "@/lib/utils";
 
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-body",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-code",
-});
+/* Fonts: defined in globals.css (--font-body, --font-code) so Docker/offline builds
+   never call fonts.googleapis.com. next/font/google fetches at compile time and fails
+   when the container has no DNS/route to Google. */
 
 export const metadata: Metadata = {
   title: {
@@ -36,13 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-scroll-behavior="smooth">
-      <body
-        className={cn(
-          inter.variable,
-          jetbrainsMono.variable,
-          "min-h-screen bg-background text-foreground",
-        )}
-      >
+      <body className="min-h-screen bg-background text-foreground">
         <SiteHeader />
         {children}
         <SiteFooter />

@@ -49,3 +49,14 @@ export { default as TransactionIsolationSim } from "../session/TransactionIsolat
 export { default as OAuthFlowStepper } from "../session/OAuthFlowStepper";
 export { default as MessageQueueSim } from "../session/MessageQueueSim";
 export { default as RateLimiterVisualizer } from "../session/RateLimiterVisualizer";
+// Transformer session components
+export { default as HiddenStateDecayDiagram } from "../session/HiddenStateDecayDiagram";
+export { default as RNNUnrolledOverview } from "../session/RNNUnrolledOverview";
+export { default as RNNWorkingExample } from "../session/RNNWorkingExample";
+export { default as RNNFailureDemo } from "../session/RNNFailureDemo";
+export { default as SelfAttentionScoreExplorer } from "../session/SelfAttentionScoreExplorer";
+export { default as TransformerPipelineWalkthrough } from "../session/TransformerPipelineWalkthrough";
+export { default as PositionalEncodingVisualizer } from "../session/PositionalEncodingVisualizer";
+export { default as TransformerSubstackExplorer } from "../session/TransformerSubstackExplorer";
+// Training pipeline components
+export { default as ModelBehaviorEvolution } from "../session/ModelBehaviorEvolution";

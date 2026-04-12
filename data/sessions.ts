@@ -86,10 +86,10 @@ export const courseSessions: CourseSession[] = [
   {
     id: "E04",
     slug: "transformer-attention",
-    title: "Transformer & Attention",
+    title: "The Transformer: Attention Is All You Need",
     module: 1,
     prevRecap:
-      "Tokens alone are not enough; the model must relate them to one another. This session moves from representation into architecture and shows how attention turns a sequence into contextual understanding.",
+      "Embeddings gave every token a vector. Now we connect those vectors into a full machine: why recurrence hit a wall, how encoder–decoder Transformers work, and how attention, multi-head blocks, and decoding fit together end to end.",
     dependsOn: ["E02", "E03"],
     leadsTo: ["E05"],
     status: "published",
@@ -100,7 +100,7 @@ export const courseSessions: CourseSession[] = [
     title: "How LLMs Think",
     module: 1,
     prevRecap:
-      "We have looked inside the transformer at inference time and seen how attention builds context. Now we ask the harder question: what does the model actually do with that context, and how do temperature and sampling shape what comes out?",
+      "You traced the Transformer end to end — from tokens and embeddings through attention blocks to logits. Next we focus on behavior: what the model does with that machinery at inference time, and how temperature and sampling shape the tokens you see.",
     dependsOn: ["E03", "E04"],
     leadsTo: ["E06"],
     status: "published",
@@ -291,5 +291,23 @@ export const courseSessions: CourseSession[] = [
     dependsOn: ["E07", "E19", "E21"],
     leadsTo: [],
     status: "upcoming",
+  },
+  {
+    id: "E_TRAINING",
+    slug: "how-llms-are-trained",
+    title: "How LLMs Are Trained — From Raw Data to Human-Level Answers",
+    module: 1,
+    moduleName: "The Engine Room",
+    sessionNumber: 3,
+    duration: "22–26 min",
+    difficulty: "intermediate",
+    tags: ["training", "pretraining", "alignment"],
+    nextSession: "inference-and-generation",
+    prevSession: "how-transformers-work",
+    prevRecap:
+      "We traced the Transformer end to end. Now we follow the full journey that takes raw web text through data engineering, pre-training, fine-tuning, and alignment to produce the assistant-grade models you use every day.",
+    dependsOn: ["E04"],
+    leadsTo: [],
+    status: "published",
   },
 ];
