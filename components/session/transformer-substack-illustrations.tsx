@@ -193,7 +193,7 @@ function SelfAttentionMini({
               x1={cx(t)}
               y1={queryY + 6}
               x2={cx(j)}
-              y2={tokenY - 22}
+              y2={tokenY - 26}
               stroke="currentColor"
               strokeWidth={sw}
               strokeOpacity={op}
@@ -215,10 +215,10 @@ function SelfAttentionMini({
             <g key={tok}>
               <rect
                 x={cx(j) - 34}
-                y={tokenY - 20}
+                y={tokenY - 24}
                 width={68}
-                height={28}
-                rx={8}
+                height={46}
+                rx={12}
                 className={
                   active
                     ? "fill-[color:var(--purple)]/90 stroke-[color:var(--purple)]"
@@ -228,10 +228,10 @@ function SelfAttentionMini({
               />
               <text
                 x={cx(j)}
-                y={tokenY - 2}
+                y={tokenY - 4}
                 textAnchor="middle"
                 className={cn(
-                  "text-[12px] font-bold",
+                  "text-[13px] font-bold",
                   active ? "fill-white" : "fill-slate-200",
                 )}
               >
@@ -239,7 +239,7 @@ function SelfAttentionMini({
               </text>
               <text
                 x={cx(j)}
-                y={tokenY + 14}
+                y={tokenY + 12}
                 textAnchor="middle"
                 className="fill-slate-400 text-[10px] tabular-nums md:text-[11px]"
               >

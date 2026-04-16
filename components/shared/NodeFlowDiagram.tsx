@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type NodeColor = "violet" | "teal" | "amber" | "blue" | "rose" | "gray";
-export type NodeShape = "circle" | "rect" | "hex";
+export type NodeShape = "circle" | "rect" | "hex" | "none";
 export type NodeSize = "sm" | "md" | "lg";
 export type NodeFlowLayout =
   | "horizontal-flow"
@@ -51,6 +51,7 @@ export interface FlowEdge {
   animated?: boolean; // default: true
   dashed?: boolean;
   bidirectional?: boolean;
+  noArrow?: boolean; // suppress arrowhead (routing / waypoint segments)
   color?: NodeColor;
 }
 
@@ -86,73 +87,73 @@ export interface NodeFlowDiagramProps {
 
 const COLOR = {
   violet: {
-    dot: "#8b5cf6",
-    fill: "rgba(139,92,246,0.12)",
-    stroke: "rgba(139,92,246,0.5)",
-    text: "#c4b5fd",
-    groupBg: "rgba(139,92,246,0.07)",
-    groupStroke: "rgba(139,92,246,0.25)",
-    groupText: "#a78bfa",
-    glow: "rgba(139,92,246,0.6)",
+    dot: "#a78bfa",
+    fill: "rgba(139,92,246,0.2)",
+    stroke: "rgba(139,92,246,0.6)",
+    text: "#ddd6fe",
+    groupBg: "rgba(139,92,246,0.1)",
+    groupStroke: "rgba(139,92,246,0.3)",
+    groupText: "#c4b5fd",
+    glow: "rgba(139,92,246,0.8)",
   },
   teal: {
-    dot: "#14b8a6",
-    fill: "rgba(20,184,166,0.12)",
-    stroke: "rgba(20,184,166,0.5)",
-    text: "#5eead4",
-    groupBg: "rgba(20,184,166,0.07)",
-    groupStroke: "rgba(20,184,166,0.25)",
-    groupText: "#2dd4bf",
-    glow: "rgba(20,184,166,0.6)",
+    dot: "#2dd4bf",
+    fill: "rgba(20,184,166,0.2)",
+    stroke: "rgba(20,184,166,0.6)",
+    text: "#99f6e4",
+    groupBg: "rgba(20,184,166,0.1)",
+    groupStroke: "rgba(20,184,166,0.3)",
+    groupText: "#5eead4",
+    glow: "rgba(20,184,166,0.8)",
   },
   amber: {
-    dot: "#f59e0b",
-    fill: "rgba(245,158,11,0.12)",
-    stroke: "rgba(245,158,11,0.5)",
-    text: "#fcd34d",
-    groupBg: "rgba(245,158,11,0.07)",
-    groupStroke: "rgba(245,158,11,0.25)",
-    groupText: "#fbbf24",
-    glow: "rgba(245,158,11,0.6)",
+    dot: "#fbbf24",
+    fill: "rgba(245,158,11,0.2)",
+    stroke: "rgba(245,158,11,0.6)",
+    text: "#fde68a",
+    groupBg: "rgba(245,158,11,0.1)",
+    groupStroke: "rgba(245,158,11,0.3)",
+    groupText: "#fcd34d",
+    glow: "rgba(245,158,11,0.8)",
   },
   blue: {
     dot: "#60a5fa",
-    fill: "rgba(96,165,250,0.12)",
-    stroke: "rgba(96,165,250,0.5)",
-    text: "#93c5fd",
-    groupBg: "rgba(96,165,250,0.07)",
-    groupStroke: "rgba(96,165,250,0.25)",
-    groupText: "#60a5fa",
-    glow: "rgba(96,165,250,0.6)",
+    fill: "rgba(96,165,250,0.2)",
+    stroke: "rgba(96,165,250,0.6)",
+    text: "#bfdbfe",
+    groupBg: "rgba(96,165,250,0.1)",
+    groupStroke: "rgba(96,165,250,0.3)",
+    groupText: "#93c5fd",
+    glow: "rgba(96,165,250,0.8)",
   },
   rose: {
-    dot: "#f43f5e",
-    fill: "rgba(244,63,94,0.12)",
-    stroke: "rgba(244,63,94,0.5)",
-    text: "#fda4af",
-    groupBg: "rgba(244,63,94,0.07)",
-    groupStroke: "rgba(244,63,94,0.25)",
-    groupText: "#fb7185",
-    glow: "rgba(244,63,94,0.6)",
+    dot: "#fb7185",
+    fill: "rgba(244,63,94,0.2)",
+    stroke: "rgba(244,63,94,0.6)",
+    text: "#fecdd3",
+    groupBg: "rgba(244,63,94,0.1)",
+    groupStroke: "rgba(244,63,94,0.3)",
+    groupText: "#fda4af",
+    glow: "rgba(244,63,94,0.8)",
   },
   gray: {
-    dot: "#94a3b8",
-    fill: "rgba(148,163,184,0.10)",
-    stroke: "rgba(148,163,184,0.4)",
-    text: "#cbd5e1",
-    groupBg: "rgba(148,163,184,0.06)",
-    groupStroke: "rgba(148,163,184,0.2)",
-    groupText: "#94a3b8",
-    glow: "rgba(148,163,184,0.4)",
+    dot: "#cbd5e1",
+    fill: "rgba(148,163,184,0.15)",
+    stroke: "rgba(148,163,184,0.5)",
+    text: "#f8fafc",
+    groupBg: "rgba(148,163,184,0.1)",
+    groupStroke: "rgba(148,163,184,0.3)",
+    groupText: "#cbd5e1",
+    glow: "rgba(148,163,184,0.6)",
   },
 } as const satisfies Record<NodeColor, object>;
 
 // ─── Node size constants ───────────────────────────────────────────────────────
 
 const SIZE = {
-  sm: { r: 35, w: 140, h: 65,  fontSize: 15, subSize: 12   },
-  md: { r: 50, w: 180, h: 80,  fontSize: 17, subSize: 13.5 },
-  lg: { r: 70, w: 240, h: 100, fontSize: 19, subSize: 15   },
+  sm: { r: 40, w: 150, h: 70,  fontSize: 17, subSize: 13   },
+  md: { r: 55, w: 200, h: 90,  fontSize: 20, subSize: 15 },
+  lg: { r: 75, w: 260, h: 110, fontSize: 23, subSize: 17   },
 } as const;
 
 // ─── Geometry helpers ─────────────────────────────────────────────────────────
@@ -298,6 +299,11 @@ function getNodeDockPoint(node: FlowNode & { px: number; py: number }, toward: P
   const s = SIZE[node.size ?? "md"];
   const center = { x: node.px, y: node.py };
 
+  if (node.shape === "none") {
+    const direction = normalizeDirection(toward.x - center.x, toward.y - center.y);
+    return { point: center, normal: direction };
+  }
+
   if (node.shape === "circle") {
     const direction = normalizeDirection(toward.x - center.x, toward.y - center.y);
     return {
@@ -395,7 +401,7 @@ function EdgeParticle({
       fill={color}
       initial={{ opacity: 0.85 }}
       animate={{ opacity: dimmed ? 0.1 : 0.85 }}
-      transition={{ duration: 0.3 }}
+      transition={{ type: "spring", stiffness: 300, damping: 25 }}
     />
   );
 }
@@ -420,7 +426,7 @@ function CircleNode({ node, cx, cy, dimmed, highlighted }: NodeProps) {
     <motion.g
       initial={{ opacity: 1 }}
       animate={{ opacity: dimmed ? 0.2 : 1 }}
-      transition={{ duration: 0.3 }}
+      transition={{ type: "spring", stiffness: 300, damping: 25 }}
     >
       <defs>
         <filter id={glowId}>
@@ -437,9 +443,9 @@ function CircleNode({ node, cx, cy, dimmed, highlighted }: NodeProps) {
         r={r}
         fill={c.fill}
         stroke={highlighted ? c.dot : c.stroke}
-        strokeWidth={highlighted ? 2 : 1.5}
+        strokeWidth={highlighted ? 3 : 2}
         animate={highlighted ? { filter: `drop-shadow(0 0 8px ${c.glow})` } : { filter: "none" }}
-        transition={{ duration: 0.3 }}
+        transition={{ type: "spring", stiffness: 300, damping: 25 }}
       />
       {node.icon ? (
         <image
@@ -495,7 +501,7 @@ function RectNode({ node, cx, cy, dimmed, highlighted }: NodeProps) {
     <motion.g
       initial={{ opacity: 1 }}
       animate={{ opacity: dimmed ? 0.2 : 1 }}
-      transition={{ duration: 0.3 }}
+      transition={{ type: "spring", stiffness: 300, damping: 25 }}
     >
       <motion.rect
         x={cx - w / 2}
@@ -505,9 +511,9 @@ function RectNode({ node, cx, cy, dimmed, highlighted }: NodeProps) {
         rx={rx}
         fill={c.fill}
         stroke={highlighted ? c.dot : c.stroke}
-        strokeWidth={highlighted ? 2 : 1.5}
+        strokeWidth={highlighted ? 3 : 2}
         animate={highlighted ? { filter: `drop-shadow(0 0 8px ${c.glow})` } : { filter: "none" }}
-        transition={{ duration: 0.3 }}
+        transition={{ type: "spring", stiffness: 300, damping: 25 }}
       />
       {node.emoji ? (
         <text
@@ -545,19 +551,19 @@ function HexNode({ node, cx, cy, dimmed, highlighted }: NodeProps) {
     <motion.g
       initial={{ opacity: 1 }}
       animate={{ opacity: dimmed ? 0.2 : 1 }}
-      transition={{ duration: 0.3 }}
+      transition={{ type: "spring", stiffness: 300, damping: 25 }}
     >
       <motion.path
         d={d}
         fill={c.fill}
         stroke={highlighted ? c.dot : c.stroke}
-        strokeWidth={highlighted ? 2.5 : 1.75}
+        strokeWidth={highlighted ? 3.5 : 2.5}
         strokeLinecap="butt"
         strokeLinejoin="miter"
         strokeMiterlimit={8}
         shapeRendering="geometricPrecision"
         animate={highlighted ? { filter: `drop-shadow(0 0 10px ${c.glow})` } : { filter: "none" }}
-        transition={{ duration: 0.3 }}
+        transition={{ type: "spring", stiffness: 300, damping: 25 }}
       />
       <path
         d={d}
@@ -907,7 +913,7 @@ export default function NodeFlowDiagram({
                   strokeWidth={strokeWidth}
                   strokeDasharray={edge.dashed ? "6 4" : undefined}
                   strokeLinecap="round"
-                  markerEnd={`url(#${markerId})`}
+                  markerEnd={edge.noArrow ? undefined : `url(#${markerId})`}
                   markerStart={edge.bidirectional ? `url(#arrow-start-${edgeColor})` : undefined}
                   initial={{ opacity: 1 }}
                   animate={
@@ -960,6 +966,7 @@ export default function NodeFlowDiagram({
               highlighted: isHighlighted,
             };
 
+            if (shape === "none") return null;
             return shape === "circle" ? (
               <CircleNode key={node.id} {...props} />
             ) : shape === "hex" ? (
@@ -1056,7 +1063,7 @@ export default function NodeFlowDiagram({
                     <div className="mt-4 flex flex-wrap gap-2">
                       {activeStep.highlightNodes.map((id) => {
                         const n = nodeMap.get(id);
-                        if (!n) return null;
+                        if (!n || n.shape === "none") return null;
                         return (
                           <div
                             key={id}

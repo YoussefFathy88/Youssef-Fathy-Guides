@@ -41,7 +41,7 @@ const DECODER_PILLS: { id: DecoderFocus; label: string }[] = [
 const ENCODER_DETAIL: Record<EncoderFocus, { headline: string; body: string }> = {
   overview: {
     headline: "One encoder layer",
-    body: "Data moves upward: self-attention mixes tokens, then a feed-forward network refines each token. Residual paths add each sub-layer’s input back before normalization.",
+    body: "Data moves downward: self-attention mixes tokens, then a feed-forward network refines each token. Residual paths add each sub-layer’s input back before normalization.",
   },
   self: {
     headline: "Self-attention",
@@ -57,12 +57,38 @@ const ENCODER_DETAIL: Record<EncoderFocus, { headline: string; body: string }> =
   },
   residual: {
     headline: "Residual + layer norm",
-    body: "The sub-layer's input is added to its output, then normalized. Shortcuts keep gradients healthy and let the block learn small corrections on top of what came in.",
+    body: "The sub-layer’s output is added to its input (skip connection), then layer norm evens out scale. That add is your safety net: the “socializing” (self-attention) and “thinking” (feed-forward) steps only nudge the vector—they can’t silently rewrite a token’s meaning in one hop because the original signal is always mixed back in. The shortcut also keeps gradients healthy across deep stacks.",
   },
   layers: {
     headline: "Stacked layers",
     body: "The full block repeats many times. Deeper layers build richer contextual representations; hyperparameter N is model-specific.",
   },
+};
+
+/** Short real-world hooks for the footer under each focused encoder topic. */
+const ENCODER_ANALOGY: Record<EncoderFocus, string> = {
+  overview: "",
+  self: 'Think of a **socialization phase**: every word mingles in the room, hears what every other word is “saying,” then each word updates its own takeaway before moving on.',
+  heads: "Like a **committee of specialists**: several readers each notice something different (grammar, who did what, tone), then they **merge notes** into one combined view.",
+  ffn: "It’s like **blowing up a small photo onto a big screen** to fix the tiny details, then **shrinking it back down** once it’s sharp—widen, refine, compress.",
+  residual:
+    "**Residual — your safety net.** By **adding the original input back in**, you make sure the **socializing** (attention) or **thinking** (feed-forward) didn’t accidentally change the word’s meaning too much—then **layer norm** keeps scale tidy, like straightening the picture after each edit.",
+  layers:
+    "Like **multiple editing passes** on the same document: each stacked layer is another full read that sharpens meaning while still grounded in what came before.",
+};
+
+/** Short real-world hooks for the footer under each focused decoder topic. */
+const DECODER_ANALOGY: Record<DecoderFocus, string> = {
+  overview: "",
+  masked:
+    "Like **typing a message without scrolling ahead**: you only see words you’ve already written—no peeking at the future text you haven’t produced yet.",
+  cross:
+    "Like **working from notes while you speak**: the decoder’s draft keeps **glancing back** at the encoder’s page (source memory) so answers stay tied to what was actually said.",
+  ffn: "Same idea as the encoder: **blow up** each token’s vector to a **wider working space**, fix details with rich computation, then **project back** to the usual size.",
+  residual:
+    "**Residual — your safety net** here too: **add** the vector from before the sub-layer back in so **socializing** (masked attention), **checking the book** (cross-attention), or **thinking** (FFN) can’t rewrite meaning too aggressively in one step—then **normalize** to keep depth stable.",
+  layers:
+    "Same as the encoder: **depth** means more passes of mask → cross-attend → refine, each time reusing the same block pattern end to end.",
 };
 
 const DECODER_DETAIL: Record<DecoderFocus, { headline: string; body: string }> = {
@@ -84,7 +110,7 @@ const DECODER_DETAIL: Record<DecoderFocus, { headline: string; body: string }> =
   },
   residual: {
     headline: "Residual + layer norm",
-    body: "Each attention and FFN sub-layer uses add-and-norm around it, just like the encoder, so signals stay stable across depth.",
+    body: "Same add-and-norm wrap after masked attention, cross-attention, and FFN. The residual add is still your safety net: “socializing” (masked self-attention), consulting the source (cross-attention), and “thinking” (FFN) apply on top of what came in, so one sub-layer can’t drag the representation too far before the next norm step.",
   },
   layers: {
     headline: "Stacked layers",
@@ -144,6 +170,25 @@ const DECODER_FOCUS_CARD: Record<
 
 type BlockTone = "gray" | "violet" | "teal" | "amber";
 
+/** Renders `**phrase**` in analogy copy as bold. */
+function AnalogyText({ text }: { text: string }) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (part.startsWith("**") && part.endsWith("**")) {
+          return (
+            <strong key={i} className="font-semibold text-slate-200">
+              {part.slice(2, -2)}
+            </strong>
+          );
+        }
+        return <span key={i}>{part}</span>;
+      })}
+    </>
+  );
+}
+
 /** Left accent matches site tokens: --purple, --success, --warning, slate. */
 function stackToneAccentClass(tone: BlockTone): string {
   return tone === "gray"
@@ -171,16 +216,17 @@ function stackBlockClass(
   accent: "violet" | "amber",
   large: boolean,
 ): string {
-  const ring =
+  const activeBorder =
     accent === "amber"
-      ? "ring-2 ring-[color:var(--warning)]/55 ring-offset-2 ring-offset-[color:var(--background-elevated)]"
-      : "ring-2 ring-[color:var(--primary)]/55 ring-offset-2 ring-offset-[color:var(--background-elevated)]";
+      ? "border border-[color:var(--warning)] shadow-[0_0_15px_rgba(245,158,11,0.2)]"
+      : "border border-[color:var(--primary)] shadow-[0_0_15px_rgba(139,92,246,0.2)]";
+  
   return cn(
-    "w-full rounded-xl border border-white/10 bg-[color:var(--surface-strong)] text-left font-semibold text-slate-100 transition-all",
-    "border-l-2",
+    "w-full rounded-xl bg-[color:var(--surface-strong)] text-left font-semibold text-slate-100 transition-all",
+    "border-l-4", // Thicker left accent for clearer visualization
     stackToneAccentClass(tone),
     large ? "px-5 py-4 text-base" : "px-3 py-2.5 text-sm",
-    active ? ring : "opacity-[0.93] hover:border-white/[0.14] hover:opacity-100",
+    active ? activeBorder : "border border-white/10 opacity-[0.93] hover:border-white/20 hover:opacity-100",
   );
 }
 
@@ -201,16 +247,16 @@ function FocusedBlockHero({
   children: ReactNode;
   tip?: ReactNode;
 }) {
-  const ring =
+  const activeBorder =
     accent === "amber"
-      ? "ring-[color:var(--warning)]/35 ring-offset-2 ring-offset-[color:var(--background-elevated)]"
-      : "ring-[color:var(--primary)]/35 ring-offset-2 ring-offset-[color:var(--background-elevated)]";
+      ? "border-[color:var(--warning)] shadow-[0_0_20px_rgba(245,158,11,0.15)]"
+      : "border-[color:var(--primary)] shadow-[0_0_20px_rgba(139,92,246,0.15)]";
+      
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-2xl border border-white/10 bg-[color:var(--surface-strong)] shadow-[0_24px_60px_-40px_rgba(0,0,0,0.65)]",
-        "ring-1",
-        ring,
+        "overflow-hidden rounded-2xl border bg-[color:var(--surface-strong)]",
+        activeBorder,
       )}
     >
       <div className="flex gap-0">
@@ -288,16 +334,18 @@ export default function TransformerSubstackExplorer({
       : "Pick a topic to zoom in, or Full decoder to see the whole stack. Tap a block to jump.";
 
   const encoderTip =
-    encFocus === "self" || encFocus === "heads" ? (
-      <p className="text-sm text-slate-400">
-        For live Q/K/V scores on a sentence, use the self-attention explorer later on this page.
+    encFocus !== "overview" && ENCODER_ANALOGY[encFocus] ? (
+      <p className="border-t border-white/10 pt-4 text-sm leading-relaxed text-slate-400">
+        <span className="font-semibold text-slate-300">Real-world analogy. </span>
+        <AnalogyText text={ENCODER_ANALOGY[encFocus]} />
       </p>
     ) : null;
 
   const decoderTip =
-    decFocus === "masked" || decFocus === "cross" ? (
-      <p className="text-sm text-slate-400">
-        For full attention weights on a sentence, use the self-attention explorer later on this page.
+    decFocus !== "overview" && DECODER_ANALOGY[decFocus] ? (
+      <p className="border-t border-white/10 pt-4 text-sm leading-relaxed text-slate-400">
+        <span className="font-semibold text-slate-300">Real-world analogy. </span>
+        <AnalogyText text={DECODER_ANALOGY[decFocus]} />
       </p>
     ) : null;
 
@@ -444,7 +492,7 @@ export default function TransformerSubstackExplorer({
   );
 }
 
-function ArrowUp({ large }: { large?: boolean }) {
+function ArrowDown({ large }: { large?: boolean }) {
   const s = large ? 24 : 20;
   return (
     <div
@@ -455,7 +503,7 @@ function ArrowUp({ large }: { large?: boolean }) {
     >
       <svg width={s} height={large ? 18 : 14} viewBox="0 0 20 14" fill="none" aria-hidden>
         <path
-          d="M10 12V2M6 6l4-4 4 4"
+          d="M10 2V12M6 8l4 4 4-4"
           stroke="currentColor"
           strokeWidth="2"
           strokeLinecap="round"
@@ -482,25 +530,28 @@ function EncoderStack({
   accent: "violet" | "amber";
 }) {
   const blocks: { id: string; label: string; sub: string; tone: BlockTone; focus: EncoderFocus }[] = [
-    { id: "norm2", label: "④ Add & Layer Norm", sub: "+ residual", tone: "teal", focus: "residual" },
-    { id: "ffn", label: "③ Feed-forward", sub: "512 → 2048 → 512 · per token", tone: "amber", focus: "ffn" },
-    { id: "norm1", label: "② Add & Layer Norm", sub: "+ residual", tone: "teal", focus: "residual" },
-    { id: "mha", label: "① Self-attention", sub: "every token ↔ every token", tone: "violet", focus: "self" },
     { id: "input", label: "Input vectors", sub: "one per token · 512-dim", tone: "gray", focus: "overview" },
+    { id: "mha", label: "① Self-attention", sub: "every token ↔ every token", tone: "violet", focus: "self" },
+    { id: "norm1", label: "② Add & Layer Norm", sub: "+ residual", tone: "teal", focus: "residual" },
+    { id: "ffn", label: "③ Feed-forward", sub: "512 → 2048 → 512 · per token", tone: "amber", focus: "ffn" },
+    { id: "norm2", label: "④ Add & Layer Norm", sub: "+ residual", tone: "teal", focus: "residual" },
+    { id: "output", label: "Encoder output", sub: "context-aware state", tone: "gray", focus: "overview" },
   ];
 
   return (
-    <div className="flex flex-col-reverse">
+    <div className="flex flex-col">
       {blocks.map((b, idx) => (
         <div key={b.id}>
           <motion.button
             type="button"
             layout={!reducedMotion}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => {
               if (b.id === "mha") setFocus("self");
               else if (b.id === "ffn") setFocus("ffn");
               else if (b.id === "norm1" || b.id === "norm2") setFocus("residual");
-              else if (b.id === "input") setFocus("overview");
+              else if (b.id === "input" || b.id === "output") setFocus("overview");
             }}
             className={stackBlockClass(b.tone, !!encHighlight[b.id] || encFocus === b.focus, accent, !!large)}
           >
@@ -514,7 +565,7 @@ function EncoderStack({
               {b.sub}
             </span>
           </motion.button>
-          {idx < blocks.length - 1 && <ArrowUp large={large} />}
+          {idx < blocks.length - 1 && <ArrowDown large={large} />}
         </div>
       ))}
     </div>
@@ -537,22 +588,25 @@ function DecoderStack({
   accent: "violet" | "amber";
 }) {
   const blocks: { id: string; label: string; sub: string; tone: BlockTone; focus: DecoderFocus }[] = [
-    { id: "n3", label: "⑥ Add & Layer Norm", sub: "+ residual", tone: "teal", focus: "residual" },
-    { id: "ffn", label: "⑤ Feed-forward", sub: "512 → 2048 → 512 · per token", tone: "amber", focus: "ffn" },
-    { id: "n2", label: "④ Add & Layer Norm", sub: "+ residual", tone: "teal", focus: "residual" },
-    { id: "cross", label: "③ Cross-attention", sub: "Q from decoder · K,V from encoder", tone: "violet", focus: "cross" },
-    { id: "n1", label: "② Add & Layer Norm", sub: "+ residual", tone: "teal", focus: "residual" },
-    { id: "masked", label: "① Masked self-attention", sub: "only past tokens — no future peek", tone: "violet", focus: "masked" },
     { id: "input", label: "Input (shifted right)", sub: "decoder positions · 512-dim", tone: "gray", focus: "overview" },
+    { id: "masked", label: "① Masked self-attention", sub: "only past tokens — no future peek", tone: "violet", focus: "masked" },
+    { id: "n1", label: "② Add & Layer Norm", sub: "+ residual", tone: "teal", focus: "residual" },
+    { id: "cross", label: "③ Cross-attention", sub: "Q from decoder · K,V from encoder", tone: "violet", focus: "cross" },
+    { id: "n2", label: "④ Add & Layer Norm", sub: "+ residual", tone: "teal", focus: "residual" },
+    { id: "ffn", label: "⑤ Feed-forward", sub: "512 → 2048 → 512 · per token", tone: "amber", focus: "ffn" },
+    { id: "n3", label: "⑥ Add & Layer Norm", sub: "+ residual", tone: "teal", focus: "residual" },
+    { id: "output", label: "Decoder output", sub: "to linear & softmax", tone: "gray", focus: "overview" },
   ];
 
   return (
-    <div className="flex flex-col-reverse">
+    <div className="flex flex-col">
       {blocks.map((b, idx) => (
         <div key={b.id}>
           <motion.button
             type="button"
             layout={!reducedMotion}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => {
               if (b.id === "masked") setFocus("masked");
               else if (b.id === "cross") setFocus("cross");
@@ -572,7 +626,7 @@ function DecoderStack({
               {b.sub}
             </span>
           </motion.button>
-          {idx < blocks.length - 1 && <ArrowUp large={large} />}
+          {idx < blocks.length - 1 && <ArrowDown large={large} />}
         </div>
       ))}
     </div>

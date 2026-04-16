@@ -14,7 +14,7 @@
 ### Keep this document in sync
 
 Whenever you **add, remove, rename, or change props** on any component exposed to session MDX, update **this file in the same change** as the code (see [`CLAUDE.md`](../CLAUDE.md)).
-
+this 
 ---
 
 ## Quick chooser
@@ -73,12 +73,12 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | Rate limiting: Token Bucket / Sliding Window / Fixed Window | `RateLimiterVisualizer` |
 | RNN hidden-state signal decay with animated bars + ghost line | `HiddenStateDecayDiagram` |
 | RNN unrolled over time — h₀→hₙ chain, ŷ heads, one column per token (Prev/Next) | `RNNUnrolledOverview` |
-| RNN walkthrough — short declarative clause, survival into h₇, next-token autocomplete | `RNNWorkingExample` |
+| RNN walkthrough — read from “is”, h₅ recency mix (newest→oldest, decays, sums to 100%), two-slot P(next token) | `RNNWorkingExample` |
 | RNN failure vs Transformer — slot after includes, Cairo decay, Alexandria vs the, arcs to slot | `RNNFailureDemo` |
 | Positional encoding — swap tokens, sine-by-index sketch, meaning+position bars | `PositionalEncodingVisualizer` |
 | Encoder or decoder sub-stack — pills; **surface-panel** chrome; stack blocks use `surface-strong` + left accents from site tokens (`--purple`, `--success`, `--warning`) | `TransformerSubstackExplorer` |
-| Self-attention Q/K/V score explorer — click a token, watch bars animate | `SelfAttentionScoreExplorer` |
-| Full Transformer pipeline walkthrough — stage cards + internal chip trays + step panel | `TransformerPipelineWalkthrough` |
+| Self-attention explorer — Cairo sentence built-in (Q/K/V cards + OUTPUT box); legacy `queries`/`attentionRows` still supported | `SelfAttentionScoreExplorer` |
+| Full Transformer pipeline walkthrough — **six-phase macro strip** + stage cards, chip trays (`title` = `detail` tooltip), step panel | `TransformerPipelineWalkthrough` |
 | Three-panel side-by-side token animation showing Base → Instruct → Aligned model responses | `ModelBehaviorEvolution` |
 
 **`DataFlowDiagram` vs `PipelineTrack`:** use `DataFlowDiagram` for non-linear graphs with arbitrary edges; use `PipelineTrack` for ordered left-to-right pipelines.
@@ -144,10 +144,10 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | `RateLimiterVisualizer` | Interactive | Token Bucket / Sliding Window / Fixed Window with live request stream, burst button, and rate slider. |
 | `HiddenStateDecayDiagram` | Interactive | Animated bar chart showing RNN hidden-state signal decay token-by-token, with ghost reference line and Play/Pause/Reset. |
 | `RNNUnrolledOverview` | Interactive | Unrolled RNN strip: start h₀, per-timestep RNN cell + word + ŷₙ, orange hidden-state arrows, teal active column; Prev/Next + dots + step panel. |
-| `RNNWorkingExample` | Interactive | Three tabs: read “The capital of Egypt is Cairo.” with hₜ panel, survival-into-h₇ bars (stagger on tab), next-token chips (Cairo, then “.”) with probabilities. |
+| `RNNWorkingExample` | Interactive | Three tabs: read clause defaulting on **“is”** + hₜ panel; **Influence in h₅** — rows **newest→oldest** with strictly decreasing illustrative weights (recency decay sketch, sum 100%, not word odds); **Next-token prediction** — two slots with dashed `?` and **P(next token)** bars. |
 | `RNNFailureDemo` | Interactive | Strip with ? slot after includes (before Egyptian Museum); decay bars; RNN Alexandria ✗ vs the ✓ with fragment lines; Transformer arcs to slot. |
-| `SelfAttentionScoreExplorer` | Interactive | Click any token to see its Query question and attention scores over all other tokens; bars animate in with stagger. |
-| `TransformerPipelineWalkthrough` | Interactive | Horizontal stage cards with internal chip trays, token strip, step panel, and Prev/Next controls for full Transformer pipeline story. |
+| `SelfAttentionScoreExplorer` | Interactive | Default **The capital of Egypt is Cairo**: per-token Q/K/V copy, softmax bars (blue ≥30% Strong, amber 15–29% Moderate, gray Weak), OUTPUT FOR “TOKEN” + summary + bold blend; QKV/output fade/slide on token change; bars width **350ms**; Cairo mode mounts on **Cairo** (index 5); legacy cat MDX still maps to Cairo dataset. |
+| `TransformerPipelineWalkthrough` | Interactive | **`surface-panel`** shell; **macro strip** (six phases from `activeStageId`); token strip + stage row themed with **`--primary` / `--success` / `--purple`** etc.; internal chips use **`PipelineInternal.detail`** as native **`title`** tooltip; larger type and controls. |
 | `TransformerSubstackExplorer` | Interactive | Encoder or decoder: muted pills (purple / warning tints); **Full** stack and focus panel use `globals.css` surfaces and token-colored left accents—not saturated Tailwind primaries. Illustrations in `transformer-substack-illustrations.tsx` match the same tokens. |
 
 ---
@@ -222,7 +222,7 @@ interface AgentLoopStepperProps {
 
 ```ts
 type NodeColor = "violet" | "teal" | "amber" | "blue" | "rose" | "gray";
-type NodeShape = "circle" | "rect" | "hex";
+type NodeShape = "circle" | "rect" | "hex" | "none"; // "none" = invisible waypoint for 90° routing
 type NodeSize = "sm" | "md" | "lg";
 type NodeFlowLayout =
   | "horizontal-flow"
@@ -257,6 +257,7 @@ interface FlowEdge {
   animated?: boolean;
   dashed?: boolean;
   bidirectional?: boolean;
+  noArrow?: boolean; // suppress arrowhead — use on routing/waypoint segments
   color?: NodeColor;
 }
 
@@ -1305,7 +1306,7 @@ interface HiddenStateDecayDiagramProps {
 
 ### RNNWorkingExample
 
-**Description:** Self-contained “RNN works” demo for the short clause `The capital of Egypt is Cairo.` **Tab 1:** seven token chips (including `.`) with Prev/Next + dots; active chip teal border/fill; panel shows hₜ and copy about building a declarative fact. **Tab 2:** seven survival-into-h₇ bars (stagger on each tab visit). **Tab 3 — Next-token prediction:** after the prefix `… Egypt is`, two purple chips (`Cairo`, `.`) step with probabilities; active chip scales 1.05 + teal % badge.
+**Description:** Self-contained “RNN works” demo for `The capital of Egypt is Cairo.` **Tab 1 — How the RNN reads it:** seven token chips (including `.`); defaults to the **“is”** chip so h₅ matches the “next word is the city” beat; Prev/Next + dots; panel shows hₜ copy. **Tab 2 — Influence in h₅:** illustrative **recency** composition in **h₅** after `is` (Cairo not read yet): rows **newest → oldest** with strictly decreasing weights (not `P(next token)`); sums to 100%. Bars stagger on each tab visit. **Tab 3 — Next-token prediction:** two **slots** (Prev/Next + dots): **Slot 1** — prefix `The capital of Egypt is` + dashed `?`, ground truth Cairo; **illustrative** softmax-style rows for Cairo (teal), Alexandria, Giza, Luxor, the. **Slot 2** — prefix through `Cairo` + `?` for closing punctuation; rows for `.` (teal), comma, “ and”, etc. Bars restagger when switching tabs or slots.
 
 ```ts
 interface RNNWorkingExampleProps {
@@ -1349,7 +1350,7 @@ interface PositionalEncodingVisualizerProps {
 
 ### TransformerSubstackExplorer
 
-**Description:** Vertical stack diagram for **one** Transformer layer (`variant: "encoder" | "decoder"`). Topic pills select a **focus**. Styling aligns with the app shell: outer **`surface-panel`**, inner stack/focus areas use **`--surface-strong`** blocks with **`border-white/10`**, **2px left accents** mapped to **`--purple`** (attention), **`--success`** (add/norm), **`--warning`** (FFN), **slate** (input). Active stack block rings use **`--primary`** (encoder) or **`--warning`** (decoder) at low opacity; pills use translucent fills, not solid `violet-600` / `amber-600`. Non-overview focuses: thin left accent, title + sub + optional body, **tall illustration well** (`bg-white/[0.04]`). **`transformer-substack-illustrations.tsx`** uses the same CSS variables and slate text for minis. Encoder: self-attention → add/norm → FFN → add/norm. Decoder: input → masked self-attention → add/norm → cross-attention → add/norm → FFN → add/norm. `layerCount` affects the “× layers” copy and the layer-stack animation.
+**Description:** Vertical stack diagram for **one** Transformer layer (`variant: "encoder" | "decoder"`). Topic pills select a **focus**. Styling aligns with the app shell: outer **`surface-panel`**, inner stack/focus areas use **`--surface-strong`** blocks with **`border-white/10`**, **2px left accents** mapped to **`--purple`** (attention), **`--success`** (add/norm), **`--warning`** (FFN), **slate** (input). Active stack block rings use **`--primary`** (encoder) or **`--warning`** (decoder) at low opacity; pills use translucent fills, not solid `violet-600` / `amber-600`. Non-overview focuses: thin left accent, title + sub + optional body, **tall illustration well** (`bg-white/[0.04]`), then a **Real-world analogy** footer (per-focus prose—socialization, committee, photo upscale, rough-draft + normalize, editing passes; decoder: no future peek, open-book, etc.) with optional `**bold**` spans. **`transformer-substack-illustrations.tsx`** uses the same CSS variables and slate text for minis. Encoder: self-attention → add/norm → FFN → add/norm. Decoder: input → masked self-attention → add/norm → cross-attention → add/norm → FFN → add/norm. `layerCount` affects the “× layers” copy and the layer-stack animation.
 
 ```ts
 type TransformerSubstackVariant = "encoder" | "decoder";
@@ -1366,7 +1367,7 @@ interface TransformerSubstackExplorerProps {
 
 ### SelfAttentionScoreExplorer
 
-**Description:** Click any token button to see its Query question and attention scores toward all other tokens. Score bars animate in left-to-right with a 60ms stagger using CSS width transitions. Bar color: ≥0.25 → teal, ≥0.12 → amber, <0.12 → gray, self-attention → always gray. Scores are displayed as integer percentages. A relationship label (strong/related/weak/distant/self) sits after each bar. The `defaultSelected` token is pre-loaded on mount so the component is never empty.
+**Description:** Built-in demo sentence **The capital of Egypt is Cairo** (also used when `tokens` matches the legacy cat sentence from older MDX). Each token has **concrete Q, K, and V** teaching copy plus **summary** and **outputBlend** in an **OUTPUT FOR “TOKEN”** box (line 1 summary, line 2 bold blend). **Attention bars**: width transitions **350ms** on token change; labels **Strong** (≥30%, blue), **Moderate** (15–29%, amber), **Weak** (&lt;15%, gray). **Animation**: Q/K/V grid and output box **fade out + translateY -6px** over **150ms**, then new content **fades in** over **200ms** (double `requestAnimationFrame` enter); bar widths update when the new row applies. **Cairo mode** always mounts with token index **5** (“Cairo”) selected. For **custom** sentences, pass **`tokens`**, **`queries`**, and **`attentionRows`** (one row per token; scores must sum to 1.0); generic K/V placeholder copy is used in that mode.
 
 ```ts
 interface AttentionScoreRow {
@@ -1377,10 +1378,10 @@ interface AttentionScoreRow {
 interface SelfAttentionScoreExplorerProps {
   title?: string;
   caption?: string;
-  tokens: string[];
-  queries: string[];              // one query question per token
-  attentionRows: AttentionScoreRow[];  // one row per token
-  defaultSelected?: number;       // pre-selected token index (default: 0)
+  tokens?: string[];
+  queries?: string[];
+  attentionRows?: AttentionScoreRow[];
+  defaultSelected?: number;  // default 5; Cairo built-in always opens at index 5
 }
 ```
 
@@ -1388,12 +1389,12 @@ interface SelfAttentionScoreExplorerProps {
 
 ### TransformerPipelineWalkthrough
 
-**Description:** Full-pipeline walkthrough with four UI zones. **Token chip strip**: input sentence chips light up (teal) when the active stage processes tokens (`tok`/`emb`/`enc`/`dec`); output token chip fades in with probability badge on the final step. **Pipeline row**: horizontal stage cards connected by chevron arrows; active stage gets a color-tinted border + expanded internal chip tray (max-height CSS transition); clicking any stage card jumps to the first step for that stage. **Step panel**: step N-of-M counter, step label, description. **Controls**: Prev/Next buttons + clickable step dots.
+**Description:** Full-pipeline walkthrough. **Macro strip** (six segments: Raw → Tokenize → Embed + pos → Encode → Decode → Predict): maps `step.activeStageId` via fixed ids (`raw`, `tok`, `emb`, `enc`, `dec`, `out`) so completed phases use a green tint, the current phase a **primary** ring—aligned with the session Big Picture. **Token chip strip**: input chips use **`--success`** border/fill when the active stage is `tok`/`emb`/`enc`/`dec`; output token + probability badge appear on the last step. **Pipeline row**: stage cards use **`--surface-strong`**, **`stage.color`** → CSS accents (`--muted`, `--success`, `--purple`, `--warning`, `--primary`, rose hex); active card gets **`color-mix`** tint; chevrons **slate**. **Internal chips**: **`title={internal.detail}`** for hover tooltip; active chip matches stage accent. **Step panel** and **controls**: larger text; Next = **`--primary`**; dots use primary vs muted rings. Outer **`surface-panel`**.
 
 ```ts
 interface PipelineInternal {
   label: string;   // chip label shown in the tray
-  detail: string;  // (stored for future use; not currently rendered in a tooltip)
+  detail: string;  // shown as native `title` tooltip on the chip
 }
 
 interface PipelineStage {
