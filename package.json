@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --hostname 0.0.0.0 --port 3000 --webpack",
+    "lan:url": "node scripts/print-lan-url.mjs",
     "build": "next build",
-    "start": "next start",
+    "start": "next start --hostname 0.0.0.0 --port 3000",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "verify:diagram": "node scripts/verify-diagram.mjs",

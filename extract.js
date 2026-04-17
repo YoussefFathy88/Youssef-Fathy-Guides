@@ -3,7 +3,7 @@ const files = [
   'content/sessions/module-1/02-tokens-context-window.mdx',
   'content/sessions/module-1/03-embeddings.mdx',
   'content/sessions/module-1/04-transformer-attention.mdx',
-  'content/sessions/module-1/05-how-llms-think.mdx',
+  'content/sessions/module-1/03-how-llms-are-trained.mdx',
   'content/sessions/module-2/06-agent-memory-types.mdx',
   'content/sessions/module-2/07-rag.mdx',
   'content/sessions/module-2/08-tools-and-function-calling.mdx'

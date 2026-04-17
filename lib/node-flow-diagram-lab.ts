@@ -230,8 +230,8 @@ export const nodeFlowDiagramLabTargets: DiagramLabTarget[] = [
   },
   {
     id: "scratchpad-vs-fast-mode",
-    sessionSlug: "how-llms-think",
-    sessionTitle: "How LLMs Think",
+    sessionSlug: "transformer-attention",
+    sessionTitle: "The Transformer: Attention Is All You Need",
     props: {
       diagramId: "scratchpad-vs-fast-mode",
       title: "Same model, same weights - the only difference is a hidden scratchpad",

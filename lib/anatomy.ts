@@ -50,15 +50,9 @@ export const ANATOMY_MODULES: readonly AnatomyModule[] = [
       },
       {
         id: "brain-05",
-        title: "How LLMs Reason (CoT, ToT, ReAct)",
-        slug: "how-llms-think",
+        title: "Training LLMs — From Data to Aligned Models",
+        slug: "how-llms-are-trained",
         status: "available",
-      },
-      {
-        id: "brain-06",
-        title: "How LLMs Are Trained",
-        slug: "llm-training",
-        status: "coming-soon",
       },
     ],
   },

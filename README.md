@@ -93,3 +93,9 @@ If you don't have Node.js or Docker installed (or lack admin rights), use the po
 
 3. **Test from another laptop**:
    Ensure you are on the same network and open `http://<your-ip>:3000` on the other device.
+
+Quickly print shareable LAN URL(s):
+
+```powershell
+npm run lan:url
+```

@@ -9,7 +9,7 @@ const TARGETS = [
   { slug: "tokens-context-window", diagram: "tokens-to-context-window" },
   { slug: "embeddings", diagram: "embeddings-entry-point" },
   { slug: "transformer-attention", diagram: "transformer-block-overview" },
-  { slug: "how-llms-think", diagram: "scratchpad-vs-fast-mode" },
+  { slug: "transformer-attention", diagram: "scratchpad-vs-fast-mode" },
   { slug: "agent-memory-types", diagram: "agent-memory-types-overview" },
   { slug: "rag", diagram: "rag-retrieval-loop" },
   { slug: "tools-and-function-calling", diagram: "tool-use-loop" },
