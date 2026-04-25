@@ -60,3 +60,9 @@ export { default as PositionalEncodingVisualizer } from "../session/PositionalEn
 export { default as TransformerSubstackExplorer } from "../session/TransformerSubstackExplorer";
 // Training pipeline components
 export { default as ModelBehaviorEvolution } from "../session/ModelBehaviorEvolution";
+// Foundational concept components
+export { default as LinearMappingGraph } from "../session/LinearMappingGraph";
+// Embedding session components
+export { default as EmbeddingVectorExplorer } from "../session/EmbeddingVectorExplorer";
+export { default as CosineSimilarityExplorer } from "../session/CosineSimilarityExplorer";
+export { default as SearchQuerySimulator } from "../session/SearchQuerySimulator";

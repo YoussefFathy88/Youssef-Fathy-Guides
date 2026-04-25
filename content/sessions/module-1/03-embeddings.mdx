@@ -73,42 +73,18 @@ The embedding layer is a lookup table. Each token ID maps to a fixed list of num
 
 The two steps below show how that process works: first you see the raw numbers, then you see what those numbers mean spatially.
 
-<StepSequence
-  title="From token ID to point in space — two steps"
-  caption="Step through to see how a token becomes a vector, then how that vector becomes a position"
-  steps={[
-    {
-      id: "raw-vector",
-      label: "Step 1 — The raw numbers",
-      description: "The word 'king' maps to a vector of 1536 numbers. Each number is a float — a position along one dimension of meaning. You never read them directly. What matters is their relationship to every other vector in the space.",
-      detail: "king → [ 0.21, -0.87, 0.54, 0.03, -0.66, 0.91, 0.14, -0.33, 0.77, 0.02, -0.55, 0.88, … +1524 more ]",
-      detailNote: "Each number is one dimension. Real models use 768–3072 dimensions per token.",
-      animateDetail: true
-    },
-    {
-      id: "projected",
-      label: "Step 2 — Projected to 2D",
-      description: "1536 dimensions cannot be drawn. Researchers run a compression algorithm (PCA or t-SNE) on a large batch of vectors to produce a 2D plot. The clusters are real — similar words land near each other — but the x/y positions below are illustrative, not coordinates derived from any real vector. The plot shows the shape of the space, not a formula.",
-      detail: "king → (72, 25) in 2D    queen → (68, 32)    dog → (22, 68)"
-    }
-  ]}
-/>
-
-<Vector2DPlot
-  title="Word embeddings projected to 2D"
-  caption="Hover any point to see its distance from the query — positions are illustrative (real coordinates come from running PCA or t-SNE on a full dataset, not from a single vector)"
-  height={340}
-  showDistances={true}
-  showClusters={true}
+<EmbeddingVectorExplorer
+  title="Words as vectors in 2D space"
+  caption="Each word is an arrow from the origin — direction encodes meaning, length encodes magnitude. Click any word to see its raw numbers."
   points={[
-    { id: "king", label: "king", x: 72, y: 25, cluster: "royalty", isQuery: true },
-    { id: "queen", label: "queen", x: 68, y: 32, cluster: "royalty" },
-    { id: "prince", label: "prince", x: 76, y: 35, cluster: "royalty" },
-    { id: "dog", label: "dog", x: 22, y: 68, cluster: "animals" },
-    { id: "cat", label: "cat", x: 18, y: 74, cluster: "animals" },
-    { id: "wolf", label: "wolf", x: 28, y: 65, cluster: "animals" },
-    { id: "car", label: "car", x: 55, y: 78, cluster: "vehicles" },
-    { id: "bus", label: "bus", x: 62, y: 75, cluster: "vehicles" },
+    { id: "king",   label: "king",   angle: 25,  magnitude: 0.88, cluster: "royalty",  mockVector: [0.21, -0.87, 0.54, 0.03, -0.66, 0.91] },
+    { id: "queen",  label: "queen",  angle: 32,  magnitude: 0.85, cluster: "royalty",  mockVector: [0.19, -0.83, 0.51, 0.06, -0.61, 0.88] },
+    { id: "prince", label: "prince", angle: 18,  magnitude: 0.78, cluster: "royalty",  mockVector: [0.23, -0.79, 0.48, 0.01, -0.58, 0.84] },
+    { id: "dog",    label: "dog",    angle: 140, magnitude: 0.82, cluster: "animals",  mockVector: [0.67, 0.44, -0.21, 0.88, 0.33, -0.12] },
+    { id: "cat",    label: "cat",    angle: 152, magnitude: 0.79, cluster: "animals",  mockVector: [0.71, 0.41, -0.18, 0.85, 0.30, -0.09] },
+    { id: "wolf",   label: "wolf",   angle: 128, magnitude: 0.76, cluster: "animals",  mockVector: [0.63, 0.47, -0.24, 0.81, 0.36, -0.15] },
+    { id: "car",    label: "car",    angle: 255, magnitude: 0.80, cluster: "vehicles", mockVector: [-0.12, 0.22, 0.78, -0.44, 0.65, 0.31] },
+    { id: "bus",    label: "bus",    angle: 265, magnitude: 0.75, cluster: "vehicles", mockVector: [-0.09, 0.25, 0.74, -0.41, 0.62, 0.28] },
   ]}
 />
 
@@ -118,18 +94,14 @@ Once words are vectors, "how similar are these two things?" becomes a single cal
 
 This is why "car won't start" and "vehicle fails to turn on" score 0.91 — the vectors point almost the same direction. Keyword search sees zero character overlap and returns nothing.
 
-<AttentionHeatmap
-  title="Cosine similarity between word pairs"
-  caption="Click any word row to see which other words are most similar to it — notice the sharp boundary between clusters"
-  colorRamp="violet"
-  tokens={["king", "queen", "prince", "dog", "cat", "car"]}
-  weights={[
-    [1.00, 0.82, 0.74, 0.12, 0.10, 0.08],
-    [0.82, 1.00, 0.70, 0.14, 0.13, 0.07],
-    [0.74, 0.70, 1.00, 0.11, 0.09, 0.06],
-    [0.12, 0.14, 0.11, 1.00, 0.88, 0.15],
-    [0.10, 0.13, 0.09, 0.88, 1.00, 0.12],
-    [0.08, 0.07, 0.06, 0.15, 0.12, 1.00],
+<CosineSimilarityExplorer
+  title="Cosine similarity — the angle between vectors"
+  caption="Drag the sliders or pick a word pair to see how the angle between two vectors becomes a similarity score"
+  presets={[
+    { label: "king / queen", angleA: 25,  angleB: 32,  description: "Small angle → high similarity. Both in the royalty cluster." },
+    { label: "king / dog",   angleA: 25,  angleB: 140, description: "Large angle → low similarity. Completely different clusters." },
+    { label: "cat / wolf",   angleA: 152, angleB: 128, description: "Moderate angle → moderate similarity. Both animals, different contexts." },
+    { label: "car / pizza",  angleA: 255, angleB: 85,  description: "Nearly opposite → cosine near –0.5. Unrelated domains." },
   ]}
 />
 
@@ -141,32 +113,23 @@ it instantly — because both phrases map to nearby points in vector space.
 
 Embeddings encode what a sentence means, not which characters it contains.
 
-<ConceptCompare
-  title="Keyword search vs semantic search — same query, opposite results"
-  caption="Toggle between methods — notice which queries keyword search fails on and why"
-  mode="toggle"
-  left={{
-    label: "Keyword search",
-    color: "gray",
-    points: [
-      "Matches exact character sequences — 'car' does not match 'vehicle' or 'automobile'",
-      "Query: 'car won't start' → 0 results if docs say 'vehicle fails to turn on'",
-      "Query: 'I can't log in' → misses docs titled 'authentication failure' or 'access denied'",
-      "Query: 'bill is wrong' → misses 'incorrect invoice' and 'overcharge on statement'",
-      "Adding synonyms manually fixes one case — and breaks two others"
-    ]
-  }}
-  right={{
-    label: "Semantic search (embeddings)",
-    color: "blue",
-    points: [
-      "Matches by meaning — 'car', 'vehicle', 'automobile' all land in the same region of vector space",
-      "Query: 'car won't start' → finds 'vehicle fails to turn on' with similarity score 0.91",
-      "Query: 'I can't log in' → finds 'authentication failure' and 'access denied' with scores 0.88–0.93",
-      "Query: 'bill is wrong' → finds 'incorrect invoice' and 'overcharge on statement' with scores 0.87–0.90",
-      "No synonym lists. No rule maintenance. Meaning is encoded in the numbers."
-    ]
-  }}
+<SearchQuerySimulator
+  title="Keyword search vs semantic search — type a query"
+  caption="Both engines run on the same corpus. Watch where keyword matching breaks down."
+  defaultQuery="car won't start"
+  presets={[
+    { query: "car won't start",  label: "Car trouble" },
+    { query: "I can't log in",   label: "Login issue" },
+    { query: "bill is wrong",    label: "Billing error" },
+  ]}
+  corpus={[
+    { id: "d1", title: "Car won't start — check the battery",  snippet: "A car that won't start is usually a dead battery or a faulty starter motor.",                    keywords: ["car","won't","start","battery"],          embeddingCluster: "car-trouble" },
+    { id: "d2", title: "Vehicle fails to turn on",             snippet: "If your vehicle fails to turn on, check the battery terminals first.",                           keywords: ["vehicle","fails","turn"],                 embeddingCluster: "car-trouble" },
+    { id: "d3", title: "Can't log in? Try these steps",        snippet: "If you can't log in, try resetting your password or clearing your browser cache.",               keywords: ["can't","log","in","password"],             embeddingCluster: "login" },
+    { id: "d4", title: "Authentication failure guide",         snippet: "Authentication failure usually means your session token has expired.",                           keywords: ["authentication","failure","session"],     embeddingCluster: "login" },
+    { id: "d5", title: "Wrong bill or unexpected charge?",     snippet: "If your bill looks wrong or you see an unexpected charge, contact our billing team.",            keywords: ["wrong","bill","charge"],                  embeddingCluster: "billing" },
+    { id: "d6", title: "Incorrect invoice resolution",         snippet: "For an incorrect invoice or overcharge on your statement, contact billing.",                     keywords: ["invoice","overcharge","statement"],       embeddingCluster: "billing" },
+  ]}
 />
 
 </SessionSection>
@@ -268,11 +231,10 @@ category centroid, and assign a department. The closest category wins.
 ## What we covered
 
 <RecapTable rows={[
-  { term: "Embedding", definition: "A vector that represents a token's meaning — learned during training so similar tokens land at nearby points" },
-  { term: "Vector", definition: "A fixed-length list of numbers (e.g. 1536 floats) that positions a token as a point in high-dimensional space" },
-  { term: "Cosine similarity", definition: "A score from 0 to 1 based on the angle between two vectors — 1.0 means identical direction, 0.0 means completely unrelated" },
-  { term: "Embedding layer", definition: "The lookup table at a model's input that converts each token ID into its vector before any processing happens" },
-  { term: "Semantic search", definition: "Retrieval that compares meaning by cosine similarity between query and document vectors — not by matching characters" },
+  { term: "Embedding", definition: "A list of numbers that encodes what a word means, not just which characters it contains. Words used in similar contexts get similar numbers — that similarity is learned automatically from billions of examples, not hand-crafted." },
+  { term: "Vector", definition: "The concrete representation of an embedding: a fixed-length array of floats (e.g. 1536 values) where each number captures a learned dimension of meaning. Two vectors close in this space share meaning; two vectors far apart do not." },
+  { term: "Cosine similarity", definition: "The standard way to compare two vectors. It measures the angle between them, not their raw distance — so a long vector and a short vector can still score 1.0 if they point in exactly the same direction. Scores run from 1.0 (identical meaning) through 0.0 (unrelated) to −1.0 (opposite meaning)." },
+  { term: "Semantic search", definition: "Search that works on meaning instead of characters. Both the query and every document are converted to vectors, then ranked by cosine similarity. 'Car won't start' finds 'Vehicle fails to turn on' with a score of 0.91 — even though the two phrases share no words." },
 ]} />
 
 </SessionSection>

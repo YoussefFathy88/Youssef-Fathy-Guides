@@ -40,6 +40,80 @@ You have called LLM APIs, seen the output stream back token by token, and notice
 
 
 
+<SessionSection id="what-is-a-mapping" label="What is a Mapping?">
+
+
+
+## Every model is a mapping function
+
+Before we talk about training and inference, we need to answer one question: **what is a model, actually?**
+
+A model is a **mapping function** — something that takes an input and maps it to an output. The simplest possible example is a straight line: **y = mx + c**. Give it any `x`, and it produces a `y`.
+
+The two numbers `m` (slope) and `c` (intercept) are called **weights**. If you know the weights, you can map any input to an output. The question is: how do you *find* the weights? You use **known examples** — a few pairs of inputs and outputs you already have the answers for — and work backwards.
+
+<LinearMappingGraph
+  title="y = mx + c — the simplest mapping function"
+  caption="Step through: start with the equation → plot known examples → solve for the weights → draw the full mapping line."
+  m={2}
+  c={0}
+  knownPoints={[
+    { x: 0, y: 0, label: "x=0, y=0" },
+    { x: 1, y: 2, label: "x=1, y=2" },
+  ]}
+  xMin={-0.5}
+  xMax={5}
+  yMin={-0.5}
+  yMax={10}
+/>
+
+
+
+</SessionSection>
+
+
+
+<SessionSection id="model-as-mapping" label="AI as Mapping">
+
+
+
+## Any AI model is the same idea — at massive scale
+
+An LLM works exactly the same way. The **input** is a sentence. The **output** is the next word. The **mapping function** is called a **Transformer**. And just like `m` and `c` in our straight-line example, the Transformer has billions of **weights** that define how it maps inputs to outputs.
+
+Those weights are found the same way too — by showing the model millions of known examples (sentences where we already know the next word) and adjusting the weights until the predictions get accurate. That process is called **training**.
+
+<NodeFlowDiagram
+  title="LLM: mapping a sentence to the next word"
+  height={400}
+  groups={[
+    { id: "input", label: "Input", nodeIds: ["sentence"], color: "teal" },
+    { id: "model", label: "Mapping Function", nodeIds: ["transformer"], color: "violet" },
+    { id: "output", label: "Output", nodeIds: ["word"], color: "amber" },
+  ]}
+  nodes={[
+    { id: "sentence", label: "Sentence", sublabel: "\"The capital of Egypt is\"", x: 12, y: 50, color: "teal", shape: "rect", emoji: "💬" },
+    { id: "transformer", label: "Transformer", sublabel: "Mapping function — billions of weights", x: 50, y: 50, color: "violet", shape: "hex", size: "lg", emoji: "🧠" },
+    { id: "word", label: "Cairo", sublabel: "Predicted next word", x: 88, y: 50, color: "amber", shape: "rect", emoji: "✨" },
+  ]}
+  edges={[
+    { from: "sentence", to: "transformer", animated: true, label: "input" },
+    { from: "transformer", to: "word", animated: true, label: "output" },
+  ]}
+  steps={[
+    { id: "s1", label: "Input sentence", description: "The prompt \"The capital of Egypt is\" is the input to the LLM — just like x is the input to y = mx + c.", highlightNodes: ["sentence"], highlightEdges: [] },
+    { id: "s2", label: "Inside the Transformer", description: "The Transformer is the mapping function. Its billions of weights encode everything the model learned during training. This is the m and c — but at massive scale.", highlightNodes: ["transformer"], highlightEdges: ["sentence→transformer"] },
+    { id: "s3", label: "Output: next word", description: "The model outputs \"Cairo\" — the most likely next word given the input sentence and the learned weights.", highlightNodes: ["word"], highlightEdges: ["transformer→word"] },
+    { id: "s4", label: "The full picture", description: "Any AI model is a mapping function with learned weights. For LLMs: input = sentence, output = next word, mapping function = Transformer, weights = parameters learned from billions of examples during training.", highlightNodes: ["sentence", "transformer", "word"], highlightEdges: ["sentence→transformer", "transformer→word"] },
+  ]}
+/>
+
+
+
+</SessionSection>
+
+
+
 <SessionSection id="big-picture" label="Big Picture">
 
 
@@ -102,7 +176,7 @@ Every LLM goes through two completely separate phases. Training happens once and
 
     { from: "sample",  to: "repeat",  animated: true },
 
-    { from: "repeat",  to: "forward", animated: true,  dashed: true, label: "next token" },
+    { from: "repeat",  to: "forward", animated: true,  dashed: true },
 
   ]}
 

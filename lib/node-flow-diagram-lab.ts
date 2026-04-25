@@ -52,7 +52,7 @@ export const nodeFlowDiagramLabTargets: DiagramLabTarget[] = [
         { from: "prompt", to: "forward", animated: true },
         { from: "forward", to: "sample", animated: true },
         { from: "sample", to: "repeat", animated: true },
-        { from: "repeat", to: "forward", animated: true, dashed: true, label: "next token" },
+        { from: "repeat", to: "forward", animated: true, dashed: true },
       ],
       steps: [
         makeStep("s1", "Collect training data", ["data"]),

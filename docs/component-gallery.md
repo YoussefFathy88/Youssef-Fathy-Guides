@@ -36,6 +36,7 @@ this
 | Discrete slider / states with examples | `ParameterSlider` |
 | Attention matrix | `AttentionHeatmap` |
 | 2D embedding / cluster plot | `Vector2DPlot` |
+| Straight-line graph (y = mx + c) step-through — teach mapping functions & weights | `LinearMappingGraph` |
 | Next-token distribution + temperature / top-p | `TokenProbDist` |
 | Typed prompt → simulated output | `MiniPlayground` (no function props from MDX) |
 | Toggle blocks that fill context budget | `ContextWindowFiller` |
@@ -80,6 +81,10 @@ this
 | Self-attention explorer — Cairo sentence built-in (Q/K/V cards + OUTPUT box); legacy `queries`/`attentionRows` still supported | `SelfAttentionScoreExplorer` |
 | Full Transformer pipeline walkthrough — **six-phase macro strip** + stage cards, chip trays (`title` = `detail` tooltip), step panel | `TransformerPipelineWalkthrough` |
 | Three-panel side-by-side token animation showing Base → Instruct → Aligned model responses | `ModelBehaviorEvolution` |
+| SVG coordinate-plane step-through: y = mx + c, known points → derive weights → animate line | `LinearMappingGraph` |
+| Word embedding vectors as arrows from origin — cluster hulls, click-to-inspect raw numbers, staggered entrance animation | `EmbeddingVectorExplorer` |
+| Interactive angle → cosine score: two vector arrows, arc θ, dashed projection, sliders, preset word pairs | `CosineSimilarityExplorer` |
+| Side-by-side keyword vs semantic search on a shared corpus — live input, score bars, animated results | `SearchQuerySimulator` |
 
 **`DataFlowDiagram` vs `PipelineTrack`:** use `DataFlowDiagram` for non-linear graphs with arbitrary edges; use `PipelineTrack` for ordered left-to-right pipelines.
 
@@ -149,6 +154,9 @@ this
 | `SelfAttentionScoreExplorer` | Interactive | Default **The capital of Egypt is Cairo**: per-token Q/K/V copy, softmax bars (blue ≥30% Strong, amber 15–29% Moderate, gray Weak), OUTPUT FOR “TOKEN” + summary + bold blend; QKV/output fade/slide on token change; bars width **350ms**; Cairo mode mounts on **Cairo** (index 5); legacy cat MDX still maps to Cairo dataset. |
 | `TransformerPipelineWalkthrough` | Interactive | **`surface-panel`** shell; **macro strip** (six phases from `activeStageId`); token strip + stage row themed with **`--primary` / `--success` / `--purple`** etc.; internal chips use **`PipelineInternal.detail`** as native **`title`** tooltip; larger type and controls. |
 | `TransformerSubstackExplorer` | Interactive | Encoder or decoder: muted pills (purple / warning tints); **Full** stack and focus panel use `globals.css` surfaces and token-colored left accents—not saturated Tailwind primaries. Illustrations in `transformer-substack-illustrations.tsx` match the same tokens. |
+| `EmbeddingVectorExplorer` | Interactive | SVG arrows from origin per word; cluster hulls toggle; click arrow → inspect mock vector; staggered entrance animation; dark-mode safe. |
+| `CosineSimilarityExplorer` | Interactive | Two vector arrows (A/B), arc θ, dashed B→A projection; angle sliders; preset word pairs; cosine score coloured green/amber/gray. |
+| `SearchQuerySimulator` | Interactive | Text input + preset buttons; side-by-side keyword vs semantic results; animated score bars; per-column insights. |
 
 ---
 
@@ -1444,5 +1452,105 @@ interface ModelBehaviorEvolutionProps {
   caption: string;
   prompt: string;               // the single shared prompt shown above all panels
   stages: ModelBehaviorStage[]; // exactly 3 items: Base → Instruct → Aligned
+}
+```
+
+---
+
+### LinearMappingGraph
+
+**Description:** An interactive SVG coordinate-plane component that teaches the concept of a mapping function (y = mx + c) as a precursor to explaining AI models. Steps through four phases via Prev / Next buttons and clickable phase tabs: (1) empty axes with the equation label; (2) known example points plotted with amber dots and dashed guide lines; (3) a weights annotation box showing the derived `m` and `c` values; (4) the full line animates in using framer-motion `pathLength`, labelled with the concrete equation. Clicking any phase tab jumps directly to that step.
+
+```ts
+interface LinearMappingGraphPoint {
+  x: number;
+  y: number;
+  label?: string; // short annotation shown next to the dot, e.g. "x=0, y=0"
+}
+
+interface LinearMappingGraphProps {
+  title?: string;
+  caption?: string;
+  m: number;                          // slope (weight 1)
+  c: number;                          // y-intercept (weight 2)
+  knownPoints: LinearMappingGraphPoint[]; // training examples — at least 2 recommended
+  xMin?: number;                      // default -0.5
+  xMax?: number;                      // default 5
+  yMin?: number;                      // default -0.5
+  yMax?: number;                      // default 10
+}
+```
+
+---
+
+### EmbeddingVectorExplorer
+
+**Description:** Renders each word as a directional arrow from the SVG origin. Direction = `angle` (degrees, 0 = right, 90 = up), length = `magnitude` (0–1, scaled to canvas). Arrows draw in one-by-one on mount with a stroke-dashoffset animation (80 ms stagger). Clicking an arrow reveals an inline panel showing the `mockVector` array and a note about real model dimensionality. A "Show clusters" toggle draws translucent convex-hull polygons behind each cluster's arrows. Three built-in cluster colors: violet (royalty), teal (animals), amber (vehicles); additional clusters fall back to gray. All colors adapt for dark mode.
+
+```ts
+interface EmbeddingPoint {
+  id: string;
+  label: string;
+  angle: number;       // degrees, 0 = right, 90 = up, 180 = left, 270 = down
+  magnitude: number;   // 0–1 (arrow length relative to canvas scale)
+  cluster: string;     // groups color + optional hull
+  mockVector?: number[]; // shown in detail panel (first N dimensions)
+}
+
+interface EmbeddingVectorExplorerProps {
+  title?: string;
+  caption?: string;
+  points?: EmbeddingPoint[];   // default: a small built-in set
+  showClusters?: boolean;      // initial state of the cluster-hull toggle (default false)
+}
+```
+
+---
+
+### CosineSimilarityExplorer
+
+**Description:** Interactive SVG showing two vector arrows (A in blue, B in teal) from a shared origin. An amber arc labels the angle θ between them. A dashed line shows the projection of B onto A (the geometric basis of the dot product). Two range sliders (0–359°) control each vector independently. Clicking a preset button animates both arrows to the preset angles via CSS transitions on the SVG arrows. The cosine score is displayed large in green (> 0.7), amber (0.3–0.7), or gray/red (< 0.3). The preset's `description` string is shown below the score when a preset is active.
+
+```ts
+interface CosinePair {
+  label: string;       // button text
+  angleA: number;      // angle for vector A (degrees)
+  angleB: number;      // angle for vector B (degrees)
+  description: string; // shown below the score when preset is active
+}
+
+interface CosineSimilarityExplorerProps {
+  title?: string;
+  caption?: string;
+  presets?: CosinePair[]; // default: a small built-in set
+}
+```
+
+---
+
+### SearchQuerySimulator
+
+**Description:** Side-by-side search demo. A text input (auto-runs 400 ms after typing stops, or immediately on preset click / "Search" button). **Keyword engine:** splits query into words, counts matches against `doc.keywords` (case-insensitive partial match), score = matches / words. Matched keywords are highlighted in amber in the doc title. Shows "0 results — no character overlap found." when nothing matches. **Semantic engine:** assigns a mock similarity score per doc based on `embeddingCluster` vs the detected query topic (hardcoded mapping: car → `car-trouble`, login/auth → `login`, bill/billing/invoice → `billing`). Scores are deterministic (seeded on `doc.id`) — top cluster 0.85–0.93, partial 0.55–0.70, unrelated 0.10–0.25. Results animate in with staggered fade-up (50 ms per item) and score bars grow from 0. Each column shows a one-line insight after results appear.
+
+```ts
+interface CorpusDoc {
+  id: string;
+  title: string;
+  snippet: string;
+  keywords: string[];         // used for keyword engine
+  embeddingCluster: string;   // used for semantic engine topic matching
+}
+
+interface QueryPreset {
+  query: string;  // pre-fills the input and auto-runs
+  label: string;  // button label
+}
+
+interface SearchQuerySimulatorProps {
+  title?: string;
+  caption?: string;
+  corpus?: CorpusDoc[];       // default: small 3-doc built-in set
+  presets?: QueryPreset[];    // default: Car trouble / Login issue / Billing error
+  defaultQuery?: string;      // pre-fills and auto-runs on mount
 }
 ```
