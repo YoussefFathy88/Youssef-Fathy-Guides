@@ -230,11 +230,13 @@ export default function CosineSimilarityExplorer({
 
       <div className="p-4 sm:p-6">
         {/* SVG canvas */}
-        <div className="relative w-full overflow-hidden rounded-xl bg-gray-50 dark:bg-gray-900">
+        <div className="relative overflow-hidden rounded-xl bg-gray-50 dark:bg-gray-900">
           <svg
             viewBox={`0 0 ${VW} ${VH}`}
-            className="w-full"
-            style={{ height: 340 }}
+            width={VW}
+            height={VH}
+            className="mx-auto block max-w-full"
+            style={{ height: "auto" }}
             aria-label="Cosine similarity diagram"
           >
             {/* Axes */}

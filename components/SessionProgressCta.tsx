@@ -1,5 +1,7 @@
 "use client";
 
+import type { Route } from "next";
+
 import { useProgress } from "@/data/progress";
 import type { CourseSession } from "@/lib/session-types";
 import {
@@ -59,7 +61,7 @@ export function SessionProgressCta({ session }: SessionProgressCtaProps) {
               Go to {nextSession.id}
             </ButtonLink>
           ) : (
-            <ButtonLink href="/library">Open library</ButtonLink>
+            <ButtonLink href={"/#ai-agent-story" as Route}>Back to robot</ButtonLink>
           )}
         </div>
       </div>

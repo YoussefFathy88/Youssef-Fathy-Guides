@@ -269,10 +269,6 @@ export function PresentationShell({
               </Link>
             </div>
           </div>
-
-          <div className="pointer-events-none mx-auto max-w-[1600px] px-4 pb-4 text-xs text-gray-400 sm:px-6 lg:px-8">
-            Use Left/Right, Page Up/Down, or Space to navigate slides. Press Esc to exit fullscreen.
-          </div>
         </div>
 
         <div
@@ -280,7 +276,7 @@ export function PresentationShell({
           className="relative z-10 h-full snap-y snap-mandatory overflow-y-auto overscroll-y-contain px-4 pb-16 pt-28 sm:px-6 md:pt-32 lg:px-8"
           style={{ scrollBehavior: reducedMotion ? "auto" : "smooth" }}
         >
-          <article className="mx-auto max-w-6xl">
+          <article className="mx-auto max-w-[1496px] w-full">
             <section
               id="session-intro"
               aria-roledescription="slide"
@@ -288,7 +284,7 @@ export function PresentationShell({
               data-session-section="true"
               className="flex min-h-[calc(100dvh-8rem)] snap-start snap-always items-center py-6"
             >
-              <div className="w-full rounded-[32px] border border-gray-800/80 bg-gray-950/70 px-6 py-10 shadow-[0_32px_80px_-48px_rgba(15,23,42,0.85)] backdrop-blur sm:px-8 lg:px-10 lg:py-14">
+              <div className="w-full rounded-[32px] border border-gray-800/80 bg-gray-950/70 px-6 py-10 shadow-[0_32px_80px_-48px_rgba(15,23,42,0.85)] backdrop-blur sm:px-8 lg:px-12 lg:py-14">
                 <div className="space-y-6">
                   <div className="flex flex-wrap items-center gap-3 text-sm uppercase tracking-[0.18em] text-violet-200/75">
                     <span className="rounded-full border border-violet-400/20 bg-violet-500/12 px-3 py-1 font-semibold text-violet-200">

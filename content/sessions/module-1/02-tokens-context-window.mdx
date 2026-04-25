@@ -62,6 +62,21 @@ Before the model runs attention or predicts anything, your text is converted to 
 
 
 {/* ═══════════════════════════════════════════════════════════════
+    SECTION 2b — BYTE PAIR ENCODING
+    ═══════════════════════════════════════════════════════════════ */}
+
+<SessionSection id="byte-pair-encoding" label="Byte Pair Encoding">
+
+## Why BPE? The problem with treating whole words as tokens
+
+Word-level tokenization sounds intuitive — one word, one token. The trouble is that natural language has no fixed vocabulary. New words, typos, names, and technical jargon appear constantly, and a word-level tokenizer simply breaks when it sees something it was never trained on. BPE solves this by learning a compact set of sub-word pieces — common roots and suffixes — that can be recombined to represent almost any word, even ones the model has never seen.
+
+<BytePairEncodingExplorer />
+
+</SessionSection>
+
+
+{/* ═══════════════════════════════════════════════════════════════
     SECTION 3 — CORE CONCEPTS
     ═══════════════════════════════════════════════════════════════ */}
 
@@ -79,21 +94,21 @@ Tokenizers use Byte-Pair Encoding (BPE) -- a compression algorithm that learns c
 
 ### The context window is the model's working memory
 
-The context window is the total number of tokens the model can see at once -- your system prompt, conversation history, retrieved documents, and the current message all count toward it. When you exceed the limit, either the API errors or old content gets truncated.
+The context window is the total number of tokens the model can see at once — your system prompt, conversation history, anything you paste in, files you upload, and your current message all compete for the same fixed space. When you exceed the limit, either the API errors or old content gets truncated.
 
 <ContextWindowFiller
-  title="What fills the context window — toggle blocks on and off"
-  caption="Toggle each block to see how different content types compete for the same fixed space. Window size reflects Claude Sonnet 4's actual 200k token limit."
+  title="What fills the context window in a typical AI chat"
+  caption="Toggle each block to see how different content types compete for the same fixed space. GPT-4o is 128k tokens, Claude Sonnet 4 is 200k, Gemini 1.5 Pro reaches 1M."
   windowSize={200000}
   costPer1kTokens={0.003}
   blocks={[
-    { id: "system",     label: "System prompt",             tokens: 420,   color: "gray",   defaultOn: true,  icon: "⚙️",  description: "Instructions, persona, constraints" },
-    { id: "few-shot",   label: "Few-shot examples",         tokens: 2800,  color: "violet", defaultOn: false, icon: "📋",  description: "3 example input/output pairs" },
-    { id: "history",    label: "Conversation history",      tokens: 14000, color: "amber",  defaultOn: false, icon: "💬",  description: "10 turns of back-and-forth" },
-    { id: "rag-chunks", label: "Retrieved chunks",          tokens: 3200,  color: "teal",   defaultOn: false, icon: "📄",  description: "Top-5 RAG chunks at 640 tokens each" },
-    { id: "contract",   label: "Full document (contract)",  tokens: 22000, color: "rose",   defaultOn: false, icon: "📑",  description: "A 17,000-word legal contract" },
-    { id: "codebase",   label: "Medium codebase snapshot",  tokens: 80000, color: "violet", defaultOn: false, icon: "💻",  description: "~60,000 words of source code across 40 files" },
-    { id: "message",    label: "Current message",           tokens: 180,   color: "blue",   defaultOn: true,  icon: "✏️",  description: "The user's current question" },
+    { id: "system",    label: "System prompt",          tokens: 420,   color: "gray",   defaultOn: true,  icon: "⚙️",  description: "Hidden instructions the platform sets — ChatGPT's personality, safety rules, and feature capabilities live here, invisible to you" },
+    { id: "history",   label: "Conversation history",   tokens: 14000, color: "amber",  defaultOn: false, icon: "💬",  description: "Every prior turn in this chat — all your questions and the model's answers, kept in context so it can follow the thread" },
+    { id: "message",   label: "Your current message",   tokens: 180,   color: "blue",   defaultOn: true,  icon: "✏️",  description: "What you typed right now — the question you're sending this turn" },
+    { id: "paste",     label: "Pasted article or email",tokens: 3500,  color: "teal",   defaultOn: false, icon: "📋",  description: "Text you pasted into the chat — a news article, an email, or a web page you copied. Very common and surprisingly token-heavy" },
+    { id: "pdf",       label: "Uploaded PDF",           tokens: 8500,  color: "violet", defaultOn: false, icon: "📄",  description: "A document you uploaded — the model converts it to text and reads the full content. A typical 30-page report is around 8,000–10,000 tokens" },
+    { id: "image",     label: "Uploaded image",         tokens: 1700,  color: "rose",   defaultOn: false, icon: "🖼️",  description: "A photo or screenshot you shared — vision models encode it as roughly 1,700 tokens regardless of what's in the picture" },
+    { id: "websearch", label: "Web search results",     tokens: 3200,  color: "violet", defaultOn: false, icon: "🌐",  description: "Live results injected when ChatGPT or Gemini browses the web — search snippets and page excerpts all land in context" },
   ]}
 />
 
@@ -293,7 +308,7 @@ A developer opens Cursor on a mid-sized production codebase — 400 files, rough
     {
       id: "s7",
       label: "Step 7 — Window under pressure",
-      caption: "Dozens of turns and repeated test runs. The model still does not need the whole codebase — but the **thread** is huge. Past a safe threshold, Cursor-style products can **compact automatically** so the next long operation does not truncate blindly.",
+      caption: "Dozens of turns and repeated test runs. The model still does not need the whole codebase — but the **thread** is huge. Past a safe threshold, Cursor-style products can **compact automatically** so the next large operation does not truncate blindly.",
       blocks: [
         { id: "query",   label: "Query + system prompt",             tokens: 1100, color: "gray"  },
         { id: "history", label: "Chat history (48 turns)",           tokens: 95200, color: "amber" },
@@ -302,8 +317,8 @@ A developer opens Cursor on a mid-sized production codebase — 400 files, rough
         { id: "chunk3",  label: "Session config — expiresIn field",  tokens: 290,  color: "teal"   },
         { id: "chunk4",  label: "Auth route — /api/auth/login",      tokens: 340,  color: "teal"   },
         { id: "chunk5",  label: "Expiry utility — getTokenExpiry()", tokens: 260,  color: "teal"   },
-        { id: "tools",   label: "Tool output (logs, tests, diffs)", tokens: 51800, color: "rose" },
-        { id: "reads",   label: "Extra file reads beyond top chunks", tokens: 24600, color: "teal"  }
+        { id: "tools",   label: "Tool output (logs, tests, diffs)",  tokens: 51800, color: "rose"  },
+        { id: "reads",   label: "Extra file reads beyond top chunks", tokens: 24600, color: "teal" }
       ],
       sideNote: "⚠️ 174,380 / 200,000 — ~87% full; automatic compact can trigger",
       errorState: false,
@@ -323,8 +338,8 @@ A developer opens Cursor on a mid-sized production codebase — 400 files, rough
         { id: "chunk3",  label: "Session config — expiresIn field",  tokens: 290,  color: "teal"   },
         { id: "chunk4",  label: "Auth route — /api/auth/login",      tokens: 340,  color: "teal"   },
         { id: "chunk5",  label: "Expiry utility — getTokenExpiry()", tokens: 260,  color: "teal"   },
-        { id: "tools",   label: "Tool output (logs, tests, diffs)", tokens: 51800, color: "rose" },
-        { id: "reads",   label: "Extra file reads beyond top chunks", tokens: 24600, color: "teal"  }
+        { id: "tools",   label: "Tool output (logs, tests, diffs)",  tokens: 51800, color: "rose"  },
+        { id: "reads",   label: "Extra file reads beyond top chunks", tokens: 24600, color: "teal" }
       ],
       sideNote: "Compressing… summarizing the full thread",
       errorState: false,
@@ -363,8 +378,9 @@ A developer opens Cursor on a mid-sized production codebase — 400 files, rough
   { term: "Token", definition: "The basic unit the model processes — roughly 1 token per common English word, more for code, URLs, and non-English text" },
   { term: "Byte-Pair Encoding", definition: "Tokenization algorithm that splits text into frequent subword patterns learned from training data" },
   { term: "Token ID", definition: "The integer that maps a token to its position in the model's vocabulary — the only thing the model actually operates on" },
-  { term: "Context window", definition: "The maximum number of tokens a model can process in a single call — Claude Sonnet 4 supports up to 200,000 tokens" },
-  { term: "/compact", definition: "Claude Code command that summarizes the full conversation history into a compact handoff block, resetting token count while preserving continuity" },
+  { term: "Context window", definition: "The maximum number of tokens a model can process in a single call — GPT-4o supports 128k tokens, Claude Sonnet 4 supports 200k, Gemini 1.5 Pro up to 1M" },
+  { term: "Compact", definition: "A compression command (e.g. /compact in Claude Code) that summarises the entire conversation history into a short handoff block, resetting the token count while preserving full working continuity" },
+  { term: "System prompt", definition: "Hidden instructions the platform sets before your first message — defines the model's persona, rules, and capabilities. Always consumes tokens even though you never see it" },
 ]} />
 
 </SessionSection>

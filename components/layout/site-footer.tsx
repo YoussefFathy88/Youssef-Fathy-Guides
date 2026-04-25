@@ -11,8 +11,7 @@ export function SiteFooter() {
           </p>
         </div>
         <p>
-          The Agents Story playlist, built as a persistent journey from
-          fundamentals to production.
+          AI Agent Story, built as a persistent journey from fundamentals to production.
         </p>
       </Container>
     </footer>

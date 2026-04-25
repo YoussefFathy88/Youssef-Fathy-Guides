@@ -66,3 +66,5 @@ export { default as LinearMappingGraph } from "../session/LinearMappingGraph";
 export { default as EmbeddingVectorExplorer } from "../session/EmbeddingVectorExplorer";
 export { default as CosineSimilarityExplorer } from "../session/CosineSimilarityExplorer";
 export { default as SearchQuerySimulator } from "../session/SearchQuerySimulator";
+// Tokenization session components
+export { default as BytePairEncodingExplorer } from "../session/BytePairEncodingExplorer";

@@ -1,5 +1,7 @@
 "use client";
 
+import type { Route } from "next";
+
 import { ButtonLink } from "@/components/ui/button-link";
 import { useProgress } from "@/data/progress";
 import type { CourseSession } from "@/lib/session-types";
@@ -71,8 +73,8 @@ export function SessionHero({ session }: SessionHeroProps) {
 
         <div className="flex flex-wrap gap-3">
           <ButtonLink href="#player">Start Session</ButtonLink>
-          <ButtonLink href="/library" variant="secondary">
-            Back to library
+          <ButtonLink href={"/#ai-agent-story" as Route} variant="secondary">
+            Back to robot
           </ButtonLink>
           {requiredSession ? (
             <ButtonLink href={getSessionRoute(requiredSession)} variant="secondary">

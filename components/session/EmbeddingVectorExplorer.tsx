@@ -309,11 +309,13 @@ export default function EmbeddingVectorExplorer({
 
       <div className="p-4 sm:p-6">
         {/* Canvas */}
-        <div className="relative w-full overflow-hidden rounded-xl bg-gray-50 dark:bg-gray-900">
+        <div className="relative overflow-hidden rounded-xl bg-gray-50 dark:bg-gray-900">
           <svg
             viewBox={`0 0 ${VW} ${VH}`}
-            className="w-full"
-            style={{ height: 480 }}
+            width={VW}
+            height={VH}
+            className="mx-auto block max-w-full"
+            style={{ height: "auto" }}
             aria-label="Embedding vector diagram"
           >
             {/* Cluster hulls */}

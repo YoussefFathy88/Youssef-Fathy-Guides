@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     template: "%s | The Software Story",
   },
   description:
-    "The Software Story: home of The Agents Story playlist by Youssef Fathy, covering LLMs, tools, agents, and production systems from the ground up.",
+    "The Software Story: home of AI Agent Story by Youssef Fathy, covering LLMs, tools, agents, and production systems from the ground up.",
 };
 
 export default function RootLayout({

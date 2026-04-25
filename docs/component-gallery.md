@@ -85,6 +85,7 @@ this
 | Word embedding vectors as arrows from origin — cluster hulls, click-to-inspect raw numbers, staggered entrance animation | `EmbeddingVectorExplorer` |
 | Interactive angle → cosine score: two vector arrows, arc θ, dashed projection, sliders, preset word pairs | `CosineSimilarityExplorer` |
 | Side-by-side keyword vs semantic search on a shared corpus — live input, score bars, animated results | `SearchQuerySimulator` |
+| Word-level vs BPE tokenization — live text input, staggered token pills, step-by-step merge breakdown, three "Why BPE Wins" cards | `BytePairEncodingExplorer` |
 
 **`DataFlowDiagram` vs `PipelineTrack`:** use `DataFlowDiagram` for non-linear graphs with arbitrary edges; use `PipelineTrack` for ordered left-to-right pipelines.
 
@@ -157,6 +158,7 @@ this
 | `EmbeddingVectorExplorer` | Interactive | SVG arrows from origin per word; cluster hulls toggle; click arrow → inspect mock vector; staggered entrance animation; dark-mode safe. |
 | `CosineSimilarityExplorer` | Interactive | Two vector arrows (A/B), arc θ, dashed B→A projection; angle sliders; preset word pairs; cosine score coloured green/amber/gray. |
 | `SearchQuerySimulator` | Interactive | Text input + preset buttons; side-by-side keyword vs semantic results; animated score bars; per-column insights. |
+| `BytePairEncodingExplorer` | Interactive | Word-level vs BPE side-by-side; live text input; staggered token pills; step-by-step merge breakdown; three "Why BPE Wins" comparison cards. |
 
 ---
 
@@ -1553,4 +1555,19 @@ interface SearchQuerySimulatorProps {
   presets?: QueryPreset[];    // default: Car trouble / Login issue / Billing error
   defaultQuery?: string;      // pre-fills and auto-runs on mount
 }
+```
+
+ 
+ 
+---
+
+### BytePairEncodingExplorer
+
+**Description:** Fully self-contained interactive that teaches Byte Pair Encoding by comparing it against naive Word-Level tokenization. A text input at the top drives both panels in real time. **Left panel (Word-Level):** shows the word as a single token pill; if the word is not in the hardcoded known-vocabulary list (
+un, 
+unning, walk, walking, play, playing, cat, dog, hello), shows a red "? Unknown Word" badge instead. **Right panel (BPE):** splits the word using a hardcoded BPE merge table (common base words + suffixes `ing`, `ed`, `er`, `ly`, `est`, `un`, `re`); each sub-token renders as a staggered, color-coded pill (120 ms delay between pills); a numbered step-by-step breakdown is shown below the pills. **Bottom:** three side-by-side comparison cards - Vocabulary Size, Unknown Words, Shared Meaning - with red/green color coding. No props required.
+
+```ts
+// No props - fully self-contained
+interface BytePairEncodingExplorerProps {}
 ```

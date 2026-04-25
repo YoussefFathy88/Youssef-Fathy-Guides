@@ -49,7 +49,8 @@ export function SessionSection({ id, label, children }: SessionSectionProps) {
               },
             },
           }}
-          className="w-full rounded-[32px] border border-gray-800/80 bg-gray-950/70 px-6 py-8 shadow-[0_32px_80px_-48px_rgba(15,23,42,0.85)] backdrop-blur sm:px-8 sm:py-10 lg:px-10 lg:py-12"
+          className="w-full overflow-y-auto rounded-[32px] border border-gray-800/80 bg-gray-950/70 px-6 py-8 shadow-[0_32px_80px_-48px_rgba(15,23,42,0.85)] backdrop-blur sm:px-8 sm:py-10 lg:px-12 lg:py-12"
+          style={{ maxHeight: "calc(100dvh - 9rem)" }}
         >
           <div className="mb-6 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.24em] text-violet-200/75">
             <span aria-hidden="true" className="h-2 w-2 rounded-full bg-violet-400" />

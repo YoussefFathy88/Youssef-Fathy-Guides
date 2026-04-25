@@ -1,8 +1,6 @@
 import Link from "next/link";
 
-import { ButtonLink } from "@/components/ui/button-link";
 import { Container } from "@/components/ui/container";
-import { SessionBadge } from "@/components/ui/session-badge";
 
 export function SiteHeader() {
   return (
@@ -20,13 +18,6 @@ export function SiteHeader() {
               Copyright (c) Youssef Fathy. All rights reserved.
             </p>
           </div>
-        </div>
-
-        <div className="hidden items-center gap-3 md:flex">
-          <SessionBadge tone="purple">The Agents Story</SessionBadge>
-          <ButtonLink href="/library" variant="secondary">
-            Library
-          </ButtonLink>
         </div>
       </Container>
     </header>

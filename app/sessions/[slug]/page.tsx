@@ -68,6 +68,11 @@ import {
   PositionalEncodingVisualizer,
   TransformerSubstackExplorer,
   ModelBehaviorEvolution,
+  LinearMappingGraph,
+  EmbeddingVectorExplorer,
+  CosineSimilarityExplorer,
+  SearchQuerySimulator,
+  BytePairEncodingExplorer,
 } from "@/components/shared";
 import { Container } from "@/components/ui/container";
 import { GridBackground } from "@/components/ui/grid-background";
@@ -98,6 +103,22 @@ const sessionSections = [
   { id: "recap", label: "Recap" },
   { id: "next-session", label: "Next Session" },
 ] as const;
+
+type SessionSection = { id: string; label: string };
+
+// Per-slug section overrides for sessions that extend the standard six-section layout.
+const sessionSectionOverrides: Record<string, SessionSection[]> = {
+  "how-llms-work": [
+    { id: "goal", label: "Goal" },
+    { id: "what-is-a-mapping", label: "What is a Mapping?" },
+    { id: "model-as-mapping", label: "AI as Mapping" },
+    { id: "big-picture", label: "Big Picture" },
+    { id: "core-concepts", label: "Core Concepts" },
+    { id: "practical-example", label: "Practical Example" },
+    { id: "recap", label: "Recap" },
+    { id: "next-session", label: "Next Session" },
+  ],
+};
 
 function getMdxComponents(isPresentationMode: boolean) {
   return {
@@ -157,6 +178,14 @@ function getMdxComponents(isPresentationMode: boolean) {
   TransformerSubstackExplorer,
   // Training pipeline components
   ModelBehaviorEvolution,
+  // Foundational concept components
+  LinearMappingGraph,
+  // Embedding session components
+  EmbeddingVectorExplorer,
+  CosineSimilarityExplorer,
+  SearchQuerySimulator,
+  // Tokenization session components
+  BytePairEncodingExplorer,
   // Diagram & code navigation components
   AlgorithmStepper,
     CallStackVisualizer,
@@ -322,6 +351,7 @@ export default async function SessionPage({ params, searchParams }: SessionPageP
   try {
     const { frontmatter, content } = await getSession(slug);
     const mdxComponents = getMdxComponents(isPresentationMode);
+    const activeSections = sessionSectionOverrides[slug] ?? [...sessionSections];
 
     if (isPresentationMode) {
       return (
@@ -331,7 +361,7 @@ export default async function SessionPage({ params, searchParams }: SessionPageP
             title={frontmatter.title}
             module={frontmatter.module}
             moduleName={frontmatter.moduleName}
-            sections={[...sessionSections]}
+            sections={activeSections}
           >
             <MDXRemote source={content} components={mdxComponents} />
           </PresentationShell>
@@ -370,7 +400,7 @@ export default async function SessionPage({ params, searchParams }: SessionPageP
             </header>
 
             <div className="flex flex-col gap-8">
-              <SessionProgressNav sections={[...sessionSections]} activeSection="goal" />
+              <SessionProgressNav sections={activeSections} activeSection="goal" />
 
               <article className="w-full max-w-none rounded-[28px] border border-gray-200/80 bg-white/85 px-7 py-9 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-950/60 sm:px-10 sm:py-11 lg:px-12">
                 <MDXRemote source={content} components={mdxComponents} />

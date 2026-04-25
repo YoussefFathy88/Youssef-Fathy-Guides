@@ -1,0 +1,129 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+import { AnatomySection } from "@/components/AnatomySection";
+import { SessionBadge } from "@/components/ui/session-badge";
+
+const COURSE_CARDS = [
+  {
+    id: "ai-agent-story",
+    title: "AI Agent Story",
+    badge: "Available now",
+    description:
+      "Learn agents from the model internals outward: tokens, embeddings, tools, memory, agency, and production systems.",
+    meta: "Robot explorer",
+    status: "available",
+  },
+  {
+    id: "ai-engineering-lab",
+    title: "AI Engineering Lab",
+    badge: "Coming soon",
+    description:
+      "A hands-on lab for building, testing, and shipping applied AI systems. Placeholder for the next course.",
+    meta: "Placeholder",
+    status: "coming-soon",
+  },
+] as const;
+
+export function HomeCourseGateway() {
+  const [isAgentStoryOpen, setIsAgentStoryOpen] = useState(false);
+
+  useEffect(() => {
+    if (window.location.hash === "#ai-agent-story") {
+      setIsAgentStoryOpen(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isAgentStoryOpen) return;
+
+    document.getElementById("ai-agent-story")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, [isAgentStoryOpen]);
+
+  return (
+    <>
+      <section className="surface-card overflow-hidden px-6 py-8 sm:px-8 sm:py-10 lg:px-10">
+        <div className="space-y-8">
+          <div className="max-w-4xl space-y-5">
+            <SessionBadge tone="purple">The Software Story</SessionBadge>
+            <div className="space-y-4">
+              <h1 className="max-w-5xl text-balance text-4xl font-semibold sm:text-5xl lg:text-6xl">
+                Available materials and courses.
+              </h1>
+              <p className="max-w-3xl text-lg text-slate-300 sm:text-xl">
+                Choose a course to open its learning experience. Sessions are accessed
+                through the course interface, not a separate session list.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            {COURSE_CARDS.map((course) => {
+              const isAvailable = course.status === "available";
+
+              return (
+                <article
+                  key={course.id}
+                  className="surface-panel flex min-h-72 flex-col justify-between p-5"
+                >
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-sm font-medium text-slate-400">{course.meta}</span>
+                      <span
+                        className={
+                          isAvailable
+                            ? "rounded-full border border-emerald-400/20 bg-emerald-500/12 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-emerald-200"
+                            : "rounded-full border border-amber-400/20 bg-amber-500/12 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-amber-200"
+                        }
+                      >
+                        {course.badge}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h2 className="text-3xl font-semibold text-white">{course.title}</h2>
+                      <p className="mt-3 text-base leading-7 text-slate-300">
+                        {course.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  {isAvailable ? (
+                    <button
+                      type="button"
+                      onClick={() => setIsAgentStoryOpen(true)}
+                      className="mt-8 inline-flex w-fit items-center justify-center rounded-full border border-sky-400/20 bg-sky-500/15 px-5 py-3 text-sm font-semibold text-sky-50 shadow-[0_20px_45px_-24px_rgba(96,165,250,0.75)] transition duration-300 hover:-translate-y-0.5 hover:border-sky-300/35 hover:bg-sky-500/22"
+                    >
+                      Open AI Agent Story
+                    </button>
+                  ) : (
+                    <div className="mt-8 inline-flex w-fit cursor-not-allowed items-center rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-400">
+                      Coming soon
+                    </div>
+                  )}
+                </article>
+              );
+            })}
+          </div>
+
+          {isAgentStoryOpen ? (
+            <div className="rounded-3xl border border-sky-400/20 bg-sky-500/10 p-4 text-sm text-sky-100">
+              AI Agent Story is open. Use the robot below to choose a body part and enter
+              the available sessions.
+            </div>
+          ) : null}
+        </div>
+      </section>
+
+      {isAgentStoryOpen ? (
+        <div id="ai-agent-story" className="scroll-mt-24">
+          <AnatomySection />
+        </div>
+      ) : null}
+    </>
+  );
+}

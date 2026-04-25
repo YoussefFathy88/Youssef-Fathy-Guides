@@ -79,10 +79,10 @@ export function AnatomySection() {
             />
           </div>
           <h2 className="text-center text-2xl font-semibold text-white sm:text-3xl">
-            Explore the AI Agent
+            AI Agent Story
           </h2>
           <p className="text-center text-sm text-slate-500">
-            Click a body part to explore its sessions
+            Click a robot body part to explore and open the available sessions.
           </p>
         </div>
 
