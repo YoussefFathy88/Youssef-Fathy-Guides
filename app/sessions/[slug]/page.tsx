@@ -5,6 +5,7 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import { notFound } from "next/navigation";
 
 import {
+  LabSessionOverview,
   NextSessionCard,
   PresentationShell,
   RecapTable,
@@ -123,6 +124,7 @@ const sessionSectionOverrides: Record<string, SessionSection[]> = {
 function getMdxComponents(isPresentationMode: boolean) {
   return {
     SessionSection,
+    LabSessionOverview,
     RecapTable,
     NextSessionCard,
     AgentLoopStepper,

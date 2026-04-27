@@ -22,6 +22,7 @@ this
 | Teaching need | Component |
 |---|---|
 | Section wrapper (required six blocks) | `SessionSection` |
+| AI Engineering Lab session overview: goal, technologies, and main concepts | `LabSessionOverview` |
 | Term recap table (section 5 only) | `RecapTable` |
 | Link card to next episode (section 6 only) | `NextSessionCard` |
 | Tool-use / agent loop with actor lanes | `AgentLoopStepper` |
@@ -98,6 +99,7 @@ this
 | Component | Type | One-line description |
 |---|---|---|
 | `SessionSection` | Shell | Wraps one of the six session sections (`id` + `label` + children). |
+| `LabSessionOverview` | Shell | Project-lab spec panel for goals, technologies/concepts covered, and main concepts. |
 | `RecapTable` | Shell | Glossary rows for the recap section. |
 | `NextSessionCard` | Shell | CTA card linking to the next session slug. |
 | `AgentLoopStepper` | Interactive | Step-through tool loop (user / model / your-code). |
@@ -176,6 +178,44 @@ interface SessionSectionProps {
   label: string;
   children: React.ReactNode;
 }
+```
+
+### LabSessionOverview
+
+**Description:** AI Engineering Lab opening spec panel for future project sessions. Use it near the top of a Lab session to show the build goal, technologies/concepts covered, and the main concept map in a distinct terminal/project-board style.
+
+```ts
+interface LabSessionMainConcept {
+  title: string;
+  description: string;
+}
+
+interface LabSessionOverviewProps {
+  goal: string;
+  technologies?: string[];
+  concepts?: string[];
+  mainConcepts?: LabSessionMainConcept[];
+}
+```
+
+Example MDX:
+
+```mdx
+<LabSessionOverview
+  goal="Describe what this project session ships."
+  technologies={["Next.js", "Vector DB", "Embeddings"]}
+  concepts={["RAG", "Chunking", "Similarity search"]}
+  mainConcepts={[
+    {
+      title: "Project architecture",
+      description: "How the pieces connect from input documents to final answers."
+    },
+    {
+      title: "Retrieval quality",
+      description: "How chunking, embeddings, and ranking change answer quality."
+    }
+  ]}
+/>
 ```
 
 ### RecapTable

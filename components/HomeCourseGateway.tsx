@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { AnatomySection } from "@/components/AnatomySection";
+import CourseLabSection from "@/components/CourseLabSection";
 import { SessionBadge } from "@/components/ui/session-badge";
 
 const COURSE_CARDS = [
@@ -18,31 +19,37 @@ const COURSE_CARDS = [
   {
     id: "ai-engineering-lab",
     title: "AI Engineering Lab",
-    badge: "Coming soon",
+    badge: "Available now",
     description:
-      "A hands-on lab for building, testing, and shipping applied AI systems. Placeholder for the next course.",
-    meta: "Placeholder",
-    status: "coming-soon",
+      "Project-based sessions for building, testing, and shipping applied AI systems.",
+    meta: "Project lab",
+    status: "available",
   },
 ] as const;
 
+type CourseId = (typeof COURSE_CARDS)[number]["id"];
+
 export function HomeCourseGateway() {
-  const [isAgentStoryOpen, setIsAgentStoryOpen] = useState(false);
+  const [openCourseId, setOpenCourseId] = useState<CourseId | null>(null);
 
   useEffect(() => {
     if (window.location.hash === "#ai-agent-story") {
-      setIsAgentStoryOpen(true);
+      setOpenCourseId("ai-agent-story");
+    }
+
+    if (window.location.hash === "#ai-engineering-lab") {
+      setOpenCourseId("ai-engineering-lab");
     }
   }, []);
 
   useEffect(() => {
-    if (!isAgentStoryOpen) return;
+    if (!openCourseId) return;
 
-    document.getElementById("ai-agent-story")?.scrollIntoView({
+    document.getElementById(openCourseId)?.scrollIntoView({
       behavior: "smooth",
       block: "start",
     });
-  }, [isAgentStoryOpen]);
+  }, [openCourseId]);
 
   return (
     <>
@@ -64,6 +71,7 @@ export function HomeCourseGateway() {
           <div className="grid gap-4 lg:grid-cols-2">
             {COURSE_CARDS.map((course) => {
               const isAvailable = course.status === "available";
+              const isOpen = openCourseId === course.id;
 
               return (
                 <article
@@ -95,10 +103,10 @@ export function HomeCourseGateway() {
                   {isAvailable ? (
                     <button
                       type="button"
-                      onClick={() => setIsAgentStoryOpen(true)}
+                      onClick={() => setOpenCourseId(course.id)}
                       className="mt-8 inline-flex w-fit items-center justify-center rounded-full border border-sky-400/20 bg-sky-500/15 px-5 py-3 text-sm font-semibold text-sky-50 shadow-[0_20px_45px_-24px_rgba(96,165,250,0.75)] transition duration-300 hover:-translate-y-0.5 hover:border-sky-300/35 hover:bg-sky-500/22"
                     >
-                      Open AI Agent Story
+                      {isOpen ? `${course.title} is open` : `Open ${course.title}`}
                     </button>
                   ) : (
                     <div className="mt-8 inline-flex w-fit cursor-not-allowed items-center rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-400">
@@ -110,18 +118,25 @@ export function HomeCourseGateway() {
             })}
           </div>
 
-          {isAgentStoryOpen ? (
+          {openCourseId ? (
             <div className="rounded-3xl border border-sky-400/20 bg-sky-500/10 p-4 text-sm text-sky-100">
-              AI Agent Story is open. Use the robot below to choose a body part and enter
-              the available sessions.
+              {openCourseId === "ai-agent-story"
+                ? "AI Agent Story is open. Use the robot below to choose a body part and enter the available sessions."
+                : "AI Engineering Lab is open. Browse the project sessions below."}
             </div>
           ) : null}
         </div>
       </section>
 
-      {isAgentStoryOpen ? (
+      {openCourseId === "ai-agent-story" ? (
         <div id="ai-agent-story" className="scroll-mt-24">
           <AnatomySection />
+        </div>
+      ) : null}
+
+      {openCourseId === "ai-engineering-lab" ? (
+        <div id="ai-engineering-lab" className="scroll-mt-24">
+          <CourseLabSection />
         </div>
       ) : null}
     </>

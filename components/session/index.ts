@@ -1,5 +1,7 @@
 export { NextSessionCard } from "./NextSessionCard";
 export type { NextSessionCardProps } from "./NextSessionCard";
+export { LabSessionOverview } from "./LabSessionOverview";
+export type { LabSessionMainConcept, LabSessionOverviewProps } from "./LabSessionOverview";
 export { RecapTable } from "./RecapTable";
 export type { RecapRow, RecapTableProps } from "./RecapTable";
 export { SessionProgressNav } from "./SessionProgressNav";
