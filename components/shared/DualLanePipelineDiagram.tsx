@@ -149,19 +149,25 @@ function cubicPointAt(t: number, p0: Point, p1: Point, p2: Point, p3: Point): Po
   };
 }
 
+/**
+ * Arrow markers use refX/refY at the tip so path endpoints sit on block borders
+ * (`strokeLinecap="butt"` avoids round-cap bleed past those points).
+ */
+
 function buildEdgePath(
   from: Measured,
   to: Measured,
   metaFrom: BlockMeta,
   metaTo: BlockMeta,
+  presentation: boolean,
 ): { d: string; mid: Point } {
-  const inset = 5;
+  const bumpMag = presentation ? 48 : 38;
 
   if (metaFrom.lane === metaTo.lane && metaTo.index === metaFrom.index + 1) {
     const x1 = from.cx;
-    const y1 = from.bottom - inset;
+    const y1 = from.bottom;
     const x2 = to.cx;
-    const y2 = to.top + inset;
+    const y2 = to.top;
     return {
       d: `M ${x1} ${y1} L ${x2} ${y2}`,
       mid: { x: (x1 + x2) / 2, y: (y1 + y2) / 2 },
@@ -170,26 +176,26 @@ function buildEdgePath(
 
   if (metaFrom.lane === metaTo.lane && metaTo.index > metaFrom.index + 1) {
     const outward = metaFrom.lane === 0 ? -1 : 1;
-    const cx1 = from.cx + outward * (from.w / 2 + 18);
-    const cy1 = from.cy;
-    const cx2 = to.cx + outward * (to.w / 2 + 18);
-    const cy2 = to.cy;
-    const bump = outward * 44;
-    const p0: Point = { x: cx1, y: cy1 };
-    const p1: Point = { x: cx1 + bump, y: cy1 };
-    const p2: Point = { x: cx2 + bump, y: cy2 };
-    const p3: Point = { x: cx2, y: cy2 };
+    const x0 = outward === 1 ? from.right : from.left;
+    const x3 = outward === 1 ? to.right : to.left;
+    const y0 = from.cy;
+    const y3 = to.cy;
+    const bump = outward * bumpMag;
+    const p0: Point = { x: x0, y: y0 };
+    const p1: Point = { x: x0 + bump, y: y0 };
+    const p2: Point = { x: x3 + bump, y: y3 };
+    const p3: Point = { x: x3, y: y3 };
     return {
-      d: `M ${cx1} ${cy1} C ${p1.x} ${p1.y}, ${p2.x} ${p2.y}, ${cx2} ${cy2}`,
+      d: `M ${x0} ${y0} C ${p1.x} ${p1.y}, ${p2.x} ${p2.y}, ${x3} ${y3}`,
       mid: cubicPointAt(0.48, p0, p1, p2, p3),
     };
   }
 
   if (metaFrom.lane !== metaTo.lane) {
     const leftFirst = metaFrom.lane < metaTo.lane;
-    const x1 = leftFirst ? from.right - inset : from.left + inset;
+    const x1 = leftFirst ? from.right : from.left;
     const y1 = from.cy;
-    const x2 = leftFirst ? to.left + inset : to.right - inset;
+    const x2 = leftFirst ? to.left : to.right;
     const y2 = to.cy;
     const midX = (x1 + x2) / 2;
     const p0: Point = { x: x1, y: y1 };
@@ -203,9 +209,9 @@ function buildEdgePath(
   }
 
   const x1 = from.cx;
-  const y1 = from.bottom - inset;
+  const y1 = from.bottom;
   const x2 = to.cx;
-  const y2 = to.top + inset;
+  const y2 = to.top;
   return {
     d: `M ${x1} ${y1} L ${x2} ${y2}`,
     mid: { x: (x1 + x2) / 2, y: (y1 + y2) / 2 },
@@ -218,14 +224,14 @@ function LaneBlock({
   dimmed,
   highlighted,
   presentation,
-  setRef,
+  pillRef,
 }: {
   block: DualLanePipelineBlock;
   laneColor: DualLanePipelineColor;
   dimmed: boolean;
   highlighted: boolean;
   presentation: boolean;
-  setRef: (el: HTMLDivElement | null) => void;
+  pillRef: (el: HTMLDivElement | null) => void;
 }) {
   const accent = block.accent ?? laneColor;
   const p = PALETTE[accent];
@@ -240,8 +246,9 @@ function LaneBlock({
   );
 
   return (
-    <div ref={setRef} className={chrome}>
+    <div className={chrome}>
       <div
+        ref={pillRef}
         className={cn(
           "flex w-full items-center border-2 shadow-sm",
           presentation
@@ -455,7 +462,7 @@ export default function DualLanePipelineDiagram({
         const mb = blockMeta.get(edge.to);
         if (!a || !b || ma === undefined || mb === undefined) return null;
 
-        const { d, mid } = buildEdgePath(a, b, ma, mb);
+        const { d, mid } = buildEdgePath(a, b, ma, mb, presentation);
         const key = edgeKey(edge.from, edge.to);
         const fromLane = lanes[ma.lane].color;
         const strokeCol = PALETTE[edge.color ?? fromLane].edge;
@@ -474,7 +481,7 @@ export default function DualLanePipelineDiagram({
         };
       })
       .filter((x): x is NonNullable<typeof x> => x !== null);
-  }, [safeEdges, geom, blockMeta, lanes, highlightEdges, hasActiveStep]);
+  }, [safeEdges, geom, blockMeta, lanes, highlightEdges, hasActiveStep, presentation]);
 
   return (
     <motion.div
@@ -557,7 +564,7 @@ export default function DualLanePipelineDiagram({
                         dimmed={dim}
                         highlighted={hl}
                         presentation={presentation}
-                        setRef={setBlockRef(b.id)}
+                        pillRef={setBlockRef(b.id)}
                       />
                     );
                   })}
@@ -580,17 +587,18 @@ export default function DualLanePipelineDiagram({
                   key={`arr-${col}${markerSuffix}`}
                   id={`dlp-arrow-${col}${markerSuffix}`}
                   markerUnits="userSpaceOnUse"
-                  markerWidth={presentation ? 11 : 7}
+                  markerWidth={presentation ? 13 : 9}
                   markerHeight={presentation ? 11 : 7}
-                  refX={presentation ? 9.5 : 6}
+                  refX={presentation ? 12 : 8}
                   refY={presentation ? 5.5 : 3.5}
                   orient="auto"
                 >
+                  {/* Tip at (refX, refY); bulk extends backward (−x) along the path */}
                   <path
                     d={
                       presentation
-                        ? "M0,0 L0,11 L11,5.5 Z"
-                        : "M0,0 L0,7 L7,3.5 Z"
+                        ? "M0,0 L0,11 L12,5.5 Z"
+                        : "M0,0 L0,7 L8,3.5 Z"
                     }
                     fill={PALETTE[col].edge}
                     opacity="0.92"
@@ -615,8 +623,8 @@ export default function DualLanePipelineDiagram({
                     fill="none"
                     stroke="rgba(15,23,42,0.94)"
                     strokeWidth={haloW}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                    strokeLinecap="butt"
+                    strokeLinejoin="miter"
                     strokeDasharray={dash}
                     animate={{ opacity }}
                     transition={{ duration: 0.22 }}
@@ -626,8 +634,8 @@ export default function DualLanePipelineDiagram({
                     fill="none"
                     stroke={edge.strokeCol}
                     strokeWidth={strokeW}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                    strokeLinecap="butt"
+                    strokeLinejoin="miter"
                     strokeDasharray={dash}
                     markerEnd={`url(#dlp-arrow-${colKey}${markerSuffix})`}
                     animate={{ opacity }}

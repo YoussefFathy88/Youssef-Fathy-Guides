@@ -1,5 +1,5 @@
 /**
- * Copy-paste build prompts for Introduction to RAG lab — consumed by RagLabPromptExplorer.
+ * Copy-paste build prompts for Chat With Your Data (RAG lab) — consumed by RagLabPromptExplorer.
  */
 
 export interface RagLabPromptFile {
@@ -11,6 +11,7 @@ export interface RagLabPromptFile {
 }
 
 const TREE = `rag-chatbot/
+├── .gitignore
 ├── frontend/
 │   ├── app/
 │   │   ├── page.tsx
@@ -34,7 +35,7 @@ const TREE = `rag-chatbot/
 │   │   │   └── chat_service.py
 │   │   └── core/
 │   │       └── config.py
-│   ├── .env.example
+│   ├── .env.local.example
 │   ├── requirements.txt
 │   └── Dockerfile
 │
