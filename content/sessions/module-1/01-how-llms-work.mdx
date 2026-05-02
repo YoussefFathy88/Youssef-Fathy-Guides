@@ -46,15 +46,8 @@ You have called LLM APIs, seen the output stream back token by token, and notice
 
 ## Every model is a mapping function
 
-Before we talk about training and inference, we need to answer one question: **what is a model, actually?**
-
-A model is a **mapping function** — something that takes an input and maps it to an output. The simplest possible example is a straight line: **y = mx + c**. Give it any `x`, and it produces a `y`.
-
-The two numbers `m` (slope) and `c` (intercept) are called **weights**. If you know the weights, you can map any input to an output. The question is: how do you *find* the weights? You use **known examples** — a few pairs of inputs and outputs you already have the answers for — and work backwards.
-
 <LinearMappingGraph
   title="y = mx + c — the simplest mapping function"
-  caption="Step through: start with the equation → plot known examples → solve for the weights → draw the full mapping line."
   m={2}
   c={0}
   knownPoints={[
@@ -79,13 +72,10 @@ The two numbers `m` (slope) and `c` (intercept) are called **weights**. If you k
 
 ## Any AI model is the same idea — at massive scale
 
-An LLM works exactly the same way. The **input** is a sentence. The **output** is the next word. The **mapping function** is called a **Transformer**. And just like `m` and `c` in our straight-line example, the Transformer has billions of **weights** that define how it maps inputs to outputs.
-
-Those weights are found the same way too — by showing the model millions of known examples (sentences where we already know the next word) and adjusting the weights until the predictions get accurate. That process is called **training**.
-
 <NodeFlowDiagram
   title="LLM: mapping a sentence to the next word"
   height={400}
+  hideStepNarrative
   groups={[
     { id: "input", label: "Input", nodeIds: ["sentence"], color: "teal" },
     { id: "model", label: "Mapping Function", nodeIds: ["transformer"], color: "violet" },
@@ -120,17 +110,13 @@ Those weights are found the same way too — by showing the model millions of kn
 
 ## Two distinct phases: training and inference
 
-
-
-Every LLM goes through two completely separate phases. Training happens once and is enormously expensive. It produces the model weights. Inference happens every time you send a prompt. It is fast and uses those frozen weights to generate a response. As a developer, you only ever interact with the inference phase.
-
-
-
 <NodeFlowDiagram
 
   title="The LLM lifecycle — training runs once, inference runs every call"
 
   height={780}
+
+  hideStepNarrative
 
   groups={[
 
@@ -212,17 +198,9 @@ Every LLM goes through two completely separate phases. Training happens once and
 
 ## Inside the network forward pass
 
-
-
-The **forward pass** is the part of every token loop where the model turns your prompt into **logits** — raw scores for every token in its vocabulary. The deep stack inside that pass always runs the same three stages: **tokenization**, **embedding**, and the **transformer**. Each of these is a full topic in its own right — the next sessions cover them in depth. After the stack, **softmax** turns logits into probabilities and **sampling** draws the next token; that decode step is where randomness enters, while the path through logits is deterministic for fixed weights. For now, the goal is to hold the full pipeline in your head so everything that follows has a place to land.
-
-
-
 <PipelineTrack
 
   title="One autoregressive step — from raw text to a sampled token"
-
-  caption="The token moves one hop at a time. Stations through Logits are the network forward pass; Sample is softmax plus a draw. Hover a station to repeat the short stage hint."
 
   nodes={[
 
@@ -252,17 +230,9 @@ The **forward pass** is the part of every token loop where the model turns your 
 
 ## Inference: one token at a time, every time
 
-
-
-When you send a prompt, the model runs a forward pass through all its layers and emits **logits** — one raw score per vocabulary token. **Softmax** turns those logits into a probability distribution; it does not produce a finished sentence by itself. One token is **sampled** from that distribution, appended to the context, and the whole process repeats until the response is complete.
-
-
-
 <AutoregressiveDemo
 
   title="Inference: a full Q&A generated token by token"
-
-  caption="Click 'Step Into' to reveal the next-token probabilities, then click it again to append the chosen token. Run plays the loop automatically."
 
   question="What is the capital of France?"
 
@@ -284,17 +254,9 @@ When you send a prompt, the model runs a forward pass through all its layers and
 
 ### From logits to probabilities
 
-
-
-The model does not output probabilities directly. It outputs raw scores called logits — one per token in its vocabulary. These scores are then passed through a softmax function to produce the probability distribution you sample from.
-
-
-
 <TransformerLogitsExplainer
 
   title="Logits → softmax → probability distribution"
-
-  caption="Step through how raw model scores become the next-token probabilities."
 
   candidates={[
 
@@ -316,15 +278,9 @@ The model does not output probabilities directly. It outputs raw scores called l
 
 ### Controlling randomness with Temperature
 
-Because the model gives us a probability distribution rather than a single fixed token, we can control how it samples from that distribution using a parameter called **Temperature**. A temperature of 0 always picks the most likely token (deterministic), while a higher temperature flattens the distribution, giving lower-probability tokens a greater chance to be selected. This is the primary lever you have for controlling the trade-off between predictable accuracy and creative variance.
-
-
-
 <TokenProbDist
 
   title="Next-token distribution after 'The capital of France is'"
-
-  caption="Click Sample to draw a token. Run it several times to see variance at different temperatures."
 
   showTemperature={true}
 
@@ -364,7 +320,6 @@ Because the model gives us a probability distribution rather than a single fixed
 
 
 
-You send this prompt: *"What is the capital of France?"* Here is exactly what happens inside the model — from your API call through **one full autoregressive step** (network forward pass to logits, then softmax and sampling) until the first token appears in the response.
 
 
 
@@ -375,8 +330,6 @@ You send this prompt: *"What is the capital of France?"* Here is exactly what ha
 <InferenceWalkthrough
 
   title="End-to-end: from question to answer"
-
-  caption="Step through each stage of a real LLM inference call."
 
   question="What is the capital of France?"
 

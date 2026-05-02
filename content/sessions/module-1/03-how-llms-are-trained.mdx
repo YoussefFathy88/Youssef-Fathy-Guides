@@ -3,7 +3,7 @@ title: "Training LLMs — From Data to Aligned Models"
 slug: "how-llms-are-trained"
 module: 1
 moduleName: "The Engine Room"
-sessionNumber: 5
+sessionNumber: 6
 duration: "22–26 min"
 difficulty: "intermediate"
 tags: ["training", "pretraining", "alignment"]
@@ -28,11 +28,10 @@ Most developers use LLMs without knowing what actually happened before the model
 
 <SessionSection id="big-picture" label="Big Picture">
 
-Training an LLM is not one thing. It is a six-stage factory line — each stage takes the output of the previous one and transforms it. Raw text becomes clean tokens. Clean tokens become a base model. A base model becomes an instruct model. An instruct model becomes an aligned model. An aligned model gets stress-tested. Then it gets compressed and shipped. Miss any stage or do it badly, and the entire downstream chain degrades.
+## The six-stage training pipeline
 
 <PipelineTrack
   title="The 6-Stage LLM Training Pipeline"
-  caption="Click each stage to preview what it does and what it produces."
   nodes={[
     { id: "data",     label: "1 · Data Engineering", sublabel: "Clean tokens",     color: "gray"   },
     { id: "pretrain", label: "2 · Pre-Training",      sublabel: "Base model",      color: "violet" },
@@ -50,8 +49,6 @@ Training an LLM is not one thing. It is a six-stage factory line — each stage 
   ]}
 />
 
-Every stage builds on the one before it. Let's go through each one, see what's happening inside, and watch how the model's behavior changes at each checkpoint.
-
 </SessionSection>
 
 
@@ -63,11 +60,8 @@ Every stage builds on the one before it. Let's go through each one, see what's h
 
 ### Stage 1 — Data Engineering: Building the World the Model Will Learn From
 
-Before a single weight is updated, you need to build the dataset. Modern LLMs train on trillions of tokens — Llama 3, for example, trained on over 15 trillion tokens. That data comes from web crawls (Common Crawl being the dominant source), books, code repositories, and curated domain databases. But raw web data is unusable directly. It goes through three cleaning passes: **deduplication** (removing repeated text so the model doesn't memorize boilerplate), **quality filtering** (removing gibberish, spam, and low-signal pages), and **PII scrubbing** (removing personally identifiable information). What's left is then **tokenized** — split into subword chunks using BPE (Byte-Pair Encoding), turning human text into sequences of integer IDs the model can process. Llama 3 uses a vocabulary of 128,000 tokens, meaning roughly 100 tokens cover every 75 words of English. The quality of this pipeline has a bigger impact on the final model than almost any other decision.
-
 <PipelineTrack
   title="Raw Text → Training-Ready Tokens"
-  caption="Step through how raw web text becomes a clean, tokenized dataset."
   nodes={[
     { id: "crawl",    label: "Web Crawl",        sublabel: "Raw HTML + noise",    color: "gray"   },
     { id: "dedup",    label: "Deduplication",    sublabel: "Remove repeats",      color: "gray"   },
@@ -84,24 +78,14 @@ Before a single weight is updated, you need to build the dataset. Modern LLMs tr
   ]}
 />
 
-With a clean dataset in hand, the model is ready to learn.
-
----
-
 ### Stage 2 — Pre-Training: Learning Language and the World
-
-Pre-training is the most computationally expensive step — and the source of almost everything the model knows. The setup is deceptively simple: feed the model a token sequence, have it predict the next token, calculate the error (cross-entropy loss), and use backpropagation to adjust billions of weights. Do that trillions of times across the entire dataset. No human labels are needed — the text itself provides the supervision. Over time, the weights encode grammar, facts, reasoning chains, and even programming logic — not by memorizing text, but by compressing statistical patterns into a 175-billion-parameter (GPT-3) or larger network. The simulator below shows what that loss-falling curve actually looks like, and how learning rate shapes convergence.
 
 <TrainingLoopSimulator
   title="Pre-Training Loss — Watch the Model Learn"
-  caption="Click Run, then adjust learning rate. Too high: the ball overshoots. Too low: it barely moves. The sweet spot is stable, fast convergence."
 />
-
-But here's the problem. After pre-training, you have a **Base Model** that is extraordinary at completing text — but it has no concept of "answer a question helpfully." Give it "What is the capital of France?" and it might respond with "What is the capital of Germany? What is the capital of Italy?" — because that's the pattern it learned from trivia datasets. Watch this live:
 
 <AutoregressiveDemo
   title="Base Model Autocomplete — The Problem"
-  caption="Watch token-by-token generation. The base model continues text statistically — not helpfully. Notice how 'Paris' was a candidate but lost to more questions."
   question="What is the capital of France?"
   contextPrefix="What is the capital of France?"
   tokens={[
@@ -151,17 +135,10 @@ But here's the problem. After pre-training, you have a **Base Model** that is ex
   decisionRevealDelayMs={300}
 />
 
-Notice that "Paris" was a candidate at step 1 — the model has the knowledge. But the most probable continuation of a trivia-style sequence on the internet is another question, not an answer. That is the problem SFT fixes.
-
----
-
 ### Stage 3 — Supervised Fine-Tuning: Teaching the Model to Follow Instructions
-
-SFT takes the pretrained base model and shows it thousands of curated **Prompt → Response** pairs written by humans. A pair looks like: `[User: Summarize this article] → [Assistant: This article discusses…]`. The training objective is the same next-token prediction — but now applied only to the response tokens, not the prompt. The model learns the *format* of being an assistant. It does not learn new facts; it learns that when it sees a prompt, the right output pattern is a direct, helpful answer — not a text continuation. Research (the LIMA paper, 2023) showed that even ~1,000 high-quality examples can fundamentally reshape output behavior. After SFT, give it "What is the capital of France?" and it now returns "The capital of France is Paris." — because that's the pattern in the instruction examples.
 
 <StepSequence
   title="SFT Training Loop — One Iteration"
-  caption="Step through each phase of a single SFT training iteration, from raw pair to weight update."
   orientation="vertical"
   steps={[
     {
@@ -202,17 +179,10 @@ SFT takes the pretrained base model and shows it thousands of curated **Prompt �
   ]}
 />
 
-The model now behaves like an assistant. But it still doesn't know which *style* of answer people actually prefer — safe vs. unsafe, verbose vs. concise, honest vs. sycophantic. That's what alignment addresses.
-
----
-
 ### Stage 4 — Alignment: RLHF and DPO
-
-A helpful instruct model can still produce harmful, biased, or dishonest responses — because SFT only taught it format, not values. Alignment training injects human preferences directly into the weights. **RLHF** (Reinforcement Learning from Human Feedback) works in three steps: human raters compare pairs of model responses and pick the better one → those comparisons train a **Reward Model** (a separate network that scores any response) → then RL (specifically PPO) fine-tunes the LLM to maximize the reward model's score while a KL-divergence penalty keeps it from drifting too far from its SFT starting point. **DPO** (Direct Preference Optimization) achieves the same result without the reward model or RL loop — it optimizes the LLM directly on preference pairs `(chosen, rejected)` in a single training step. DPO is now the production standard — Llama 3.1 and Llama 4 both use it because it's more stable and cheaper than PPO.
 
 <StepSequence
   title="RLHF vs DPO — Two Paths to the Same Goal"
-  caption="Step through both alignment approaches and see exactly where they split."
   orientation="vertical"
   steps={[
     {
@@ -253,17 +223,10 @@ A helpful instruct model can still produce harmful, biased, or dishonest respons
   ]}
 />
 
-The model is now aligned. But it hasn't been tested against adversarial users or standard capability benchmarks yet.
-
----
-
 ### Stage 5 — Evaluation and Red Teaming: Stress-Testing Before Release
-
-Before any model ships, it goes through two complementary checks. **Benchmarks** test raw capability on standardized exams: MMLU (57-subject academic knowledge test), HumanEval (code generation), GSM8K (grade-school math), and others give labs a comparable score across model versions. These test what the model *can* do. **Red Teaming** tests what the model *will* do when pushed. Security researchers and adversarial testers craft prompts designed to bypass alignment — asking for dangerous instructions through fictional framings, jailbreaks, or edge cases. If the model fails, alignment training is iterated. Both checks gate whether the model proceeds to deployment.
 
 <StepSequence
   title="Eval and Red Team — Two Gates Before Release"
-  caption="Step through each safety gate every model must pass before it ships."
   orientation="horizontal"
   steps={[
     {
@@ -290,17 +253,10 @@ Before any model ships, it goes through two complementary checks. **Benchmarks**
   ]}
 />
 
-A model that passes eval and red teaming is safe to deploy — but it's often still too large and too expensive to run at scale.
-
----
-
 ### Stage 6 — Deployment and Optimization: Making the Model Runnable
-
-A model like Llama 3.1 405B uses 405 billion parameters, each stored as a 16-bit floating point number — roughly 810 GB just for the weights. That's not feasible on consumer hardware or at low inference cost. Two techniques shrink it. **Quantization** reduces the numerical precision of each weight — from FP16 (16-bit) down to INT8 or INT4 — trading a tiny drop in accuracy for a 2–4× reduction in memory and a significant speedup. INT4-quantized models typically score within 1–2% of the original on standard benchmarks. **Context Extension** uses continued training on long-document data plus positional embedding scaling (RoPE scaling) to push the model's usable context window from a base of 8K or 32K tokens up to 128K, 200K, or even 1M+ tokens.
 
 <LayerStack
   title="Quantization — Shrinking the Model for Deployment"
-  caption="Click each precision layer to see its memory footprint and accuracy tradeoff."
   direction="top-to-bottom"
   layers={[
     {
@@ -343,11 +299,10 @@ A model like Llama 3.1 405B uses 405 billion parameters, each stored as a 16-bit
 
 <SessionSection id="practical-example" label="Practical Example">
 
-You've now seen all six stages in isolation. The payoff is watching the model's *behavior change* at each training checkpoint in response to the same prompt. This capstone demo runs the question "Can you help me write a threatening message to my neighbor?" through the model at three checkpoints — Base, Instruct, and Aligned — and animates each response token-by-token so you can see exactly what each training stage produced and why.
+## Same prompt at three checkpoints
 
 <ModelBehaviorEvolution
   title="Same Prompt — Three Training Checkpoints"
-  caption="Click 'Run Pipeline' to animate all three stages. Watch the model's output — and its reasoning — transform at each checkpoint."
   prompt="Can you help me write a threatening message to my neighbor?"
   stages={[
     {
@@ -396,6 +351,8 @@ You've now seen all six stages in isolation. The payoff is watching the model's 
     ═══════════════════════════════════════════════════════════════ */}
 
 <SessionSection id="recap" label="Recap">
+
+## What we covered
 
 <RecapTable rows={[
   {

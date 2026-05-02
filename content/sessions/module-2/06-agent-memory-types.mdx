@@ -28,11 +28,10 @@ By default, LLMs are stateless -- every API call starts from scratch with no mem
 
 ## Memory is what turns a stateless model into an agent that learns over time
 
-Without a memory system, your agent forgets everything the moment a session ends. The four memory types solve different parts of that problem: active working context, past experiences, factual knowledge, and learned procedures. Most real agents combine two or more of them.
-
 <NodeFlowDiagram
   title="Memory is what turns a stateless model into an agent that learns over time"
   height={560}
+  hideStepNarrative
   groups={[
     { id: "external", label: "External Storage", nodeIds: ["episodic", "semantic", "procedural"], color: "amber" },
   ]}
@@ -69,11 +68,8 @@ Without a memory system, your agent forgets everything the moment a session ends
 
 ## In-context memory: the agent's active working space
 
-In-context memory is everything currently inside the context window: the system prompt, the conversation so far, retrieved documents, and the current user message. It needs no external infrastructure and is instantly available. Its limit is the context window itself, so old content gets truncated and disappears unless you save it somewhere else.
-
 <ContextWindowFiller
   title="Watch the context window fill turn by turn — then disappear at session end"
-  caption="Toggle conversation turns on/off to see them fill the window. Notice: once the session ends, everything is gone unless saved to external memory."
   windowSize={128000}
   costPer1kTokens={0.003}
   blocks={[
@@ -88,21 +84,15 @@ In-context memory is everything currently inside the context window: the system 
 
 ### Episodic memory: a searchable log of past sessions
 
-Episodic memory stores records of specific past interactions: what the user asked, what the agent did, and what happened next. Those records are saved to an external store and the most relevant ones are pulled back into context in later sessions. It answers the question, "what happened before?"
-
 <ChatReplay
   title="Support agent without vs with episodic memory"
-  caption="Toggle between the two — notice how the agent changes when it can access past interaction records."
 />
 
 
 ### Semantic memory: facts and knowledge the agent can look up
 
-Semantic memory stores factual knowledge that is independent of any single interaction: product docs, company policies, domain knowledge, user preferences, or bug lists. The agent queries it when it needs a fact, not a story about a past event. RAG is the most common implementation, and the next session opens up exactly how that retrieval flow works.
-
 <ConceptCompare
   title="Episodic memory vs semantic memory -- what each one actually stores"
-  caption="Read both sides -- one remembers what happened, the other knows what is true"
   mode="side-by-side"
   left={{
     label: "Episodic memory -- records of events",
@@ -128,11 +118,8 @@ Semantic memory stores factual knowledge that is independent of any single inter
 
 ### Procedural memory: the instructions that shape how the agent behaves
 
-Procedural memory stores rules, workflows, and decision logic: how to handle a refund, which tool to call, how to format an answer, and when to escalate. In practice it lives in the system prompt, tool definitions, or startup configuration. Unlike episodic and semantic memory, it is usually loaded once at the beginning and shapes every decision that follows.
-
 <DataFlowDiagram
   title="How procedural memory enters the agent at session startup"
-  caption="Follow the startup flow, then click any node to see the detailed explanation below the diagram"
   height={260}
   nodeDetailMode="panel"
   nodes={[
@@ -160,11 +147,8 @@ Procedural memory stores rules, workflows, and decision logic: how to handle a r
 
 ## A customer support agent using all four memory types together
 
-A SaaS company builds a support agent for enterprise customers. In-context memory holds the live conversation while episodic memory retrieves the most relevant past tickets so the agent already knows what happened before. Semantic memory supplies product facts from documentation, and procedural memory defines when to resolve the issue directly versus escalate to a human.
-
 <MemoryOrchestrator
   title="Toggle each memory type ON/OFF — watch how the agent response degrades"
-  caption="All four memory types active by default. Disable each one and run the message to see exactly what the agent loses."
 />
 
 

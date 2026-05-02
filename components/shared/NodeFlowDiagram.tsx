@@ -81,6 +81,8 @@ export interface NodeFlowDiagramProps {
   layout?: NodeFlowLayout;
   viewport?: NodeFlowViewport;
   density?: NodeFlowDensity;
+  /** When true, hides the step label/description panel under the controls (diagram + playback only). */
+  hideStepNarrative?: boolean;
 }
 
 // ─── Color tokens ─────────────────────────────────────────────────────────────
@@ -611,6 +613,7 @@ export default function NodeFlowDiagram({
   steps = [],
   title,
   height = 500,
+  hideStepNarrative = false,
 }: NodeFlowDiagramProps) {
   const safeNodes = Array.isArray(nodes) ? nodes : [];
   const safeEdges = Array.isArray(edges) ? edges : [];
@@ -1046,50 +1049,52 @@ export default function NodeFlowDiagram({
           </div>
 
           {/* Step description */}
-          <div className="min-h-[64px] rounded-xl border border-white/8 bg-white/4 px-4 py-3">
-            <AnimatePresence mode="wait" custom={direction}>
-              {activeStep ? (
-                <motion.div
-                  key={activeStep.id}
-                  custom={direction}
-                  initial={{ x: direction * 20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  exit={{ x: direction * -20, opacity: 0 }}
-                  transition={{ duration: 0.22, ease: "easeOut" }}
-                >
-                  <p className="mb-1 text-base font-semibold text-slate-100">{activeStep.label}</p>
-                  <p className="text-[13.5px] leading-relaxed text-slate-300">{activeStep.description}</p>
-                  {activeStep.highlightNodes && activeStep.highlightNodes.length > 0 && (
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {activeStep.highlightNodes.map((id) => {
-                        const n = nodeMap.get(id);
-                        if (!n || n.shape === "none") return null;
-                        return (
-                          <div
-                            key={id}
-                            className="flex flex-wrap items-center gap-2 rounded-md border border-white/5 bg-slate-800/60 px-3 py-2 shadow-sm"
-                          >
-                            {n.emoji ? <span className="text-base leading-none">{n.emoji}</span> : null}
-                            <span className="text-sm font-semibold text-slate-100">{n.label}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </motion.div>
-              ) : (
-                <motion.p
-                  key="idle"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="text-sm text-slate-500"
-                >
-                  Press <span className="font-mono">Play</span> or click a step dot to walk through the diagram.
-                </motion.p>
-              )}
-            </AnimatePresence>
-          </div>
+          {!hideStepNarrative && (
+            <div className="min-h-[64px] rounded-xl border border-white/8 bg-white/4 px-4 py-3">
+              <AnimatePresence mode="wait" custom={direction}>
+                {activeStep ? (
+                  <motion.div
+                    key={activeStep.id}
+                    custom={direction}
+                    initial={{ x: direction * 20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: direction * -20, opacity: 0 }}
+                    transition={{ duration: 0.22, ease: "easeOut" }}
+                  >
+                    <p className="mb-1 text-base font-semibold text-slate-100">{activeStep.label}</p>
+                    <p className="text-[13.5px] leading-relaxed text-slate-300">{activeStep.description}</p>
+                    {activeStep.highlightNodes && activeStep.highlightNodes.length > 0 && (
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {activeStep.highlightNodes.map((id) => {
+                          const n = nodeMap.get(id);
+                          if (!n || n.shape === "none") return null;
+                          return (
+                            <div
+                              key={id}
+                              className="flex flex-wrap items-center gap-2 rounded-md border border-white/5 bg-slate-800/60 px-3 py-2 shadow-sm"
+                            >
+                              {n.emoji ? <span className="text-base leading-none">{n.emoji}</span> : null}
+                              <span className="text-sm font-semibold text-slate-100">{n.label}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </motion.div>
+                ) : (
+                  <motion.p
+                    key="idle"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="text-sm text-slate-500"
+                  >
+                    Press <span className="font-mono">Play</span> or click a step dot to walk through the diagram.
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
         </div>
       )}
     </motion.div>

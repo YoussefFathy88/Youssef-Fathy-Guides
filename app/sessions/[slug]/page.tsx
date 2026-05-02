@@ -8,6 +8,8 @@ import {
   LabSessionOverview,
   NextSessionCard,
   PresentationShell,
+  RagLabPromptExplorer,
+  RagLabSystemArchitecture,
   RecapTable,
   SessionProgressNav,
   SessionSection,
@@ -49,6 +51,7 @@ import {
   MiniPlayground,
   NeuralNetworkForwardPass,
   NodeFlowDiagram,
+  DualLanePipelineDiagram,
   ParameterSlider,
   ParallelToolRunner,
   PipelineTrack,
@@ -75,6 +78,9 @@ import {
   SearchQuerySimulator,
   BytePairEncodingExplorer,
 } from "@/components/shared";
+import FNNAutocompleteDemo from "@/components/demos/FNNAutocompleteDemo";
+import ArchitectureComparisonDemo from "@/components/demos/ArchitectureComparisonDemo";
+import RNNAutocompleteDemo from "@/components/demos/RNNAutocompleteDemo";
 import { Container } from "@/components/ui/container";
 import { GridBackground } from "@/components/ui/grid-background";
 import { getAllSessions, getSession } from "@/lib/sessions";
@@ -109,6 +115,12 @@ type SessionSection = { id: string; label: string };
 
 // Per-slug section overrides for sessions that extend the standard six-section layout.
 const sessionSectionOverrides: Record<string, SessionSection[]> = {
+  "introduction-to-rag-lab": [
+    { id: "goal", label: "Goal" },
+    { id: "big-picture", label: "Big Picture" },
+    { id: "practical-example", label: "Practical Example" },
+    { id: "next-session", label: "Next Session" },
+  ],
   "how-llms-work": [
     { id: "goal", label: "Goal" },
     { id: "what-is-a-mapping", label: "What is a Mapping?" },
@@ -125,10 +137,13 @@ function getMdxComponents(isPresentationMode: boolean) {
   return {
     SessionSection,
     LabSessionOverview,
+    RagLabPromptExplorer,
+    RagLabSystemArchitecture,
     RecapTable,
     NextSessionCard,
     AgentLoopStepper,
     NodeFlowDiagram,
+    DualLanePipelineDiagram,
     ParameterSlider,
     AttentionHeatmap,
     ConceptStepper,
@@ -174,6 +189,9 @@ function getMdxComponents(isPresentationMode: boolean) {
   RNNUnrolledOverview,
   RNNWorkingExample,
   RNNFailureDemo,
+  FNNAutocompleteDemo,
+  ArchitectureComparisonDemo,
+  RNNAutocompleteDemo,
   SelfAttentionScoreExplorer,
   TransformerPipelineWalkthrough,
   PositionalEncodingVisualizer,
@@ -200,10 +218,11 @@ function getMdxComponents(isPresentationMode: boolean) {
     h2: ({ className, ...props }: ComponentPropsWithoutRef<"h2">) => (
       <h2
         {...props}
+        data-session-slide-marker="h2"
         className={[
           isPresentationMode
-            ? "text-balance text-4xl font-semibold text-white sm:text-5xl"
-            : "text-balance text-[2.4rem] font-semibold leading-tight text-gray-950 dark:text-gray-50 sm:text-5xl",
+            ? "mb-4 text-balance text-4xl font-semibold text-white sm:mb-5 sm:text-5xl"
+            : "mb-3 text-balance text-[2.4rem] font-semibold leading-tight text-gray-950 dark:text-gray-50 sm:mb-4 sm:text-5xl",
           className,
         ]
           .filter(Boolean)
@@ -215,8 +234,8 @@ function getMdxComponents(isPresentationMode: boolean) {
         {...props}
         className={[
           isPresentationMode
-            ? "mt-8 text-2xl font-semibold text-gray-100 sm:text-3xl"
-            : "mt-10 text-[1.8rem] font-semibold leading-tight text-gray-950 dark:text-gray-100 sm:text-[2rem]",
+            ? "mt-8 mb-3 text-2xl font-semibold text-gray-100 sm:mb-4 sm:text-3xl"
+            : "mt-10 mb-2 text-[1.8rem] font-semibold leading-tight text-gray-950 dark:text-gray-100 sm:mb-3 sm:text-[2rem]",
           className,
         ]
           .filter(Boolean)
@@ -358,13 +377,7 @@ export default async function SessionPage({ params, searchParams }: SessionPageP
     if (isPresentationMode) {
       return (
         <main className="relative h-[100dvh] overflow-hidden bg-[#060914]">
-          <PresentationShell
-            slug={slug}
-            title={frontmatter.title}
-            module={frontmatter.module}
-            moduleName={frontmatter.moduleName}
-            sections={activeSections}
-          >
+          <PresentationShell slug={slug} module={frontmatter.module} moduleName={frontmatter.moduleName}>
             <MDXRemote source={content} components={mdxComponents} />
           </PresentationShell>
         </main>

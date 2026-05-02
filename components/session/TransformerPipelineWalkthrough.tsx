@@ -32,6 +32,8 @@ export interface TransformerPipelineWalkthroughProps {
   outputToken: string;
   stages: PipelineStage[];
   steps: PipelineStep[];
+  /** When true, hides the macro-strip subtitle, step caption panel, and per-step descriptions (controls + visuals only). */
+  hideStepNarrative?: boolean;
 }
 
 const ACTIVE_TOKEN_STAGES = new Set(["tok", "emb", "enc", "dec"]);
@@ -81,6 +83,7 @@ export default function TransformerPipelineWalkthrough({
   outputToken,
   stages,
   steps,
+  hideStepNarrative = false,
 }: TransformerPipelineWalkthroughProps) {
   const [currentStep, setCurrentStep] = useState(0);
 
@@ -112,9 +115,11 @@ export default function TransformerPipelineWalkthrough({
 
       {/* Macro strip — six phases vs Big Picture */}
       <div className="mb-6">
-        <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-          Pipeline phases (same six as Big Picture)
-        </p>
+        {!hideStepNarrative ? (
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            Pipeline phases (same six as Big Picture)
+          </p>
+        ) : null}
         <div className="flex flex-wrap items-stretch gap-1.5 sm:gap-2">
           {MACRO_PHASES.map((phase, i) => {
             const done = i < macroIdx;
@@ -282,13 +287,15 @@ export default function TransformerPipelineWalkthrough({
       </div>
 
       {/* Step panel */}
-      <div className="mt-5 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-4 md:px-5 md:py-5">
-        <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-          Step {currentStep + 1} of {totalSteps}
-        </p>
-        <p className="text-sm font-semibold text-white md:text-base">{step?.label}</p>
-        <p className="mt-2 text-sm leading-relaxed text-slate-300 md:text-base">{step?.description}</p>
-      </div>
+      {!hideStepNarrative ? (
+        <div className="mt-5 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-4 md:px-5 md:py-5">
+          <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+            Step {currentStep + 1} of {totalSteps}
+          </p>
+          <p className="text-sm font-semibold text-white md:text-base">{step?.label}</p>
+          <p className="mt-2 text-sm leading-relaxed text-slate-300 md:text-base">{step?.description}</p>
+        </div>
+      ) : null}
 
       {/* Controls */}
       <div className="mt-5 flex flex-wrap items-center gap-3">

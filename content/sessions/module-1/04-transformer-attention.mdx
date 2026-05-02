@@ -3,12 +3,12 @@ title: "The Transformer: Attention Is All You Need"
 slug: "transformer-attention"
 module: 1
 moduleName: "The Engine Room"
-sessionNumber: 4
+sessionNumber: 5
 duration: "22 min"
 difficulty: "intermediate"
 tags: ["attention", "transformer", "encoder-decoder"]
 nextSession: "how-llms-are-trained"
-prevSession: "embeddings"
+prevSession: "why-transformer"
 ---
 
 {/* ═══════════════════════════════════════════════════════════════
@@ -19,11 +19,11 @@ prevSession: "embeddings"
 
 ## Trace a sentence from raw text to the predicted next token
 
-Every LLM you use — GPT, Claude, Gemini — runs on the Transformer. This session moves from why sequential models hit a wall to how the 2017 *Attention Is All You Need* design replaced them with pure attention.
+Every LLM you use — GPT, Claude, Gemini — runs on the Transformer. The previous session explained why recurrent bottlenecks broke at scale; this one is the full 2017 *Attention Is All You Need* machine: how order is injected, how encoder and decoder stacks talk through attention, and how logits become the next token.
 
 By the end, you can follow one sentence through tokenization, embeddings, positional encoding, encoder and decoder stacks, and the final vocabulary scores — and know why each stage exists.
 
-The lesson path matches that order in **Core Concepts**: after a short **feedforward vs RNN** primer and the RNN motivation, we nail **positional encoding** with a small animation, then **one encoder layer** and **one decoder layer** as interactive stacks, then the **attention math** (Q/K/V), and finally the **full pipeline** walkthrough that ties everything together.
+The lesson path in **Core Concepts** follows that pipeline: **positional encoding**, then **one encoder layer** and **one decoder layer** as interactive stacks, then **self-attention** (Q/K/V), and finally the **full pipeline** walkthrough that ties everything together.
 
 </SessionSection>
 
@@ -34,18 +34,13 @@ The lesson path matches that order in **Core Concepts**: after a short **feedfor
 
 <SessionSection id="big-picture" label="Big Picture">
 
-## The problem, the fix, and the pipeline
-
-Imagine reading a book by only being allowed to remember the last sentence you read. Every time you turn the page, the earlier chapters fade. That was the core problem with the architecture that came before the Transformer — it could only pass meaning forward one word at a time through a single bottleneck.
-
-The Transformer solves this with one radical idea: read the entire sentence at once, and let every word talk directly to every other word simultaneously. No chain. No bottleneck. Everything in parallel.
-
-The classic *encoder–decoder* design (think machine translation) has two stacks: the **encoder** reads the whole source in parallel and builds a memory; the **decoder** generates the target **one token at a time** while consulting that memory. The interactive **big picture** below is the same journey drawn as **six stages** from raw string to the predicted token: tokenize, embed, add position, encode, decode, predict.
+## The six-stage pipeline from raw text to the next token
 
 <NodeFlowDiagram
   diagramId="raw-text-to-predicted-token-pipeline"
   title="The six stages: raw text to predicted token"
   height={540}
+  hideStepNarrative
   nodes={[
     { id: "tokenize", label: "Tokenize", sublabel: "text → IDs", x: 10, y: 34, color: "gray", shape: "rect", size: "sm", emoji: "🔤" },
     { id: "embed", label: "Embed", sublabel: "IDs → vectors", x: 26, y: 34, color: "teal", shape: "rect", size: "sm", emoji: "📊" },
@@ -107,10 +102,6 @@ The classic *encoder–decoder* design (think machine translation) has two stack
   ]}
 />
 
-Use **Play**, **Prev / Next**, or the step dots to walk the pipeline; the panel below matches the highlighted stretch of the graph — same pattern as the token and lifecycle diagrams earlier in the course.
-
-Each stage above is a concept you will understand by the end of this session. The sections below unpack them one by one — starting with the problem that made the Transformer necessary.
-
 </SessionSection>
 
 
@@ -120,158 +111,25 @@ Each stage above is a concept you will understand by the end of this session. Th
 
 <SessionSection id="core-concepts" label="Core Concepts">
 
-### Simple intro: feedforward networks vs recurrent networks
-
-Many neural networks you have already seen are **feedforward**: you hand the model one fixed input — a vector of numbers, an image flattened to pixels, a row from a spreadsheet — and it runs that input through stacked layers of weights. Out comes **one answer** (a class label, a score, a single prediction). There is no built-in slot that says “what happened earlier in time.”
-
-**Sequences** are different: speech, sensor traces, and language unfold step by step. Applications that care about order need a **running summary** of what came before. A **recurrent** network (RNN) addresses that by reusing the **same** cell at every timestep: each call takes the **current input** and the **hidden vector the cell wrote on the previous timestep** (often initialized to zeros at the start), and emits an **updated** hidden vector. That output is exactly what gets fed back in as “the past” on the next step — there is no separate hₜ₋₁ box in the folded picture, only the return wire. The diagrams below contrast the two pictures; the next subsection then explains why that memory channel becomes a bottleneck.
-
-<NodeFlowDiagram
-  diagramId="primer-feedforward-one-shot"
-  title="Feedforward — one input, one pass, one output"
-  height={340}
-  nodes={[
-    { id: "ff_in", label: "Input", sublabel: "vector, image, row…", x: 14, y: 50, color: "teal", shape: "rect", size: "sm", emoji: "📥" },
-    { id: "ff_net", label: "Neural net", sublabel: "layers + weights", x: 50, y: 50, color: "violet", shape: "rect", size: "sm", emoji: "🧠" },
-    { id: "ff_out", label: "Output", sublabel: "label, score…", x: 86, y: 50, color: "blue", shape: "rect", size: "sm", emoji: "📤" },
-  ]}
-  edges={[
-    { from: "ff_in", to: "ff_net", animated: true, color: "teal" },
-    { from: "ff_net", to: "ff_out", animated: true, color: "violet" },
-  ]}
-  steps={[
-    {
-      id: "ff_s1",
-      label: "A single input vector",
-      description: "Everything the model is allowed to know for this decision is packed into one input. There is no separate “memory” channel from a previous call — unless you engineer features yourself.",
-      highlightNodes: ["ff_in"],
-      highlightEdges: [],
-    },
-    {
-      id: "ff_s2",
-      label: "Forward through the layers",
-      description: "Each layer transforms the representation. By the end, the network emits logits or scores for the task you trained it on.",
-      highlightNodes: ["ff_in", "ff_net"],
-      highlightEdges: ["ff_in→ff_net"],
-    },
-    {
-      id: "ff_s3",
-      label: "One vector in, one vector out",
-      description: "For a classic classifier or regressor, this is the whole story: no hidden state is carried to a future timestep unless you build that loop outside the net.",
-      highlightNodes: ["ff_in", "ff_net", "ff_out"],
-      highlightEdges: ["ff_in→ff_net", "ff_net→ff_out"],
-    },
-  ]}
-/>
-
-<NodeFlowDiagram
-  diagramId="primer-rnn-one-timestep"
-  title="RNN — folded view: xₜ → RNN → hₜ; hₜ re-enters the same cell on the next step (the old hₜ₋₁)"
-  height={340}
-  nodes={[
-    { id: "x_t",      label: "xₜ",      sublabel: "current token / frame",   x: 10, y: 26, color: "teal",   shape: "rect",   size: "sm", emoji: "📍" },
-    { id: "rnn_cell", label: "RNN cell", sublabel: "same weights every step", x: 46, y: 26, color: "violet", shape: "rect",   size: "sm", emoji: "🔁" },
-    { id: "h_new",    label: "hₜ",       sublabel: "summary out",             x: 82, y: 26, color: "amber",  shape: "rect",   size: "sm", emoji: "📌" },
-    { id: "cr",       label: "",  x: 82, y: 74, shape: "none" },
-    { id: "cl",       label: "",  x: 46, y: 74, shape: "none" },
-  ]}
-  edges={[
-    { from: "x_t",     to: "rnn_cell", animated: true,  color: "teal"  },
-    { from: "rnn_cell", to: "h_new",   animated: true,  color: "amber" },
-    { from: "h_new",   to: "cr",       animated: false, dashed: true, noArrow: true, color: "amber" },
-    { from: "cr",      to: "cl",       animated: false, dashed: true, noArrow: true, color: "amber" },
-    { from: "cl",      to: "rnn_cell", animated: false, dashed: true,                color: "amber" },
-  ]}
-  steps={[
-    {
-      id: "rnn_s1",
-      label: "Current input xₜ",
-      description: "At timestep t the cell reads the latest piece of the sequence — for language, often the current word or subword embedding.",
-      highlightNodes: ["x_t"],
-      highlightEdges: ["x_t→rnn_cell"],
-    },
-    {
-      id: "rnn_s2",
-      label: "Through the RNN cell",
-      description: "Inside the cell, the new input is combined with the hidden vector that **came out of this same cell on the previous timestep** (at t = 0 that vector is usually learned or set to zeros).",
-      highlightNodes: ["x_t", "rnn_cell"],
-      highlightEdges: ["x_t→rnn_cell"],
-    },
-    {
-      id: "rnn_s3",
-      label: "Output hₜ — the updated summary",
-      description: "The cell writes a fresh hidden state hₜ. That single vector is the model’s compressed memory of the sequence so far — everything earlier has already been folded into it.",
-      highlightNodes: ["x_t", "rnn_cell", "h_new"],
-      highlightEdges: ["x_t→rnn_cell", "rnn_cell→h_new"],
-    },
-    {
-      id: "rnn_s4",
-      label: "hₜ becomes the “previous h” on the next step",
-      description: "When you advance t, this output is what gets fed **back into the same RNN** as the prior hidden vector — the role people write as hₜ₋₁ in equations, without drawing a second state box. That recurrence is powerful for short context but becomes the bottleneck the next section explores.",
-      highlightNodes: ["rnn_cell", "h_new"],
-      highlightEdges: ["rnn_cell→h_new", "h_new→cr", "cr→cl", "cl→rnn_cell"],
-    },
-  ]}
-/>
-
-### The RNN bottleneck: why the old approach broke
-
-Before the Transformer, language models used Recurrent Neural Networks. Think of an RNN like a game of telephone. The first person whispers a message to the second, the second whispers to the third, and so on. By the time the message reaches person 30, the original words are distorted or lost entirely.
-
-Concretely: when an RNN reads "The cat sat on the mat", it processes one word at a time. Each new word partially overwrites the previous hidden state. By the time it reaches "mat", the signal from "The" has been diluted through five overwrite operations. There is no direct connection between "cat" and "mat" — information must travel through every word in between.
-
-The diagram below unrolls **The capital of Egypt is Cairo** in time: one RNN cell reused at every step, hidden vectors **h** passed forward (orange), and a next-token head at each step (ŷ₁, ŷ₂, …). Step through it once so it lines up with the passing and failure demos that follow.
-
-<RNNUnrolledOverview />
-
-Before seeing what breaks in longer text, see a short clause work in detail. The next diagram walks **The capital of Egypt is Cairo.** through the RNN and shows next-token prediction: after “… Egypt is”, the model should autocomplete “Cairo”.
-
-<RNNWorkingExample
-  title="RNN working correctly — short clause, next token is Cairo"
-  caption="Opens on “is” (h₅). Tab “Influence in h₅” sketches recency: newest token at top, influence drops each step backward (sums to 100%, not word odds). Tab “Next-token prediction” shows P(next token) after … Egypt is — Cairo vs distractors — then a slot after Cairo for the period."
-/>
-
-That worked because the clause is short and the city name is still strong in the hidden state. Now extend the same setup with more text after “Cairo” — autocomplete after “includes” can break when the city signal has decayed.
-
-<RNNFailureDemo
-  title="Longer context — decay breaks a logical autocomplete"
-  caption="The dashed ? marks where the next token goes — after includes, before Egyptian. See how decay lets the RNN guess Alexandria (wrong city and broken phrase) instead of the, and how attention restores the."
-/>
-
-LSTMs added memory gates that helped slow the forgetting, and Seq2Seq + Attention (2014) let the decoder look back at every step. Both were improvements. But both still read one word at a time. The Transformer asked: what if we skip the telephone game entirely and let every word talk to every other word directly, all at once?
-
 ### Positional encoding: why order must be added
-
-Attention compares tokens **in parallel**. If you only had word embeddings, shuffling words could leave the same multiset of vectors — the model would not know who came first. Real systems add a **positional** vector (in the original paper: fixed sine/cosine patterns by index) to each embedding so “dog bites man” and “man bites dog” land in different places.
 
 <PositionalEncodingVisualizer
   title="Positional encoding in three beats"
-  caption="Order (swap), a tiny position wave by index, then meaning + position summed — same story as the paper, stripped to the essentials."
   tokens={["dog", "bites", "man"]}
 />
-
-You already walked **text → tokens → embeddings** in the Embeddings session and the **six-stage** diagram above; the positional visualizer just above shows **meaning + position** summed into one vector per token. With that combined vector ready, the next step is what happens inside a single **encoder layer**.
 
 ### Encoder block: one layer, two residuals
 
 <TransformerSubstackExplorer
   variant="encoder"
   title="Encoder — self-attention, feed-forward, residuals"
-  caption="Use the pills or tap a block to change the focus. Green arrows show data moving up the stack; each colored block is a sub-layer you can explore."
   layerCount={6}
 />
 
 ### Self-attention: every word talks to every word
 
-Self-attention is the core mechanism that replaced the RNN chain. Here is the simplest way to understand it: every word simultaneously asks a question, advertises what it knows, and holds information others can borrow.
-
-For every token the model creates three vectors. The Query (Q) asks: "what am I looking for?" The Key (K) advertises: "what do I offer?" The Value (V) holds: "what information can I contribute?" The model computes a dot product between every Query and every Key, applies softmax to get weights that sum to 1.0, then blends the Values using those weights. The result for each token is a new vector that reflects the context of the entire sentence.
-
-Click any word below to see its Query, how it scores every other token's Key, and how those scores become the attention weights that determine what context it absorbs.
-
 <SelfAttentionScoreExplorer
   title="Self-attention: click any word to see what it attends to"
-  caption="Click a token to see its query question and how it scores every other token."
   tokens={["The", "cat", "sat", "on", "the", "mat"]}
   queries={[
     "which noun follows?",
@@ -292,20 +150,13 @@ Click any word below to see its Query, how it scores every other token's Key, an
   defaultSelected={2}
 />
 
-One attention head captures one kind of relationship. But a sentence has many relationship types happening simultaneously — subject-verb links, co-references, prepositional targets. Multi-head attention runs 8 independent attention operations in parallel, each with its own learned weights looking at a different 64-dimension slice of the input. Their outputs are concatenated and projected back to 512 dimensions. Same compute cost as one full-size head — eight times the relationship types captured. Use the **Multi-head** pill on the encoder stack above for a one-screen recap of that idea.
-
 ### Decoder block: masked attention, cross-attention, FFN
-
-The decoder generates one token at a time. **Masked** self-attention blocks “looking right” at tokens that are not supposed to exist yet. **Cross-attention** is where the decoder’s queries read the encoder’s memory (keys and values from the encoder output). Then the same style of **feed-forward** and **residual + layer norm** wraps appear again.
 
 <TransformerSubstackExplorer
   variant="decoder"
   title="Decoder — mask, cross-attend, refine"
-  caption="Three sub-layers per decoder block in the classic diagram: masked self-attention, cross-attention into encoder memory, then FFN — each followed by add + norm."
   layerCount={6}
 />
-
-Many chat LLMs you use day to day are **decoder-only** (no separate encoder stack): they still use positional encoding and masked self-attention over the prompt; the encoder–decoder picture is the cleanest way to see **cross-attention** when a source and a target sequence both exist.
 
 </SessionSection>
 
@@ -318,18 +169,9 @@ Many chat LLMs you use day to day are **decoder-only** (no separate encoder stac
 
 ## Every concept, one sentence, one flow
 
-This is the **same six-stage path** as **Big Picture** (tokenize → embed → positional encode → encode → decode → predict), stretched into **11 detailed steps** so nothing is skipped. The **strip at the top** tracks which macro phase you are in; **Prev / Next** (or the dots) walk the fine print.
-
-Where each phase showed up earlier in this session:
-
-- **Tokenize / embed / position** — Embeddings session + **Positional encoding** visualizer + Big Picture diagram.
-- **Encoder** — **Encoder stack** explorer, **self-attention** explorer, **heatmap**, **Multi-head** pill.
-- **Decoder** — **Decoder stack** explorer (mask, cross-attention, FFN).
-- **Predict** — logits and softmax narrative in the steps below.
-
 <TransformerPipelineWalkthrough
   title='"The cat sat on the mat" — full pipeline, one step at a time'
-  caption="Use Next / Prev or the dots for all 11 steps. Click a stage card to jump to that stage’s first step. Hover internal chips (BPE split, etc.) for a one-line reminder."
+  hideStepNarrative
   inputText="The cat sat on the mat"
   outputToken="mat"
   stages={[

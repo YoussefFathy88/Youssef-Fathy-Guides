@@ -146,9 +146,15 @@ const DESCRIPTIONS: string[] = [
 export interface RNNFailureDemoProps {
   title?: string;
   caption?: string;
+  /** When true, shows long captions and per-step story text (gallery). Sessions use visuals + pills only. */
+  showNarrative?: boolean;
 }
 
-export default function RNNFailureDemo({ title, caption }: RNNFailureDemoProps) {
+export default function RNNFailureDemo({
+  title,
+  caption,
+  showNarrative = false,
+}: RNNFailureDemoProps) {
   const [activeStep, setActiveStep] = useState(0);
   const [barHeights, setBarHeights] = useState<number[]>(() => DECAY_PCTS.map(() => 0));
   const [panelsVisible, setPanelsVisible] = useState(false);
@@ -301,7 +307,7 @@ export default function RNNFailureDemo({ title, caption }: RNNFailureDemoProps) 
       </div>
 
       <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900/60">
-        {activeStep === 0 && (
+        {showNarrative && activeStep === 0 && (
           <p className="mb-3 text-center text-sm leading-relaxed text-gray-700 dark:text-gray-300">
             <span className="font-medium text-gray-900 dark:text-gray-100">Full sense:</span> The capital of Egypt is
             Cairo. Later, … it includes <span className="whitespace-nowrap">[next word]</span> Egyptian Museum — the
@@ -309,7 +315,7 @@ export default function RNNFailureDemo({ title, caption }: RNNFailureDemoProps) 
           </p>
         )}
 
-        {activeStep >= 1 && (
+        {showNarrative && activeStep >= 1 && (
           <p className="mb-3 text-center text-[11px] font-medium text-teal-800 dark:text-teal-200">
             Next token is predicted <span className="underline decoration-teal-500/80">immediately after</span>{" "}
             <span className="font-semibold">&quot;includes&quot;</span> (dashed box), before &quot;Egyptian&quot;.
@@ -318,9 +324,13 @@ export default function RNNFailureDemo({ title, caption }: RNNFailureDemoProps) 
 
         {activeStep === 4 && (
           <div className="relative mb-2 h-24 w-full">
-            <p className="mb-1 text-center text-[11px] font-medium" style={{ color: PURPLE }}>
-              direct attention — full signal at the prediction slot
-            </p>
+            {showNarrative ? (
+              <p className="mb-1 text-center text-[11px] font-medium" style={{ color: PURPLE }}>
+                direct attention — full signal at the prediction slot
+              </p>
+            ) : (
+              <div className="mb-1 h-3" />
+            )}
             <svg
               className="absolute inset-x-0 top-5 h-20 w-full overflow-visible"
               viewBox="0 0 900 100"
@@ -384,10 +394,12 @@ export default function RNNFailureDemo({ title, caption }: RNNFailureDemoProps) 
 
         {activeStep === 2 && (
           <div className="mt-6">
-            <p className="mb-3 text-center text-[11px] text-gray-500 dark:text-gray-400">
-              How much of the <strong className="text-gray-700 dark:text-gray-300">Cairo</strong> anchor survives by
-              each milestone (50% per step; ··· packs many real tokens).
-            </p>
+            {showNarrative ? (
+              <p className="mb-3 text-center text-[11px] text-gray-500 dark:text-gray-400">
+                How much of the <strong className="text-gray-700 dark:text-gray-300">Cairo</strong> anchor survives by
+                each milestone (50% per step; ··· packs many real tokens).
+              </p>
+            ) : null}
             <div className="flex justify-between gap-2">
               {DECAY_PCTS.map((pct, i) => {
                 const h = barHeights[i] ?? 0;
@@ -500,9 +512,11 @@ export default function RNNFailureDemo({ title, caption }: RNNFailureDemoProps) 
           </div>
         )}
 
-        <p className="mt-4 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-          {DESCRIPTIONS[activeStep]}
-        </p>
+        {showNarrative ? (
+          <p className="mt-4 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+            {DESCRIPTIONS[activeStep]}
+          </p>
+        ) : null}
       </div>
     </div>
   );

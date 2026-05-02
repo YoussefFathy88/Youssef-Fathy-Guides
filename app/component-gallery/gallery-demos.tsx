@@ -5,7 +5,13 @@
 
 import type { ReactNode } from "react";
 
-import { NextSessionCard, RecapTable, SessionSection } from "@/components/session";
+import {
+  NextSessionCard,
+  RagLabPromptExplorer,
+  RagLabSystemArchitecture,
+  RecapTable,
+  SessionSection,
+} from "@/components/session";
 import {
   AgentLoopStepper,
   AlgorithmStepper,
@@ -32,20 +38,18 @@ import {
   CompactCommandSimulator,
   ContextLimitSimulator,
   ContextWindowFiller,
-  DataFlowDiagram,
   DualPhaseFlow,
   EmbeddingSearchSimulator,
   GradientDescentSimulator,
   InferenceWalkthrough,
-  LayerStack,
   LiveTokenizer,
   MemoryOrchestrator,
   MiniPlayground,
   NeuralNetworkForwardPass,
   NodeFlowDiagram,
+  DualLanePipelineDiagram,
   ParameterSlider,
   ParallelToolRunner,
-  PipelineTrack,
   PositionalEncodingVisualizer,
   PromptAnatomyVisualizer,
   RNNUnrolledOverview,
@@ -188,6 +192,14 @@ export const GALLERY_ITEMS: GalleryItem[] = [
         module={1}
       />
     ),
+  },
+  {
+    name: "RagLabSystemArchitecture",
+    node: <RagLabSystemArchitecture title="Gallery preview — RAG lab stack" />,
+  },
+  {
+    name: "RagLabPromptExplorer",
+    node: <RagLabPromptExplorer />,
   },
   {
     name: "AgentLoopStepper",
@@ -337,6 +349,67 @@ export const GALLERY_ITEMS: GalleryItem[] = [
               "The integer sequence is placed into the context window — the hard limit for one call.",
             highlightNodes: ["ids", "window"],
             highlightEdges: ["ids→window"],
+          },
+        ]}
+      />
+    ),
+  },
+  {
+    name: "DualLanePipelineDiagram",
+    node: (
+      <DualLanePipelineDiagram
+        title="Prepare vs run — compact lanes + readable arrows"
+        presentation
+        minHeight={520}
+        hideStepNarrative
+        lanes={[
+          {
+            id: "prep",
+            label: "Data preparation",
+            color: "violet",
+            blocks: [
+              { id: "upload", label: "Upload", emoji: "📤" },
+              { id: "chunk", label: "Chunk", emoji: "✂️" },
+              { id: "embed-i", label: "Embed", emoji: "🔢" },
+              { id: "store", label: "Chroma", emoji: "🗄️" },
+            ],
+          },
+          {
+            id: "run",
+            label: "Running",
+            color: "teal",
+            blocks: [
+              { id: "q", label: "Question", emoji: "❓" },
+              { id: "embed-q", label: "Embed", emoji: "🔢" },
+              { id: "retrieve", label: "Retrieve", emoji: "🔍" },
+              { id: "gen", label: "LLM", emoji: "🤖", accent: "blue" },
+            ],
+          },
+        ]}
+        edges={[
+          { from: "upload", to: "chunk", animated: false },
+          { from: "chunk", to: "embed-i", animated: false },
+          { from: "embed-i", to: "store", animated: true },
+          { from: "q", to: "embed-q", animated: true },
+          { from: "embed-q", to: "retrieve", animated: true },
+          { from: "store", to: "retrieve", animated: true },
+          { from: "retrieve", to: "gen", animated: true },
+          { from: "q", to: "gen", animated: true, dashed: true, label: "+ question (prompt)" },
+        ]}
+        steps={[
+          {
+            id: "s1",
+            label: "Ingest",
+            description: "Documents enter the indexing lane.",
+            highlightNodes: ["upload"],
+            highlightEdges: [],
+          },
+          {
+            id: "s2",
+            label: "Chunk",
+            description: "Split text into overlapping segments for embedding.",
+            highlightNodes: ["upload", "chunk"],
+            highlightEdges: ["upload→chunk"],
           },
         ]}
       />
@@ -540,36 +613,6 @@ export const GALLERY_ITEMS: GalleryItem[] = [
     ),
   },
   {
-    name: "DataFlowDiagram",
-    node: (
-      <DataFlowDiagram
-        title="Tool-using agent loop"
-        caption="A compact 4-node loop for explaining iterative agent behaviour."
-        nodes={[
-          { id: "user", label: "User", x: 10, y: 52, color: "gray" },
-          {
-            id: "llm-a",
-            label: "LLM",
-            sublabel: "reason",
-            x: 38,
-            y: 26,
-            color: "violet",
-            active: true,
-          },
-          { id: "tool", label: "Tool", sublabel: "search", x: 66, y: 52, color: "teal" },
-          { id: "llm-b", label: "LLM", sublabel: "respond", x: 88, y: 26, color: "amber" },
-        ]}
-        edges={[
-          { from: "user", to: "llm-a", label: "prompt" },
-          { from: "llm-a", to: "tool", label: "call" },
-          { from: "tool", to: "llm-b", label: "result", color: "fill-teal-500 dark:fill-teal-400" },
-          { from: "llm-b", to: "user", label: "answer", color: "fill-amber-500 dark:fill-amber-400" },
-        ]}
-        highlightPath={["user", "llm-a", "tool", "llm-b"]}
-      />
-    ),
-  },
-  {
     name: "DualPhaseFlow",
     node: (
       <DualPhaseFlow
@@ -683,7 +726,15 @@ export const GALLERY_ITEMS: GalleryItem[] = [
     node: (
       <RNNUnrolledOverview
         title="RNN unrolled — The capital of Egypt is Cairo"
-        caption="Default six timesteps; Prev/Next highlights one column and the hidden-state arrow feeding it."
+        caption="Five input timesteps; the final predicted token is Cairo (shown above the last column). Prev/Next highlights one column and the hidden-state arrow feeding it."
+        terminalNextToken="Cairo"
+        stepDescriptions={[
+          "Timestep 1: the previous hidden state h₀ (often a zero vector) enters the RNN together with the first word, The. The cell writes a new summary h₁ and predicts the next token.",
+          "Timestep 2: h₁ is passed forward (orange arrow). The word capital is read in; the cell compresses it with everything already in h₁ into h₂.",
+          "Timestep 3: h₂ carries the phrase so far; of updates it to h₃. Each step reuses the same weights — only the hidden vector and input word change.",
+          "Timestep 4: Egypt is processed into h₄. Information from early words is not stored in separate slots; it is mixed into one vector that keeps getting overwritten.",
+          "Timestep 5: is arrives; the hidden state becomes h₅. The prediction above this column is Cairo — there is still no direct wire from The to Cairo; the subject must survive every intermediate update inside one bottleneck.",
+        ]}
       />
     ),
   },
@@ -698,45 +749,6 @@ export const GALLERY_ITEMS: GalleryItem[] = [
         defaultTemperature={1}
         defaultTopP={0.9}
         highlightTop={2}
-      />
-    ),
-  },
-  {
-    name: "PipelineTrack",
-    node: (
-      <PipelineTrack
-        title="Request path through the stack"
-        caption="The token advances one hop at a time (Input → Embed → …), pausing at each station so the forward path reads clearly."
-        nodes={[
-          {
-            id: "in",
-            label: "Input",
-            sublabel: "User query + system prompt as raw text.",
-            color: "gray",
-          },
-          {
-            id: "embed",
-            label: "Embed",
-            sublabel: "Text → token IDs → dense vectors the model can score.",
-            color: "violet",
-          },
-          {
-            id: "retrieve",
-            label: "Retrieve",
-            badge: "External KB",
-            sublabel: "Vector search pulls chunks; they are merged into context before generation.",
-            color: "teal",
-          },
-          {
-            id: "gen",
-            label: "Generate",
-            sublabel: "Transformer forward pass + sample loop emits the answer tokens.",
-            color: "amber",
-          },
-        ]}
-        lines={[
-          { nodes: ["in", "embed", "retrieve", "gen"], color: "#8b5cf6", label: "RAG path" },
-        ]}
       />
     ),
   },
@@ -781,38 +793,6 @@ export const GALLERY_ITEMS: GalleryItem[] = [
             detail: "Wraps a sandboxed Python executor.",
             color: "blue",
             icon: "⚙️",
-          },
-        ]}
-      />
-    ),
-  },
-  {
-    name: "LayerStack",
-    node: (
-      <LayerStack
-        title="Inside a transformer block"
-        caption="Click layers to read how data flows through the stack."
-        layers={[
-          {
-            id: "norm1",
-            label: "Layer Norm",
-            sublabel: "Stabilize activations",
-            color: "gray",
-            detail: "Normalizes inputs before attention so training stays stable.",
-          },
-          {
-            id: "attn",
-            label: "Multi-head attention",
-            sublabel: "Q, K, V",
-            color: "violet",
-            detail: "Each token attends to all tokens; outputs are mixed context-aware vectors.",
-          },
-          {
-            id: "ff",
-            label: "Feed-forward",
-            sublabel: "MLP",
-            color: "teal",
-            detail: "Per-token nonlinearity — where most parameters live.",
           },
         ]}
       />

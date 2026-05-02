@@ -1,0 +1,106 @@
+---
+title: "AI Lab 01: Introduction to RAG"
+slug: "introduction-to-rag-lab"
+module: 2
+moduleName: "Giving the Brain Capabilities"
+sessionNumber: 7.5
+duration: "12 min"
+difficulty: "intermediate"
+tags: ["rag", "ai-lab", "architecture"]
+nextSession: "tools-and-function-calling"
+prevSession: "rag"
+---
+
+{/* SECTION 1 - GOAL */}
+
+<SessionSection id="goal" label="Goal">
+
+## The lab pipeline: prepare data, then answer from the store
+
+<DualLanePipelineDiagram
+  title="Prepare vs run — two lanes, one vector database"
+  presentation
+  minHeight={560}
+  hideStepNarrative
+  lanes={[
+    {
+      id: "prep",
+      label: "Data preparation",
+      color: "violet",
+      blocks: [
+        { id: "upload", label: "Upload", emoji: "📤" },
+        { id: "chunk", label: "Chunk", emoji: "✂️" },
+        { id: "embed-i", label: "Embed", emoji: "🔢" },
+        { id: "store", label: "Chroma", emoji: "🗄️" },
+      ],
+    },
+    {
+      id: "run",
+      label: "Running",
+      color: "teal",
+      blocks: [
+        { id: "q", label: "Question", emoji: "❓" },
+        { id: "embed-q", label: "Embed", emoji: "🔢" },
+        { id: "retrieve", label: "Retrieve", emoji: "🔍" },
+        { id: "gen", label: "LLM", emoji: "🤖", accent: "blue" },
+      ],
+    },
+  ]}
+  edges={[
+    { from: "upload", to: "chunk", animated: false },
+    { from: "chunk", to: "embed-i", animated: false },
+    { from: "embed-i", to: "store", animated: true },
+    { from: "q", to: "embed-q", animated: true },
+    { from: "embed-q", to: "retrieve", animated: true },
+    { from: "store", to: "retrieve", animated: true },
+    { from: "retrieve", to: "gen", animated: true },
+    { from: "q", to: "gen", animated: true, dashed: true, label: "+ question (prompt)" },
+  ]}
+  steps={[
+    { id: "s1", label: "1", description: ".", highlightNodes: ["upload"], highlightEdges: [] },
+    { id: "s2", label: "2", description: ".", highlightNodes: ["upload", "chunk"], highlightEdges: ["upload→chunk"] },
+    { id: "s3", label: "3", description: ".", highlightNodes: ["chunk", "embed-i", "store"], highlightEdges: ["chunk→embed-i", "embed-i→store"] },
+    { id: "s4", label: "4", description: ".", highlightNodes: ["q"], highlightEdges: [] },
+    { id: "s5", label: "5", description: ".", highlightNodes: ["q", "embed-q"], highlightEdges: ["q→embed-q"] },
+    { id: "s6", label: "6", description: ".", highlightNodes: ["embed-q", "retrieve", "store"], highlightEdges: ["embed-q→retrieve", "store→retrieve"] },
+    { id: "s7", label: "7", description: ".", highlightNodes: ["retrieve", "q", "gen"], highlightEdges: ["retrieve→gen", "q→gen"] },
+  ]}
+/>
+
+</SessionSection>
+
+
+{/* SECTION 2 - BIG PICTURE */}
+
+<SessionSection id="big-picture" label="Big Picture">
+
+## System components
+
+<RagLabSystemArchitecture title="End-to-end lab architecture — dev parity with production concepts" />
+
+</SessionSection>
+
+
+{/* SECTION 3 - PRACTICAL EXAMPLE */}
+
+<SessionSection id="practical-example" label="Practical Example">
+
+## Project tree & assistant prompts
+
+<RagLabPromptExplorer />
+
+</SessionSection>
+
+
+{/* SECTION 4 - NEXT SESSION */}
+
+<SessionSection id="next-session" label="Next Session">
+
+<NextSessionCard
+  title="Tools & Function Calling"
+  slug="tools-and-function-calling"
+  teaser="From retrieval to action: how the model requests tools, your code runs them, and results return into context."
+  module={2}
+/>
+
+</SessionSection>

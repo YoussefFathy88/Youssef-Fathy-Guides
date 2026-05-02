@@ -1,11 +1,50 @@
 "use client";
 
-import { Children, useEffect, useState } from "react";
+import { Children, isValidElement, useEffect, useMemo, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
 
 import { useSessionPresentation } from "@/components/session/PresentationContext";
 import { cn } from "@/lib/utils";
+
+function isH2SlideMarker(child: ReactNode): boolean {
+  if (!isValidElement(child)) {
+    return false;
+  }
+
+  const marker = (child.props as { "data-session-slide-marker"?: string } | null)?.[
+    "data-session-slide-marker"
+  ];
+  return marker === "h2";
+}
+
+function chunkPresentationChildren(children: ReactNode): ReactNode[][] {
+  const items = Children.toArray(children).filter(Boolean);
+
+  if (items.length === 0) {
+    return [[]];
+  }
+
+  const chunks: ReactNode[][] = [];
+  let current: ReactNode[] = [];
+
+  for (const child of items) {
+    if (isH2SlideMarker(child)) {
+      if (current.length > 0) {
+        chunks.push(current);
+      }
+      current = [child];
+    } else {
+      current.push(child);
+    }
+  }
+
+  if (current.length > 0) {
+    chunks.push(current);
+  }
+
+  return chunks.length > 0 ? chunks : [items];
+}
 
 export interface SessionSectionProps {
   id: string;
@@ -16,63 +55,80 @@ export interface SessionSectionProps {
 export function SessionSection({ id, label, children }: SessionSectionProps) {
   const reducedMotion = useReducedMotion();
   const { isPresentationMode, activeSectionId } = useSessionPresentation();
-  const isActiveSlide = isPresentationMode && activeSectionId === id;
+  const isAnySlideInSectionActive =
+    isPresentationMode &&
+    (activeSectionId === id ||
+      (activeSectionId != null && activeSectionId.startsWith(`${id}__`)));
   const [revealCycle, setRevealCycle] = useState(0);
 
   useEffect(() => {
-    if (isPresentationMode && isActiveSlide) {
+    if (isPresentationMode && isAnySlideInSectionActive) {
       setRevealCycle((current) => current + 1);
     }
-  }, [isActiveSlide, isPresentationMode]);
+  }, [isAnySlideInSectionActive, isPresentationMode]);
+
+  const presentationChunks = useMemo(
+    () => (isPresentationMode ? chunkPresentationChildren(children) : []),
+    [children, isPresentationMode],
+  );
 
   if (isPresentationMode) {
-    const childItems = Children.toArray(children);
-
     return (
-      <section
-        id={id}
-        aria-roledescription="slide"
-        data-session-label={label}
-        data-session-section="true"
-        className="flex min-h-[calc(100dvh-8rem)] snap-start snap-always items-center py-6"
-      >
-        <motion.div
-          key={`${id}-${revealCycle}`}
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: {},
-            visible: {
-              transition: {
-                delayChildren: reducedMotion ? 0 : 0.08,
-                staggerChildren: reducedMotion ? 0 : 0.09,
-              },
-            },
-          }}
-          className="w-full overflow-y-auto rounded-[32px] border border-gray-800/80 bg-gray-950/70 px-6 py-8 shadow-[0_32px_80px_-48px_rgba(15,23,42,0.85)] backdrop-blur sm:px-8 sm:py-10 lg:px-12 lg:py-12"
-          style={{ maxHeight: "calc(100dvh - 9rem)" }}
-        >
-          <div className="mb-6 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.24em] text-violet-200/75">
-            <span aria-hidden="true" className="h-2 w-2 rounded-full bg-violet-400" />
-            {label}
-          </div>
+      <>
+        {presentationChunks.map((chunk, slideIndex) => {
+          const slideId = slideIndex === 0 ? id : `${id}__${slideIndex}`;
 
-          <div className="space-y-6">
-            {childItems.map((child, index) => (
+          return (
+            <section
+              key={`${id}-slide-${slideIndex}`}
+              id={slideId}
+              aria-roledescription="slide"
+              data-session-label={label}
+              data-session-section="true"
+              data-presentation-slide="true"
+              data-session-section-label={label}
+              className="flex min-h-[calc(100dvh-8rem)] snap-start snap-always items-center py-6"
+            >
               <motion.div
-                key={`${id}-${revealCycle}-${index}`}
+                key={`${slideId}-${revealCycle}`}
+                initial="hidden"
+                animate="visible"
                 variants={{
-                  hidden: { opacity: 0, y: reducedMotion ? 0 : 18 },
-                  visible: { opacity: 1, y: 0 },
+                  hidden: {},
+                  visible: {
+                    transition: {
+                      delayChildren: reducedMotion ? 0 : 0.08,
+                      staggerChildren: reducedMotion ? 0 : 0.09,
+                    },
+                  },
                 }}
-                transition={{ duration: reducedMotion ? 0.18 : 0.4, ease: "easeOut" }}
+                className="w-full overflow-y-auto rounded-[32px] border border-gray-800/80 bg-gray-950/70 px-6 py-8 shadow-[0_32px_80px_-48px_rgba(15,23,42,0.85)] backdrop-blur sm:px-8 sm:py-10 lg:px-12 lg:py-12"
+                style={{ maxHeight: "calc(100dvh - 9rem)" }}
               >
-                {child}
+                <div className="mb-6 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.24em] text-violet-200/75">
+                  <span aria-hidden="true" className="h-2 w-2 rounded-full bg-violet-400" />
+                  {label}
+                </div>
+
+                <div className="space-y-6">
+                  {chunk.map((child, index) => (
+                    <motion.div
+                      key={`${slideId}-${revealCycle}-${index}`}
+                      variants={{
+                        hidden: { opacity: 0, y: reducedMotion ? 0 : 18 },
+                        visible: { opacity: 1, y: 0 },
+                      }}
+                      transition={{ duration: reducedMotion ? 0.18 : 0.4, ease: "easeOut" }}
+                    >
+                      {child}
+                    </motion.div>
+                  ))}
+                </div>
               </motion.div>
-            ))}
-          </div>
-        </motion.div>
-      </section>
+            </section>
+          );
+        })}
+      </>
     );
   }
 

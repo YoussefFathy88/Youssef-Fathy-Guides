@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { useReducedMotion } from "framer-motion";
 import Link from "next/link";
 
@@ -8,17 +15,10 @@ import { PresentationProvider } from "@/components/session/PresentationContext";
 import { GridBackground } from "@/components/ui/grid-background";
 import { cn } from "@/lib/utils";
 
-type PresentationSection = {
-  id: string;
-  label: string;
-};
-
 type PresentationShellProps = {
   slug: string;
-  title: string;
   module: number;
   moduleName: string;
-  sections: PresentationSection[];
   children: ReactNode;
 };
 
@@ -47,35 +47,74 @@ function isIgnoredKeyboardTarget(target: EventTarget | null) {
 
 export function PresentationShell({
   slug,
-  title,
   module,
   moduleName,
-  sections,
   children,
 }: PresentationShellProps) {
   const reducedMotion = useReducedMotion();
   const shellRef = useRef<HTMLDivElement | null>(null);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
-  const presentationSections = useMemo(
-    () => [{ id: "session-intro", label: "Title" }, ...sections],
-    [sections],
-  );
-  const [activeSectionId, setActiveSectionId] = useState<string | null>(
-    presentationSections[0]?.id ?? null,
-  );
+  const [slides, setSlides] = useState<{ id: string; sectionLabel: string }[]>([]);
+  const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  const currentIndex = useMemo(() => {
-    if (!activeSectionId) {
-      return 0;
+  useLayoutEffect(() => {
+    const root = scrollerRef.current;
+    if (!root) {
+      return undefined;
     }
 
-    const matchIndex = presentationSections.findIndex((section) => section.id === activeSectionId);
-    return matchIndex >= 0 ? matchIndex : 0;
-  }, [activeSectionId, presentationSections]);
+    const refreshSlides = () => {
+      const nodes = [...root.querySelectorAll<HTMLElement>("[data-presentation-slide]")].filter(
+        (el) => Boolean(el.id),
+      );
+      const next = nodes.map((el) => ({
+        id: el.id,
+        sectionLabel: el.dataset.sessionSectionLabel ?? "",
+      }));
+      setSlides((prev) => {
+        if (
+          prev.length === next.length &&
+          prev.every(
+            (slide, index) =>
+              slide.id === next[index]?.id && slide.sectionLabel === next[index]?.sectionLabel,
+          )
+        ) {
+          return prev;
+        }
+        return next;
+      });
+    };
+
+    refreshSlides();
+
+    const article = root.querySelector("article");
+    const observeRoot = article ?? root;
+    const mo = new MutationObserver(() => {
+      refreshSlides();
+    });
+    mo.observe(observeRoot, { childList: true, subtree: true });
+
+    return () => mo.disconnect();
+  }, [slug]);
+
+  useEffect(() => {
+    if (slides.length === 0) {
+      return;
+    }
+
+    setActiveSectionId((prev) =>
+      prev && slides.some((slide) => slide.id === prev) ? prev : slides[0].id,
+    );
+  }, [slides]);
+
+  const slideMatchIndex =
+    activeSectionId === null ? -1 : slides.findIndex((slide) => slide.id === activeSectionId);
+  const currentIndex =
+    slides.length === 0 ? 0 : slideMatchIndex >= 0 ? slideMatchIndex : 0;
 
   const activeSectionLabel =
-    presentationSections[currentIndex]?.label ?? presentationSections[0]?.label ?? "Title";
+    slides[currentIndex]?.sectionLabel ?? slides[0]?.sectionLabel ?? "Session";
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -90,15 +129,15 @@ export function PresentationShell({
 
   useEffect(() => {
     const root = scrollerRef.current;
-    if (!root) {
+    if (!root || slides.length === 0) {
       return undefined;
     }
 
-    const observedSections = presentationSections
-      .map((section) => root.querySelector<HTMLElement>(`#${section.id}`))
+    const observedSlides = slides
+      .map((slide) => root.querySelector<HTMLElement>(`#${CSS.escape(slide.id)}`))
       .filter((element): element is HTMLElement => element !== null);
 
-    if (observedSections.length === 0) {
+    if (observedSlides.length === 0) {
       return undefined;
     }
 
@@ -119,27 +158,30 @@ export function PresentationShell({
       },
     );
 
-    observedSections.forEach((section) => observer.observe(section));
+    observedSlides.forEach((slideEl) => observer.observe(slideEl));
     return () => observer.disconnect();
-  }, [presentationSections]);
+  }, [slides]);
 
-  const scrollToSection = (sectionId: string) => {
-    setActiveSectionId(sectionId);
-    scrollerRef.current
-      ?.querySelector<HTMLElement>(`#${sectionId}`)
-      ?.scrollIntoView({
-        behavior: reducedMotion ? "auto" : "smooth",
-        block: "start",
-      });
-  };
+  const scrollToSlideId = useCallback(
+    (slideId: string) => {
+      setActiveSectionId(slideId);
+      scrollerRef.current
+        ?.querySelector<HTMLElement>(`#${CSS.escape(slideId)}`)
+        ?.scrollIntoView({
+          behavior: reducedMotion ? "auto" : "smooth",
+          block: "start",
+        });
+    },
+    [reducedMotion],
+  );
 
   const goToRelativeSlide = (offset: number) => {
     const nextIndex = currentIndex + offset;
-    if (nextIndex < 0 || nextIndex >= presentationSections.length) {
+    if (nextIndex < 0 || nextIndex >= slides.length) {
       return;
     }
 
-    scrollToSection(presentationSections[nextIndex].id);
+    scrollToSlideId(slides[nextIndex].id);
   };
 
   const toggleFullscreen = async () => {
@@ -183,21 +225,24 @@ export function PresentationShell({
 
       if (event.key === "Home") {
         event.preventDefault();
-        scrollToSection(presentationSections[0]?.id ?? "session-intro");
+        if (slides[0]) {
+          scrollToSlideId(slides[0].id);
+        }
         return;
       }
 
       if (event.key === "End") {
         event.preventDefault();
-        scrollToSection(
-          presentationSections[presentationSections.length - 1]?.id ?? "next-session",
-        );
+        const last = slides[slides.length - 1];
+        if (last) {
+          scrollToSlideId(last.id);
+        }
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentIndex, presentationSections, reducedMotion]);
+  }, [currentIndex, slides, reducedMotion, scrollToSlideId]);
 
   return (
     <PresentationProvider
@@ -222,22 +267,20 @@ export function PresentationShell({
                 <span>{moduleName}</span>
                 <span className="text-gray-400">{activeSectionLabel}</span>
               </div>
-              <h1 className="text-balance text-xl font-semibold text-white sm:text-2xl">
-                {title}
-              </h1>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <span className="rounded-full border border-gray-700 bg-gray-950/70 px-3 py-2 text-gray-300">
-                {currentIndex + 1} / {presentationSections.length}
+                {slides.length === 0 ? "—" : `${currentIndex + 1} / ${slides.length}`}
               </span>
               <button
                 type="button"
                 onClick={() => goToRelativeSlide(-1)}
-                disabled={currentIndex === 0}
+                disabled={currentIndex === 0 || slides.length === 0}
                 className={cn(
                   "rounded-full border border-gray-700 bg-gray-950/70 px-3 py-2 text-gray-200 transition hover:border-violet-400 hover:text-white",
-                  currentIndex === 0 && "cursor-not-allowed opacity-40 hover:border-gray-700 hover:text-gray-200",
+                  (currentIndex === 0 || slides.length === 0) &&
+                    "cursor-not-allowed opacity-40 hover:border-gray-700 hover:text-gray-200",
                 )}
               >
                 Prev
@@ -245,10 +288,10 @@ export function PresentationShell({
               <button
                 type="button"
                 onClick={() => goToRelativeSlide(1)}
-                disabled={currentIndex === sections.length - 1}
+                disabled={currentIndex >= slides.length - 1 || slides.length === 0}
                 className={cn(
                   "rounded-full border border-gray-700 bg-gray-950/70 px-3 py-2 text-gray-200 transition hover:border-violet-400 hover:text-white",
-                  currentIndex === presentationSections.length - 1 &&
+                  (currentIndex >= slides.length - 1 || slides.length === 0) &&
                     "cursor-not-allowed opacity-40 hover:border-gray-700 hover:text-gray-200",
                 )}
               >
@@ -277,29 +320,6 @@ export function PresentationShell({
           style={{ scrollBehavior: reducedMotion ? "auto" : "smooth" }}
         >
           <article className="mx-auto max-w-[1496px] w-full">
-            <section
-              id="session-intro"
-              aria-roledescription="slide"
-              data-session-label="Title"
-              data-session-section="true"
-              className="flex min-h-[calc(100dvh-8rem)] snap-start snap-always items-center py-6"
-            >
-              <div className="w-full rounded-[32px] border border-gray-800/80 bg-gray-950/70 px-6 py-10 shadow-[0_32px_80px_-48px_rgba(15,23,42,0.85)] backdrop-blur sm:px-8 lg:px-12 lg:py-14">
-                <div className="space-y-6">
-                  <div className="flex flex-wrap items-center gap-3 text-sm uppercase tracking-[0.18em] text-violet-200/75">
-                    <span className="rounded-full border border-violet-400/20 bg-violet-500/12 px-3 py-1 font-semibold text-violet-200">
-                      Module {module}
-                    </span>
-                    <span>{moduleName}</span>
-                  </div>
-
-                  <h1 className="text-balance text-5xl font-semibold text-white sm:text-6xl lg:text-7xl">
-                    {title}
-                  </h1>
-                </div>
-              </div>
-            </section>
-
             {children}
           </article>
         </div>

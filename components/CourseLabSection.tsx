@@ -1,10 +1,24 @@
-const LAB_PROJECTS = [
+import type { Route } from "next";
+import Link from "next/link";
+
+type LabProject = {
+  number: string;
+  title: string;
+  tags: string[];
+  description: string;
+  status: string;
+  href?: Route;
+};
+
+const LAB_PROJECTS: LabProject[] = [
   {
     number: "01",
     title: "Chat with Your Data",
     tags: ["RAG", "Vector DB", "Embeddings"],
     description:
       "Build a pipeline that lets you query your own documents using natural language.",
+    href: "/sessions/introduction-to-rag-lab" as Route,
+    status: "Start lab",
   },
   {
     number: "02",
@@ -12,6 +26,7 @@ const LAB_PROJECTS = [
     tags: ["Agents", "Tool Use", "Memory"],
     description:
       "Build a fully functional task manager powered by an LLM agent with persistent state.",
+    status: "Coming soon",
   },
   {
     number: "03",
@@ -19,6 +34,7 @@ const LAB_PROJECTS = [
     tags: ["Code Agents", "CLI", "Agentic Loops"],
     description:
       "Build a minimal coding agent that reads files, writes code, and runs terminal commands.",
+    status: "Coming soon",
   },
 ] as const;
 
@@ -46,11 +62,9 @@ export default function CourseLabSection() {
         </div>
 
         <div className="grid gap-4 lg:grid-cols-3">
-          {LAB_PROJECTS.map((project) => (
-            <article
-              key={project.title}
-              className="group relative flex min-h-[23rem] flex-col overflow-hidden rounded-2xl border border-white/10 bg-slate-950/55 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition duration-300 hover:-translate-y-1 hover:border-cyan-300/35 hover:shadow-[0_22px_70px_-38px_rgba(34,211,238,0.85)]"
-            >
+          {LAB_PROJECTS.map((project) => {
+            const card = (
+              <article className="group relative flex min-h-[23rem] flex-col overflow-hidden rounded-2xl border border-white/10 bg-slate-950/55 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition duration-300 hover:-translate-y-1 hover:border-cyan-300/35 hover:shadow-[0_22px_70px_-38px_rgba(34,211,238,0.85)]">
               <div className="absolute inset-y-0 left-0 w-0.5 bg-slate-700/70 transition-colors duration-300 group-hover:bg-cyan-300" />
               <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-cyan-300/8 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
@@ -76,13 +90,32 @@ export default function CourseLabSection() {
                 </div>
 
                 <div className="mt-auto pt-8">
-                  <span className="inline-flex rounded-full border border-amber-300/25 bg-amber-400/10 px-3 py-1 font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-200">
-                    Coming soon
+                  <span className={
+                    project.href
+                      ? "inline-flex rounded-full border border-cyan-300/30 bg-cyan-400/10 px-3 py-1 font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-100"
+                      : "inline-flex rounded-full border border-amber-300/25 bg-amber-400/10 px-3 py-1 font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-200"
+                  }>
+                    {project.status}
                   </span>
                 </div>
               </div>
             </article>
-          ))}
+            );
+
+            if (project.href) {
+              return (
+                <Link
+                  key={project.title}
+                  href={project.href}
+                  className="block rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117]"
+                >
+                  {card}
+                </Link>
+              );
+            }
+
+            return <div key={project.title}>{card}</div>;
+          })}
         </div>
       </div>
     </section>

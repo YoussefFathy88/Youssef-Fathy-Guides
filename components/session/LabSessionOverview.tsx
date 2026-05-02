@@ -61,27 +61,29 @@ export function LabSessionOverview({
           </div>
         </div>
 
-        <section className="rounded-2xl border border-emerald-300/15 bg-slate-950/60 p-6 sm:p-7">
-          <div className="flex items-center gap-3 font-mono text-base font-semibold uppercase tracking-[0.18em] text-emerald-200/80">
-            <span className="h-3 w-3 rounded-full bg-emerald-300 shadow-[0_0_18px_rgba(110,231,183,0.65)]" />
-            Main concept map
-          </div>
+        {safeMainConcepts.length > 0 ? (
+          <section className="rounded-2xl border border-emerald-300/15 bg-slate-950/60 p-6 sm:p-7">
+            <div className="flex items-center gap-3 font-mono text-base font-semibold uppercase tracking-[0.18em] text-emerald-200/80">
+              <span className="h-3 w-3 rounded-full bg-emerald-300 shadow-[0_0_18px_rgba(110,231,183,0.65)]" />
+              Main concept map
+            </div>
 
-          <div className="mt-6 grid gap-5 md:grid-cols-3">
-            {safeMainConcepts.map((concept, index) => (
-              <article
-                key={`${concept.title}-${index}`}
-                className="rounded-xl border border-white/10 bg-white/[0.035] p-6"
-              >
-                <span className="font-mono text-lg font-semibold text-emerald-200/70">
-                  {(index + 1).toString().padStart(2, "0")}
-                </span>
-                <h4 className="mt-4 text-3xl font-semibold text-white">{concept.title}</h4>
-                <p className="mt-4 text-lg leading-8 text-slate-300">{concept.description}</p>
-              </article>
-            ))}
-          </div>
-        </section>
+            <div className="mt-6 grid gap-5 md:grid-cols-3">
+              {safeMainConcepts.map((concept, index) => (
+                <article
+                  key={`${concept.title}-${index}`}
+                  className="rounded-xl border border-white/10 bg-white/[0.035] p-6"
+                >
+                  <span className="font-mono text-lg font-semibold text-emerald-200/70">
+                    {(index + 1).toString().padStart(2, "0")}
+                  </span>
+                  <h4 className="mt-4 text-3xl font-semibold text-white">{concept.title}</h4>
+                  <p className="mt-4 text-lg leading-8 text-slate-300">{concept.description}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : null}
       </div>
     </div>
   );

@@ -7,7 +7,7 @@ sessionNumber: 3
 duration: "12 min"
 difficulty: "beginner"
 tags: ["embeddings", "vectors", "similarity"]
-nextSession: "transformer-attention"
+nextSession: "why-transformer"
 prevSession: "tokens-context-window"
 ---
 
@@ -28,11 +28,10 @@ Tokens are just integers -- the model cannot compare or cluster them as-is. This
 
 ## Embeddings sit at the entry point of every model and retrieval system
 
-Before attention, before generation, before any tool call -- the model converts your input tokens into vectors. That same process powers semantic search, RAG retrieval, and recommendation systems outside the model too.
-
 <NodeFlowDiagram
   title="Embeddings sit at the entry point of every model and retrieval system"
   height={520}
+  hideStepNarrative
   groups={[
     { id: "vector-space", label: "Vector Space", nodeIds: ["embed", "vectors"], color: "blue" },
   ]}
@@ -69,13 +68,8 @@ Before attention, before generation, before any tool call -- the model converts 
 
 ## Words become points in space
 
-The embedding layer is a lookup table. Each token ID maps to a fixed list of numbers — called a vector. A real embedding model uses 768, 1536, or even 3072 numbers per token. These numbers are learned during training so that tokens used in similar contexts end up at nearby points. You do not design them — they emerge from predicting billions of next tokens.
-
-The two steps below show how that process works: first you see the raw numbers, then you see what those numbers mean spatially.
-
 <EmbeddingVectorExplorer
   title="Words as vectors in 2D space"
-  caption="Each word is an arrow from the origin — direction encodes meaning, length encodes magnitude. Click any word to see its raw numbers."
   points={[
     { id: "king",   label: "king",   angle: 25,  magnitude: 0.88, cluster: "royalty",  mockVector: [0.21, -0.87, 0.54, 0.03, -0.66, 0.91] },
     { id: "queen",  label: "queen",  angle: 32,  magnitude: 0.85, cluster: "royalty",  mockVector: [0.19, -0.83, 0.51, 0.06, -0.61, 0.88] },
@@ -90,13 +84,8 @@ The two steps below show how that process works: first you see the raw numbers, 
 
 ### Similarity is cosine similarity
 
-Once words are vectors, "how similar are these two things?" becomes a single calculation. The standard measure is **cosine similarity** — it looks at the angle between two vectors, not their raw distance. If two vectors point in the same direction, the angle between them is 0° and the cosine is 1.0 — identical meaning. If they point in completely different directions, the angle is 90° and the cosine is 0.0 — unrelated. A score of 0.85 means the vectors are nearly aligned — close in meaning even if the words look nothing alike.
-
-This is why "car won't start" and "vehicle fails to turn on" score 0.91 — the vectors point almost the same direction. Keyword search sees zero character overlap and returns nothing.
-
 <CosineSimilarityExplorer
   title="Cosine similarity — the angle between vectors"
-  caption="Drag the sliders or pick a word pair to see how the angle between two vectors becomes a similarity score"
   presets={[
     { label: "king / queen", angleA: 25,  angleB: 32,  description: "Small angle → high similarity. Both in the royalty cluster." },
     { label: "king / dog",   angleA: 25,  angleB: 140, description: "Large angle → low similarity. Completely different clusters." },
@@ -107,15 +96,8 @@ This is why "car won't start" and "vehicle fails to turn on" score 0.91 — the 
 
 ### Embeddings capture meaning — keywords only match characters
 
-A keyword search for "car won't start" finds nothing if the support doc says
-"vehicle fails to turn on". The words don't overlap. An embedding search finds
-it instantly — because both phrases map to nearby points in vector space.
-
-Embeddings encode what a sentence means, not which characters it contains.
-
 <SearchQuerySimulator
   title="Keyword search vs semantic search — type a query"
-  caption="Both engines run on the same corpus. Watch where keyword matching breaks down."
   defaultQuery="car won't start"
   presets={[
     { query: "car won't start",  label: "Car trouble" },
@@ -141,15 +123,8 @@ Embeddings encode what a sentence means, not which characters it contains.
 
 ## Type a support ticket -- watch embeddings route it in real time
 
-This is the moment the theory becomes tangible. A real SaaS support queue receives
-thousands of tickets a day. The old keyword system fails the instant a customer uses
-a synonym. The embedding router never breaks on wording -- it routes by meaning. Type
-any ticket description below and watch the system embed it, compare it against every
-category centroid, and assign a department. The closest category wins.
-
 <EmbeddingSearchSimulator
   title="Semantic ticket router — powered by embeddings"
-  caption="Type a ticket (or pick a preset), press Start walkthrough, then use Next at each stage to see tokenizing, embedding, similarity scores, and the final route."
   placeholder="e.g. I can't log into my account after the update"
   presets={[
     "can't log in after resetting my password",
@@ -245,9 +220,9 @@ category centroid, and assign a department. The closest category wins.
 <SessionSection id="next-session" label="Next Session">
 
 <NextSessionCard
-  title="The Transformer: Attention Is All You Need"
-  slug="transformer-attention"
-  teaser="Vectors are in place; next is the full stack — encoder and decoder, self-attention and cross-attention — so you can trace a sentence from text to the next predicted token."
+  title="The Problem the Transformer Solved"
+  slug="why-transformer"
+  teaser="Vectors are in place; next is the old sequential regime — feedforward vs RNN, the recurrent bottleneck, and why long context broke — so the full Transformer stack has a clear motivation."
   module={1}
 />
 

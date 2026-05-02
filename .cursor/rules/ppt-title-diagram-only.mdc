@@ -1,0 +1,20 @@
+---
+description: Enforce PPT slide style as title + one diagram only
+globs:
+  - content/sessions/**/*.mdx
+alwaysApply: true
+---
+
+# PPT slide style (Title + Diagram only)
+
+For session MDX slides intended for presenter mode:
+
+1. Each slide must contain exactly:
+   - one heading title (`## ...`), and
+   - one visual/interactive component block (diagram/demo/simulator).
+2. Do not add explanatory paragraph text under slide titles.
+3. Do not place multiple diagram components under one title.
+4. If two visuals are needed, split into two separate `##` headings (two slides).
+5. Prefer concise, visual-first slide titles.
+
+When updating existing sessions, preserve this format for any newly added or edited slide content.

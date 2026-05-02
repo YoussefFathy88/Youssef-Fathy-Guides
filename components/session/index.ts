@@ -9,3 +9,9 @@ export type { SessionProgressNavProps } from "./SessionProgressNav";
 export { PresentationShell } from "./PresentationShell";
 export { SessionSection } from "./SessionSection";
 export type { SessionSectionProps } from "./SessionSection";
+export { RagLabSystemArchitecture } from "./RagLabSystemArchitecture";
+export type {
+  RagLabArchitectureSection,
+  RagLabSystemArchitectureProps,
+} from "./RagLabSystemArchitecture";
+export { default as RagLabPromptExplorer } from "./RagLabPromptExplorer";

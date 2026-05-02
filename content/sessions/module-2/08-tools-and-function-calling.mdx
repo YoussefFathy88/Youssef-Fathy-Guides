@@ -26,11 +26,10 @@ The LLM is the brain -- it reasons, plans, and decides. But a brain with no hand
 
 ## The LLM is the brain -- tools are the hands
 
-Without tools, an LLM can only generate text based on what it knows from training and what you put in the context window. With tools, it can reach outside itself -- query real-time data, trigger real-world actions, and interact with systems. The agent decides which tool to use and when. Your application actually runs the tool. The result comes back to the agent to form the final answer.
-
 <NodeFlowDiagram
   title="The tool-use loop — the LLM decides, your code executes, results come back"
   height={720}
+  hideStepNarrative
   groups={[
     { id: "tools", label: "Available Tools", nodeIds: ["api", "db", "service", "code"], color: "amber" },
   ]}
@@ -78,11 +77,8 @@ Without tools, an LLM can only generate text based on what it knows from trainin
 
 ## A tool is any callable function you expose to the model
 
-A tool is not a special technology -- it is any function in your codebase that you describe to the model and allow it to call. That function can wrap anything: a REST API call, a database query, a Python function, a shell command, or an internal microservice. What makes it a tool is the description you attach to it -- a plain English explanation of what it does, when to use it, and what arguments it needs. The model reads that description to decide whether and how to use it.
-
 <StepSequence
   title="What tools can wrap -- four examples of the same pattern"
-  caption="Click any step to expand -- the tool is always a thin wrapper around something that already exists"
   orientation="horizontal"
   steps={[
     { number: 1, phase: "REST API", title: "get_weather(city)", detail: "Wraps a call to a weather API. Your function hits the API, gets JSON back, returns the result. The model never touches the API directly.", color: "violet", icon: "🌤️" },
@@ -94,11 +90,8 @@ A tool is not a special technology -- it is any function in your codebase that y
 
 ### The model never executes tools -- it requests them, you run them
 
-This is the most important thing to understand: the LLM does not call your API, access your database, or run your code. It reads the tool descriptions, decides which tool to use, and returns a structured JSON object with the tool name and arguments. Your application reads that JSON, executes the actual function, and sends the result back to the model. The model then uses that result to form its final answer.
-
 <AgentLoopStepper
   title="The complete tool-use loop -- step through it yourself"
-  caption="Press Step → to advance one step at a time, or Play to run through automatically"
   steps={[
     {
       id: "define",
@@ -140,11 +133,8 @@ This is the most important thing to understand: the LLM does not call your API, 
 
 ### The description is what the model uses to decide when to call a tool
 
-A tool definition has three parts: name (what your code calls), description (what the model reads to decide when and how to use it), and input_schema (the arguments the model must provide). The description is the most critical part. A vague description produces wrong or missed tool calls. A precise description tells the model exactly when to reach for this tool and what to expect back.
-
 <ConceptCompare
   title="Vague tool description vs precise tool description"
-  caption="Read both sides -- notice how much more reliably the model can use the precise version"
   mode="side-by-side"
   left={{
     label: "Vague description -- model guesses when to use it",
@@ -171,7 +161,6 @@ A tool definition has three parts: name (what your code calls), description (wha
 
 <AnnotatedCode
   title="A well-defined tool in Python -- Anthropic SDK format"
-  caption="Click a callout number to highlight the corresponding line"
   code={`tools = [
   {
     "name": "get_order_status",
@@ -210,11 +199,8 @@ A tool definition has three parts: name (what your code calls), description (wha
 
 ## A travel assistant that uses three tools to answer one question
 
-A user asks: "Can I afford to fly from Cairo to London next weekend, and what is the weather like?" This requires three tools: get_flight_prices (hits a flight search API for available routes and prices), get_exchange_rate (converts GBP to EGP so the user sees local currency), and get_weather_forecast (returns London weather for next weekend). All three are independent -- the model requests all three in one response, your application runs them in parallel, and the results come back together. The model then generates one coherent answer: "The cheapest flight is £320 (approximately 16,000 EGP). London next weekend will be 12°C and rainy."
-
 <ParallelToolRunner
   title="Watch all three tools fire simultaneously — then receive one combined answer"
-  caption="Toggle between Parallel and Sequential modes, then click Run to see the time difference. The parallel mode is limited only by the slowest tool."
 />
 
 </SessionSection>

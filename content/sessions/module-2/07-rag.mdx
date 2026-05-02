@@ -28,11 +28,10 @@ Last session introduced semantic memory as a concept. RAG is how you actually bu
 
 ## RAG combines two types of memory: what the model learned and what you provide
 
-The term RAG was introduced by Patrick Lewis et al. at Meta AI Research in 2020. The core idea is combining parametric memory (knowledge baked into the model's weights during training) with non-parametric memory (an external document store you control). The model's weights stay frozen -- you never retrain. Instead you retrieve relevant documents at query time and inject them into the context window alongside the user's question.
-
 <NodeFlowDiagram
   title="The full RAG pipeline — index once, query on every request"
   height={720}
+  hideStepNarrative
   groups={[
     { id: "indexing", label: "Indexing — runs once (or when data changes)", nodeIds: ["docs", "chunk", "embed-i", "store"],           color: "violet" },
     { id: "query",    label: "Query — every user request",                  nodeIds: ["question", "embed-q", "search", "llm", "answer"], color: "teal" },
@@ -79,21 +78,15 @@ The term RAG was introduced by Patrick Lewis et al. at Meta AI Research in 2020.
 
 ## Chunking: splitting documents into searchable pieces
 
-You cannot embed an entire 50-page document as one vector -- the embedding would average out all the meaning and become useless for retrieval. Instead you split every document into overlapping chunks, typically 200-500 tokens each with a 20-50 token overlap between adjacent chunks. The overlap ensures that sentences split across chunk boundaries are still retrievable. Chunk size is a tunable tradeoff: smaller chunks retrieve more precisely but miss broader context; larger chunks carry more context but match less precisely.
-
 <ChunkVisualizer
   title="Drag the sliders — watch the document split and overlap shift in real time"
-  caption="Adjust chunk size and overlap to see how they trade off. Click any chunk to inspect its exact content and see the overlap region highlighted."
 />
 
 
 ### Embedding and storing: converting chunks into searchable vectors
 
-Each chunk is passed through an embedding model to produce a vector -- the same process you saw in Session 3. These vectors are stored in a vector database alongside the original chunk text. At query time, the user's question is embedded using the same model, and the database finds the chunks whose vectors are most similar to the question vector using cosine similarity or dot product search. The embedding model used at indexing time and query time must be identical -- different models produce incompatible vector spaces.
-
 <Vector2DPlot
   title="Chunks from a product manual plotted by semantic similarity"
-  caption="Hover any chunk to see its distance from the query -- notice that the query lands near the relevant section"
   height={340}
   showDistances={true}
   showClusters={true}
@@ -113,11 +106,8 @@ Each chunk is passed through an embedding model to produce a vector -- the same 
 
 ### Retrieval and generation: injecting context into the LLM
 
-At query time the top-k most similar chunks (typically 3-5) are retrieved and injected into the context window alongside the user's question. The LLM sees: the system prompt, the retrieved chunks labeled as context, and the user's question. It generates an answer grounded in those chunks rather than relying solely on training-time knowledge. This is the non-parametric memory from Session 6 -- the external semantic memory store -- now fully operational.
-
 <StepSequence
   title="What the LLM actually receives when RAG is active"
-  caption="Click any step to expand -- notice how retrieved chunks sit between the system prompt and the question"
   orientation="vertical"
   steps={[
     { number: 1, phase: "System", title: "System prompt loaded (procedural memory)", detail: "You are a helpful product support assistant. Answer only based on the provided context. If the answer is not in the context, say so.", color: "gray" },
@@ -136,11 +126,8 @@ At query time the top-k most similar chunks (typically 3-5) are retrieved and in
 
 ## A medical research assistant that answers from clinical trial documents
 
-A pharmaceutical company builds an internal tool for researchers to query their clinical trial archive -- 40,000 documents spanning 20 years. The model's training data contains general medical knowledge but none of these proprietary trial results. Without RAG, every question about specific trial outcomes returns a hallucinated answer. With RAG: all 40,000 documents are chunked into 500-token segments (approximately 800,000 chunks), embedded using a biomedical embedding model, and stored in a vector database. When a researcher asks "What were the adverse events in the Phase 2 trial for compound X?", the question is embedded, the top 5 most similar chunks are retrieved from the archive, and the LLM answers directly from the trial documents -- with citations pointing to the exact source document and page.
-
 <DualPhaseFlow
   title="Medical research RAG -- 40,000 trial documents to a cited answer"
-  caption="Indexing runs once at setup. Every researcher question runs the query phase in milliseconds."
   leftPhase={{
     label: "Index (setup)",
     frequency: "Runs once at deployment",

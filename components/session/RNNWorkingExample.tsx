@@ -120,6 +120,8 @@ const OUTPUT_SLOTS: {
 export interface RNNWorkingExampleProps {
   title?: string;
   caption?: string;
+  /** When true, shows long-form hints and per-step copy (component gallery). Sessions default to visuals + controls only. */
+  showNarrative?: boolean;
 }
 
 function barColorForNextToken(token: string, slotIndex: number): string {
@@ -128,7 +130,11 @@ function barColorForNextToken(token: string, slotIndex: number): string {
   return GRAY_BAR;
 }
 
-export default function RNNWorkingExample({ title, caption }: RNNWorkingExampleProps) {
+export default function RNNWorkingExample({
+  title,
+  caption,
+  showNarrative = false,
+}: RNNWorkingExampleProps) {
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("read");
   const [activeStep, setActiveStep] = useState(DEFAULT_READ_STEP);
   const [outputStep, setOutputStep] = useState(0);
@@ -236,16 +242,19 @@ export default function RNNWorkingExample({ title, caption }: RNNWorkingExampleP
             <p className="text-center text-base font-medium leading-relaxed text-gray-900 dark:text-gray-100">
               The capital of Egypt is Cairo.
             </p>
-            <p className="text-center text-xs text-gray-500 dark:text-gray-400">
-              Each chip is the word consumed at that step; the panel shows{" "}
-              <span className="font-mono text-[11px]">hₜ</span> right after.               For an illustrative <span className="font-medium">recency</span> mix in{" "}
-              <span className="font-mono text-[11px]">h₅</span> (newest token at top) at the same moment as{" "}
-              <span className="font-medium">“is”</span>, open{" "}
-              <span className="font-medium text-gray-600 dark:text-gray-300">Influence in h₅</span>. For{" "}
-              <span className="font-medium text-gray-600 dark:text-gray-300">P(next token)</span> after{" "}
-              <span className="font-mono text-[11px]">… Egypt is</span>, open{" "}
-              <span className="font-medium text-gray-600 dark:text-gray-300">Next-token prediction</span>.
-            </p>
+            {showNarrative ? (
+              <p className="text-center text-xs text-gray-500 dark:text-gray-400">
+                Each chip is the word consumed at that step; the panel shows{" "}
+                <span className="font-mono text-[11px]">hₜ</span> right after. For an illustrative{" "}
+                <span className="font-medium">recency</span> mix in{" "}
+                <span className="font-mono text-[11px]">h₅</span> (newest token at top) at the same moment as{" "}
+                <span className="font-medium">“is”</span>, open{" "}
+                <span className="font-medium text-gray-600 dark:text-gray-300">Influence in h₅</span>. For{" "}
+                <span className="font-medium text-gray-600 dark:text-gray-300">P(next token)</span> after{" "}
+                <span className="font-mono text-[11px]">… Egypt is</span>, open{" "}
+                <span className="font-medium text-gray-600 dark:text-gray-300">Next-token prediction</span>.
+              </p>
+            ) : null}
             <div className="flex flex-wrap items-center justify-center gap-2">
               {TOKENS.map((tok, i) => {
                 const on = i === activeStep;
@@ -304,14 +313,20 @@ export default function RNNWorkingExample({ title, caption }: RNNWorkingExampleP
               </div>
             </div>
 
-            <div className="rounded-lg border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/80">
-              <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">
+            {showNarrative ? (
+              <div className="rounded-lg border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/80">
+                <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">
+                  Hidden state: h{SUB[activeStep + 1]}
+                </p>
+                <p className="mt-2 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                  {STEP_COPY[activeStep]?.desc}
+                </p>
+              </div>
+            ) : (
+              <p className="text-center text-xs font-semibold text-gray-800 dark:text-gray-200">
                 Hidden state: h{SUB[activeStep + 1]}
               </p>
-              <p className="mt-2 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                {STEP_COPY[activeStep]?.desc}
-              </p>
-            </div>
+            )}
           </div>
         )}
 
@@ -320,14 +335,17 @@ export default function RNNWorkingExample({ title, caption }: RNNWorkingExampleP
             <p className="text-center text-xs font-medium text-gray-600 dark:text-gray-300">
               Composition of h₅ (after reading … is)
             </p>
-            <p className="text-center text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">
-              Same moment as the default chip on <span className="font-medium text-gray-600 dark:text-gray-300">“is”</span>
-              : Cairo has <span className="font-medium">not</span> been read in yet. Rows run{" "}
-              <span className="font-medium text-gray-600 dark:text-gray-300">newest → oldest</span>; each step further
-              back carries <span className="font-medium">less</span> illustrative weight (recency decay in a compact
-              state). This is <span className="font-medium">not</span>{" "}
-              <span className="font-mono text-[10px]">P(next token)</span> (see the next tab). Percents sum to 100%.
-            </p>
+            {showNarrative ? (
+              <p className="text-center text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">
+                Same moment as the default chip on{" "}
+                <span className="font-medium text-gray-600 dark:text-gray-300">“is”</span>: Cairo has{" "}
+                <span className="font-medium">not</span> been read in yet. Rows run{" "}
+                <span className="font-medium text-gray-600 dark:text-gray-300">newest → oldest</span>; each step further
+                back carries <span className="font-medium">less</span> illustrative weight (recency decay in a compact
+                state). This is <span className="font-medium">not</span>{" "}
+                <span className="font-mono text-[10px]">P(next token)</span> (see the next tab). Percents sum to 100%.
+              </p>
+            ) : null}
             <div className="space-y-3">
               {H5_COMPOSITION.map((row, i) => {
                 const color =
@@ -353,22 +371,26 @@ export default function RNNWorkingExample({ title, caption }: RNNWorkingExampleP
                 );
               })}
             </div>
-            <p className="text-xs leading-relaxed text-gray-500 dark:text-gray-400">
-              The latest word (<strong className="font-medium text-gray-700 dark:text-gray-300">is</strong>) leaves the
-              strongest fingerprint; each hop backward is weaker. Older cues (e.g.{" "}
-              <strong className="font-medium text-gray-700 dark:text-gray-300">Egypt</strong>,{" "}
-              <strong className="font-medium text-gray-700 dark:text-gray-300">capital</strong>) can still matter, but
-              only if they survive the chain — here the clause is short, so{" "}
-              <span className="font-mono text-[11px]">h₅</span> still supports putting most mass on{" "}
-              <strong className="font-medium text-gray-700 dark:text-gray-300">Cairo</strong>.
-            </p>
+            {showNarrative ? (
+              <p className="text-xs leading-relaxed text-gray-500 dark:text-gray-400">
+                The latest word (<strong className="font-medium text-gray-700 dark:text-gray-300">is</strong>) leaves the
+                strongest fingerprint; each hop backward is weaker. Older cues (e.g.{" "}
+                <strong className="font-medium text-gray-700 dark:text-gray-300">Egypt</strong>,{" "}
+                <strong className="font-medium text-gray-700 dark:text-gray-300">capital</strong>) can still matter,
+                but only if they survive the chain — here the clause is short, so{" "}
+                <span className="font-mono text-[11px]">h₅</span> still supports putting most mass on{" "}
+                <strong className="font-medium text-gray-700 dark:text-gray-300">Cairo</strong>.
+              </p>
+            ) : null}
           </div>
         )}
 
         {tab === "out" && (
           <div className="space-y-4">
             <p className="text-center text-xs font-semibold text-gray-800 dark:text-gray-200">{slot.title}</p>
-            <p className="text-center text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">{slot.hint}</p>
+            {showNarrative ? (
+              <p className="text-center text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">{slot.hint}</p>
+            ) : null}
 
             <div className="flex flex-col items-center gap-2 rounded-lg border border-violet-200 bg-violet-50/80 px-3 py-3 dark:border-violet-900/50 dark:bg-violet-950/20">
               <p className="text-center text-sm text-gray-800 dark:text-gray-200">
@@ -380,16 +402,18 @@ export default function RNNWorkingExample({ title, caption }: RNNWorkingExampleP
                   ?
                 </span>
               </p>
-              <p className="text-center text-[11px] text-gray-500 dark:text-gray-400">
-                <span className="font-semibold text-gray-600 dark:text-gray-300">?</span> = one missing token at this
-                position (ground truth for this lesson:{" "}
-                {outputStep === 0 ? (
-                  <span className="font-medium text-gray-700 dark:text-gray-200">Cairo</span>
-                ) : (
-                  <span className="font-medium text-gray-700 dark:text-gray-200">.</span>
-                )}
-                ).
-              </p>
+              {showNarrative ? (
+                <p className="text-center text-[11px] text-gray-500 dark:text-gray-400">
+                  <span className="font-semibold text-gray-600 dark:text-gray-300">?</span> = one missing token at this
+                  position (ground truth for this lesson:{" "}
+                  {outputStep === 0 ? (
+                    <span className="font-medium text-gray-700 dark:text-gray-200">Cairo</span>
+                  ) : (
+                    <span className="font-medium text-gray-700 dark:text-gray-200">.</span>
+                  )}
+                  ).
+                </p>
+              ) : null}
             </div>
 
             <div>
@@ -454,12 +478,16 @@ export default function RNNWorkingExample({ title, caption }: RNNWorkingExampleP
               </div>
             </div>
 
-            <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">{slot.desc}</p>
+            {showNarrative ? (
+              <>
+                <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">{slot.desc}</p>
 
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              The clause is short — Cairo is still strong in the hidden state — so autocomplete stays sensible. Add
-              many more tokens after Cairo, and that signal can fade before a later prediction.
-            </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  The clause is short — Cairo is still strong in the hidden state — so autocomplete stays sensible. Add
+                  many more tokens after Cairo, and that signal can fade before a later prediction.
+                </p>
+              </>
+            ) : null}
           </div>
         )}
       </div>

@@ -14,7 +14,7 @@
 ### Keep this document in sync
 
 Whenever you **add, remove, rename, or change props** on any component exposed to session MDX, update **this file in the same change** as the code (see [`CLAUDE.md`](../CLAUDE.md)).
-this 
+
 ---
 
 ## Quick chooser
@@ -27,10 +27,13 @@ this
 | Link card to next episode (section 6 only) | `NextSessionCard` |
 | Tool-use / agent loop with actor lanes | `AgentLoopStepper` |
 | Grouped graph + scripted step-through | `NodeFlowDiagram` |
-| Arbitrary directed graph, clickable detail | `DataFlowDiagram` |
-| Left-to-right pipeline tracks + motion | `PipelineTrack` |
+| Two stacked lanes (prep vs run), measured arrows + scripted steps | `DualLanePipelineDiagram` |
+| Lab architecture — large Frontend / Backend / NFR tabs (Next+Tailwind, RAG stack, Docker·reload·.env) | `RagLabSystemArchitecture` |
+| RAG lab — tree + five separate prompt tabs (one paste per file) | `RagLabPromptExplorer` |
+| Legacy arbitrary directed graph (no `/component-gallery` preview — prefer `NodeFlowDiagram` for new sessions) | `DataFlowDiagram` |
+| Legacy pipeline tracks / stations (no `/component-gallery` preview — prefer `NodeFlowDiagram` for new sessions) | `PipelineTrack` |
 | Numbered phases / narrative steps | `StepSequence` |
-| Vertical stack of layers (transformer block, etc.) | `LayerStack` |
+| Legacy vertical stack of layers (no `/component-gallery` preview — prefer `NodeFlowDiagram` or bespoke TSX for new sessions) | `LayerStack` |
 | Code with line callouts | `AnnotatedCode` |
 | Two-way compare (panels or rows) | `ConceptCompare` |
 | Carousel steps with rich visuals | `ConceptStepper` (TSX-only `visual`; prefer `StepSequence` in MDX) |
@@ -74,9 +77,12 @@ this
 | Message queue with producers, consumers, backpressure, DLQ | `MessageQueueSim` |
 | Rate limiting: Token Bucket / Sliding Window / Fixed Window | `RateLimiterVisualizer` |
 | RNN hidden-state signal decay with animated bars + ghost line | `HiddenStateDecayDiagram` |
-| RNN unrolled over time — h₀→hₙ chain, ŷ heads, one column per token (Prev/Next) | `RNNUnrolledOverview` |
+| RNN unrolled over time — h₀→hₙ chain, predicted next-token labels, default stops before final answer + `terminalNextToken` | `RNNUnrolledOverview` |
 | RNN walkthrough — read from “is”, h₅ recency mix (newest→oldest, decays, sums to 100%), two-slot P(next token) | `RNNWorkingExample` |
 | RNN failure vs Transformer — slot after includes, Cairo decay, Alexandria vs the, arcs to slot | `RNNFailureDemo` |
+| Feedforward autocomplete with fixed 3-word window and failure when context leaves window | `FNNAutocompleteDemo` |
+| Unrolled RNN autocomplete with hidden-state retention decay and vanishing-memory failure | `RNNAutocompleteDemo` |
+| Side-by-side FNN vs RNN vs Transformer on one sentence with interactive panel activation | `ArchitectureComparisonDemo` |
 | Positional encoding — swap tokens, sine-by-index sketch, meaning+position bars | `PositionalEncodingVisualizer` |
 | Encoder or decoder sub-stack — pills; **surface-panel** chrome; stack blocks use `surface-strong` + left accents from site tokens (`--purple`, `--success`, `--warning`) | `TransformerSubstackExplorer` |
 | Self-attention explorer — Cairo sentence built-in (Q/K/V cards + OUTPUT box); legacy `queries`/`attentionRows` still supported | `SelfAttentionScoreExplorer` |
@@ -88,7 +94,7 @@ this
 | Side-by-side keyword vs semantic search on a shared corpus — live input, score bars, animated results | `SearchQuerySimulator` |
 | Word-level vs BPE tokenization — live text input, staggered token pills, step-by-step merge breakdown, three "Why BPE Wins" cards | `BytePairEncodingExplorer` |
 
-**`DataFlowDiagram` vs `PipelineTrack`:** use `DataFlowDiagram` for non-linear graphs with arbitrary edges; use `PipelineTrack` for ordered left-to-right pipelines.
+**Flow diagrams:** prefer **`NodeFlowDiagram`** for free-form grouped graphs, or **`DualLanePipelineDiagram`** for side-by-side vertical pipelines with readable connectors between compact blocks. `PipelineTrack`, `LayerStack`, and `DataFlowDiagram` remain in the MDX registry for older sessions but are **not** previewed on `/component-gallery`.
 
 **`ContextWindowFiller` vs `LiveTokenizer`:** `ContextWindowFiller` is budget toggles and cost, not tokenization animation. Use `LiveTokenizer` to teach BPE/token chips.
 
@@ -102,25 +108,28 @@ this
 | `LabSessionOverview` | Shell | Project-lab spec panel for goals, technologies/concepts covered, and main concepts. |
 | `RecapTable` | Shell | Glossary rows for the recap section. |
 | `NextSessionCard` | Shell | CTA card linking to the next session slug. |
+| `RagLabSystemArchitecture` | Interactive | Tabs for Frontend / Backend / NFR; title-only cards (details left to presenter). |
+| `RagLabPromptExplorer` | Shell | Wraps `TabbedCodeExplorer`: tree + Prompts 01–05 as separate tabs (no MDX props). |
 | `AgentLoopStepper` | Interactive | Step-through tool loop (user / model / your-code). |
 | `NodeFlowDiagram` | Diagram | Nodes, edges, optional groups, scripted `steps`. |
+| `DualLanePipelineDiagram` | Diagram | Exactly two vertical lanes, compact blocks, SVG edges from layout (cross-lane + within-lane); scripted `steps` (`highlightEdges` uses `"from→to"`). Optional `presentation` for slide-sized chrome and edges above blocks. |
 | `ParameterSlider` | Interactive | Slider with `states` driving copy and styling. |
 | `AttentionHeatmap` | Interactive | Token × token attention weights. |
 | `ConceptStepper` | Interactive | Multi-step carousel; `visual` is TSX-only. |
 | `ContextLimitSimulator` | Interactive | Stepped token bar story; optional `layout: "stack"` + `stackPhase` for compress sweep and summary in the same flow. |
 | `CompactCommandSimulator` | Interactive | Step-through `/compact`: token bar, stacked blocks, compress sweep, summary handoff. |
 | `ContextWindowFiller` | Interactive | Toggle context blocks against `windowSize`. |
-| `DataFlowDiagram` | Diagram | Positioned nodes and edges, optional `highlightPath`. |
+| `DataFlowDiagram` | Diagram | Legacy positioned nodes and edges; optional `highlightPath`. Not previewed on `/component-gallery` — prefer `NodeFlowDiagram` for new sessions. |
 | `DualPhaseFlow` | Diagram | Two phases + central artifact (e.g. index vs query). |
 | `EmbeddingSearchSimulator` | Interactive | Preset/query → stages: tokenize, embed, compare, route. |
 | `ConceptCompare` | Interactive | Two panels or row-driven compare; `mode` / `layout`. |
 | `MiniPlayground` | Interactive | Input/output playground (no `simulationFn` from MDX). |
 | `Vector2DPlot` | Interactive | Draggable 2D semantic plot. |
 | `TokenProbDist` | Interactive | Sampling UI over next-token candidates. |
-| `PipelineTrack` | Diagram | Stations and animated lines between node ids. |
+| `PipelineTrack` | Diagram | Legacy stations / animated tracks between node ids. Not previewed on `/component-gallery` — prefer `NodeFlowDiagram`. |
 | `PositionalEncodingVisualizer` | Interactive | Three-step mini-lesson: token swap, positional wave, schematic embedding+position sum. |
 | `StepSequence` | Interactive | Phased steps or narrative steps; optional `autoPlay` (narrative). |
-| `LayerStack` | Interactive | Clickable vertical stack of layers. |
+| `LayerStack` | Interactive | Legacy clickable vertical stack of layers. Not previewed on `/component-gallery`. |
 | `AnnotatedCode` | Interactive | Code string + line `annotations`. |
 | `TrainingLoopSimulator` | Interactive | Animated training loop / distribution. |
 | `AutoregressiveDemo` | Interactive | Scripted autoregressive token steps. |
@@ -151,9 +160,12 @@ this
 | `MessageQueueSim` | Interactive | Producer, slot queue, multi-consumer progress bars, backpressure, Kill Consumer, DLQ on failure. |
 | `RateLimiterVisualizer` | Interactive | Token Bucket / Sliding Window / Fixed Window with live request stream, burst button, and rate slider. |
 | `HiddenStateDecayDiagram` | Interactive | Animated bar chart showing RNN hidden-state signal decay token-by-token, with ghost reference line and Play/Pause/Reset. |
-| `RNNUnrolledOverview` | Interactive | Unrolled RNN strip: start h₀, per-timestep RNN cell + word + ŷₙ, orange hidden-state arrows, teal active column; Prev/Next + dots + step panel. |
+| `RNNUnrolledOverview` | Interactive | Unrolled RNN strip: start h₀, per-timestep RNN cell + word + predicted next token (plain label); default sentence stops before Cairo and shows Cairo as `terminalNextToken`; orange hidden-state arrows, teal active column; Prev/Next + dots + step panel. |
 | `RNNWorkingExample` | Interactive | Three tabs: read clause defaulting on **“is”** + hₜ panel; **Influence in h₅** — rows **newest→oldest** with strictly decreasing illustrative weights (recency decay sketch, sum 100%, not word odds); **Next-token prediction** — two slots with dashed `?` and **P(next token)** bars. |
 | `RNNFailureDemo` | Interactive | Strip with ? slot after includes (before Egyptian Museum); decay bars; RNN Alexandria ✗ vs the ✓ with fragment lines; Transformer arcs to slot. |
+| `FNNAutocompleteDemo` | Interactive | Fixed 3-word sliding-window autocomplete: sentence chips, input slots, simple 3→3→1 network, and failure banner when Egypt leaves context. |
+| `RNNAutocompleteDemo` | Interactive | Sequential RNN autocomplete with unrolled cells, hidden-state memory bar, retention decay table, and vanishing-memory failure at final prediction. |
+| `ArchitectureComparisonDemo` | Interactive | Shared sentence with clickable FNN/RNN/Transformer panels, architecture-specific visibility/memory cues, and dynamic explanation of why predictions differ. |
 | `SelfAttentionScoreExplorer` | Interactive | Default **The capital of Egypt is Cairo**: per-token Q/K/V copy, softmax bars (blue ≥30% Strong, amber 15–29% Moderate, gray Weak), OUTPUT FOR “TOKEN” + summary + bold blend; QKV/output fade/slide on token change; bars width **350ms**; Cairo mode mounts on **Cairo** (index 5); legacy cat MDX still maps to Cairo dataset. |
 | `TransformerPipelineWalkthrough` | Interactive | **`surface-panel`** shell; **macro strip** (six phases from `activeStageId`); token strip + stage row themed with **`--primary` / `--success` / `--purple`** etc.; internal chips use **`PipelineInternal.detail`** as native **`title`** tooltip; larger type and controls. |
 | `TransformerSubstackExplorer` | Interactive | Encoder or decoder: muted pills (purple / warning tints); **Full** stack and focus panel use `globals.css` surfaces and token-colored left accents—not saturated Tailwind primaries. Illustrations in `transformer-substack-illustrations.tsx` match the same tokens. |
@@ -337,7 +349,85 @@ interface NodeFlowDiagramProps {
   layout?: NodeFlowLayout;
   viewport?: NodeFlowViewport;
   density?: NodeFlowDensity;
+  /** When true, hides the step label/description panel under Prev/Play/Next (diagram + controls only). */
+  hideStepNarrative?: boolean;
 }
+```
+
+### DualLanePipelineDiagram
+
+**Description:** Purpose-built **two-lane** vertical pipeline (e.g. indexing vs query). Blocks share one **rounded pill** treatment (`shape` is ignored at render for visual consistency). **`gap-y-9`** keeps vertical connectors readable; arrows use **thin strokes** and **small user-space markers** (not scaled by stroke width). Optional **`label`** on an edge renders at the midpoint — use on dashed bypasses so learners see what the shortcut means. Set **`presentation`** for slide/deck use: bigger pills, wider lane gaps, connectors drawn **above** blocks (`z-index`) with a dark halo so arrows stay legible; dimmed edges stay visible during steps (~0.42 opacity default, ~0.52 in presentation). Same step UX as `NodeFlowDiagram`: dots, Prev / Play / Next, optional narrative — `highlightNodes` / `highlightEdges` match block `id` and `"from→to"` keys.
+
+```ts
+type DualLanePipelineColor = "violet" | "teal" | "amber" | "blue" | "rose" | "gray";
+
+interface DualLanePipelineBlock {
+  id: string;
+  label: string;
+  emoji?: string;
+  /** Accepted for authoring compatibility; the canvas uses one pill style for every block. */
+  shape?: "rect" | "hex" | "circle";
+  accent?: DualLanePipelineColor;
+}
+
+interface DualLanePipelineLaneSpec {
+  id: string;
+  label: string;
+  color: DualLanePipelineColor;
+  blocks: DualLanePipelineBlock[];
+}
+
+interface DualLanePipelineEdge {
+  from: string;
+  to: string;
+  dashed?: boolean;
+  animated?: boolean;
+  color?: DualLanePipelineColor;
+  label?: string;
+}
+
+interface DualLanePipelineStep {
+  id: string;
+  label: string;
+  description: string;
+  highlightNodes: string[];
+  highlightEdges: string[];
+}
+
+interface DualLanePipelineDiagramProps {
+  title?: string;
+  minHeight?: number;
+  /** Larger blocks, spacing, thicker edges — use on slides / projector. */
+  presentation?: boolean;
+  hideStepNarrative?: boolean;
+  lanes: [DualLanePipelineLaneSpec, DualLanePipelineLaneSpec];
+  edges: DualLanePipelineEdge[];
+  steps?: DualLanePipelineStep[];
+  className?: string;
+}
+```
+
+### RagLabSystemArchitecture
+
+**Description:** Interactive **three-layer** architecture panel for the Introduction to RAG lab. Large tabs switch **Frontend**, **Backend**, or **Non-functional requirements**; each panel shows **title-only** cards (no body copy) so presenters narrate from slides. Cards cover Next.js, Tailwind CSS, FastAPI, LangChain, routes, Chroma, OpenAI, Docker, hot reload, `.env`.
+
+```ts
+type RagLabArchitectureSection = "frontend" | "backend" | "nfr";
+
+interface RagLabSystemArchitectureProps {
+  title?: string;
+  /** Initial expanded layer; default `"frontend"`. */
+  initialSection?: RagLabArchitectureSection;
+  className?: string;
+}
+```
+
+### RagLabPromptExplorer
+
+**Description:** Introduction-to-RAG lab helper — renders **`TabbedCodeExplorer`** with a **`rag-chatbot/`** tree tab plus **five** plain-text prompt tabs (scaffold, index backend, index frontend, chat backend, chat frontend). Prompt bodies live in `lib/rag-lab-prompts.ts`. No props from MDX.
+
+```ts
+// No props — use as <RagLabPromptExplorer />
 ```
 
 ### ParameterSlider
@@ -497,6 +587,8 @@ interface ContextWindowFillerProps {
 ```
 
 ### DataFlowDiagram
+
+**Live gallery:** intentionally omitted from `/component-gallery` (use `NodeFlowDiagram` for new teaching layouts).
 
 **Description:** Flow graph with optional `nodeDetailMode` for how details show.
 
@@ -703,6 +795,8 @@ interface TokenProbDistProps {
 
 ### PipelineTrack
 
+**Live gallery:** intentionally omitted from `/component-gallery` (prefer `NodeFlowDiagram` for new teaching layouts).
+
 **Description:** Two rendering modes. **SVG animation mode** (`nodes` + `lines`): stations per `TrackLine.nodes` (ids); solid lines use a segment-by-segment forward token (travel + dwell per hop). **Stations mode** (`stations`): simple clickable HTML cards laid out horizontally with arrows; clicking a card expands a detail panel — ideal for teaching pipeline stages without animation. Do not mix both modes on the same instance.
 
 ```ts
@@ -778,6 +872,8 @@ interface StepSequenceProps {
 ```
 
 ### LayerStack
+
+**Live gallery:** intentionally omitted from `/component-gallery`.
 
 **Description:** Click a layer to expand detail.
 
@@ -1323,14 +1419,17 @@ interface RateLimiterVisualizerProps {
 
 ### RNNUnrolledOverview
 
-**Description:** Teaches the unrolled RNN picture on a short sentence (default **The capital of Egypt is Cairo**). Each timestep is one column: next-token scores **ŷₙ** (dashed link), **RNN step n** box, input word below; **h₀** at the start and **h₁…hₙ** on orange arrows between columns. **Prev / Next** and step dots change the active column (teal highlight); a panel shows `stepDescriptions[i]`. Same weights every step — only hidden vector and input change.
+**Description:** Teaches the unrolled RNN picture on a short sentence (default prefix **The capital of Egypt is**, five columns). Each timestep is one column: intermediate heads **ŷ₁…ŷₙ₋₁** (abbreviated — teaching focus is hidden-state flow **h**); **only the last column** shows the concrete **`terminalNextToken`** (default Egypt sentence → **Cairo**). Middle row: **RNN step n**; bottom row: input token **xₜ**; **h₀** at the start and **h₁…hₙ** on orange arrows. Pass `""` for `⟨end⟩`. **Prev / Next** + dots change active column (teal highlight). Optional `initialActiveStep`, `lockToStep`. **Sessions:** defaults are animation-only unless `caption` / `stepDescriptions` are passed.
 
 ```ts
 interface RNNUnrolledOverviewProps {
   title?: string;
   caption?: string;
-  tokens?: string[];           // default six-word sentence
-  stepDescriptions?: string[]; // one per token; must align length with tokens when both are set from MDX
+  tokens?: string[];           // default prefix tokens ending at "is"
+  terminalNextToken?: string;    // last-column prediction; "" → ⟨end⟩; omit on defaults → Cairo
+  stepDescriptions?: string[]; // one per token; optional — footer hidden when empty
+  initialActiveStep?: number;   // 0-based timestep index on mount
+  lockToStep?: boolean;        // when true, disables Prev/Next/dot navigation
 }
 ```
 
@@ -1362,6 +1461,8 @@ interface HiddenStateDecayDiagramProps {
 interface RNNWorkingExampleProps {
   title?: string;
   caption?: string;
+  /** When true, shows long instructional copy under tabs (gallery). Default false — sessions show controls + visuals only. */
+  showNarrative?: boolean;
 }
 ```
 
@@ -1375,7 +1476,42 @@ interface RNNWorkingExampleProps {
 interface RNNFailureDemoProps {
   title?: string;
   caption?: string;
+  /** When true, shows per-step story paragraphs under the strip (gallery). Default false for animation-only sessions. */
+  showNarrative?: boolean;
 }
+```
+
+---
+
+### FNNAutocompleteDemo
+
+**Description:** Self-contained feedforward autocomplete demo on the sentence `I grew up in Egypt so my favorite food is`. Shows a fixed 3-word sliding window over chips, three input slots, a simplified 3→3→1 network view, per-step prediction, and a red failure state when `Egypt` leaves the window and the model predicts a generic token.
+
+```ts
+// No props - fully self-contained
+interface FNNAutocompleteDemoProps {}
+```
+
+---
+
+### RNNAutocompleteDemo
+
+**Description:** Self-contained unrolled RNN autocomplete demo on the same sentence. Shows per-token RNN cells and `h_t` states, an aggregate hidden-state memory bar with fading `Egypt` segment, retention-decay indicator bars, and a final vanishing-memory failure where prediction drifts to `pizza`.
+
+```ts
+// No props - fully self-contained
+interface RNNAutocompleteDemoProps {}
+```
+
+---
+
+### ArchitectureComparisonDemo
+
+**Description:** Standalone three-panel architecture comparison on the sentence `I grew up in Egypt so my favorite food is ___`. Includes a shared sentence strip, per-architecture view (FNN window blindness, RNN fading memory, Transformer direct attention arc), click-to-activate panels, per-panel “Why?” expansions, and a bottom explanation banner that changes with the active architecture.
+
+```ts
+// No props - fully self-contained
+interface ArchitectureComparisonDemoProps {}
 ```
 
 ---
@@ -1470,6 +1606,8 @@ interface TransformerPipelineWalkthroughProps {
   outputToken: string;        // appears on the final step with a probability badge
   stages: PipelineStage[];
   steps: PipelineStep[];
+  /** When true, hides the macro-strip subtitle, the step caption panel (label + description), and per-step prose — keeps macro strip, stage row, token strip, and controls. */
+  hideStepNarrative?: boolean;
 }
 ```
 

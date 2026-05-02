@@ -17,6 +17,7 @@ export { default as CompactCommandSimulator } from "../session/CompactCommandSim
 export { default as EmbeddingSearchSimulator } from "../session/EmbeddingSearchSimulator";
 export { default as ContextWindowFiller } from "./ContextWindowFiller";
 export { default as NodeFlowDiagram } from "./NodeFlowDiagram";
+export { default as DualLanePipelineDiagram } from "./DualLanePipelineDiagram";
 // New interactive components
 export { default as TrainingLoopSimulator } from "./TrainingLoopSimulator";
 export { default as AutoregressiveDemo } from "./AutoregressiveDemo";

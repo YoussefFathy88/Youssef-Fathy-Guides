@@ -32,11 +32,10 @@ Every LLM API call you make is secretly a tokenization problem. This session sho
 
 ## Tokens are the unit of everything -- cost, speed, and limits
 
-Before the model runs attention or predicts anything, your text is converted to a sequence of token IDs. That sequence is all the model ever sees -- not words, not characters, not sentences. The context window is the maximum number of those tokens the model can hold at once.
-
 <NodeFlowDiagram
   title="From raw text to what the model actually reads"
   height={420}
+  hideStepNarrative
   nodes={[
     { id: "text",   label: "Raw Text",       sublabel: "\"Hello, world!\"",             x: 10, y: 35, color: "gray",   shape: "rect", emoji: "📝" },
     { id: "bpe",    label: "BPE Tokenizer",  sublabel: "Byte-pair encoding",            x: 36, y: 35, color: "violet", shape: "rect", size: "lg", emoji: "✂️" },
@@ -69,8 +68,6 @@ Before the model runs attention or predicts anything, your text is converted to 
 
 ## Why BPE? The problem with treating whole words as tokens
 
-Word-level tokenization sounds intuitive — one word, one token. The trouble is that natural language has no fixed vocabulary. New words, typos, names, and technical jargon appear constantly, and a word-level tokenizer simply breaks when it sees something it was never trained on. BPE solves this by learning a compact set of sub-word pieces — common roots and suffixes — that can be recombined to represent almost any word, even ones the model has never seen.
-
 <BytePairEncodingExplorer />
 
 </SessionSection>
@@ -84,21 +81,15 @@ Word-level tokenization sounds intuitive — one word, one token. The trouble is
 
 ## Tokenization is not splitting by spaces
 
-Tokenizers use Byte-Pair Encoding (BPE) -- a compression algorithm that learns common subword patterns from training data. Common words become single tokens; rare words get split into pieces. This means "unhappiness" might be 3 tokens while "the" is always 1.
-
 <LiveTokenizer
   title="Type any text — see how the tokenizer splits it into chips"
-  caption="Each colored chip is one token. Click any chip to see its integer ID and character span. Switch between examples to see how Arabic, code, and URLs compare to English prose."
 />
 
 
 ### The context window is the model's working memory
 
-The context window is the total number of tokens the model can see at once — your system prompt, conversation history, anything you paste in, files you upload, and your current message all compete for the same fixed space. When you exceed the limit, either the API errors or old content gets truncated.
-
 <ContextWindowFiller
   title="What fills the context window in a typical AI chat"
-  caption="Toggle each block to see how different content types compete for the same fixed space. GPT-4o is 128k tokens, Claude Sonnet 4 is 200k, Gemini 1.5 Pro reaches 1M."
   windowSize={200000}
   costPer1kTokens={0.003}
   blocks={[
@@ -114,11 +105,8 @@ The context window is the total number of tokens the model can see at once — y
 
 ### When the context fills up, Claude Code compresses it with `/compact`
 
-In AI Agents (ex: Claude Code / Cursor), your terminal conversation is also a context window. Every file you read, every command output, every back-and-forth with the agent accumulates tokens. When the window approaches its limit, Claude Code offers a `/compact` command — it summarizes the entire conversation history into a condensed handoff block, then continues from that summary instead of the raw transcript. You keep full working continuity; the token count resets to a fraction of what it was.
-
 <CompactCommandSimulator
   title="/compact in Claude Code — watch a full context get compressed into a summary handoff"
-  caption="Press Next Step to advance through the compression. Watch the token bar drain and the summary block build line by line."
   windowSize={200000}
   steps={[
     {
@@ -216,11 +204,8 @@ In AI Agents (ex: Claude Code / Cursor), your terminal conversation is also a co
 
 ## Why Cursor can't just paste your whole codebase into the prompt
 
-A developer opens Cursor on a mid-sized production codebase — 400 files, roughly 1,800 functions. The naive approach would be to dump the entire codebase into the context window before every question. The problem: the code files in a mid-sized company add up to at least 750,000 tokens — far beyond any single context window. Even if a model supported it, sending 750,000 tokens on every question would be slow and expensive. Cursor solves this with the same pattern you'll learn in the RAG session: index the codebase as semantic chunks, then retrieve only the relevant ones per query. **Retrieval keeps each question small, but chat history and tool output still accumulate** in the same thread. When usage gets too high, the product can **run compact automatically** (or you can trigger `/compact`) so the long transcript collapses into a short summary handoff. One simulation below walks through retrieval, then the same auth-debugging thread growing, then automatic compact.
-
 <ContextLimitSimulator
   title="Cursor context: retrieval, growing history, then automatic compact"
-  caption="Press Next Step. The first steps use the wide segmented bar; when history swamps the window, the view switches to a stacked context list with a compress sweep, then a single summary row."
   windowSize={200000}
   steps={[
     {

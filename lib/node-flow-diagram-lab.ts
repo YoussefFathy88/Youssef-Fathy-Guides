@@ -131,6 +131,62 @@ export const nodeFlowDiagramLabTargets: DiagramLabTarget[] = [
     },
   },
   {
+    id: "primer-feedforward-one-shot",
+    sessionSlug: "why-transformer",
+    sessionTitle: "The Problem the Transformer Solved",
+    props: {
+      diagramId: "primer-feedforward-one-shot",
+      title: "Feedforward — one input, one pass, one output",
+      height: 340,
+      hideStepNarrative: true,
+      nodes: [
+        { id: "ff_in", label: "Input", sublabel: "vector, image, row…", x: 14, y: 50, color: "teal", shape: "rect", size: "sm", emoji: "📥" },
+        { id: "ff_net", label: "Neural net", sublabel: "layers + weights", x: 50, y: 50, color: "violet", shape: "rect", size: "sm", emoji: "🧠" },
+        { id: "ff_out", label: "Output", sublabel: "label, score…", x: 86, y: 50, color: "blue", shape: "rect", size: "sm", emoji: "📤" },
+      ],
+      edges: [
+        { from: "ff_in", to: "ff_net", animated: true, color: "teal" },
+        { from: "ff_net", to: "ff_out", animated: true, color: "violet" },
+      ],
+      steps: [
+        makeStep("ff_s1", "A single input vector", ["ff_in"]),
+        makeStep("ff_s2", "Forward through the layers", ["ff_in", "ff_net"], ["ff_in→ff_net"]),
+        makeStep("ff_s3", "One vector in, one vector out", ["ff_in", "ff_net", "ff_out"], ["ff_in→ff_net", "ff_net→ff_out"]),
+      ],
+    },
+  },
+  {
+    id: "primer-rnn-one-timestep",
+    sessionSlug: "why-transformer",
+    sessionTitle: "The Problem the Transformer Solved",
+    props: {
+      diagramId: "primer-rnn-one-timestep",
+      title: "RNN — folded view: xₜ → RNN → hₜ; hₜ re-enters the same cell on the next step (the old hₜ₋₁)",
+      height: 340,
+      hideStepNarrative: true,
+      nodes: [
+        { id: "x_t", label: "xₜ", sublabel: "current token / frame", x: 10, y: 26, color: "teal", shape: "rect", size: "sm", emoji: "📍" },
+        { id: "rnn_cell", label: "RNN cell", sublabel: "same weights every step", x: 46, y: 26, color: "violet", shape: "rect", size: "sm", emoji: "🔁" },
+        { id: "h_new", label: "hₜ", sublabel: "summary out", x: 82, y: 26, color: "amber", shape: "rect", size: "sm", emoji: "📌" },
+        { id: "cr", label: "", x: 82, y: 74, shape: "none" },
+        { id: "cl", label: "", x: 46, y: 74, shape: "none" },
+      ],
+      edges: [
+        { from: "x_t", to: "rnn_cell", animated: true, color: "teal" },
+        { from: "rnn_cell", to: "h_new", animated: true, color: "amber" },
+        { from: "h_new", to: "cr", animated: false, dashed: true, noArrow: true, color: "amber" },
+        { from: "cr", to: "cl", animated: false, dashed: true, noArrow: true, color: "amber" },
+        { from: "cl", to: "rnn_cell", animated: false, dashed: true, color: "amber" },
+      ],
+      steps: [
+        makeStep("rnn_s1", "Current input xₜ", ["x_t"], ["x_t→rnn_cell"]),
+        makeStep("rnn_s2", "Through the RNN cell", ["x_t", "rnn_cell"], ["x_t→rnn_cell"]),
+        makeStep("rnn_s3", "Output hₜ — the updated summary", ["x_t", "rnn_cell", "h_new"], ["x_t→rnn_cell", "rnn_cell→h_new"]),
+        makeStep("rnn_s4", "hₜ becomes the “previous h” on the next step", ["rnn_cell", "h_new"], ["rnn_cell→h_new", "h_new→cr", "cr→cl", "cl→rnn_cell"]),
+      ],
+    },
+  },
+  {
     id: "transformer-block-overview",
     sessionSlug: "transformer-attention",
     sessionTitle: "The Transformer: Attention Is All You Need",

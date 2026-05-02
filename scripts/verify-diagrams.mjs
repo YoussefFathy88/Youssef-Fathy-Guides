@@ -8,6 +8,8 @@ const TARGETS = [
   { slug: "how-llms-work", diagram: "llm-lifecycle-training-inference" },
   { slug: "tokens-context-window", diagram: "tokens-to-context-window" },
   { slug: "embeddings", diagram: "embeddings-entry-point" },
+  { slug: "why-transformer", diagram: "primer-feedforward-one-shot" },
+  { slug: "why-transformer", diagram: "primer-rnn-one-timestep" },
   { slug: "transformer-attention", diagram: "transformer-block-overview" },
   { slug: "transformer-attention", diagram: "scratchpad-vs-fast-mode" },
   { slug: "agent-memory-types", diagram: "agent-memory-types-overview" },

@@ -4,7 +4,6 @@ import {
   AttentionHeatmap,
   ConceptCompare,
   ConceptStepper,
-  DataFlowDiagram,
   MiniPlayground,
   ParameterSlider,
   TokenProbDist,
@@ -191,27 +190,6 @@ export default function ComponentsDemoPage() {
         <section className="space-y-4">
           <h2 className="text-2xl font-semibold text-white">ConceptStepper</h2>
           <ConceptStepper steps={ragSteps} title="RAG pipeline walkthrough" />
-        </section>
-
-        <section className="space-y-4">
-          <h2 className="text-2xl font-semibold text-white">DataFlowDiagram</h2>
-          <DataFlowDiagram
-            title="Tool-using agent loop"
-            caption="A compact 4-node loop for explaining iterative agent behaviour."
-            nodes={[
-              { id: "user", label: "User", x: 10, y: 52, color: "gray" },
-              { id: "llm-a", label: "LLM", sublabel: "reason", x: 38, y: 26, color: "violet", active: true },
-              { id: "tool", label: "Tool", sublabel: "search", x: 66, y: 52, color: "teal" },
-              { id: "llm-b", label: "LLM", sublabel: "respond", x: 88, y: 26, color: "amber" },
-            ]}
-            edges={[
-              { from: "user", to: "llm-a", label: "prompt" },
-              { from: "llm-a", to: "tool", label: "call" },
-              { from: "tool", to: "llm-b", label: "result", color: "fill-teal-500 dark:fill-teal-400" },
-              { from: "llm-b", to: "user", label: "answer", color: "fill-amber-500 dark:fill-amber-400" },
-            ]}
-            highlightPath={["user", "llm-a", "tool", "llm-b"]}
-          />
         </section>
 
         <section className="space-y-4">
