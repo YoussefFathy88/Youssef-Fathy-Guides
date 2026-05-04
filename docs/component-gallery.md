@@ -29,7 +29,7 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | Grouped graph + scripted step-through | `NodeFlowDiagram` |
 | Two stacked lanes (prep vs run), measured arrows + scripted steps | `DualLanePipelineDiagram` |
 | Lab architecture — large Frontend / Backend / NFR tabs (Next+Tailwind, RAG stack, Docker·reload·.env) | `RagLabSystemArchitecture` |
-| RAG lab — tree + five separate prompt tabs (one paste per file) | `RagLabPromptExplorer` |
+| RAG lab — tree + six separate prompt tabs (one paste per file) | `RagLabPromptExplorer` |
 | Legacy arbitrary directed graph (no `/component-gallery` preview — prefer `NodeFlowDiagram` for new sessions) | `DataFlowDiagram` |
 | Legacy pipeline tracks / stations (no `/component-gallery` preview — prefer `NodeFlowDiagram` for new sessions) | `PipelineTrack` |
 | Numbered phases / narrative steps | `StepSequence` |
@@ -424,7 +424,7 @@ interface RagLabSystemArchitectureProps {
 
 ### RagLabPromptExplorer
 
-**Description:** Introduction-to-RAG lab helper — renders **`TabbedCodeExplorer`** with a **`rag-chatbot/`** tree tab plus **five** plain-text prompt tabs (scaffold, index backend, index frontend, chat backend, chat frontend). Prompt bodies live in `lib/rag-lab-prompts.ts`. No props from MDX.
+**Description:** Introduction-to-RAG lab helper — renders **`TabbedCodeExplorer`** with a **`rag-chatbot/`** tree tab plus **six** plain-text prompt tabs (scaffold, index backend, index frontend, chat backend, chat frontend, UI enhancement). Prompt bodies live in `lib/rag-lab-prompts.ts`. No props from MDX.
 
 ```ts
 // No props — use as <RagLabPromptExplorer />
