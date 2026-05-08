@@ -69,3 +69,5 @@ export { default as CosineSimilarityExplorer } from "../session/CosineSimilarity
 export { default as SearchQuerySimulator } from "../session/SearchQuerySimulator";
 // Tokenization session components
 export { default as BytePairEncodingExplorer } from "../session/BytePairEncodingExplorer";
+// Architecture evolution (why-transformer session)
+export { default as ArchitectureEvolutionAnimator } from "../session/ArchitectureEvolutionAnimator";

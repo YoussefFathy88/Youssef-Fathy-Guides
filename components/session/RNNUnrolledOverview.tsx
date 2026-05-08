@@ -28,7 +28,7 @@ function IntermediateYHat({ step, muted }: { step: number; muted: boolean }) {
 function FinalPredictionToken({ label, muted }: { label: string; muted: boolean }) {
   return (
     <span
-      className={`max-w-[5.5rem] truncate font-mono text-xs tabular-nums sm:max-w-[6.5rem] sm:text-sm ${
+      className={`max-w-[6rem] truncate font-mono text-sm tabular-nums sm:max-w-[7rem] sm:text-base ${
         muted ? "text-gray-400 dark:text-gray-500" : "font-semibold text-violet-700 dark:text-violet-300"
       }`}
       title={`Target prediction: ${label}`}
@@ -80,7 +80,7 @@ export default function RNNUnrolledOverview({
       {(title || caption) && (
         <div className="mb-4 space-y-1">
           {title && (
-            <h2 className="text-sm font-medium text-gray-900 dark:text-gray-100">{title}</h2>
+            <h2 className="text-base font-medium text-gray-900 dark:text-gray-100">{title}</h2>
           )}
           {caption && (
             <p className="text-xs text-gray-500 dark:text-gray-400">{caption}</p>
@@ -97,33 +97,21 @@ export default function RNNUnrolledOverview({
       ) : null}
 
       <div className="rounded-xl border border-gray-200 bg-white px-2 py-5 dark:border-gray-700 dark:bg-gray-900/60 sm:px-4">
-        <div className="mb-4 grid grid-cols-1 gap-2 text-[11px] text-gray-500 dark:text-gray-400 sm:grid-cols-3">
-          <div className="rounded-md border border-gray-200 bg-gray-50 px-2 py-1.5 dark:border-gray-700 dark:bg-gray-900">
-            Top row: ŷ₁…ŷₙ₋₁ (abbrev.) → final target token
-          </div>
-          <div className="rounded-md border border-gray-200 bg-gray-50 px-2 py-1.5 dark:border-gray-700 dark:bg-gray-900">
-            Middle row: same RNN cell reused at each step
-          </div>
-          <div className="rounded-md border border-gray-200 bg-gray-50 px-2 py-1.5 dark:border-gray-700 dark:bg-gray-900">
-            Bottom row: current input token (xₜ)
-          </div>
-        </div>
-
         <div className="flex min-w-0 justify-center overflow-x-auto pb-2">
           <div className="flex min-w-max flex-row items-center">
             {/* h₀ before first column */}
             <div className="flex flex-col items-center pr-1 sm:pr-2">
               <div className="h-7 sm:h-8" />
               <div
-                className="flex min-h-[2.75rem] min-w-[3.5rem] flex-col items-center justify-center rounded-md border border-dashed border-gray-300 px-1.5 py-1 dark:border-gray-600"
+                className="flex min-h-[3.5rem] min-w-[4.5rem] flex-col items-center justify-center rounded-md border border-dashed border-gray-300 px-2 py-1.5 dark:border-gray-600"
                 style={{
                   opacity: active === 0 ? 1 : 0.35,
                   borderColor: active === 0 ? AMBER : undefined,
                 }}
               >
-                <span className="text-[9px] uppercase tracking-wide text-gray-400">start</span>
+                <span className="text-xs uppercase tracking-wide text-gray-400">start</span>
                 <span
-                  className="text-[11px] font-semibold tabular-nums sm:text-xs"
+                  className="text-sm font-semibold tabular-nums"
                   style={{ color: active === 0 ? AMBER : "#9ca3af" }}
                 >
                   h₀
@@ -156,7 +144,7 @@ export default function RNNUnrolledOverview({
                     style={{ opacity: active === i ? 1 : 0.45 }}
                   />
                   <div
-                    className={`w-[4.8rem] rounded-lg border-2 px-1 py-2 text-center text-[10px] font-semibold leading-tight transition-[opacity,border-color,background-color] duration-200 sm:w-[6rem] sm:text-[11px] ${
+                    className={`w-24 rounded-lg border-2 px-1 py-2 text-center text-xs font-semibold leading-tight transition-[opacity,border-color,background-color] duration-200 sm:w-28 sm:text-sm ${
                       active === i
                         ? "border-teal-600 bg-teal-50 text-gray-900 dark:border-teal-500 dark:bg-teal-950/40 dark:text-gray-100"
                         : "border-gray-200 text-gray-600 opacity-70 dark:border-gray-600 dark:text-gray-400"
@@ -173,7 +161,7 @@ export default function RNNUnrolledOverview({
                     }}
                   />
                   <div
-                    className={`min-w-[3.6rem] rounded-md px-2 py-1 text-center text-[11px] font-bold sm:min-w-[4rem] sm:text-xs ${
+                    className={`min-w-[4.5rem] rounded-md px-2 py-1.5 text-center text-sm font-bold sm:min-w-[5.5rem] sm:text-base ${
                       active === i
                         ? "bg-white text-gray-900 ring-2 ring-teal-600 dark:bg-gray-800 dark:text-gray-100 dark:ring-teal-500"
                         : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"
@@ -190,7 +178,7 @@ export default function RNNUnrolledOverview({
                   >
                     <span className="text-lg leading-none">→</span>
                     <span
-                      className="mt-0.5 text-[10px] font-semibold tabular-nums"
+                      className="mt-0.5 text-xs font-semibold tabular-nums"
                       style={{ color: active === i + 1 ? AMBER : "#9ca3af" }}
                     >
                       h<sub className="text-[0.85em]">{i + 1}</sub>
@@ -203,13 +191,13 @@ export default function RNNUnrolledOverview({
           </div>
         </div>
 
-        <div className="mt-3 rounded-lg border border-amber-200/80 bg-amber-50/70 px-3 py-2 text-xs text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/20 dark:text-amber-200">
+        <div className="mt-3 rounded-lg border border-amber-200/80 bg-amber-50/70 px-3 py-2 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/20 dark:text-amber-200">
           <span className="font-semibold">Current timestep:</span>{" "}
           {`x${active + 1}="${tokens[active]}" enters the cell, combines with `}
           <span className="font-mono">{active === 0 ? "h0" : `h${active}`}</span>, and outputs{" "}
           <span className="font-mono">{`h${active + 1}`}</span>.
         </div>
-        <div className="mt-2 rounded-lg border border-violet-200/80 bg-violet-50/70 px-3 py-2 text-xs text-violet-900 dark:border-violet-900/60 dark:bg-violet-950/20 dark:text-violet-200">
+        <div className="mt-2 rounded-lg border border-violet-200/80 bg-violet-50/70 px-3 py-2 text-sm text-violet-900 dark:border-violet-900/60 dark:bg-violet-950/20 dark:text-violet-200">
           {onFinalColumn ? (
             <>
               <span className="font-semibold">Target next token (after full prefix):</span>{" "}

@@ -93,6 +93,7 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | Interactive angle → cosine score: two vector arrows, arc θ, dashed projection, sliders, preset word pairs | `CosineSimilarityExplorer` |
 | Side-by-side keyword vs semantic search on a shared corpus — live input, score bars, animated results | `SearchQuerySimulator` |
 | Word-level vs BPE tokenization — live text input, staggered token pills, step-by-step merge breakdown, three "Why BPE Wins" cards | `BytePairEncodingExplorer` |
+| Six-panel animated walkthrough: Egypt sentence → CNN failure → RNN failure → Transformer success; `panel={N}` locks to one slide | `ArchitectureEvolutionAnimator` |
 
 **Flow diagrams:** prefer **`NodeFlowDiagram`** for free-form grouped graphs, or **`DualLanePipelineDiagram`** for side-by-side vertical pipelines with readable connectors between compact blocks. `PipelineTrack`, `LayerStack`, and `DataFlowDiagram` remain in the MDX registry for older sessions but are **not** previewed on `/component-gallery`.
 
@@ -173,6 +174,7 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | `CosineSimilarityExplorer` | Interactive | Two vector arrows (A/B), arc θ, dashed B→A projection; angle sliders; preset word pairs; cosine score coloured green/amber/gray. |
 | `SearchQuerySimulator` | Interactive | Text input + preset buttons; side-by-side keyword vs semantic results; animated score bars; per-column insights. |
 | `BytePairEncodingExplorer` | Interactive | Word-level vs BPE side-by-side; live text input; staggered token pills; step-by-step merge breakdown; three "Why BPE Wins" comparison cards. |
+| `ArchitectureEvolutionAnimator` | Interactive | Self-contained 6-panel animated story: problem → CNN idea → CNN failure → RNN idea → RNN failure → Transformer success. No props required. |
 
 ---
 
@@ -1748,4 +1750,19 @@ unning, walk, walking, play, playing, cat, dog, hello), shows a red "? Unknown W
 ```ts
 // No props - fully self-contained
 interface BytePairEncodingExplorerProps {}
+```
+
+---
+
+### ArchitectureEvolutionAnimator
+
+**Description:** Six-panel animated SVG walkthrough — "Egypt is a country … What is its capital?" — teaching why Transformers exist. **Panel 0:** 8 key tokens appear (Egypt + "its" amber-highlighted), arc draws Egypt→"its", model outputs "The capital of Egypt is Cairo". **Panel 1:** gray token row + amber CNN window loops left→right. **Panel 2:** CNN window fixed on "What is its", red dotted line from "its" stopped at window edge ✗, wrong prediction. **Panel 3:** teal tokens, h box animates left→right with staggered arrows (opacity by recency) and gradient trail. **Panel 4:** h arrived at "its", depleted "Egypt" memory bar (~10%), wrong prediction. **Panel 5:** attention arcs from "its" — thick amber to "Egypt", thin gray to others, correct answer ✓.
+
+Use **`panel={N}`** (0–5) to lock to a single panel with no navigation — ideal for one-diagram-per-slide MDX sessions. Omit `panel` to show all six with Prev / Next controls.
+
+```ts
+interface ArchitectureEvolutionAnimatorProps {
+  /** 0–5: show only that panel, no nav. Omit for full multi-panel mode. */
+  panel?: number;
+}
 ```

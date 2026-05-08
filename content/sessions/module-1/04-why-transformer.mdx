@@ -6,147 +6,64 @@ moduleName: "The Engine Room"
 sessionNumber: 4
 duration: "14 min"
 difficulty: "intermediate"
-tags: ["rnn", "recurrence", "bottleneck", "motivation"]
+tags: ["rnn", "cnn", "transformer", "motivation"]
 nextSession: "transformer-attention"
 prevSession: "embeddings"
 ---
 
-{/* SECTION 1 — GOAL */}
+{/* ── SECTION 1 — GOAL ─────────────────────────────────────────────────── */}
 
 <SessionSection id="goal" label="Goal">
 
-## See why sequential RNNs became the bottleneck
+## The problem: predict Egypt's capital
 
-<AutoregressiveDemo
-  title="LLM = repeated autocomplete until a full sentence"
-  question="Explain how an LLM responds."
-  contextPrefix="An LLM responds by predicting"
-  tokens={[" one", " token", " at", " a", " time", ",", " repeatedly", ",", " until", " the", " sentence", " is", " complete", "."]}
-/>
+<ArchitectureEvolutionAnimator panel={0} />
 
 </SessionSection>
 
 
-{/* SECTION 2 — CORE CONCEPTS */}
+{/* ── SECTION 2 — BIG PICTURE (CNN) ───────────────────────────────────── */}
+
+<SessionSection id="big-picture" label="Big Picture">
+
+## CNN: a fixed window slides along the text
+
+<ArchitectureEvolutionAnimator panel={1} />
+
+## CNN cannot reach back to "Egypt"
+
+<ArchitectureEvolutionAnimator panel={2} />
+
+</SessionSection>
+
+
+{/* ── SECTION 3 — CORE CONCEPTS (RNN) ─────────────────────────────────── */}
 
 <SessionSection id="core-concepts" label="Core Concepts">
 
-### Feedforward vs recurrent: two shapes of neural net
+## RNN: one hidden state reads every token
 
-## Feedforward: one input, one pass, one output
+<ArchitectureEvolutionAnimator panel={3} />
 
-<NodeFlowDiagram
-  diagramId="primer-feedforward-one-shot"
-  title="Feedforward — one input, one pass, one output"
-  height={340}
-  hideStepNarrative
-  nodes={[
-    { id: "ff_in", label: "Input", sublabel: "vector, image, row…", x: 14, y: 50, color: "teal", shape: "rect", size: "sm", emoji: "📥" },
-    { id: "ff_net", label: "Neural net", sublabel: "layers + weights", x: 50, y: 50, color: "violet", shape: "rect", size: "sm", emoji: "🧠" },
-    { id: "ff_out", label: "Output", sublabel: "label, score…", x: 86, y: 50, color: "blue", shape: "rect", size: "sm", emoji: "📤" },
-  ]}
-  edges={[
-    { from: "ff_in", to: "ff_net", animated: true, color: "teal" },
-    { from: "ff_net", to: "ff_out", animated: true, color: "violet" },
-  ]}
-  steps={[
-    {
-      id: "ff_s1",
-      label: "A single input vector",
-      description: "Everything the model is allowed to know for this decision is packed into one input. There is no separate “memory” channel from a previous call — unless you engineer features yourself.",
-      highlightNodes: ["ff_in"],
-      highlightEdges: [],
-    },
-    {
-      id: "ff_s2",
-      label: "Forward through the layers",
-      description: "Each layer transforms the representation. By the end, the network emits logits or scores for the task you trained it on.",
-      highlightNodes: ["ff_in", "ff_net"],
-      highlightEdges: ["ff_in→ff_net"],
-    },
-    {
-      id: "ff_s3",
-      label: "One vector in, one vector out",
-      description: "For a classic classifier or regressor, this is the whole story: no hidden state is carried to a future timestep unless you build that loop outside the net.",
-      highlightNodes: ["ff_in", "ff_net", "ff_out"],
-      highlightEdges: ["ff_in→ff_net", "ff_net→ff_out"],
-    },
-  ]}
-/>
+## RNN: Egypt's memory is gone by "its"
 
-## Feedforward autocomplete with a fixed window (what it cannot remember)
-
-<FNNAutocompleteDemo />
-
-## RNN folded view: one timestep, one hidden state that loops back
-
-<NodeFlowDiagram
-  diagramId="primer-rnn-one-timestep"
-  title="RNN — folded view: xₜ → RNN → hₜ; hₜ re-enters the same cell on the next step (the old hₜ₋₁)"
-  height={340}
-  hideStepNarrative
-  nodes={[
-    { id: "x_t",      label: "xₜ",      sublabel: "current token / frame",   x: 10, y: 26, color: "teal",   shape: "rect",   size: "sm", emoji: "📍" },
-    { id: "rnn_cell", label: "RNN cell", sublabel: "same weights every step", x: 46, y: 26, color: "violet", shape: "rect",   size: "sm", emoji: "🔁" },
-    { id: "h_new",    label: "hₜ",       sublabel: "summary out",             x: 82, y: 26, color: "amber",  shape: "rect",   size: "sm", emoji: "📌" },
-    { id: "cr",       label: "",  x: 82, y: 74, shape: "none" },
-    { id: "cl",       label: "",  x: 46, y: 74, shape: "none" },
-  ]}
-  edges={[
-    { from: "x_t",     to: "rnn_cell", animated: true,  color: "teal"  },
-    { from: "rnn_cell", to: "h_new",   animated: true,  color: "amber" },
-    { from: "h_new",   to: "cr",       animated: false, dashed: true, noArrow: true, color: "amber" },
-    { from: "cr",      to: "cl",       animated: false, dashed: true, noArrow: true, color: "amber" },
-    { from: "cl",      to: "rnn_cell", animated: false, dashed: true,                color: "amber" },
-  ]}
-  steps={[
-    {
-      id: "rnn_s1",
-      label: "Current input xₜ",
-      description: "At timestep t the cell reads the latest piece of the sequence — for language, often the current word or subword embedding.",
-      highlightNodes: ["x_t"],
-      highlightEdges: ["x_t→rnn_cell"],
-    },
-    {
-      id: "rnn_s2",
-      label: "Through the RNN cell",
-      description: "Inside the cell, the new input is combined with the hidden vector that **came out of this same cell on the previous timestep** (at t = 0 that vector is usually learned or set to zeros).",
-      highlightNodes: ["x_t", "rnn_cell"],
-      highlightEdges: ["x_t→rnn_cell"],
-    },
-    {
-      id: "rnn_s3",
-      label: "Output hₜ — the updated summary",
-      description: "The cell writes a fresh hidden state hₜ. That single vector is the model’s compressed memory of the sequence so far — everything earlier has already been folded into it.",
-      highlightNodes: ["x_t", "rnn_cell", "h_new"],
-      highlightEdges: ["x_t→rnn_cell", "rnn_cell→h_new"],
-    },
-    {
-      id: "rnn_s4",
-      label: "hₜ becomes the “previous h” on the next step",
-      description: "When you advance t, this output is what gets fed **back into the same RNN** as the prior hidden vector — the role people write as hₜ₋₁ in equations, without drawing a second state box. That recurrence is powerful for short context but becomes the bottleneck the next section explores.",
-      highlightNodes: ["rnn_cell", "h_new"],
-      highlightEdges: ["rnn_cell→h_new", "h_new→cr", "cr→cl", "cl→rnn_cell"],
-    },
-  ]}
-/>
-
-## Unrolled over time: the same cell, repeated for every token
-
-<RNNUnrolledOverview initialActiveStep={4} />
-
-## RNN training + inference + failure (in one view)
-
-<RNNAutocompleteDemo />
-
-## Transformer: attention fixes what RNNs lose
-
-<SelfAttentionScoreExplorer />
+<ArchitectureEvolutionAnimator panel={4} />
 
 </SessionSection>
 
 
-{/* SECTION 3 — RECAP */}
+{/* ── SECTION 4 — PRACTICAL EXAMPLE (Transformer) ─────────────────────── */}
+
+<SessionSection id="practical-example" label="Practical Example">
+
+## Transformer: "its" attends directly to "Egypt"
+
+<ArchitectureEvolutionAnimator panel={5} />
+
+</SessionSection>
+
+
+{/* ── SECTION 5 — RECAP ────────────────────────────────────────────────── */}
 
 <SessionSection id="recap" label="Recap">
 
@@ -154,36 +71,25 @@ prevSession: "embeddings"
 
 <RecapTable
   rows={[
-    {
-      term: "Recurrent hidden state",
-      definition: "A fixed-size vector hₜ updated at every timestep; it is the only place the model stores “what happened so far” inside the network between steps."
-    },
-    {
-      term: "Sequential bottleneck",
-      definition: "Each new token must be merged into the same-sized hₜ as every earlier token — distant information competes for the same capacity and can fade."
-    },
-    {
-      term: "Vanishing / forgetting in practice",
-      definition: "Over many steps, gradients and signal through hₜ get harder to preserve; long-range dependencies are easy to lose unless the architecture adds gates (LSTM/GRU) or you abandon recurrence entirely."
-    },
-    {
-      term: "Why Transformers matter",
-      definition: "Attention lets every position read every other position in parallel with learned weights, instead of forcing the whole history through one recurrent channel."
-    }
+    { term: "Fixed window (CNN)", definition: "Sees only N consecutive tokens; any word outside that window is invisible." },
+    { term: "Recurrent hidden state (RNN)", definition: "A single vector h updated at every step; earlier tokens fade as new ones overwrite it." },
+    { term: "Vanishing memory", definition: "After many steps h retains almost no signal from distant tokens — 'Egypt' is ~10% present by the time the model reads 'its'." },
+    { term: "Self-attention (Transformer)", definition: "Every token computes scores against every other token in one parallel operation — distance has no cost." },
+    { term: "Why Transformers won", definition: "They replaced sequential bottlenecks with direct, parallel, distance-independent token interactions." },
   ]}
 />
 
 </SessionSection>
 
 
-{/* SECTION 4 — NEXT SESSION */}
+{/* ── SECTION 6 — NEXT SESSION ─────────────────────────────────────────── */}
 
 <SessionSection id="next-session" label="Next Session">
 
 <NextSessionCard
   title="The Transformer: Attention Is All You Need"
   slug="transformer-attention"
-  teaser="You have the bottleneck picture; next is the architecture that replaced it — positional encoding, encoder and decoder stacks, self-attention and cross-attention, and the path from text to the next token."
+  teaser="Now that you see the problem, dive into the full Transformer architecture — positional encoding, Q/K/V attention heads, encoder and decoder stacks, and how it all connects into one forward pass."
   module={1}
 />
 

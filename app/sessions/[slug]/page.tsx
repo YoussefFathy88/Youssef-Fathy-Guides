@@ -77,6 +77,7 @@ import {
   CosineSimilarityExplorer,
   SearchQuerySimulator,
   BytePairEncodingExplorer,
+  ArchitectureEvolutionAnimator,
 } from "@/components/shared";
 import FNNAutocompleteDemo from "@/components/demos/FNNAutocompleteDemo";
 import ArchitectureComparisonDemo from "@/components/demos/ArchitectureComparisonDemo";
@@ -206,6 +207,8 @@ function getMdxComponents(isPresentationMode: boolean) {
   SearchQuerySimulator,
   // Tokenization session components
   BytePairEncodingExplorer,
+  // Architecture evolution (why-transformer)
+  ArchitectureEvolutionAnimator,
   // Diagram & code navigation components
   AlgorithmStepper,
     CallStackVisualizer,
