@@ -16,6 +16,8 @@
 Each session is one `.mdx` file. Components are injected by the session registry, so no MDX imports are needed.
 Session pages own only their content. Navigation, ordering, and library metadata come from `data/sessions.ts`.
 
+Optional on a `CourseSession` row: **`hideFromCourseNav: true`** — the MDX session and `/sessions/{slug}` route stay available, but the episode is **hidden from the course journey list** (module 1 strip, progress totals, and default “next” unlock path skip it). Use for supplementary sessions that are not part of the main teaching arc.
+
 Every new session requires both steps:
 1. Create `content/sessions/module-{N}/{index}-{slug}.mdx`
 2. Add the matching entry to `data/sessions.ts`
@@ -134,6 +136,18 @@ If you are about to explain training, inference, tokenization, thinking mode, me
 - `tags` should contain at most 3 items
 - Keep `moduleName`, `title`, and `sessionNumber` aligned with the canonical tables
 
+### Diagram clarity (slides & interactives)
+
+Diagram-first sessions (especially presenter / title–diagram slides) must stay readable on screen and on video:
+
+- **Fonts:** Large enough labels; high contrast; avoid dense micro-text in SVGs.
+- **Diagram:** One clear focal idea per slide; enough internal padding; hierarchy obvious at a glance.
+- **Animation:** Timings and motion should be easy to follow; avoid chaotic or simultaneous clutter.
+- **Spacing:** There must be clear space between each **`##` slide title** and the diagram below it (handled by session layout — do not defeat it by wrapping headings and visuals in tight custom blocks).
+- **Multiple slides in one section:** In normal (article) view, repeated `##` + diagram pairs inside the same `SessionSection` get extra margin above every **`##` after the first block** so the next title does not sit flush under the previous diagram (`SessionSection` wrapper + `h2` margins in `app/sessions/[slug]/page.tsx`).
+
+See also `.cursor/rules/ppt-title-diagram-only.mdc`.
+
 ### Content rules
 
 - Keep the six `SessionSection` blocks in this exact order: `goal`, `big-picture`, `core-concepts`, `practical-example`, `recap`, `next-session`
@@ -163,6 +177,7 @@ If you are about to explain training, inference, tokenization, thinking mode, me
 
 Before shipping a session file, verify:
 
+- Slide diagrams meet **Diagram clarity** above (fonts, layout, animation, title↔diagram spacing)
 - The file path matches `content/sessions/module-{N}/{index}-{slug}.mdx`
 - Frontmatter title, slug, module, moduleName, and sessionNumber match the canonical tables
 - `prevSession` and `nextSession` point to real canonical slugs

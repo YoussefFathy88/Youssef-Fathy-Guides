@@ -17,4 +17,15 @@ For session MDX slides intended for presenter mode:
 4. If two visuals are needed, split into two separate `##` headings (two slides).
 5. Prefer concise, visual-first slide titles.
 
+## Diagram clarity (must-follow)
+
+Session diagrams and interactives should stay readable on video and in fullscreen presenter mode:
+
+- **Fonts:** Use legible sizes (avoid tiny SVG text); prefer `ui-sans-serif` / system stacks; keep sufficient contrast on light and dark backgrounds.
+- **Diagram:** Prefer generous padding inside the canvas, clear hierarchy (one main idea per slide), and labels that read without squinting.
+- **Animation:** Motions should be easy to follow (predictable timing, not overcrowded); respect reduced motion where the component supports it.
+- **Spacing:** Leave clear vertical space between the slide **`##` title** and the diagram — do not cram components directly under headings in MDX layouts; when building new components, assume titles need breathing room below.
+
+Layout spacing for headings vs diagrams is enforced in `SessionSection` (presenter) and MDX `h2` styles (`app/sessions/[slug]/page.tsx`); new slide-style content must still avoid stacking extra elements between title and diagram.
+
 When updating existing sessions, preserve this format for any newly added or edited slide content.

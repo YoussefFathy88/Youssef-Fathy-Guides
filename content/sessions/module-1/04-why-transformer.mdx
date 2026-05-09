@@ -4,9 +4,9 @@ slug: "why-transformer"
 module: 1
 moduleName: "The Engine Room"
 sessionNumber: 4
-duration: "14 min"
+duration: "18 min"
 difficulty: "intermediate"
-tags: ["rnn", "cnn", "transformer", "motivation"]
+tags: ["rnn", "cnn", "transformer", "motivation", "neural-network"]
 nextSession: "transformer-attention"
 prevSession: "embeddings"
 ---
@@ -22,37 +22,74 @@ prevSession: "embeddings"
 </SessionSection>
 
 
-{/* ── SECTION 2 — BIG PICTURE (CNN) ───────────────────────────────────── */}
+{/* ── SECTION 2 — BIG PICTURE ──────────────────────────────────────────── */}
 
 <SessionSection id="big-picture" label="Big Picture">
 
-## CNN: a fixed window slides along the text
+## Neural network: a straight-line mapping function
+
+<LinearMappingGraph
+  m={2}
+  c={1}
+  knownPoints={[
+    { x: 0, y: 1, label: "x=0, y=1" },
+    { x: 1, y: 3, label: "x=1, y=3" },
+    { x: 2, y: 5, label: "x=2, y=5" },
+    { x: 3, y: 7, label: "x=3, y=7" },
+  ]}
+/>
+
+## Neural network: y = mx + c, stacked many times
+
+<NNEquationDemo />
+
+## CNN: same filter slides over every image position
+
+<CNNImageSuccessDemo />
+
+## CNN: convolutions → pooling → dense → classes
+
+<img
+  src="/sessions/module-1/why-transformer/cnn-architecture.png"
+  alt="Convolutional neural network: input image, convolution and pooling feature maps, flattened layer, fully connected layers, and softmax class probabilities."
+/>
+
+## CNN applied to text: window slides along the sentence
 
 <ArchitectureEvolutionAnimator panel={1} />
 
-## CNN cannot reach back to "Egypt"
+## CNN fails: too short to look back to "Egypt"
 
 <ArchitectureEvolutionAnimator panel={2} />
 
 </SessionSection>
 
 
-{/* ── SECTION 3 — CORE CONCEPTS (RNN) ─────────────────────────────────── */}
+{/* ── SECTION 3 — CORE CONCEPTS (RNN) ──────────────────────────────────── */}
 
 <SessionSection id="core-concepts" label="Core Concepts">
 
-## RNN: one hidden state reads every token
+## RNN: same cell unrolled — state flows forward each step
 
-<ArchitectureEvolutionAnimator panel={3} />
+<RNNCellUnrolledDiagram />
 
-## RNN: Egypt's memory is gone by "its"
+## RNN: one hidden state reads every token in order
+
+<RNNUnrolledOverview
+  title=""
+  caption=""
+  tokens={["Egypt", "is", "a", "country", "What", "is", "its", "capital"]}
+  terminalNextToken="Cairo"
+/>
+
+## RNN: Egypt's memory is nearly gone by the time "its" arrives
 
 <ArchitectureEvolutionAnimator panel={4} />
 
 </SessionSection>
 
 
-{/* ── SECTION 4 — PRACTICAL EXAMPLE (Transformer) ─────────────────────── */}
+{/* ── SECTION 4 — PRACTICAL EXAMPLE (Transformer) ──────────────────────── */}
 
 <SessionSection id="practical-example" label="Practical Example">
 
@@ -71,7 +108,9 @@ prevSession: "embeddings"
 
 <RecapTable
   rows={[
-    { term: "Fixed window (CNN)", definition: "Sees only N consecutive tokens; any word outside that window is invisible." },
+    { term: "NN as a mapping function", definition: "y = mx + c: a neural network learns weights (m, c) so that inputs map to correct outputs." },
+    { term: "Fixed window (CNN)", definition: "Sees only N consecutive tokens; any word outside that window is invisible — great for images, limited for long text." },
+    { term: "Translation invariance", definition: "A CNN filter detects the same pattern wherever it appears in an image — the core reason CNNs dominated computer vision." },
     { term: "Recurrent hidden state (RNN)", definition: "A single vector h updated at every step; earlier tokens fade as new ones overwrite it." },
     { term: "Vanishing memory", definition: "After many steps h retains almost no signal from distant tokens — 'Egypt' is ~10% present by the time the model reads 'its'." },
     { term: "Self-attention (Transformer)", definition: "Every token computes scores against every other token in one parallel operation — distance has no cost." },

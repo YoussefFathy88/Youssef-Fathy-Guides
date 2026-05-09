@@ -80,7 +80,7 @@ export const courseSessions: CourseSession[] = [
     prevRecap:
       "We just saw that the model works over tokens inside a bounded context. The next question is how those tokens become something the network can compare, cluster, and reason over numerically.",
     dependsOn: ["E01", "E02"],
-    leadsTo: ["E04"],
+    leadsTo: ["E04", "E05"],
     status: "published",
   },
   {
@@ -93,6 +93,8 @@ export const courseSessions: CourseSession[] = [
     dependsOn: ["E02", "E03"],
     leadsTo: ["E05"],
     status: "published",
+    /** Supplementary deep-dive; main course path goes Embeddings → Transformer. */
+    hideFromCourseNav: true,
   },
   {
     id: "E05",
@@ -100,8 +102,8 @@ export const courseSessions: CourseSession[] = [
     title: "The Transformer: Attention Is All You Need",
     module: 1,
     prevRecap:
-      "You saw why sequential RNNs hit a wall. Now we trace the 2017 Transformer: positional encoding, encoder and decoder stacks, self-attention and cross-attention, and the path from raw text to the next token.",
-    dependsOn: ["E02", "E03", "E04"],
+      "Embeddings turn tokens into vectors. Now we trace the 2017 Transformer: positional encoding, encoder and decoder stacks, self-attention and cross-attention, and the path from raw text to the next token.",
+    dependsOn: ["E02", "E03"],
     leadsTo: ["E06"],
     status: "published",
   },

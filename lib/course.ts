@@ -19,12 +19,22 @@ export function getModuleById(moduleId: ModuleId) {
   return courseModules.find((module) => module.id === moduleId);
 }
 
+function isHiddenFromCourseNav(session: CourseSession) {
+  return Boolean(session.hideFromCourseNav);
+}
+
+/** All sessions in a module (including `hideFromCourseNav`). */
+function sessionsInModuleAll(moduleId: ModuleId) {
+  return courseSessions.filter((session) => session.module === moduleId);
+}
+
+/** Sessions shown in course journey / module lists (excludes `hideFromCourseNav`). */
 export function getSessions() {
-  return courseSessions;
+  return courseSessions.filter((session) => !isHiddenFromCourseNav(session));
 }
 
 export function getSessionsByModule(moduleId: ModuleId) {
-  return courseSessions.filter((session) => session.module === moduleId);
+  return sessionsInModuleAll(moduleId).filter((session) => !isHiddenFromCourseNav(session));
 }
 
 export function getSessionById(sessionId: string) {
@@ -44,7 +54,7 @@ export function getModuleUnlockDependency(moduleId: ModuleId) {
 }
 
 export function getPreviousSessionInModule(session: CourseSession) {
-  const moduleSessions = getSessionsByModule(session.module);
+  const moduleSessions = sessionsInModuleAll(session.module);
   const index = moduleSessions.findIndex((item) => item.id === session.id);
 
   if (index <= 0) {
@@ -55,7 +65,7 @@ export function getPreviousSessionInModule(session: CourseSession) {
 }
 
 export function getNextSessionInModule(session: CourseSession) {
-  const moduleSessions = getSessionsByModule(session.module);
+  const moduleSessions = sessionsInModuleAll(session.module);
   const index = moduleSessions.findIndex((item) => item.id === session.id);
 
   if (index < 0 || index === moduleSessions.length - 1) {
@@ -66,7 +76,13 @@ export function getNextSessionInModule(session: CourseSession) {
 }
 
 export function getRequiredSessionToUnlock(session: CourseSession) {
-  const previousInModule = getPreviousSessionInModule(session);
+  const moduleSessions = sessionsInModuleAll(session.module);
+  const index = moduleSessions.findIndex((item) => item.id === session.id);
+  let prevIdx = index - 1;
+  while (prevIdx >= 0 && isHiddenFromCourseNav(moduleSessions[prevIdx]!)) {
+    prevIdx -= 1;
+  }
+  const previousInModule = prevIdx >= 0 ? moduleSessions[prevIdx] : undefined;
 
   if (previousInModule) {
     return previousInModule;
@@ -102,11 +118,12 @@ export function isSessionUnlocked(sessionId: string, completed: Set<string>) {
 }
 
 export function getCurrentSessionId(completed: Set<string>) {
-  const nextUnlocked = courseSessions.find(
+  const navSessions = getSessions();
+  const nextUnlocked = navSessions.find(
     (session) => !completed.has(session.id) && isSessionUnlocked(session.id, completed),
   );
 
-  return nextUnlocked?.id ?? courseSessions[courseSessions.length - 1]?.id ?? "E01";
+  return nextUnlocked?.id ?? navSessions[navSessions.length - 1]?.id ?? "E01";
 }
 
 export function getSessionState(
@@ -130,8 +147,9 @@ export function getSessionState(
 }
 
 export function getProgressSummary(completed: Set<string>): ProgressSummary {
+  const navSessions = getSessions();
   const currentSessionId = getCurrentSessionId(completed);
-  const currentSession = getSessionById(currentSessionId) ?? courseSessions[0];
+  const currentSession = getSessionById(currentSessionId) ?? navSessions[0] ?? courseSessions[0];
   const currentModuleSessions = getSessionsByModule(currentSession.module);
   const currentModuleCompleted = currentModuleSessions.filter((session) =>
     completed.has(session.id),
@@ -139,7 +157,7 @@ export function getProgressSummary(completed: Set<string>): ProgressSummary {
 
   return {
     completedCount: completed.size,
-    totalCount: courseSessions.length,
+    totalCount: navSessions.length,
     currentModule: currentSession.module,
     currentModuleCompleted,
     currentModuleTotal: currentModuleSessions.length,
@@ -151,8 +169,9 @@ export function getNextAvailableSession(
   currentSessionId: string,
   completed: Set<string>,
 ) {
-  const currentIndex = courseSessions.findIndex((session) => session.id === currentSessionId);
-  const afterCurrent = currentIndex >= 0 ? courseSessions.slice(currentIndex + 1) : courseSessions;
+  const navSessions = getSessions();
+  const currentIndex = navSessions.findIndex((session) => session.id === currentSessionId);
+  const afterCurrent = currentIndex >= 0 ? navSessions.slice(currentIndex + 1) : navSessions;
 
   const nextUnlocked = afterCurrent.find(
     (session) => !completed.has(session.id) && isSessionUnlocked(session.id, completed),
@@ -162,7 +181,7 @@ export function getNextAvailableSession(
     return nextUnlocked;
   }
 
-  return courseSessions.find(
+  return navSessions.find(
     (session) => !completed.has(session.id) && isSessionUnlocked(session.id, completed),
   );
 }

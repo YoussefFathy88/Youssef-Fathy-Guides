@@ -87,7 +87,7 @@ export function SessionSection({ id, label, children }: SessionSectionProps) {
               data-session-section="true"
               data-presentation-slide="true"
               data-session-section-label={label}
-              className="flex min-h-[calc(100dvh-8rem)] snap-start snap-always items-center py-6"
+              className="flex min-h-[calc(100dvh-8rem)] snap-start snap-always items-start py-10 sm:py-12 md:py-14"
             >
               <motion.div
                 key={`${slideId}-${revealCycle}`}
@@ -102,15 +102,16 @@ export function SessionSection({ id, label, children }: SessionSectionProps) {
                     },
                   },
                 }}
-                className="w-full overflow-y-auto rounded-[32px] border border-gray-800/80 bg-gray-950/70 px-6 py-8 shadow-[0_32px_80px_-48px_rgba(15,23,42,0.85)] backdrop-blur sm:px-8 sm:py-10 lg:px-12 lg:py-12"
+                className="w-full overflow-y-auto rounded-[32px] border border-gray-800/80 bg-gray-950/70 px-6 pb-10 pt-10 shadow-[0_32px_80px_-48px_rgba(15,23,42,0.85)] backdrop-blur sm:px-8 sm:pb-12 sm:pt-12 lg:px-12 lg:pb-14 lg:pt-14"
                 style={{ maxHeight: "calc(100dvh - 9rem)" }}
               >
-                <div className="mb-6 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.24em] text-violet-200/75">
-                  <span aria-hidden="true" className="h-2 w-2 rounded-full bg-violet-400" />
+                {/* Extra bottom padding under label so the slide title never sits flush under the rail / previous slide edge */}
+                <div className="mb-10 flex items-center gap-3 border-b border-gray-800/70 pb-8 text-xs font-semibold uppercase tracking-[0.24em] text-violet-200/75 sm:mb-12 sm:pb-10">
+                  <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full bg-violet-400" />
                   {label}
                 </div>
 
-                <div className="space-y-6">
+                <div className="flex flex-col gap-12 sm:gap-14">
                   {chunk.map((child, index) => (
                     <motion.div
                       key={`${slideId}-${revealCycle}-${index}`}
@@ -146,7 +147,10 @@ export function SessionSection({ id, label, children }: SessionSectionProps) {
         "[&:first-of-type]:border-transparent [&:first-of-type]:pt-0 [&:last-of-type]:pt-8",
       )}
     >
-      {children}
+      {/* Slide-style MDX stacks ## then diagram repeatedly; add air before each ## after the first block */}
+      <div className="flex flex-col [&>*+h2]:mt-16 sm:[&>*+h2]:mt-24">
+        {children}
+      </div>
     </motion.section>
   );
 }

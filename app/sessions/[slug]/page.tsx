@@ -78,12 +78,16 @@ import {
   SearchQuerySimulator,
   BytePairEncodingExplorer,
   ArchitectureEvolutionAnimator,
+  CNNImageSuccessDemo,
+  NNEquationDemo,
+  RNNCellUnrolledDiagram,
 } from "@/components/shared";
 import FNNAutocompleteDemo from "@/components/demos/FNNAutocompleteDemo";
 import ArchitectureComparisonDemo from "@/components/demos/ArchitectureComparisonDemo";
 import RNNAutocompleteDemo from "@/components/demos/RNNAutocompleteDemo";
 import { Container } from "@/components/ui/container";
 import { GridBackground } from "@/components/ui/grid-background";
+import { cn } from "@/lib/utils";
 import { getAllSessions, getSession } from "@/lib/sessions";
 
 type SessionRouteParams = Promise<{
@@ -209,6 +213,9 @@ function getMdxComponents(isPresentationMode: boolean) {
   BytePairEncodingExplorer,
   // Architecture evolution (why-transformer)
   ArchitectureEvolutionAnimator,
+  CNNImageSuccessDemo,
+  NNEquationDemo,
+  RNNCellUnrolledDiagram,
   // Diagram & code navigation components
   AlgorithmStepper,
     CallStackVisualizer,
@@ -224,8 +231,8 @@ function getMdxComponents(isPresentationMode: boolean) {
         data-session-slide-marker="h2"
         className={[
           isPresentationMode
-            ? "mb-4 text-balance text-4xl font-semibold text-white sm:mb-5 sm:text-5xl"
-            : "mb-3 text-balance text-[2.4rem] font-semibold leading-tight text-gray-950 dark:text-gray-50 sm:mb-4 sm:text-5xl",
+            ? "mb-0 text-balance text-4xl font-semibold leading-tight tracking-tight text-white sm:text-5xl"
+            : "mb-10 text-balance text-[2.4rem] font-semibold leading-tight tracking-tight text-gray-950 dark:text-gray-50 sm:mb-14 sm:text-5xl",
           className,
         ]
           .filter(Boolean)
@@ -324,6 +331,19 @@ function getMdxComponents(isPresentationMode: boolean) {
         ]
           .filter(Boolean)
           .join(" ")}
+      />
+    ),
+    img: ({ className, alt, ...props }: ComponentPropsWithoutRef<"img">) => (
+      <img
+        {...props}
+        alt={alt ?? ""}
+        className={cn(
+          "mx-auto block h-auto w-full max-w-5xl rounded-2xl border object-contain shadow-md",
+          isPresentationMode
+            ? "border-gray-700 bg-gray-950/50"
+            : "border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-950/80",
+          className,
+        )}
       />
     ),
   };

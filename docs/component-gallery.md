@@ -94,6 +94,8 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | Side-by-side keyword vs semantic search on a shared corpus — live input, score bars, animated results | `SearchQuerySimulator` |
 | Word-level vs BPE tokenization — live text input, staggered token pills, step-by-step merge breakdown, three "Why BPE Wins" cards | `BytePairEncodingExplorer` |
 | Six-panel animated walkthrough: Egypt sentence → CNN failure → RNN failure → Transformer success; `panel={N}` locks to one slide | `ArchitectureEvolutionAnimator` |
+| Animated 6×5 pixel grid with sliding 3×3 amber filter; activates green when filter covers a vertical-edge pattern; shows kernel + output feature map | `CNNImageSuccessDemo` |
+| Unrolled RNN SVG: h₀ → three cells “A” with 2×3-node mini-layers, xₜ/yₜ, amber state arrows + pulse | `RNNCellUnrolledDiagram` |
 
 **Flow diagrams:** prefer **`NodeFlowDiagram`** for free-form grouped graphs, or **`DualLanePipelineDiagram`** for side-by-side vertical pipelines with readable connectors between compact blocks. `PipelineTrack`, `LayerStack`, and `DataFlowDiagram` remain in the MDX registry for older sessions but are **not** previewed on `/component-gallery`.
 
@@ -175,6 +177,8 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | `SearchQuerySimulator` | Interactive | Text input + preset buttons; side-by-side keyword vs semantic results; animated score bars; per-column insights. |
 | `BytePairEncodingExplorer` | Interactive | Word-level vs BPE side-by-side; live text input; staggered token pills; step-by-step merge breakdown; three "Why BPE Wins" comparison cards. |
 | `ArchitectureEvolutionAnimator` | Interactive | Self-contained 6-panel animated story: problem → CNN idea → CNN failure → RNN idea → RNN failure → Transformer success. No props required. |
+| `CNNImageSuccessDemo` | Interactive | Animated 6×5 pixel grid; 3×3 filter slides over two vertical-edge patterns; turns green on match; output feature map updates in sync. No props. |
+| `RNNCellUnrolledDiagram` | Interactive | SVG unrolled RNN: initial h₀, three identical cells with two hidden layers × three nodes, inputs x₀–x₂ and outputs y₀–y₂; amber recurrent arrows with subtle pulse animation. No props. |
 
 ---
 
@@ -1756,7 +1760,7 @@ interface BytePairEncodingExplorerProps {}
 
 ### ArchitectureEvolutionAnimator
 
-**Description:** Six-panel animated SVG walkthrough — "Egypt is a country … What is its capital?" — teaching why Transformers exist. **Panel 0:** 8 key tokens appear (Egypt + "its" amber-highlighted), arc draws Egypt→"its", model outputs "The capital of Egypt is Cairo". **Panel 1:** gray token row + amber CNN window loops left→right. **Panel 2:** CNN window fixed on "What is its", red dotted line from "its" stopped at window edge ✗, wrong prediction. **Panel 3:** teal tokens, h box animates left→right with staggered arrows (opacity by recency) and gradient trail. **Panel 4:** h arrived at "its", depleted "Egypt" memory bar (~10%), wrong prediction. **Panel 5:** attention arcs from "its" — thick amber to "Egypt", thin gray to others, correct answer ✓.
+**Description:** Six-panel animated SVG walkthrough — "Egypt is a country … What is its capital?" — teaching why Transformers exist. **Panel 0:** 8 key tokens appear (Egypt + "its" amber-highlighted), arc draws Egypt→"its", model outputs "The capital of Egypt is Cairo". **Panel 1:** gray token row + amber CNN window loops left→right. **Panel 2:** CNN window fixed on "What is its", red dotted line from "its" stopped at window edge ✗, wrong prediction. **Panel 3:** conventional **unrolled RNN** — initial **h₀**, then **h₁…h₈** above each token, horizontal amber arrows **hₜ→hₜ₊₁**, vertical inputs from each token into that step (teal token pills); staggered fade-in. **Panel 4:** h arrived at "its", depleted "Egypt" memory bar (~10%), wrong prediction. **Panel 5:** attention arcs from "its" — thick amber to "Egypt", thin gray to others, correct answer ✓.
 
 Use **`panel={N}`** (0–5) to lock to a single panel with no navigation — ideal for one-diagram-per-slide MDX sessions. Omit `panel` to show all six with Prev / Next controls.
 
@@ -1765,4 +1769,26 @@ interface ArchitectureEvolutionAnimatorProps {
   /** 0–5: show only that panel, no nav. Omit for full multi-panel mode. */
   panel?: number;
 }
+```
+
+---
+
+### CNNImageSuccessDemo
+
+**Description:** Animated SVG showing how a CNN filter slides over a pixel grid. The 6×5 input image contains two vertical-edge patterns (at column 1 and column 4). A 3×3 filter cycles through 8 positions; its border turns green and a "✓ match!" label appears whenever it fully covers a pattern. The 3×3 kernel values are shown (vertical-edge detector: `[[0,1,0],[0,1,0],[0,1,0]]`). A 4×3 output feature map updates in sync, with activated cells tinted teal. A bottom caption explains translation invariance. No props — self-contained loop animation.
+
+```ts
+// No props required — fully self-contained.
+export default function CNNImageSuccessDemo(): JSX.Element
+```
+
+---
+
+### RNNCellUnrolledDiagram
+
+**Description:** Teaching diagram for “same recurrent cell unrolled over time.” Shows **h₀** feeding the first column, three side‑by‑side cells labeled **A — same weights**, each with **two layers of three teal nodes**, **yₜ** above and **xₜ** below, full connectivity between the two inner layers (schematic), horizontal **amber** arrows carrying **h₁, h₂…** between columns, and an ellipsis for longer sequences. Short footer line inside the SVG ties **xₜ** to **token embeddings** for LLMs. Uses scoped SVG marker IDs via **`useId()`**. No props.
+
+```ts
+// No props required — fully self-contained.
+export default function RNNCellUnrolledDiagram(): JSX.Element
 ```

@@ -33,6 +33,8 @@ export type CourseSession = {
   leadsTo: string[];
   youtubeId?: string;
   status: SessionStatus;
+  /** When true, `/sessions/{slug}` still works but the session is omitted from course lists (JourneyMap, etc.). */
+  hideFromCourseNav?: boolean;
 };
 
 export type OutlineItem = {

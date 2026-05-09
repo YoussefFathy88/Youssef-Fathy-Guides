@@ -71,3 +71,6 @@ export { default as SearchQuerySimulator } from "../session/SearchQuerySimulator
 export { default as BytePairEncodingExplorer } from "../session/BytePairEncodingExplorer";
 // Architecture evolution (why-transformer session)
 export { default as ArchitectureEvolutionAnimator } from "../session/ArchitectureEvolutionAnimator";
+export { default as CNNImageSuccessDemo } from "../session/CNNImageSuccessDemo";
+export { default as NNEquationDemo } from "../session/NNEquationDemo";
+export { default as RNNCellUnrolledDiagram } from "../session/RNNCellUnrolledDiagram";

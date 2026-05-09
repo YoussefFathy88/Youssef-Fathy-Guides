@@ -28,11 +28,18 @@ description: >-
 2. **Serializable props only** — no function props, no inline JSX in MDX props (breaks RSC/MDX compilation). Prefer strings, numbers, booleans, arrays, and plain objects.
 3. **Keep `docs/component-gallery.md` in sync** — any add/change/remove of session-facing components or their props must update that file in the **same change** as the code. Update `docs/session-template.md` only when **session-level** authoring rules change (see `CLAUDE.md`).
 4. **Six sections in order** — `goal` → `big-picture` → `core-concepts` → `practical-example` → `recap` → `next-session` (`SessionSection` ids).
+5. **Diagram clarity** — fonts legible at video scale; diagram layout uncluttered; animations easy to follow; **spacing between `##` titles and diagrams is mandatory** (see `docs/session-template.md` § Diagram clarity and `.cursor/rules/ppt-title-diagram-only.mdc`).
 
 ## New session checklist
 
 1. Add `content/sessions/module-{N}/{index}-{slug}.mdx` (frontmatter + six sections).
-2. Add the matching entry in `data/sessions.ts`.
+2. Add the matching entry in `data/sessions.ts` (optional `hideFromCourseNav: true` to keep a session file + route but omit it from the course journey list — see `docs/session-template.md`).
+
+## Session static images
+
+- Put PNG/JPEG/WebP under **`public/sessions/module-{N}/{session-short-name}/`** (see `public/sessions/README.md`).
+- Reference with a root-relative **`src`**: `/sessions/module-1/why-transformer/example.png`.
+- The MDX **`img`** element is styled in `getMdxComponents` (article + presenter); always set a descriptive **`alt`**.
 
 ## Wiring a new interactive (registry)
 

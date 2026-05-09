@@ -8,7 +8,7 @@ duration: "22 min"
 difficulty: "intermediate"
 tags: ["attention", "transformer", "encoder-decoder"]
 nextSession: "how-llms-are-trained"
-prevSession: "why-transformer"
+prevSession: "embeddings"
 ---
 
 {/* ═══════════════════════════════════════════════════════════════
@@ -19,7 +19,7 @@ prevSession: "why-transformer"
 
 ## Trace a sentence from raw text to the predicted next token
 
-Every LLM you use — GPT, Claude, Gemini — runs on the Transformer. The previous session explained why recurrent bottlenecks broke at scale; this one is the full 2017 *Attention Is All You Need* machine: how order is injected, how encoder and decoder stacks talk through attention, and how logits become the next token.
+Every LLM you use — GPT, Claude, Gemini — runs on the Transformer. You already have embeddings as vectors; this session is the full 2017 *Attention Is All You Need* machine: how order is injected, how encoder and decoder stacks talk through attention, and how logits become the next token.
 
 By the end, you can follow one sentence through tokenization, embeddings, positional encoding, encoder and decoder stacks, and the final vocabulary scores — and know why each stage exists.
 

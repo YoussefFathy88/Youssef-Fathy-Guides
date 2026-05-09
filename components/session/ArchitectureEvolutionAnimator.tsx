@@ -22,7 +22,7 @@ const PANELS = [
   { title: "The problem: predict Egypt's capital",           caption: "The model must resolve 'its' back to 'Egypt'" },
   { title: "CNN: a window slides over the text",             caption: "CNN sees only 3 consecutive tokens at a time" },
   { title: "CNN cannot reach back to 'Egypt'",               caption: "'Egypt' is 6 tokens back — outside any short window" },
-  { title: "RNN: hidden state carries all history",           caption: "Every new token updates the same state h, left to right" },
+  { title: "RNN: unrolled — one hidden vector per step",      caption: "Each hₜ comes from hₜ₋₁ and the current token — same cell every time" },
   { title: "RNN: Egypt's signal fades before 'its'",         caption: "6 overwrites later — Egypt's memory is ~10%" },
   { title: "Transformer: 'its' attends directly to 'Egypt'", caption: "One parallel pass — full strength, no distance penalty" },
 ] as const;
@@ -33,7 +33,6 @@ const STYLES = `
 .aae-fade { animation:aae-fadeIn  0.5s ease-out both; }
 .aae-up   { animation:aae-slideUp 0.5s ease-out both; }
 .aae-cnn  { animation:aae-cnn    4.2s linear infinite; }
-.aae-h    { animation:aae-h      4.0s linear forwards; }
 
 @keyframes aae-tokApp  { from{opacity:0;transform:scale(.8)} to{opacity:1;transform:scale(1)} }
 @keyframes aae-fadeIn  { from{opacity:0} to{opacity:1} }
@@ -46,17 +45,6 @@ const STYLES = `
   42.9%,57.1% { transform:translateX(225px); }
   57.2%,71.4% { transform:translateX(300px); }
   71.5%,100%  { transform:translateX(375px); }
-}
-
-@keyframes aae-h {
-  0%         { transform:translateX(0px);   }
-  12.5%      { transform:translateX(75px);  }
-  25%        { transform:translateX(150px); }
-  37.5%      { transform:translateX(225px); }
-  50%        { transform:translateX(300px); }
-  62.5%      { transform:translateX(375px); }
-  75%        { transform:translateX(450px); }
-  87.5%,100% { transform:translateX(525px); }
 }
 
 @keyframes aae-arcIn {
@@ -284,64 +272,171 @@ function P3() {
 }
 
 /* ══════════════════════════════════════════════
-   PANEL 3 — RNN: The Idea
-   h box travels left → right, absorbing each token;
-   gradient trail shows fading influence of earlier tokens
+   PANEL 3 — RNN: conventional unrolled view
+   h₀ → h₁ → … → h₈ above each timestep; horizontal recurrence;
+   each token feeds upward into that step (same recurrence cell).
 ══════════════════════════════════════════════ */
+const H_SUB = ["₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈"] as const;
+
+/** Right-pointing arrow: shaft then triangular tip at tipX (left edge of next node). */
+function ArrowRight({
+  y,
+  xStart,
+  tipX,
+  delay,
+}: {
+  y: number;
+  xStart: number;
+  tipX: number;
+  delay: string;
+}) {
+  const gap = tipX - xStart;
+  if (gap < 1) return null;
+  const tipW = Math.min(9, Math.max(3.5, gap * 0.5));
+  const shaftEnd = tipX - tipW;
+  return (
+    <g className="aae-fade" style={{ animationDelay: delay }}>
+      {shaftEnd > xStart + 0.5 && (
+        <line
+          x1={xStart}
+          y1={y}
+          x2={shaftEnd}
+          y2={y}
+          stroke={AMBER}
+          strokeWidth={2}
+          strokeLinecap="round"
+        />
+      )}
+      <polygon
+        points={`${tipX},${y} ${tipX - tipW},${y - 5} ${tipX - tipW},${y + 5}`}
+        fill={AMBER}
+      />
+    </g>
+  );
+}
+
+/** Upward flow token → hₜ: shaft from token bottom, triangular tip just under h box bottom edge. */
+function ArrowUp({
+  x,
+  yFrom,
+  boxBottomY,
+  delay,
+}: {
+  x: number;
+  yFrom: number;
+  boxBottomY: number;
+  delay: string;
+}) {
+  const head = 8;
+  const tipY = boxBottomY - 2;
+  const baseY = tipY + head;
+  if (baseY >= yFrom - 1) return null;
+  return (
+    <g className="aae-fade" style={{ animationDelay: delay }} opacity={0.92}>
+      <line
+        x1={x}
+        y1={yFrom}
+        x2={x}
+        y2={baseY}
+        stroke={AMBER}
+        strokeWidth={1.75}
+        strokeLinecap="round"
+      />
+      <polygon points={`${x},${tipY} ${x - 5.5},${baseY} ${x + 5.5},${baseY}`} fill={AMBER} />
+    </g>
+  );
+}
+
 function P4() {
-  const ty = 200;
-  const hy = 112; // h-box center-y
-  const hw = 52, hh = 32;
+  const ty = 186;
+  const hy = 72;
+  const hw = 38;
+  const hh = 26;
+  /* Circle fully left of h₁ so edge→edge segment runs left→right */
+  const h0cx = 11;
+  const h0r = 10;
+
+  const h0Right = h0cx + h0r;
+  const h1Left = TX[0] - hw / 2;
 
   return (
     <svg viewBox="0 0 780 260" width="100%" height="100%">
-      <defs>
-        <linearGradient id="aae-trail"
-          x1={TX[0]} y1="0" x2={TX[7]} y2="0" gradientUnits="userSpaceOnUse"
+      {/* Horizontal recurrence — drawn behind h nodes */}
+      <g>
+        <ArrowRight y={hy} xStart={h0Right} tipX={h1Left} delay="0.2s" />
+        {TOKENS.slice(0, -1).map((_, i) => (
+          <ArrowRight
+            key={`hh-${i}`}
+            y={hy}
+            xStart={TX[i] + hw / 2}
+            tipX={TX[i + 1]! - hw / 2}
+            delay={`${0.28 + i * 0.16}s`}
+          />
+        ))}
+      </g>
+
+      {/* h₀ initial state */}
+      <g className="aae-fade" style={{ animationDelay: "0.05s" }}>
+        <circle cx={h0cx} cy={hy} r={h0r} fill="#FFF7E8" stroke={AMBER} strokeWidth={2} />
+        <text
+          x={h0cx}
+          y={hy + 1}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fill={AMBER}
+          fontSize={12}
+          fontWeight={700}
+          fontFamily="ui-sans-serif,sans-serif"
         >
-          <stop offset="0%"   stopColor={AMBER} stopOpacity={0.06} />
-          <stop offset="100%" stopColor={AMBER} stopOpacity={0.90} />
-        </linearGradient>
-        <marker id="aae-hArr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-          <polygon points="0 0,8 3,0 6" fill={AMBER} />
-        </marker>
-      </defs>
-
-      {/* Token row */}
-      {TOKENS.map((_, i) => <Pill key={i} i={i} ty={ty} />)}
-
-      {/* Gradient trail: Egypt end is very faint, "capital" end is vivid */}
-      <line
-        x1={TX[0]} y1={hy} x2={TX[7]} y2={hy}
-        stroke="url(#aae-trail)" strokeWidth={2} strokeDasharray="6 4"
-      />
-      <text x={TX[0] + 2} y={hy - 14}
-        fill={AMBER} fontSize={10.5} fontFamily="ui-sans-serif,sans-serif" fontWeight={600}>
-        memory fades ←
-      </text>
-
-      {/* Upward arrows, staggered; opacity fades for earlier tokens */}
-      {TOKENS.map((_, i) => (
-        <line key={i}
-          x1={TX[i]} y1={ty - TH / 2}
-          x2={TX[i]} y2={hy + hh / 2}
-          stroke={AMBER} strokeWidth={1.5}
-          opacity={0.14 + (i / 7) * 0.86}
-          markerEnd="url(#aae-hArr)"
-          className="aae-fade"
-          style={{ animationDelay: `${i * 0.5}s` }}
-        />
-      ))}
-
-      {/* Moving h box */}
-      <g className="aae-h">
-        <rect x={TX[0] - hw / 2} y={hy - hh / 2} width={hw} height={hh} rx={8}
-          fill="#FFF7E8" stroke={AMBER} strokeWidth={2} />
-        <text x={TX[0]} y={hy} textAnchor="middle" dominantBaseline="middle"
-          fill={AMBER} fontSize={17} fontWeight={700} fontFamily="ui-sans-serif,sans-serif">
-          h
+          h₀
         </text>
       </g>
+
+      {/* h₁ … h₈ above each token */}
+      {TOKENS.map((_, i) => (
+        <g key={`hb-${i}`} className="aae-fade" style={{ animationDelay: `${0.15 + i * 0.16}s` }}>
+          <rect
+            x={TX[i] - hw / 2}
+            y={hy - hh / 2}
+            width={hw}
+            height={hh}
+            rx={7}
+            fill="#FFF7E8"
+            stroke={AMBER}
+            strokeWidth={2}
+          />
+          <text
+            x={TX[i]}
+            y={hy + 1}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fill={AMBER}
+            fontSize={13}
+            fontWeight={700}
+            fontFamily="ui-sans-serif,sans-serif"
+          >
+            {`h${H_SUB[i]}`}
+          </text>
+        </g>
+      ))}
+
+      {/* xₜ → upward (shaft starts above token pills so arrows don’t pierce pills) */}
+      <g>
+        {TOKENS.map((_, i) => (
+          <ArrowUp
+            key={`xu-${i}`}
+            x={TX[i]}
+            yFrom={ty - TH / 2 - 8}
+            boxBottomY={hy + hh / 2}
+            delay={`${0.22 + i * 0.14}s`}
+          />
+        ))}
+      </g>
+
+      {/* Token row (inputs) */}
+      {TOKENS.map((_, i) => (
+        <Pill key={`tok-${i}`} i={i} ty={ty} />
+      ))}
     </svg>
   );
 }
