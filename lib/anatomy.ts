@@ -44,14 +44,14 @@ export const ANATOMY_MODULES: readonly AnatomyModule[] = [
       },
       {
         id: "brain-04",
-        title: "The Problem the Transformer Solved",
-        slug: "why-transformer",
+        title: "Transformer I",
+        slug: "transformer-attention",
         status: "available",
       },
       {
         id: "brain-05",
-        title: "The Transformer: Attention Is All You Need",
-        slug: "transformer-attention",
+        title: "Transformer II",
+        slug: "transformer-attention-2",
         status: "available",
       },
       {

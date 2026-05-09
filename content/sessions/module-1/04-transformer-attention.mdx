@@ -1,13 +1,13 @@
 ---
-title: "The Transformer: Attention Is All You Need"
+title: "Transformer 1: Encoder Foundations"
 slug: "transformer-attention"
 module: 1
 moduleName: "The Engine Room"
 sessionNumber: 5
-duration: "22 min"
+duration: "14 min"
 difficulty: "intermediate"
-tags: ["attention", "transformer", "encoder-decoder"]
-nextSession: "how-llms-are-trained"
+tags: ["attention", "transformer", "encoder", "self-attention"]
+nextSession: "transformer-attention-2"
 prevSession: "embeddings"
 ---
 
@@ -17,13 +17,6 @@ prevSession: "embeddings"
 
 <SessionSection id="goal" label="Goal">
 
-## Trace a sentence from raw text to the predicted next token
-
-Every LLM you use — GPT, Claude, Gemini — runs on the Transformer. You already have embeddings as vectors; this session is the full 2017 *Attention Is All You Need* machine: how order is injected, how encoder and decoder stacks talk through attention, and how logits become the next token.
-
-By the end, you can follow one sentence through tokenization, embeddings, positional encoding, encoder and decoder stacks, and the final vocabulary scores — and know why each stage exists. The running example is **The capital of Egypt is Cairo** (six word-level tokens for clarity).
-
-The lesson path in **Core Concepts** follows that pipeline: **tokens → IDs**, **embeddings as vectors**, **positional encoding**, then **self-attention** (Q/K/V), then **one encoder layer** and **one decoder layer** as interactive stacks, and finally the **full pipeline** walkthrough that ties everything together.
 
 </SessionSection>
 
@@ -34,7 +27,7 @@ The lesson path in **Core Concepts** follows that pipeline: **tokens → IDs**, 
 
 <SessionSection id="big-picture" label="Big Picture">
 
-## The six-stage pipeline from raw text to the next token
+## Big picture: from raw text to model understanding
 
 <NodeFlowDiagram
   diagramId="raw-text-to-predicted-token-pipeline"
@@ -136,185 +129,11 @@ The lesson path in **Core Concepts** follows that pipeline: **tokens → IDs**, 
   title=""
 />
 
-## What's attention?
+## What's Self-attention?
 
 <SelfAttentionScoreExplorer title="" />
 
-## Encoder block: one layer, two residuals
 
-<TransformerSubstackExplorer
-  variant="encoder"
-  title="Encoder — self-attention, feed-forward, residuals"
-  layerCount={6}
-  minimal
-/>
-
-## Decoder block: masked attention, cross-attention, FFN
-
-<TransformerSubstackExplorer
-  variant="decoder"
-  title="Decoder — mask, cross-attend, refine"
-  layerCount={6}
-  minimal
-/>
-
-</SessionSection>
-
-
-{/* ═══════════════════════════════════════════════════════════════
-    SECTION 4 — PRACTICAL EXAMPLE
-    ═══════════════════════════════════════════════════════════════ */}
-
-<SessionSection id="practical-example" label="Practical Example">
-
-## Every concept, one sentence, one flow
-
-<TransformerPipelineWalkthrough
-  title='"The capital of Egypt is" — full pipeline, one step at a time'
-  hideStepNarrative
-  inputText="The capital of Egypt is"
-  outputToken="Cairo"
-  outputProbabilityPct={48}
-  stages={[
-    {
-      id: "raw",
-      label: "Raw text",
-      sublabel: "input string",
-      color: "gray",
-      internals: []
-    },
-    {
-      id: "tok",
-      label: "Tokenizer",
-      sublabel: "text → IDs",
-      color: "gray",
-      internals: [
-        { label: "Word tokens (teaching)", detail: "Same six-word split as Core Concepts — real models often use subwords" },
-        { label: "6 tokens", detail: "The / capital / of / Egypt / is / Cairo" },
-        { label: "Integer IDs", detail: "Each token maps to a row in the vocabulary table" }
-      ]
-    },
-    {
-      id: "emb",
-      label: "Embeddings",
-      sublabel: "meaning vectors",
-      color: "teal",
-      internals: [
-        { label: "512-dim each", detail: "Each integer becomes a 512-number vector" },
-        { label: "Learned table", detail: "50k rows trained on billions of tokens" },
-        { label: "Pos encoding added", detail: "Sine/cosine position vectors added to meaning vectors" }
-      ]
-    },
-    {
-      id: "enc",
-      label: "Encoder",
-      sublabel: "understand all",
-      color: "violet",
-      internals: [
-        { label: "Self-attention ×6", detail: "Every token attends to every other — e.g. capital pulls Egypt; is links capital and Cairo" },
-        { label: "8 heads parallel", detail: "8 relationship types captured simultaneously per layer" },
-        { label: "FFN + residual", detail: "Per-token refinement with original signal preserved" }
-      ]
-    },
-    {
-      id: "dec",
-      label: "Decoder",
-      sublabel: "generate next",
-      color: "amber",
-      internals: [
-        { label: "Masked attention", detail: "Only attends to already-generated tokens — no future peeking" },
-        { label: "Cross-attention", detail: "Decoder queries encoder memory — K and V come from encoder output" },
-        { label: "FFN + residual ×6", detail: "Same structure as encoder, repeated 6 times" }
-      ]
-    },
-    {
-      id: "out",
-      label: "\"Cairo\"",
-      sublabel: "48% probability",
-      color: "teal",
-      internals: []
-    }
-  ]}
-  steps={[
-    {
-      id: "s1",
-      label: "① Raw text enters",
-      description: "The sentence \"The capital of Egypt is Cairo\" is the raw input. The model cannot read letters or words — it needs integers. The tokenizer handles that conversion next.",
-      activeStageId: "raw",
-      activeInternalId: null
-    },
-    {
-      id: "s2",
-      label: "② Tokenizer — text becomes 6 integer IDs",
-      description: "Here we use six word tokens for teaching (matching earlier slides). Each maps to an integer in the vocabulary. The model reads only these integers — never letters as raw characters.",
-      activeStageId: "tok",
-      activeInternalId: "Word tokens (teaching)"
-    },
-    {
-      id: "s3",
-      label: "③ Embeddings — integers become meaning",
-      description: "Each integer is looked up in a learned 50,000-row table and becomes a 512-number vector. Related geography words would land nearby in vector space after training.",
-      activeStageId: "emb",
-      activeInternalId: "512-dim each"
-    },
-    {
-      id: "s4",
-      label: "④ Positional encoding — order is added",
-      description: "Because the Transformer reads all six tokens at once, it has no built-in sense of order. A second 512-number vector per position is added to each embedding so \"capital of Egypt\" stays directional.",
-      activeStageId: "emb",
-      activeInternalId: "Pos encoding added"
-    },
-    {
-      id: "s5",
-      label: "⑤ Encoder — self-attention runs",
-      description: "All six combined vectors enter the encoder simultaneously. Self-attention spreads context — for example linking capital with Egypt and Cairo with is.",
-      activeStageId: "enc",
-      activeInternalId: "Self-attention ×6"
-    },
-    {
-      id: "s6",
-      label: "⑥ 8 heads — 8 relationship types at once",
-      description: "Multi-head attention runs 8 independent attention operations in parallel. Different heads can emphasize geography, syntax, or equality cues before merging back to 512 dimensions.",
-      activeStageId: "enc",
-      activeInternalId: "8 heads parallel"
-    },
-    {
-      id: "s7",
-      label: "⑦ 6 encoder layers — deep context refinement",
-      description: "The attention + FFN + residual cycle repeats 6 times. By layer 6, every token's vector has been refined by 6 rounds of global attention.",
-      activeStageId: "enc",
-      activeInternalId: "FFN + residual"
-    },
-    {
-      id: "s8",
-      label: "⑧ Decoder — masked attention on past output",
-      description: "The decoder generates one token at a time. Masked self-attention prevents peeking at future outputs.",
-      activeStageId: "dec",
-      activeInternalId: "Masked attention"
-    },
-    {
-      id: "s9",
-      label: "⑨ Cross-attention — decoder reads encoder memory",
-      description: "The decoder grounds generation in the encoder output — Queries from the decoder attend over Keys and Values built from the source sentence.",
-      activeStageId: "dec",
-      activeInternalId: "Cross-attention"
-    },
-    {
-      id: "s10",
-      label: "⑩ Feed-forward × 6 decoder layers",
-      description: "After 6 decoder layers, the final hidden state maps through a linear layer to raw scores over roughly 50,000 vocabulary entries.",
-      activeStageId: "dec",
-      activeInternalId: "FFN + residual ×6"
-    },
-    {
-      id: "s11",
-      label: "⑪ Softmax → \"Cairo\" at 48%",
-      description: "Softmax turns logits into probabilities. Here \"Cairo\" ranks highest as the next token after \"The capital of Egypt is\" — then generation continues with the updated context window.",
-      activeStageId: "out",
-      activeInternalId: null
-    }
-  ]}
-/>
 
 </SessionSection>
 
@@ -334,24 +153,8 @@ The lesson path in **Core Concepts** follows that pipeline: **tokens → IDs**, 
       definition: "Each token builds Q, K, and V vectors, scores all keys with its query, softmaxes the scores, and blends the values — producing one context-aware output vector per token."
     },
     {
-      term: "Masked self-attention (decoder)",
-      definition: "In the decoder, each position may only attend to itself and earlier positions so the model cannot peek at future tokens while generating left-to-right."
-    },
-    {
-      term: "Multi-head attention",
-      definition: "8 independent attention heads run in parallel on 64-dim slices of the input, then concatenate and project — capturing 8 different relationship types in one layer."
-    },
-    {
       term: "Positional encoding",
       definition: "Sine and cosine vectors computed from each token's position index, added to its embedding so the model knows word order despite reading all tokens at once."
-    },
-    {
-      term: "Residual connection",
-      definition: "The sub-layer's input is added to its output before normalization, preserving the original signal across all 6 stacked layers so nothing is lost during deep training."
-    },
-    {
-      term: "Cross-attention",
-      definition: "The decoder's attention mechanism where Queries come from the decoder's own state but Keys and Values come from the encoder output — the bridge that grounds generation in the source."
     }
   ]}
 />
@@ -366,9 +169,9 @@ The lesson path in **Core Concepts** follows that pipeline: **tokens → IDs**, 
 <SessionSection id="next-session" label="Next Session">
 
 <NextSessionCard
-  title="Training LLMs — From Data to Aligned Models"
-  slug="how-llms-are-trained"
-  teaser="You have the forward pass; next we follow the pipeline that creates those weights — data, pre-training, instruction tuning, alignment, and what ships to production."
+  title="Transformer 2: Decoder and Full Generation Pass"
+  slug="transformer-attention-2"
+  teaser="You have encoder foundations in place. Next we add masked attention, cross-attention, and complete next-token generation from logits to output."
   module={1}
 />
 

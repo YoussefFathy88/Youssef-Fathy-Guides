@@ -1,0 +1,288 @@
+---
+title: "Transformer 2: Decoder and Generation"
+slug: "transformer-attention-2"
+module: 1
+moduleName: "The Engine Room"
+sessionNumber: 6
+duration: "14 min"
+difficulty: "intermediate"
+tags: ["transformer", "decoder", "cross-attention", "generation"]
+nextSession: "how-llms-are-trained"
+prevSession: "transformer-attention"
+---
+
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 1 — GOAL
+    ═══════════════════════════════════════════════════════════════ */}
+
+<SessionSection id="goal" label="Goal">
+
+## Complete the Transformer loop from encoder memory to next-token output
+
+</SessionSection>
+
+
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 2 — BIG PICTURE
+    ═══════════════════════════════════════════════════════════════ */}
+
+<SessionSection id="big-picture" label="Big Picture">
+
+## Big picture: from raw text to model understanding
+
+<NodeFlowDiagram
+  diagramId="raw-text-to-predicted-token-pipeline"
+  title="The six stages: raw text to predicted token"
+  height={540}
+  hideStepNarrative
+  nodes={[
+    { id: "tokenize", label: "Tokenize", sublabel: "text → IDs", x: 10, y: 34, color: "gray", shape: "rect", size: "sm", emoji: "🔤" },
+    { id: "embed", label: "Embed", sublabel: "IDs → vectors", x: 26, y: 34, color: "teal", shape: "rect", size: "sm", emoji: "📊" },
+    { id: "posenc", label: "Positional encode", sublabel: "add order", x: 44, y: 34, color: "rose", shape: "rect", size: "sm", emoji: "📍" },
+    { id: "encode", label: "Encode", sublabel: "understand all", x: 64, y: 34, color: "violet", shape: "rect", size: "sm", emoji: "🧠" },
+    { id: "decode", label: "Decode", sublabel: "generate next", x: 52, y: 72, color: "amber", shape: "rect", size: "sm", emoji: "✍️" },
+    { id: "predict", label: "Predict", sublabel: "scores → token", x: 76, y: 72, color: "blue", shape: "rect", size: "sm", emoji: "🎯" },
+  ]}
+  edges={[
+    { from: "tokenize", to: "embed", animated: true, color: "gray" },
+    { from: "embed", to: "posenc", animated: true, color: "teal" },
+    { from: "posenc", to: "encode", animated: true, color: "rose" },
+    { from: "encode", to: "decode", animated: true, color: "violet" },
+    { from: "decode", to: "predict", animated: true, color: "amber" },
+  ]}
+  steps={[
+    {
+      id: "s1",
+      label: "Tokenize — text → IDs",
+      description: "The sentence is split into tokens — subword pieces — each mapped to an integer. This is the only form the model can read.",
+      highlightNodes: ["tokenize"],
+      highlightEdges: [],
+    },
+    {
+      id: "s2",
+      label: "Embed — IDs → vectors",
+      description: "Each integer is looked up in a learned table and becomes a dense vector that encodes its meaning. Similar words end up with similar vectors.",
+      highlightNodes: ["tokenize", "embed"],
+      highlightEdges: ["tokenize→embed"],
+    },
+    {
+      id: "s3",
+      label: "Positional encode — add order",
+      description: "The Transformer sees all tokens at once, so embeddings alone do not say whether \"capital\" came before \"of\". A fixed vector from the token's index (sine/cosine at different frequencies) is added to each embedding so order is explicit before attention runs.",
+      highlightNodes: ["tokenize", "embed", "posenc"],
+      highlightEdges: ["tokenize→embed", "embed→posenc"],
+    },
+    {
+      id: "s4",
+      label: "Encode — understand all",
+      description: "The encoder reads every token at once. Self-attention lets every word attend to every other word — building a rich understanding of the full sentence.",
+      highlightNodes: ["tokenize", "embed", "posenc", "encode"],
+      highlightEdges: ["tokenize→embed", "embed→posenc", "posenc→encode"],
+    },
+    {
+      id: "s5",
+      label: "Decode — generate next",
+      description: "The decoder generates one token at a time. It uses masked attention (only past tokens) and cross-attention (reads the encoder's memory).",
+      highlightNodes: ["tokenize", "embed", "posenc", "encode", "decode"],
+      highlightEdges: ["tokenize→embed", "embed→posenc", "posenc→encode", "encode→decode"],
+    },
+    {
+      id: "s6",
+      label: "Predict — scores → token",
+      description: "A linear layer produces one score per vocabulary word (often tens of thousands). Softmax converts them to probabilities. The highest-scoring token is selected.",
+      highlightNodes: ["tokenize", "embed", "posenc", "encode", "decode", "predict"],
+      highlightEdges: ["tokenize→embed", "embed→posenc", "posenc→encode", "encode→decode", "decode→predict"],
+    },
+  ]}
+/>
+
+</SessionSection>
+
+
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 3 — CORE CONCEPTS
+    ═══════════════════════════════════════════════════════════════ */}
+
+<SessionSection id="core-concepts" label="Core Concepts">
+
+## Encoder bridge: the memory we pass into generation
+
+<TransformerSubstackExplorer
+  variant="encoder"
+  title="Encoder recap — build context memory"
+  layerCount={6}
+  minimal
+/>
+
+## Decoder block: masked attention, cross-attention, FFN
+
+<TransformerSubstackExplorer
+  variant="decoder"
+  title="Decoder — mask, cross-attend, refine"
+  layerCount={6}
+  minimal
+/>
+
+
+</SessionSection>
+
+
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 4 — PRACTICAL EXAMPLE
+    ═══════════════════════════════════════════════════════════════ */}
+
+<SessionSection id="practical-example" label="Practical Example">
+
+## Full pass: start at encoder, end at predicted token
+
+<TransformerPipelineWalkthrough
+  title='"The capital of Egypt is" — decoder to next token'
+  hideStepNarrative
+  inputText="The capital of Egypt is"
+  outputToken="Cairo"
+  outputProbabilityPct={48}
+  stages={[
+    {
+      id: "raw",
+      label: "Raw text",
+      sublabel: "input string",
+      color: "gray",
+      internals: []
+    },
+    {
+      id: "tok",
+      label: "Tokenizer",
+      sublabel: "text → IDs",
+      color: "gray",
+      internals: [
+        { label: "Word tokens (teaching)", detail: "Same six-word split as Session 1 — real models often use subwords" },
+        { label: "6 tokens", detail: "The / capital / of / Egypt / is / Cairo" },
+        { label: "Integer IDs", detail: "Each token maps to a row in the vocabulary table" }
+      ]
+    },
+    {
+      id: "emb",
+      label: "Embeddings",
+      sublabel: "meaning vectors",
+      color: "teal",
+      internals: [
+        { label: "512-dim each", detail: "Each integer becomes a 512-number vector" },
+        { label: "Learned table", detail: "50k rows trained on billions of tokens" },
+        { label: "Pos encoding added", detail: "Sine/cosine vectors preserve order" }
+      ]
+    },
+    {
+      id: "enc",
+      label: "Encoder",
+      sublabel: "build memory",
+      color: "violet",
+      internals: [
+        { label: "Self-attention ×6", detail: "Every token attends globally to build context memory" },
+        { label: "Residual pathways", detail: "Two residual adds per layer preserve and refine signal" },
+        { label: "Encoder output", detail: "Context-rich vectors exposed to decoder via cross-attention" }
+      ]
+    },
+    {
+      id: "dec",
+      label: "Decoder",
+      sublabel: "generate next",
+      color: "amber",
+      internals: [
+        { label: "Masked attention", detail: "Only attends to already-generated tokens — no future peeking" },
+        { label: "Cross-attention", detail: "Decoder queries encoder memory — K and V come from encoder output" },
+        { label: "FFN + residual ×6", detail: "Layered refinement before output projection" }
+      ]
+    },
+    {
+      id: "out",
+      label: "\"Cairo\"",
+      sublabel: "48% probability",
+      color: "teal",
+      internals: []
+    }
+  ]}
+  steps={[
+    {
+      id: "s1",
+      label: "① Start from encoder output",
+      description: "Begin at the encoder stack output: each token vector already contains sentence-wide context built through self-attention and residual refinement.",
+      activeStageId: "enc",
+      activeInternalId: "Encoder output"
+    },
+    {
+      id: "s2",
+      label: "② Decoder applies causal masking",
+      description: "At generation step t, the decoder sees only tokens 1..t and blocks attention to future positions.",
+      activeStageId: "dec",
+      activeInternalId: "Masked attention"
+    },
+    {
+      id: "s3",
+      label: "③ Cross-attention reads source context",
+      description: "Decoder queries pull relevant information from encoder memory so output remains grounded in the input sequence.",
+      activeStageId: "dec",
+      activeInternalId: "Cross-attention"
+    },
+    {
+      id: "s4",
+      label: "④ Output head picks the next token",
+      description: "Final decoder state maps to logits over vocabulary; softmax gives probabilities and selects the most likely token.",
+      activeStageId: "out",
+      activeInternalId: null
+    },
+  ]}
+/>
+
+</SessionSection>
+
+
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 5 — RECAP
+    ═══════════════════════════════════════════════════════════════ */}
+
+<SessionSection id="recap" label="Recap">
+
+## What we covered
+
+<RecapTable
+  rows={[
+    {
+      term: "Masked self-attention (decoder)",
+      definition: "In the decoder, each position may only attend to itself and earlier positions, preventing information leakage from future tokens."
+    },
+    {
+      term: "Cross-attention",
+      definition: "Decoder queries attend over encoder keys/values, making generation depend on source context instead of decoder history alone."
+    },
+    {
+      term: "Autoregressive generation",
+      definition: "The model predicts one token at a time, appends it to context, and repeats until an end condition is met."
+    },
+    {
+      term: "Logits and softmax",
+      definition: "A linear layer outputs raw vocabulary scores (logits), and softmax converts them to a probability distribution for token selection."
+    },
+    {
+      term: "Training-inference alignment",
+      definition: "Causal masking ensures decoder training constraints match runtime constraints, so behavior transfers reliably to real generation."
+    }
+  ]}
+/>
+
+</SessionSection>
+
+
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 6 — NEXT SESSION
+    ═══════════════════════════════════════════════════════════════ */}
+
+<SessionSection id="next-session" label="Next Session">
+
+<NextSessionCard
+  title="Training LLMs — From Data to Aligned Models"
+  slug="how-llms-are-trained"
+  teaser="Now that the forward pass is complete, we follow the factory that creates those weights: data, pre-training, instruction tuning, alignment, and deployment."
+  module={1}
+/>
+
+</SessionSection>
