@@ -1,0 +1,35 @@
+---
+description: Session & video UI — large type, strong contrast, generous blocks for YouTube and presenter mode
+globs:
+  - components/session/**/*.tsx
+  - components/shared/**/*.tsx
+  - app/sessions/**/*.tsx
+  - app/component-gallery/**/*.tsx
+alwaysApply: true
+---
+
+# Session and video UI legibility
+
+This project’s sessions are recorded and viewed in **presenter mode** and on **YouTube**. Any **user-visible** UI in session components, the session page shell, gallery demos, or MDX-driven interactives must stay **readable at a glance** (1080p, sometimes mobile).
+
+## Typography (must-follow)
+
+- **Avoid tiny primary copy**: Do not use `text-xs`, `text-[10px]`, or `text-[11px]` for **essential** teaching text, labels that identify data, or table headers. If something must be de-emphasized, it may be one step smaller than body—but never the only explanation of a concept.
+- **Body / explanations**: Prefer **`text-base` minimum** (`16px`); use **`md:text-lg`** for main explanatory paragraphs inside slide-scale panels.
+- **Headings inside components** (in-panel `h2`/`h3`): Prefer **`text-lg md:text-xl`** (or larger) with **`font-semibold`**.
+- **Uppercase section labels** (e.g. “TOKENS”, “LOOKUP”): **`text-sm md:text-base`**, **`font-bold`**, letter-spacing for scanability—not microscopic caps.
+- **Numeric / monospace data** (embeddings, logits, PE tables, IDs): **`font-mono`** at **`text-base md:text-lg`** minimum; consider **per-value pills** or extra padding so digits do not blur together on video.
+
+## Blocks, spacing, and contrast
+
+- **Outer panels**: At least **`p-6`**; for full-slide interactives prefer **`p-8 md:p-10`** and **`space-y-6`–`space-y-10`** between major sections.
+- **Chips / pills / buttons**: Large tap targets—**`py-3 px-4` minimum**, often **`md:py-4 md:px-6`**; use **`text-lg md:text-2xl`** for hero token/word rows when the slide is token-focused; subtle **`ring-1`** or border so shapes separate from the background on stream.
+- **Contrast**: On dark shells, prefer **`text-gray-100`–`text-gray-200`** for body and **`text-gray-300`–`text-gray-400`** only for secondary hints—not faint `text-gray-500` for critical labels.
+
+## SVG and diagrams
+
+- Match **diagram clarity** in `ppt-title-diagram-only.mdc`: label text in SVGs should be **video-legible** (roughly **`text-sm` equivalent or larger`** in user units—avoid 9px-style labels except rare axis ticks).
+
+## When editing unrelated code
+
+If a change is **not** user-facing (pure `lib/`, types, tests), this rule does not require larger UI—but do not introduce **new** tiny session-facing patterns in shared session components.

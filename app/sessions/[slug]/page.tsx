@@ -70,6 +70,8 @@ import {
   SelfAttentionScoreExplorer,
   TransformerPipelineWalkthrough,
   PositionalEncodingVisualizer,
+  TransformerSentenceTokenStrip,
+  EmbeddingVectorsTable,
   TransformerSubstackExplorer,
   ModelBehaviorEvolution,
   LinearMappingGraph,
@@ -200,6 +202,8 @@ function getMdxComponents(isPresentationMode: boolean) {
   SelfAttentionScoreExplorer,
   TransformerPipelineWalkthrough,
   PositionalEncodingVisualizer,
+  TransformerSentenceTokenStrip,
+  EmbeddingVectorsTable,
   TransformerSubstackExplorer,
   // Training pipeline components
   ModelBehaviorEvolution,

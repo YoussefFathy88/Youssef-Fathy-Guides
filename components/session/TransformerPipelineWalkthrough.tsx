@@ -30,6 +30,8 @@ export interface TransformerPipelineWalkthroughProps {
   caption?: string;
   inputText: string;
   outputToken: string;
+  /** Shown on the final step badge next to the output token (0–100). */
+  outputProbabilityPct?: number;
   stages: PipelineStage[];
   steps: PipelineStep[];
   /** When true, hides the macro-strip subtitle, step caption panel, and per-step descriptions (controls + visuals only). */
@@ -81,6 +83,7 @@ export default function TransformerPipelineWalkthrough({
   caption,
   inputText,
   outputToken,
+  outputProbabilityPct = 54,
   stages,
   steps,
   hideStepNarrative = false,
@@ -105,22 +108,22 @@ export default function TransformerPipelineWalkthrough({
   }
 
   return (
-    <div className="surface-panel w-full p-5 md:p-7">
+    <div className="surface-panel w-full p-8 md:p-10">
       {(title || caption) && (
-        <div className="mb-5 space-y-1.5">
-          {title && <h2 className="text-base font-medium text-white md:text-lg">{title}</h2>}
-          {caption && <p className="text-sm text-slate-400">{caption}</p>}
+        <div className="mb-6 space-y-2 md:mb-8">
+          {title && <h2 className="text-lg font-semibold text-white md:text-xl">{title}</h2>}
+          {caption && <p className="text-base font-medium text-slate-300 md:text-lg">{caption}</p>}
         </div>
       )}
 
       {/* Macro strip — six phases vs Big Picture */}
-      <div className="mb-6">
+      <div className="mb-8">
         {!hideStepNarrative ? (
-          <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+          <p className="mb-3 text-base font-bold uppercase tracking-[0.12em] text-slate-300 md:text-lg">
             Pipeline phases (same six as Big Picture)
           </p>
         ) : null}
-        <div className="flex flex-wrap items-stretch gap-1.5 sm:gap-2">
+        <div className="flex flex-wrap items-stretch gap-2 sm:gap-3">
           {MACRO_PHASES.map((phase, i) => {
             const done = i < macroIdx;
             const active = i === macroIdx;
@@ -128,22 +131,22 @@ export default function TransformerPipelineWalkthrough({
               <div
                 key={phase.id}
                 className={cn(
-                  "flex min-w-0 flex-1 flex-col rounded-lg border px-2 py-2 text-center sm:min-w-[4.5rem] sm:px-2.5",
+                  "flex min-w-0 flex-1 flex-col rounded-xl border-2 px-3 py-3 text-center sm:min-w-[5.5rem] sm:px-3.5",
                   done && "border-[color:var(--success)]/35 bg-[color:var(--success)]/10",
                   active &&
-                    "border-[color:var(--primary)]/50 bg-[color:var(--primary)]/15 ring-1 ring-[color:var(--primary)]/30",
+                    "border-[color:var(--primary)]/50 bg-[color:var(--primary)]/15 ring-2 ring-[color:var(--primary)]/30",
                   !done && !active && "border-white/10 bg-white/[0.03]",
                 )}
               >
                 <span
                   className={cn(
-                    "text-[10px] font-bold leading-tight sm:text-xs",
-                    active ? "text-[color:var(--primary)]" : done ? "text-[color:var(--success)]" : "text-slate-500",
+                    "text-sm font-bold leading-tight md:text-base",
+                    active ? "text-[color:var(--primary)]" : done ? "text-[color:var(--success)]" : "text-slate-400",
                   )}
                 >
                   {phase.short}
                 </span>
-                <span className="mt-0.5 hidden text-[9px] text-slate-500 sm:block">{phase.sub}</span>
+                <span className="mt-1 hidden text-sm font-medium text-slate-300 sm:block md:text-base">{phase.sub}</span>
               </div>
             );
           })}
@@ -151,23 +154,23 @@ export default function TransformerPipelineWalkthrough({
       </div>
 
       {/* Token chip strip */}
-      <div className="mb-6 flex flex-wrap items-center gap-2">
-        <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Input</span>
+      <div className="mb-8 flex flex-wrap items-center gap-3 md:gap-4">
+        <span className="text-base font-bold uppercase tracking-wide text-slate-300 md:text-lg">Input</span>
         {inputTokens.map((token, i) => (
           <span
             key={token + i}
             className={cn(
-              "rounded-full px-3 py-1 text-xs font-semibold transition-all duration-300 md:text-sm",
+              "rounded-full px-4 py-2 text-base font-bold transition-all duration-300 md:px-5 md:py-2.5 md:text-lg",
               tokensLit
-                ? "border border-[color:var(--success)]/60 bg-[color:var(--success)]/15 text-[color:var(--success)]"
-                : "border border-white/15 text-slate-500",
+                ? "border-2 border-[color:var(--success)]/60 bg-[color:var(--success)]/15 text-[color:var(--success)]"
+                : "border border-white/20 text-slate-400",
             )}
           >
             {token}
           </span>
         ))}
 
-        <svg width="18" height="18" viewBox="0 0 16 16" fill="none" className="shrink-0 text-slate-500" aria-hidden>
+        <svg width="22" height="22" viewBox="0 0 16 16" fill="none" className="shrink-0 text-slate-400" aria-hidden>
           <path
             d="M3 8h10M9 4l4 4-4 4"
             stroke="currentColor"
@@ -179,17 +182,17 @@ export default function TransformerPipelineWalkthrough({
 
         <span
           className={cn(
-            "flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold transition-all duration-500 md:text-sm",
+            "flex items-center gap-2 rounded-full px-4 py-2 text-base font-bold transition-all duration-500 md:gap-3 md:px-5 md:py-2.5 md:text-lg",
             isLastStep
-              ? "scale-100 border border-[color:var(--success)]/60 bg-[color:var(--success)]/15 text-[color:var(--success)] opacity-100"
+              ? "scale-100 border-2 border-[color:var(--success)]/60 bg-[color:var(--success)]/15 text-[color:var(--success)] opacity-100"
               : "pointer-events-none scale-95 border border-transparent text-transparent opacity-0",
           )}
           aria-hidden={!isLastStep}
         >
           <span>&ldquo;{outputToken}&rdquo;</span>
           {isLastStep && (
-            <span className="rounded-full bg-[color:var(--success)] px-2 py-0.5 text-[10px] font-bold text-[color:var(--background)] md:text-xs">
-              54%
+            <span className="rounded-full bg-[color:var(--success)] px-3 py-1 text-base font-bold tabular-nums text-[color:var(--background)] md:text-lg">
+              {outputProbabilityPct}%
             </span>
           )}
         </span>
@@ -209,7 +212,7 @@ export default function TransformerPipelineWalkthrough({
                     type="button"
                     onClick={() => jumpToStage(stage.id)}
                     className={cn(
-                      "min-w-[100px] rounded-xl border-2 px-3 py-3 text-center transition-all duration-200 md:min-w-[118px] md:px-4 md:py-3.5",
+                      "min-w-[112px] rounded-xl border-2 px-3 py-4 text-center transition-all duration-200 md:min-w-[132px] md:px-4 md:py-5",
                       "bg-[color:var(--surface-strong)]",
                       isActive ? "shadow-sm" : "opacity-[0.88] hover:opacity-100",
                     )}
@@ -219,12 +222,12 @@ export default function TransformerPipelineWalkthrough({
                     }}
                   >
                     <div
-                      className="text-xs font-semibold md:text-sm"
+                      className="text-base font-bold md:text-lg"
                       style={{ color: isActive ? accent : "var(--foreground)" }}
                     >
                       {stage.label}
                     </div>
-                    <div className="mt-1 text-[11px] text-slate-400 md:text-xs">{stage.sublabel}</div>
+                    <div className="mt-1.5 text-base font-medium text-slate-300 md:text-lg">{stage.sublabel}</div>
                   </button>
 
                   <div
@@ -235,7 +238,7 @@ export default function TransformerPipelineWalkthrough({
                     }}
                   >
                     {stage.internals.length > 0 && (
-                      <div className="mt-2 flex w-full min-w-[100px] flex-col gap-1.5 px-0.5 md:min-w-[118px]">
+                      <div className="mt-3 flex w-full min-w-[112px] flex-col gap-2 px-0.5 md:min-w-[132px]">
                         {stage.internals.map((internal) => {
                           const isChipActive = step?.activeInternalId === internal.label;
                           return (
@@ -243,7 +246,7 @@ export default function TransformerPipelineWalkthrough({
                               key={internal.label}
                               title={internal.detail}
                               className={cn(
-                                "cursor-default rounded-lg border px-2 py-1.5 text-xs font-medium transition-all md:text-[13px]",
+                                "cursor-default rounded-lg border px-3 py-2 text-base font-semibold transition-all md:text-lg",
                                 isChipActive
                                   ? "border-opacity-60"
                                   : "border-white/10 bg-white/[0.04] text-slate-500",
@@ -288,22 +291,22 @@ export default function TransformerPipelineWalkthrough({
 
       {/* Step panel */}
       {!hideStepNarrative ? (
-        <div className="mt-5 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-4 md:px-5 md:py-5">
-          <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+        <div className="mt-6 rounded-xl border border-white/10 bg-white/[0.04] px-5 py-5 md:px-6 md:py-6">
+          <p className="mb-2 text-base font-bold uppercase tracking-wide text-slate-300 md:text-lg">
             Step {currentStep + 1} of {totalSteps}
           </p>
-          <p className="text-sm font-semibold text-white md:text-base">{step?.label}</p>
-          <p className="mt-2 text-sm leading-relaxed text-slate-300 md:text-base">{step?.description}</p>
+          <p className="text-base font-bold text-white md:text-lg">{step?.label}</p>
+          <p className="mt-3 text-base font-medium leading-relaxed text-slate-200 md:text-lg">{step?.description}</p>
         </div>
       ) : null}
 
       {/* Controls */}
-      <div className="mt-5 flex flex-wrap items-center gap-3">
+      <div className="mt-8 flex flex-wrap items-center gap-4">
         <button
           type="button"
           onClick={() => setCurrentStep((s) => Math.max(0, s - 1))}
           disabled={currentStep === 0}
-          className="rounded-lg border border-white/15 bg-white/[0.04] px-4 py-2 text-sm font-medium text-slate-300 transition hover:border-white/25 hover:bg-white/[0.07] disabled:cursor-not-allowed disabled:opacity-35"
+          className="rounded-xl border-2 border-white/15 bg-white/[0.04] px-5 py-3 text-base font-bold text-slate-200 transition hover:border-white/25 hover:bg-white/[0.07] disabled:cursor-not-allowed disabled:opacity-35 md:px-6 md:py-3.5 md:text-lg"
         >
           Prev
         </button>
@@ -311,7 +314,7 @@ export default function TransformerPipelineWalkthrough({
           type="button"
           onClick={() => setCurrentStep((s) => Math.min(totalSteps - 1, s + 1))}
           disabled={currentStep === totalSteps - 1}
-          className="rounded-lg bg-[color:var(--primary)] px-4 py-2 text-sm font-semibold text-[color:var(--background)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-xl bg-[color:var(--primary)] px-5 py-3 text-base font-bold text-[color:var(--background)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 md:px-6 md:py-3.5 md:text-lg"
         >
           Next
         </button>

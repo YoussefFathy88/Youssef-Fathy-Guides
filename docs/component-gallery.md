@@ -83,9 +83,11 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | Feedforward autocomplete with fixed 3-word window and failure when context leaves window | `FNNAutocompleteDemo` |
 | Unrolled RNN autocomplete with hidden-state retention decay and vanishing-memory failure | `RNNAutocompleteDemo` |
 | Side-by-side FNN vs RNN vs Transformer on one sentence with interactive panel activation | `ArchitectureComparisonDemo` |
-| Positional encoding — swap tokens, sine-by-index sketch, meaning+position bars | `PositionalEncodingVisualizer` |
+| Positional encoding — swap tokens, full-width numeric PE table (no curve chart), meaning+position bars | `PositionalEncodingVisualizer` |
+| Sentence → token chips → synthetic vocab IDs (Transformer teaching path) | `TransformerSentenceTokenStrip` |
+| Tokens → mock embedding rows as numeric arrays (`dim` columns); optional `ids` → first column `8842 (The)` | `EmbeddingVectorsTable` |
 | Encoder or decoder sub-stack — pills; **surface-panel** chrome; stack blocks use `surface-strong` + left accents from site tokens (`--purple`, `--success`, `--warning`) | `TransformerSubstackExplorer` |
-| Self-attention explorer — Cairo sentence built-in (Q/K/V cards + OUTPUT box); legacy `queries`/`attentionRows` still supported | `SelfAttentionScoreExplorer` |
+| Self-attention explorer — built-in **The capital of Egypt is Cairo** (six tokens), **The cat sat** (three-token Q/K/V lesson), or legacy `queries`/`attentionRows` | `SelfAttentionScoreExplorer` |
 | Full Transformer pipeline walkthrough — **six-phase macro strip** + stage cards, chip trays (`title` = `detail` tooltip), step panel | `TransformerPipelineWalkthrough` |
 | Three-panel side-by-side token animation showing Base → Instruct → Aligned model responses | `ModelBehaviorEvolution` |
 | SVG coordinate-plane step-through: y = mx + c, known points → derive weights → animate line | `LinearMappingGraph` |
@@ -130,7 +132,9 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | `Vector2DPlot` | Interactive | Draggable 2D semantic plot. |
 | `TokenProbDist` | Interactive | Sampling UI over next-token candidates. |
 | `PipelineTrack` | Diagram | Legacy stations / animated tracks between node ids. Not previewed on `/component-gallery` — prefer `NodeFlowDiagram`. |
-| `PositionalEncodingVisualizer` | Interactive | Three-step mini-lesson: token swap, positional wave, schematic embedding+position sum. |
+| `PositionalEncodingVisualizer` | Interactive | Three-step mini-lesson: token swap, large numeric PE table only, schematic embedding+position sum + numeric stub. |
+| `TransformerSentenceTokenStrip` | Interactive | Word chips aligned with monospace vocab IDs (same length arrays). |
+| `EmbeddingVectorsTable` | Interactive | Mock embedding row per token; optional **`ids`** shows **`8842 (The)`** in first column — reinforces lookup by vocab ID (`dim` truncated). |
 | `StepSequence` | Interactive | Phased steps or narrative steps; optional `autoPlay` (narrative). |
 | `LayerStack` | Interactive | Legacy clickable vertical stack of layers. Not previewed on `/component-gallery`. |
 | `AnnotatedCode` | Interactive | Code string + line `annotations`. |
@@ -169,7 +173,7 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | `FNNAutocompleteDemo` | Interactive | Fixed 3-word sliding-window autocomplete: sentence chips, input slots, simple 3→3→1 network, and failure banner when Egypt leaves context. |
 | `RNNAutocompleteDemo` | Interactive | Sequential RNN autocomplete with unrolled cells, hidden-state memory bar, retention decay table, and vanishing-memory failure at final prediction. |
 | `ArchitectureComparisonDemo` | Interactive | Shared sentence with clickable FNN/RNN/Transformer panels, architecture-specific visibility/memory cues, and dynamic explanation of why predictions differ. |
-| `SelfAttentionScoreExplorer` | Interactive | Default **The capital of Egypt is Cairo**: per-token Q/K/V copy, softmax bars (blue ≥30% Strong, amber 15–29% Moderate, gray Weak), OUTPUT FOR “TOKEN” + summary + bold blend; QKV/output fade/slide on token change; bars width **350ms**; Cairo mode mounts on **Cairo** (index 5); legacy cat MDX still maps to Cairo dataset. |
+| `SelfAttentionScoreExplorer` | Interactive | Default **The capital of Egypt is Cairo** (six-token); optional **`The` / `cat` / `sat`** built-in lesson (simple Q/K/V copy); softmax bars + OUTPUT box; legacy cat MDX → Cairo dataset; Cairo mounts on index **5**, three-token clamps to **sat** (index **2**) when `defaultSelected` is left at **5**. |
 | `TransformerPipelineWalkthrough` | Interactive | **`surface-panel`** shell; **macro strip** (six phases from `activeStageId`); token strip + stage row themed with **`--primary` / `--success` / `--purple`** etc.; internal chips use **`PipelineInternal.detail`** as native **`title`** tooltip; larger type and controls. |
 | `TransformerSubstackExplorer` | Interactive | Encoder or decoder: muted pills (purple / warning tints); **Full** stack and focus panel use `globals.css` surfaces and token-colored left accents—not saturated Tailwind primaries. Illustrations in `transformer-substack-illustrations.tsx` match the same tokens. |
 | `EmbeddingVectorExplorer` | Interactive | SVG arrows from origin per word; cluster hulls toggle; click arrow → inspect mock vector; staggered entrance animation; dark-mode safe. |
@@ -1524,17 +1528,52 @@ interface ArchitectureComparisonDemoProps {}
 
 ### PositionalEncodingVisualizer
 
-**Description:** Client-only explainer with three internal steps (pills + Prev/Next): (1) swap two middle tokens to motivate order, (2) draw a simple sine-like curve over position indices, (3) animate three schematic bars for meaning, position, and sum. Respects reduced motion (no path/bar animation). Optional `autoPlay` advances steps on a timer.
+**Description:** Client-only explainer with three internal steps (pills + Prev/Next): (1) swap an adjacent pair near the sentence middle (`floor(n/2)-1` with `floor(n/2)`) to motivate order, (2) Vaswani sinusoidal PE — **numeric table only** (first `tableDims` columns for every position; no SVG wave chart), (3) schematic bars plus element-wise sum stub (first 4 dims, illustrative embedding). **`sinusoidalPe` / `peVector`** helpers are exported for tests or reuse. Respects reduced motion. Optional `autoPlay` advances steps on a timer.
 
 ```ts
 interface PositionalEncodingVisualizerProps {
   title?: string;
   caption?: string;
-  /** Token row for the order demo; needs length ≥ 3 (swaps indices 1 and 2). */
+  /** Token row; length ≥ 3. PE positions use 0..length-1 in UI plots/tables. */
   tokens?: string[];
+  /** Even, 4–32; display width for sinusoidal PE. */
+  dModel?: number;
+  /** Columns shown in the numeric table (≤ dModel). */
+  tableDims?: number;
   initialStep?: number;       // 0–2
   autoPlay?: boolean;
   autoPlayIntervalMs?: number;
+}
+```
+
+---
+
+### TransformerSentenceTokenStrip
+
+**Description:** Teaching strip: token pills and aligned synthetic vocabulary IDs. Shows a one-line note that real models use subwords. Requires `tokens.length === ids.length`.
+
+```ts
+interface TransformerSentenceTokenStripProps {
+  title?: string;
+  caption?: string;
+  tokens: string[];
+  ids: number[];
+}
+```
+
+---
+
+### EmbeddingVectorsTable
+
+**Description:** Per-token rows with a monospace embedding vector (deterministic mock floats from token + position + dimension). Optional **`ids`** (same length as `tokens`): header becomes **Token ID** and cells show **`8842 (The)`** (matrix row lookup). Optional `dim` (4–12).
+
+```ts
+interface EmbeddingVectorsTableProps {
+  title?: string;
+  caption?: string;
+  tokens: string[];
+  ids?: number[];
+  dim?: number;
 }
 ```
 
@@ -1559,7 +1598,7 @@ interface TransformerSubstackExplorerProps {
 
 ### SelfAttentionScoreExplorer
 
-**Description:** Built-in demo sentence **The capital of Egypt is Cairo** (also used when `tokens` matches the legacy cat sentence from older MDX). Each token has **concrete Q, K, and V** teaching copy plus **summary** and **outputBlend** in an **OUTPUT FOR “TOKEN”** box (line 1 summary, line 2 bold blend). **Attention bars**: width transitions **350ms** on token change; labels **Strong** (≥30%, blue), **Moderate** (15–29%, amber), **Weak** (&lt;15%, gray). **Animation**: Q/K/V grid and output box **fade out + translateY -6px** over **150ms**, then new content **fades in** over **200ms** (double `requestAnimationFrame` enter); bar widths update when the new row applies. **Cairo mode** always mounts with token index **5** (“Cairo”) selected. For **custom** sentences, pass **`tokens`**, **`queries`**, and **`attentionRows`** (one row per token; scores must sum to 1.0); generic K/V placeholder copy is used in that mode.
+**Description:** Built-in **The capital of Egypt is Cairo** (six tokens; default when `tokens` is omitted, matches that sentence, or legacy cat MDX is passed). Built-in **The cat sat** (exact three-token match) uses shorter Q/K/V copy aimed at “query asks, key answers the match, value supplies meaning.” Each token has **concrete Q, K, and V** plus **summary** and **outputBlend** in **OUTPUT FOR “TOKEN”**. **Attention bars**: width **350ms**; **Strong** / **Moderate** / **Weak** thresholds unchanged. **Animation**: unchanged. **Default selection**: six-token opens at **5** (“Cairo”); three-token clamps `defaultSelected` to **2** (“sat”) when left at default **5**. **Custom**: **`tokens`**, **`queries`**, **`attentionRows`** (scores sum to 1.0); generic K/V placeholders.
 
 ```ts
 interface AttentionScoreRow {
@@ -1573,7 +1612,7 @@ interface SelfAttentionScoreExplorerProps {
   tokens?: string[];
   queries?: string[];
   attentionRows?: AttentionScoreRow[];
-  defaultSelected?: number;  // default 5; Cairo built-in always opens at index 5
+  defaultSelected?: number;  // built-in six-token sentence defaults to 5 (Cairo)
 }
 ```
 
@@ -1610,6 +1649,7 @@ interface TransformerPipelineWalkthroughProps {
   caption?: string;
   inputText: string;          // split by spaces → token chips
   outputToken: string;        // appears on the final step with a probability badge
+  outputProbabilityPct?: number;  // default 54 — badge text on last step
   stages: PipelineStage[];
   steps: PipelineStep[];
   /** When true, hides the macro-strip subtitle, the step caption panel (label + description), and per-step prose — keeps macro strip, stage row, token strip, and controls. */

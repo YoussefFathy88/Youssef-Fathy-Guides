@@ -32,10 +32,10 @@ export function RecapTable({ rows = [] }: RecapTableProps) {
               }}
               className={index % 2 === 1 ? "bg-gray-50 dark:bg-gray-800/50" : undefined}
             >
-              <td className="w-36 px-4 py-4 align-top font-mono text-sm font-medium text-violet-600 dark:text-violet-400 sm:w-44 sm:px-5">
+              <td className="w-40 px-5 py-5 align-top font-mono text-base font-bold text-violet-700 dark:text-violet-300 sm:w-52 sm:px-6 md:text-lg">
                 {row.term}
               </td>
-              <td className="px-4 py-4 text-sm leading-7 text-gray-700 dark:text-gray-300 sm:px-5">
+              <td className="px-5 py-5 text-base font-medium leading-relaxed text-gray-800 dark:text-gray-200 sm:px-6 md:text-lg">
                 {row.definition}
               </td>
             </motion.tr>

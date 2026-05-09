@@ -15,6 +15,8 @@ export interface TransformerSubstackExplorerProps {
   caption?: string;
   /** How many identical layers are stacked (shown in the “layers” focus). */
   layerCount?: number;
+  /** Hide explanatory paragraphs; keep just pills + animated diagrams. */
+  minimal?: boolean;
 }
 
 type EncoderFocus = "overview" | "self" | "heads" | "ffn" | "residual" | "layers";
@@ -53,7 +55,7 @@ const ENCODER_DETAIL: Record<EncoderFocus, { headline: string; body: string }> =
   },
   ffn: {
     headline: "Feed-forward",
-    body: "The same MLP is applied independently at each position: widen (e.g. 512→2048), nonlinearity, then project back. This refines each token after mixing.",
+    body: "The same MLP runs at each position: widen (e.g. 512→2048), nonlinearity, then project back. It refines each token after attention has mixed neighbor information into its vector.",
   },
   residual: {
     headline: "Residual + layer norm",
@@ -70,7 +72,7 @@ const ENCODER_ANALOGY: Record<EncoderFocus, string> = {
   overview: "",
   self: 'Think of a **socialization phase**: every word mingles in the room, hears what every other word is “saying,” then each word updates its own takeaway before moving on.',
   heads: "Like a **committee of specialists**: several readers each notice something different (grammar, who did what, tone), then they **merge notes** into one combined view.",
-  ffn: "It’s like **blowing up a small photo onto a big screen** to fix the tiny details, then **shrinking it back down** once it’s sharp—widen, refine, compress.",
+  ffn: "It’s like **blowing up a small photo onto a big screen** to fix details, then **shrinking it back** — widen, refine with dense layers, compress to model width.",
   residual:
     "**Residual — your safety net.** By **adding the original input back in**, you make sure the **socializing** (attention) or **thinking** (feed-forward) didn’t accidentally change the word’s meaning too much—then **layer norm** keeps scale tidy, like straightening the picture after each edit.",
   layers:
@@ -84,7 +86,7 @@ const DECODER_ANALOGY: Record<DecoderFocus, string> = {
     "Like **typing a message without scrolling ahead**: you only see words you’ve already written—no peeking at the future text you haven’t produced yet.",
   cross:
     "Like **working from notes while you speak**: the decoder’s draft keeps **glancing back** at the encoder’s page (source memory) so answers stay tied to what was actually said.",
-  ffn: "Same idea as the encoder: **blow up** each token’s vector to a **wider working space**, fix details with rich computation, then **project back** to the usual size.",
+  ffn: "Same idea as the encoder: **widen** each token’s vector, **refine** with rich computation, then **project back** to the usual width.",
   residual:
     "**Residual — your safety net** here too: **add** the vector from before the sub-layer back in so **socializing** (masked attention), **checking the book** (cross-attention), or **thinking** (FFN) can’t rewrite meaning too aggressively in one step—then **normalize** to keep depth stable.",
   layers:
@@ -98,15 +100,15 @@ const DECODER_DETAIL: Record<DecoderFocus, { headline: string; body: string }> =
   },
   masked: {
     headline: "Masked self-attention",
-    body: "When generating left-to-right, each position may only attend to earlier positions. Future tokens are masked out so the model cannot cheat.",
+    body: "Example: with prefix `The capital of Egypt is`, the query at `is` can read only `The capital of Egypt is` and cannot read future token `Cairo`. That no-peek rule is the mask.",
   },
   cross: {
     headline: "Cross-attention",
-    body: "Queries come from the decoder; keys and values come from the encoder output. This is how generation stays grounded in the source sentence.",
+    body: "Concrete example: decoder has `The capital of Egypt is` and asks encoder memory for source facts. Cross-attention reads encoder keys/values from `The capital of Egypt is Cairo`, gives highest weight to `Egypt`, and that grounding helps output `Cairo` next.",
   },
   ffn: {
     headline: "Feed-forward",
-    body: "Same per-position MLP idea as the encoder: refine the representation after attention has run.",
+    body: "Same per-position MLP as the encoder: widen → nonlinear layers → project back. Runs after masked self-attention and cross-attention have updated each position.",
   },
   residual: {
     headline: "Residual + layer norm",
@@ -128,7 +130,11 @@ const ENCODER_FOCUS_CARD: Record<
     sub: "Several heads in parallel, then concatenate and project back to the model width.",
     tone: "violet",
   },
-  ffn: { label: "③ Feed-forward network", sub: "512 → 2048 → 512, applied independently at each position.", tone: "amber" },
+  ffn: {
+    label: "③ Feed-forward network",
+    sub: "512 → 2048 → 512 · same MLP weights at every position.",
+    tone: "amber",
+  },
   residual: {
     label: "② / ④ Add & Layer Norm",
     sub: "After each sub-layer: add the residual (skip) input, then normalize.",
@@ -155,7 +161,11 @@ const DECODER_FOCUS_CARD: Record<
     sub: "Queries from the decoder; keys and values from the encoder memory.",
     tone: "violet",
   },
-  ffn: { label: "⑤ Feed-forward network", sub: "512 → 2048 → 512 · per token.", tone: "amber" },
+  ffn: {
+    label: "⑤ Feed-forward network",
+    sub: "512 → 2048 → 512 · per token, same pattern as the encoder.",
+    tone: "amber",
+  },
   residual: {
     label: "② / ④ / ⑥ Add & Layer Norm",
     sub: "Residual add + layer norm after each sub-layer.",
@@ -225,7 +235,7 @@ function stackBlockClass(
     "w-full rounded-xl bg-[color:var(--surface-strong)] text-left font-semibold text-slate-100 transition-all",
     "border-l-4", // Thicker left accent for clearer visualization
     stackToneAccentClass(tone),
-    large ? "px-5 py-4 text-base" : "px-3 py-2.5 text-sm",
+    large ? "px-5 py-4 text-base md:text-lg" : "px-4 py-3 text-base md:px-5 md:py-3.5",
     active ? activeBorder : "border border-white/10 opacity-[0.93] hover:border-white/20 hover:opacity-100",
   );
 }
@@ -238,6 +248,7 @@ function FocusedBlockHero({
   accent,
   children,
   tip,
+  hideText = false,
 }: {
   title: string;
   sub: string;
@@ -246,6 +257,7 @@ function FocusedBlockHero({
   accent: "violet" | "amber";
   children: ReactNode;
   tip?: ReactNode;
+  hideText?: boolean;
 }) {
   const activeBorder =
     accent === "amber"
@@ -262,17 +274,19 @@ function FocusedBlockHero({
       <div className="flex gap-0">
         <div className={cn("w-1 shrink-0 opacity-90", toneAccentBarClass(tone))} aria-hidden />
         <div className="min-w-0 flex-1 space-y-5 px-5 py-6 md:px-7 md:py-7">
-          <div>
-            <h3 className="text-lg font-bold tracking-tight text-white md:text-xl">{title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-slate-300 md:text-base">{sub}</p>
-            {body.trim() !== sub.trim() ? (
-              <p className="mt-3 text-sm leading-relaxed text-slate-300 md:text-base">{body}</p>
-            ) : null}
-          </div>
+          {!hideText ? (
+            <div>
+              <h3 className="text-lg font-bold tracking-tight text-white md:text-xl">{title}</h3>
+              <p className="mt-2 text-base font-medium leading-relaxed text-slate-200 md:text-lg">{sub}</p>
+              {body.trim() !== sub.trim() ? (
+                <p className="mt-3 text-base font-medium leading-relaxed text-slate-200 md:text-lg">{body}</p>
+              ) : null}
+            </div>
+          ) : null}
           <div className="min-h-[280px] rounded-xl border border-white/10 bg-white/[0.04] px-4 py-6 md:min-h-[340px] md:px-6 md:py-8">
             {children}
           </div>
-          {tip}
+          {!hideText ? tip : null}
         </div>
       </div>
     </div>
@@ -284,6 +298,7 @@ export default function TransformerSubstackExplorer({
   title,
   caption,
   layerCount = 6,
+  minimal = false,
 }: TransformerSubstackExplorerProps) {
   const reducedMotion = useReducedMotion();
   const [encFocus, setEncFocus] = useState<EncoderFocus>("overview");
@@ -335,16 +350,16 @@ export default function TransformerSubstackExplorer({
 
   const encoderTip =
     encFocus !== "overview" && ENCODER_ANALOGY[encFocus] ? (
-      <p className="border-t border-white/10 pt-4 text-sm leading-relaxed text-slate-400">
-        <span className="font-semibold text-slate-300">Real-world analogy. </span>
+      <p className="border-t border-white/10 pt-5 text-base font-medium leading-relaxed text-slate-300 md:text-lg">
+        <span className="font-bold text-slate-200">Real-world analogy. </span>
         <AnalogyText text={ENCODER_ANALOGY[encFocus]} />
       </p>
     ) : null;
 
   const decoderTip =
     decFocus !== "overview" && DECODER_ANALOGY[decFocus] ? (
-      <p className="border-t border-white/10 pt-4 text-sm leading-relaxed text-slate-400">
-        <span className="font-semibold text-slate-300">Real-world analogy. </span>
+      <p className="border-t border-white/10 pt-5 text-base font-medium leading-relaxed text-slate-300 md:text-lg">
+        <span className="font-bold text-slate-200">Real-world analogy. </span>
         <AnalogyText text={DECODER_ANALOGY[decFocus]} />
       </p>
     ) : null;
@@ -357,13 +372,15 @@ export default function TransformerSubstackExplorer({
     "bg-[color:var(--warning)]/14 text-[color:var(--warning)] ring-1 ring-[color:var(--warning)]/30";
 
   return (
-    <div className="surface-panel w-full p-5 md:p-6">
-      <div className="mb-4 space-y-1">
-        <h2 className="text-base font-medium text-white md:text-lg">{title ?? defaultTitle}</h2>
-        <p className="text-sm text-slate-400">{caption ?? defaultCaption}</p>
-      </div>
+    <div className="surface-panel w-full p-8 md:p-10">
+      {!minimal ? (
+        <div className="mb-6 space-y-2">
+          <h2 className="text-lg font-semibold text-white md:text-xl">{title ?? defaultTitle}</h2>
+          <p className="text-base font-medium text-slate-300 md:text-lg">{caption ?? defaultCaption}</p>
+        </div>
+      ) : null}
 
-      <div className="mb-5 flex flex-wrap gap-2">
+      <div className="mb-6 flex flex-wrap gap-3">
         {variant === "encoder"
           ? ENCODER_PILLS.map((p) => (
               <button
@@ -371,7 +388,7 @@ export default function TransformerSubstackExplorer({
                 type="button"
                 onClick={() => setFocusEncoder(p.id)}
                 className={cn(
-                  "rounded-full px-3 py-1.5 text-xs font-semibold transition-colors md:text-sm",
+                  "rounded-full px-4 py-2.5 text-base font-bold transition-colors md:px-5 md:py-3 md:text-lg",
                   encFocus === p.id ? pillActiveEncoder : pillIdle,
                 )}
               >
@@ -384,7 +401,7 @@ export default function TransformerSubstackExplorer({
                 type="button"
                 onClick={() => setFocusDecoder(p.id)}
                 className={cn(
-                  "rounded-full px-3 py-1.5 text-xs font-semibold transition-colors md:text-sm",
+                  "rounded-full px-4 py-2.5 text-base font-bold transition-colors md:px-5 md:py-3 md:text-lg",
                   decFocus === p.id ? pillActiveDecoder : pillIdle,
                 )}
               >
@@ -432,6 +449,7 @@ export default function TransformerSubstackExplorer({
                     tone={card.tone}
                     accent="violet"
                     tip={encoderTip}
+                    hideText={minimal}
                   >
                     <EncoderIllustration
                       focus={encFocus}
@@ -480,6 +498,7 @@ export default function TransformerSubstackExplorer({
                   tone={card.tone}
                   accent="amber"
                   tip={decoderTip}
+                  hideText={minimal}
                 >
                   <DecoderIllustration focus={decFocus} layerCount={layerCount} reducedMotion={!!reducedMotion} />
                 </FocusedBlockHero>
@@ -559,7 +578,7 @@ function EncoderStack({
             <span
               className={cn(
                 "mt-1 block font-normal text-slate-400",
-                large ? "text-sm md:text-base" : "text-[11px]",
+                large ? "text-base md:text-lg" : "text-base font-medium md:text-lg",
               )}
             >
               {b.sub}
@@ -620,7 +639,7 @@ function DecoderStack({
             <span
               className={cn(
                 "mt-1 block font-normal text-slate-400",
-                large ? "text-sm md:text-base" : "text-[11px]",
+                large ? "text-base md:text-lg" : "text-base font-medium md:text-lg",
               )}
             >
               {b.sub}

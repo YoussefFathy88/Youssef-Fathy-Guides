@@ -58,6 +58,8 @@ export { default as RNNFailureDemo } from "../session/RNNFailureDemo";
 export { default as SelfAttentionScoreExplorer } from "../session/SelfAttentionScoreExplorer";
 export { default as TransformerPipelineWalkthrough } from "../session/TransformerPipelineWalkthrough";
 export { default as PositionalEncodingVisualizer } from "../session/PositionalEncodingVisualizer";
+export { default as TransformerSentenceTokenStrip } from "../session/TransformerSentenceTokenStrip";
+export { default as EmbeddingVectorsTable } from "../session/EmbeddingVectorsTable";
 export { default as TransformerSubstackExplorer } from "../session/TransformerSubstackExplorer";
 // Training pipeline components
 export { default as ModelBehaviorEvolution } from "../session/ModelBehaviorEvolution";

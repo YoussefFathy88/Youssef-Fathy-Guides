@@ -153,9 +153,9 @@ const COLOR = {
 // ─── Node size constants ───────────────────────────────────────────────────────
 
 const SIZE = {
-  sm: { r: 40, w: 150, h: 70,  fontSize: 17, subSize: 13   },
-  md: { r: 55, w: 200, h: 90,  fontSize: 20, subSize: 15 },
-  lg: { r: 75, w: 260, h: 110, fontSize: 23, subSize: 17   },
+  sm: { r: 42, w: 164, h: 78, fontSize: 20, subSize: 15 },
+  md: { r: 58, w: 216, h: 96, fontSize: 23, subSize: 17 },
+  lg: { r: 78, w: 272, h: 118, fontSize: 26, subSize: 19 },
 } as const;
 
 // ─── Geometry helpers ─────────────────────────────────────────────────────────
@@ -803,10 +803,10 @@ export default function NodeFlowDiagram({
       initial={reducedMotion ? false : { opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="w-full rounded-2xl border border-white/10 bg-[#0f1728]/80 p-5"
+      className="w-full rounded-2xl border border-white/10 bg-[#0f1728]/80 p-7 md:p-8"
     >
       {title && (
-        <p className="mb-4 text-sm font-medium text-slate-300">{title}</p>
+        <p className="mb-5 text-lg font-semibold text-slate-200 md:text-xl">{title}</p>
       )}
 
       {/* SVG Canvas */}
@@ -822,7 +822,7 @@ export default function NodeFlowDiagram({
       >
         {!hasDiagramData && (
           <div className="absolute inset-0 flex items-center justify-center px-6 text-center">
-            <p className="max-w-md text-sm leading-7 text-slate-400">
+            <p className="max-w-md text-base font-medium leading-relaxed text-slate-300 md:text-lg">
               Diagram data is unavailable for this block. The page is still loaded, but the
               nodes/edges payload did not arrive from the MDX content.
             </p>
@@ -883,8 +883,8 @@ export default function NodeFlowDiagram({
                 />
                 <text
                   x={x + 18}
-                  y={y + 24}
-                  fontSize={15}
+                  y={y + 26}
+                  fontSize={17}
                   fontWeight="700"
                   fill={c.groupText}
                   letterSpacing="0.08em"
@@ -944,7 +944,7 @@ export default function NodeFlowDiagram({
                     y={edge.mid.y - 16}
                     textAnchor="middle"
                     dominantBaseline="central"
-                    fontSize={14}
+                    fontSize={16}
                     fill="rgba(148,163,184,0.9)"
                   >
                     {edge.label}
@@ -1005,7 +1005,7 @@ export default function NodeFlowDiagram({
                 )}
               />
             ))}
-            <span className="ml-auto text-[12px] font-medium text-slate-500">
+            <span className="ml-auto text-base font-bold tabular-nums text-slate-300 md:text-lg">
               {currentStep >= 0 ? `${currentStep + 1} / ${safeSteps.length}` : `${safeSteps.length} steps`}
             </span>
           </div>
@@ -1016,7 +1016,7 @@ export default function NodeFlowDiagram({
               type="button"
               disabled={currentStep <= 0}
               onClick={goPrev}
-              className="flex h-8 items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 text-xs font-medium text-slate-300 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30"
+              className="flex h-11 min-h-[2.75rem] items-center gap-2 rounded-xl border-2 border-white/10 bg-white/5 px-4 text-base font-bold text-slate-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30 md:h-12 md:px-5 md:text-lg"
             >
               ← Prev
             </button>
@@ -1025,7 +1025,7 @@ export default function NodeFlowDiagram({
               type="button"
               onClick={togglePlay}
               className={cn(
-                "flex h-8 items-center gap-1.5 rounded-lg px-4 text-xs font-semibold transition",
+                "flex h-11 min-h-[2.75rem] items-center gap-2 rounded-xl px-5 text-base font-bold transition md:h-12 md:px-6 md:text-lg",
                 playing
                   ? "bg-slate-700 text-slate-200 hover:bg-slate-600"
                   : "bg-blue-600 text-white hover:bg-blue-500",
@@ -1038,19 +1038,19 @@ export default function NodeFlowDiagram({
               type="button"
               disabled={isLast}
               onClick={goNext}
-              className="flex h-8 items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 text-xs font-medium text-slate-300 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30"
+              className="flex h-11 min-h-[2.75rem] items-center gap-2 rounded-xl border-2 border-white/10 bg-white/5 px-4 text-base font-bold text-slate-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30 md:h-12 md:px-5 md:text-lg"
             >
               Next →
             </button>
 
-            <span className="ml-auto text-[10px] text-slate-600">
+            <span className="ml-auto text-base font-medium text-slate-300 md:text-lg">
               ← → or Space to navigate
             </span>
           </div>
 
           {/* Step description */}
           {!hideStepNarrative && (
-            <div className="min-h-[64px] rounded-xl border border-white/8 bg-white/4 px-4 py-3">
+            <div className="min-h-[72px] rounded-xl border border-white/8 bg-white/4 px-5 py-4 md:px-6 md:py-5">
               <AnimatePresence mode="wait" custom={direction}>
                 {activeStep ? (
                   <motion.div
@@ -1061,8 +1061,10 @@ export default function NodeFlowDiagram({
                     exit={{ x: direction * -20, opacity: 0 }}
                     transition={{ duration: 0.22, ease: "easeOut" }}
                   >
-                    <p className="mb-1 text-base font-semibold text-slate-100">{activeStep.label}</p>
-                    <p className="text-[13.5px] leading-relaxed text-slate-300">{activeStep.description}</p>
+                    <p className="mb-2 text-lg font-bold text-slate-100 md:text-xl">{activeStep.label}</p>
+                    <p className="text-base font-medium leading-relaxed text-slate-200 md:text-lg">
+                      {activeStep.description}
+                    </p>
                     {activeStep.highlightNodes && activeStep.highlightNodes.length > 0 && (
                       <div className="mt-4 flex flex-wrap gap-2">
                         {activeStep.highlightNodes.map((id) => {
@@ -1074,7 +1076,7 @@ export default function NodeFlowDiagram({
                               className="flex flex-wrap items-center gap-2 rounded-md border border-white/5 bg-slate-800/60 px-3 py-2 shadow-sm"
                             >
                               {n.emoji ? <span className="text-base leading-none">{n.emoji}</span> : null}
-                              <span className="text-sm font-semibold text-slate-100">{n.label}</span>
+                              <span className="text-base font-bold text-slate-100 md:text-lg">{n.label}</span>
                             </div>
                           );
                         })}
@@ -1087,9 +1089,10 @@ export default function NodeFlowDiagram({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="text-sm text-slate-500"
+                    className="text-base font-medium text-slate-400 md:text-lg"
                   >
-                    Press <span className="font-mono">Play</span> or click a step dot to walk through the diagram.
+                    Press <span className="font-mono font-bold">Play</span> or click a step dot to walk through the
+                    diagram.
                   </motion.p>
                 )}
               </AnimatePresence>

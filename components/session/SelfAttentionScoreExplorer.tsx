@@ -6,8 +6,45 @@ import { cn } from "@/lib/utils";
 
 const DEFAULT_TOKENS = ["The", "capital", "of", "Egypt", "is", "Cairo"] as const;
 
+/** Short sentence for teaching Q/K/V — same pattern as encoder mini self-attention diagram. */
+const TEACHING_SIMPLE_TOKENS = ["The", "cat", "sat"] as const;
+
 /** Legacy MDX example — map to built-in Cairo dataset so the session stays consistent. */
 const LEGACY_CAT_TOKENS = ["The", "cat", "sat", "on", "the", "mat"] as const;
+
+const TEACHING_SIMPLE_DETAILS: ReadonlyArray<{
+  q: string;
+  k: string;
+  v: string;
+  scores: readonly number[];
+  summary: string;
+  outputBlend: string;
+}> = [
+  {
+    q: "Which word am I pointing at?",
+    k: "I'm \"The\" — one specific thing.",
+    v: "If I'm blended in, I add \"that exact one\" flavor.",
+    scores: [0.08, 0.72, 0.2],
+    summary: "Biggest weight on \"cat\" (72%).",
+    outputBlend: "Mostly pulls in \"cat\" — the noun I introduce.",
+  },
+  {
+    q: "What happened to me?",
+    k: "I'm \"cat\" — the animal.",
+    v: "If I'm blended in, I add cat-as-subject flavor.",
+    scores: [0.12, 0.1, 0.78],
+    summary: "Biggest weight on \"sat\" (78%).",
+    outputBlend: "Mostly pulls in \"sat\" — the action.",
+  },
+  {
+    q: "Who did it?",
+    k: "I'm \"sat\" — the sitting action.",
+    v: "If I'm blended in, I add action flavor.",
+    scores: [0.1, 0.68, 0.22],
+    summary: "Biggest weight on \"cat\" (68%).",
+    outputBlend: "Mostly pulls in \"cat\" — the actor.",
+  },
+];
 
 const CAIRO_TOKEN_DETAILS: ReadonlyArray<{
   q: string;
@@ -18,64 +55,52 @@ const CAIRO_TOKEN_DETAILS: ReadonlyArray<{
   outputBlend: string;
 }> = [
   {
-    q: "Which noun or concept follows this article?",
-    k: "I am a definite article — I mark the next noun as specific and unique",
-    v: "I contribute: definiteness, uniqueness, 'the one and only'",
+    q: "Which noun am I glued to?",
+    k: "I'm \"The\" — I mean one specific thing, not any random thing.",
+    v: "If I'm blended in, I add \"that exact one\" flavor.",
     scores: [0.06, 0.42, 0.05, 0.1, 0.08, 0.29],
-    summary:
-      '"The" attends most to "capital" (42%) — it needs to know which specific noun it introduces.',
-    outputBlend:
-      'Blended vector carries: definiteness from "The" + geographic concept from "capital" + city name from "Cairo"',
+    summary: "Biggest weight on \"capital\" (42%) — finds the noun right after me.",
+    outputBlend: "Mostly pulls in \"capital\" so my meaning locks onto that word.",
   },
   {
-    q: "What country do I belong to? What city am I equal to?",
-    k: "I am a geographic noun — I represent a seat-of-government concept",
-    v: "I contribute: political center, main city, seat-of-government meaning",
+    q: "Which country — and which city — finish my meaning?",
+    k: "I'm \"capital\" — the main city of a country.",
+    v: "If I'm blended in, I add capital-city flavor.",
     scores: [0.07, 0.1, 0.06, 0.38, 0.05, 0.34],
-    summary:
-      '"capital" attends most to "Egypt" (38%) and "Cairo" (34%) — anchoring itself to its country and its answer.',
-    outputBlend:
-      'Blended vector carries: capital-city concept from "capital" + country identity from "Egypt" + answer from "Cairo"',
+    summary: "Strong pulls on \"Egypt\" (38%) and \"Cairo\" (34%).",
+    outputBlend: "Mixes country + answer city into the capital idea.",
   },
   {
-    q: "What two things am I linking — what is the owner and what is owned?",
-    k: "I am a preposition — I signal a belonging or possession relationship",
-    v: "I contribute: possession link, the 'belongs-to' relationship signal",
+    q: "What two chunks does \"of\" connect?",
+    k: "I'm \"of\" — a tiny word that links two ideas.",
+    v: "If I'm blended in, I add \"belongs with\" flavor.",
     scores: [0.04, 0.3, 0.06, 0.42, 0.07, 0.11],
-    summary:
-      '"of" attends most to "Egypt" (42%) and "capital" (30%) — it needs both sides of the relationship it expresses.',
-    outputBlend:
-      'Blended vector carries: relational signal from "of" + country from "Egypt" + subject from "capital"',
+    summary: "Heavy on \"Egypt\" (42%) and \"capital\" (30%) — both sides of the phrase.",
+    outputBlend: "Hooks country to the capital phrase.",
   },
   {
-    q: "What is my capital city? How do I fit into this sentence?",
-    k: "I am a country proper noun — I represent a nation in North Africa",
-    v: "I contribute: Egypt as a country, North Africa, Arab world context",
+    q: "Which city is my capital here?",
+    k: "I'm \"Egypt\" — the country.",
+    v: "If I'm blended in, I add plain country meaning.",
     scores: [0.05, 0.28, 0.07, 0.08, 0.06, 0.46],
-    summary:
-      '"Egypt" attends most to "Cairo" (46%) and "capital" (28%) — confirming Cairo as its capital.',
-    outputBlend:
-      'Blended vector carries: country identity from "Egypt" + capital relationship from "capital" + city answer from "Cairo"',
+    summary: "Strongest on \"Cairo\" (46%), then \"capital\" (28%).",
+    outputBlend: "Country meaning plus capital hint plus the city name.",
   },
   {
-    q: "What subject and what predicate am I connecting as equal?",
-    k: "I am a copula verb — I assert that two things are identical or equivalent",
-    v: "I contribute: the equality assertion, present-tense state, identity link",
+    q: "What two pieces am I saying match?",
+    k: "I'm \"is\" — like an equals sign in words.",
+    v: "If I'm blended in, I add \"these two line up\" flavor.",
     scores: [0.05, 0.34, 0.04, 0.18, 0.07, 0.32],
-    summary:
-      '"is" attends most to "capital" (34%) and "Cairo" (32%) — the two things it declares equal.',
-    outputBlend:
-      'Blended vector carries: equality signal from "is" + left-side subject from "capital" + right-side answer from "Cairo"',
+    summary: "Split between \"capital\" (34%) and \"Cairo\" (32%).",
+    outputBlend: "Links the left phrase to the answer city.",
   },
   {
-    q: "What place am I? Whose capital am I? What country owns me?",
-    k: "I am a city proper noun — I represent the capital city of Egypt",
-    v: "I contribute: Cairo as a city, capital status, Egyptian identity",
+    q: "Which country names me?",
+    k: "I'm \"Cairo\" — the city.",
+    v: "If I'm blended in, I add city flavor.",
     scores: [0.05, 0.3, 0.05, 0.38, 0.07, 0.15],
-    summary:
-      '"Cairo" attends most to "Egypt" (38%) and "capital" (30%) — grounding itself as Egypt\'s capital.',
-    outputBlend:
-      'Blended vector carries: city identity from "Cairo" + country context from "Egypt" + role from "capital"',
+    summary: "Strong pulls on \"Egypt\" (38%) and \"capital\" (30%).",
+    outputBlend: "City identity wired to country + capital role.",
   },
 ];
 
@@ -89,7 +114,7 @@ export interface SelfAttentionScoreExplorerProps {
   caption?: string;
   tokens?: string[];
   defaultSelected?: number;
-  /** Used when `tokens` is not the Cairo (or legacy cat) sentence. */
+  /** Used when `tokens` is not a built-in Cairo, teaching-simple, or legacy cat sentence. */
   queries?: string[];
   attentionRows?: AttentionScoreRow[];
 }
@@ -97,6 +122,11 @@ export interface SelfAttentionScoreExplorerProps {
 function isCairoTokens(tokens: readonly string[]): boolean {
   if (tokens.length !== DEFAULT_TOKENS.length) return false;
   return DEFAULT_TOKENS.every((t, i) => tokens[i] === t);
+}
+
+function isTeachingSimpleTokens(tokens: readonly string[]): boolean {
+  if (tokens.length !== TEACHING_SIMPLE_TOKENS.length) return false;
+  return TEACHING_SIMPLE_TOKENS.every((t, i) => tokens[i] === t);
 }
 
 function isLegacyCatTokens(tokens: readonly string[]): boolean {
@@ -136,14 +166,22 @@ export default function SelfAttentionScoreExplorer({
 }: SelfAttentionScoreExplorerProps) {
   const rawTokens = useMemo(() => (tokensProp?.length ? [...tokensProp] : [...DEFAULT_TOKENS]), [tokensProp]);
 
-  const cairoBuiltin =
-    rawTokens.length === 0 ||
-    isCairoTokens(rawTokens) ||
-    isLegacyCatTokens(rawTokens);
+  const teachingBuiltin = isTeachingSimpleTokens(rawTokens);
 
-  const tokens = cairoBuiltin ? [...DEFAULT_TOKENS] : rawTokens;
+  const cairoBuiltin =
+    !teachingBuiltin &&
+    (rawTokens.length === 0 ||
+      isCairoTokens(rawTokens) ||
+      isLegacyCatTokens(rawTokens));
+
+  const tokens = teachingBuiltin
+    ? [...TEACHING_SIMPLE_TOKENS]
+    : cairoBuiltin
+      ? [...DEFAULT_TOKENS]
+      : rawTokens;
 
   const legacyOk =
+    !teachingBuiltin &&
     !cairoBuiltin &&
     !!attentionRows &&
     !!queries &&
@@ -161,12 +199,20 @@ export default function SelfAttentionScoreExplorer({
 
   const [barPct, setBarPct] = useState<number[]>(() =>
     rowToBarPct(
-      cairoBuiltin ? CAIRO_TOKEN_DETAILS[initialIndex]!.scores : legacyOk ? attentionRows![initialIndex].scores : [],
+      teachingBuiltin
+        ? TEACHING_SIMPLE_DETAILS[initialIndex]!.scores
+        : cairoBuiltin
+          ? CAIRO_TOKEN_DETAILS[initialIndex]!.scores
+          : legacyOk
+            ? attentionRows![initialIndex].scores
+            : [],
       tokens.length,
     ),
   );
 
-  const qkv = cairoBuiltin
+  const qkv = teachingBuiltin
+    ? TEACHING_SIMPLE_DETAILS[displayIdx]
+    : cairoBuiltin
     ? CAIRO_TOKEN_DETAILS[displayIdx]
     : legacyOk
       ? {
@@ -198,11 +244,13 @@ export default function SelfAttentionScoreExplorer({
 
       exitTimerRef.current = setTimeout(() => {
         exitTimerRef.current = null;
-        const row = cairoBuiltin
-          ? CAIRO_TOKEN_DETAILS[i]!
-          : legacyOk
-            ? attentionRows![i]
-            : null;
+        const row = teachingBuiltin
+          ? TEACHING_SIMPLE_DETAILS[i]!
+          : cairoBuiltin
+            ? CAIRO_TOKEN_DETAILS[i]!
+            : legacyOk
+              ? attentionRows![i]
+              : null;
         if (row) {
           setBarPct(rowToBarPct(row.scores, tokens.length));
         }
@@ -210,7 +258,7 @@ export default function SelfAttentionScoreExplorer({
         setQkvPhase("enter");
       }, 150);
     },
-    [displayIdx, qkvPhase, qkv, cairoBuiltin, legacyOk, attentionRows, tokens.length],
+    [displayIdx, qkvPhase, qkv, teachingBuiltin, cairoBuiltin, legacyOk, attentionRows, tokens.length],
   );
 
   useLayoutEffect(() => {
@@ -232,38 +280,60 @@ export default function SelfAttentionScoreExplorer({
   }, []);
 
   useEffect(() => {
-    if (!cairoBuiltin && !legacyOk) {
+    if (!teachingBuiltin && !cairoBuiltin && !legacyOk) {
       setBarPct(tokens.map(() => 0));
     }
-  }, [cairoBuiltin, legacyOk, tokens]);
+  }, [teachingBuiltin, cairoBuiltin, legacyOk, tokens]);
 
   const selectedToken = tokens[displayIdx] ?? "";
   const tokenUpper = selectedToken.toUpperCase();
+  const attentionEquation = useMemo(() => {
+    if (!qkv) return "";
+    return tokens
+      .map((token, i) => `${(qkv.scores[i] ?? 0).toFixed(2)}·V_${token}`)
+      .join(" + ");
+  }, [qkv, tokens]);
+
+  const topContributors = useMemo(() => {
+    if (!qkv) return [];
+    return qkv.scores
+      .map((score, i) => ({ token: tokens[i] ?? "", score }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3);
+  }, [qkv, tokens]);
 
   const qkvCardClass = cn(
-    "grid gap-3 sm:grid-cols-3",
+    "grid gap-4 sm:grid-cols-3 md:gap-5",
     qkvPhase === "exit" && "pointer-events-none opacity-0 -translate-y-1.5 transition-[opacity,transform] duration-150 ease-out",
     qkvPhase === "enter" && "opacity-0 -translate-y-1.5",
     qkvPhase === "idle" && "opacity-100 translate-y-0 transition-[opacity,transform] duration-200 ease-out",
   );
 
   const outputBoxClass = cn(
-    "mt-6 rounded-xl border border-gray-200 bg-white/80 p-4 dark:border-gray-600 dark:bg-gray-800/80",
+    "mt-8 rounded-xl border-2 border-gray-200 bg-white/90 p-6 dark:border-gray-600 dark:bg-gray-800/90 md:p-8",
     qkvPhase === "exit" && "pointer-events-none opacity-0 -translate-y-1.5 transition-[opacity,transform] duration-150 ease-out",
     qkvPhase === "enter" && "opacity-0 -translate-y-1.5",
     qkvPhase === "idle" && "opacity-100 translate-y-0 transition-[opacity,transform] duration-200 ease-out",
   );
 
   return (
-    <div className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-900/40">
+    <div className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-8 md:p-10 dark:border-gray-700 dark:bg-gray-900/40">
       {(title || caption) && (
-        <div className="mb-5 space-y-1">
-          {title && <h2 className="text-sm font-medium text-gray-900 dark:text-gray-100">{title}</h2>}
-          {caption && <p className="text-xs text-gray-500 dark:text-gray-400">{caption}</p>}
+        <div className="mb-6 space-y-2">
+          {title && (
+            <h2 className="text-lg font-semibold tracking-tight text-gray-900 md:text-xl dark:text-gray-100">
+              {title}
+            </h2>
+          )}
+          {caption && (
+            <p className="text-base font-medium leading-relaxed text-gray-700 md:text-lg dark:text-gray-200">
+              {caption}
+            </p>
+          )}
         </div>
       )}
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-3 md:gap-4">
         {tokens.map((token, i) => {
           const isSelected = i === displayIdx;
           return (
@@ -272,10 +342,10 @@ export default function SelfAttentionScoreExplorer({
               type="button"
               onClick={() => selectToken(i)}
               className={cn(
-                "rounded-full px-3 py-1 text-xs font-semibold transition-colors md:text-sm",
+                "rounded-full px-4 py-2.5 text-base font-bold transition-colors md:px-6 md:py-3 md:text-lg",
                 isSelected
-                  ? "border-2 border-blue-600 bg-blue-500/15 text-blue-700 dark:border-blue-400 dark:bg-blue-500/20 dark:text-blue-200"
-                  : "border border-gray-300 bg-transparent text-gray-600 hover:border-gray-400 dark:border-gray-600 dark:text-gray-400 dark:hover:border-gray-500",
+                  ? "border-2 border-blue-600 bg-blue-500/15 text-blue-800 shadow-sm dark:border-blue-400 dark:bg-blue-500/20 dark:text-blue-100"
+                  : "border-2 border-gray-300 bg-transparent text-gray-800 hover:border-gray-400 dark:border-gray-500 dark:text-gray-200 dark:hover:border-gray-400",
               )}
             >
               {token}
@@ -284,61 +354,60 @@ export default function SelfAttentionScoreExplorer({
         })}
       </div>
 
-      {!qkv && (
-        <p className="mt-4 text-xs text-amber-800 dark:text-amber-200">
-          Pass matching <code>queries</code> and <code>attentionRows</code> for your tokens, or use the default Cairo
-          sentence.
-        </p>
-      )}
-
-      {qkv && (
+      {qkv ? (
         <>
-          <div className={cn("mt-6", qkvCardClass)}>
-            <div className="rounded-xl border-2 border-blue-400/70 bg-blue-500/10 p-4 dark:border-blue-500/50 dark:bg-blue-500/15">
-              <div className="mb-2 flex items-center gap-2">
-                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-600 text-xs font-bold text-white dark:bg-blue-500">
+          <div className={cn("mt-8", qkvCardClass)}>
+            <div className="rounded-xl border-2 border-blue-400/70 bg-blue-500/10 p-5 dark:border-blue-500/50 dark:bg-blue-500/15 md:p-6">
+              <div className="mb-3 flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-base font-bold text-white dark:bg-blue-500 md:h-11 md:w-11 md:text-lg">
                   Q
                 </span>
-                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">Query</span>
+                <span className="text-base font-bold text-gray-900 dark:text-gray-100 md:text-lg">Query</span>
               </div>
-              <p className="text-sm leading-snug text-gray-800 dark:text-gray-200">{qkv.q}</p>
+              <p className="text-base font-medium leading-relaxed text-gray-800 md:text-lg dark:text-gray-100">
+                {qkv.q}
+              </p>
             </div>
 
-            <div className="rounded-xl border-2 border-emerald-500/60 bg-emerald-500/10 p-4 dark:border-emerald-400/50 dark:bg-emerald-500/15">
-              <div className="mb-2 flex items-center gap-2">
-                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-600 text-xs font-bold text-white dark:bg-emerald-500">
+            <div className="rounded-xl border-2 border-emerald-500/60 bg-emerald-500/10 p-5 dark:border-emerald-400/50 dark:bg-emerald-500/15 md:p-6">
+              <div className="mb-3 flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-600 text-base font-bold text-white dark:bg-emerald-500 md:h-11 md:w-11 md:text-lg">
                   K
                 </span>
-                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">Key</span>
+                <span className="text-base font-bold text-gray-900 dark:text-gray-100 md:text-lg">Key</span>
               </div>
-              <p className="text-sm leading-snug text-gray-800 dark:text-gray-200">{qkv.k}</p>
+              <p className="text-base font-medium leading-relaxed text-gray-800 md:text-lg dark:text-gray-100">
+                {qkv.k}
+              </p>
             </div>
 
-            <div className="rounded-xl border-2 border-amber-500/70 bg-amber-400/15 p-4 dark:border-amber-400/55 dark:bg-amber-500/15">
-              <div className="mb-2 flex items-center gap-2">
-                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-amber-600 text-xs font-bold text-white dark:bg-amber-500">
+            <div className="rounded-xl border-2 border-amber-500/70 bg-amber-400/15 p-5 dark:border-amber-400/55 dark:bg-amber-500/15 md:p-6">
+              <div className="mb-3 flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-600 text-base font-bold text-white dark:bg-amber-500 md:h-11 md:w-11 md:text-lg">
                   V
                 </span>
-                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">Value</span>
+                <span className="text-base font-bold text-gray-900 dark:text-gray-100 md:text-lg">Value</span>
               </div>
-              <p className="text-sm leading-snug text-gray-800 dark:text-gray-200">{qkv.v}</p>
+              <p className="text-base font-medium leading-relaxed text-gray-800 md:text-lg dark:text-gray-100">
+                {qkv.v}
+              </p>
             </div>
           </div>
 
-          <div className="mt-8">
-            <h3 className="mb-3 text-sm font-medium text-gray-900 dark:text-gray-100">
+          <div className="mt-10">
+            <h3 className="mb-4 text-balance text-base font-bold text-gray-900 dark:text-gray-100 md:text-lg">
               Q·K scores → softmax → attention weights (how much &ldquo;{selectedToken}&rdquo; attends to each token)
             </h3>
-            <div className="space-y-2.5">
+            <div className="space-y-4">
               {tokens.map((token, j) => {
                 const pct = barPct[j] ?? 0;
                 const tag = strengthLabel(pct);
                 return (
-                  <div key={`${token}-bar-${j}`} className="flex items-center gap-2 sm:gap-3">
-                    <span className="w-16 shrink-0 text-right text-xs font-medium text-gray-700 dark:text-gray-300 sm:w-20">
+                  <div key={`${token}-bar-${j}`} className="flex items-center gap-3 sm:gap-4">
+                    <span className="w-24 shrink-0 text-right text-base font-bold text-gray-900 dark:text-gray-100 sm:w-28 md:text-lg">
                       {token}
                     </span>
-                    <div className="relative h-5 min-w-0 flex-1 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                    <div className="relative h-7 min-w-0 flex-1 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700 md:h-8">
                       <div
                         className={cn("h-full rounded-full", barClassForPct(pct))}
                         style={{
@@ -347,10 +416,12 @@ export default function SelfAttentionScoreExplorer({
                         }}
                       />
                     </div>
-                    <span className={cn("w-10 shrink-0 text-right text-xs font-semibold", textClassForPct(pct))}>
+                    <span className={cn("w-14 shrink-0 text-right text-base font-bold tabular-nums md:text-lg", textClassForPct(pct))}>
                       {pct}%
                     </span>
-                    <span className="w-16 shrink-0 text-[11px] font-medium text-gray-500 dark:text-gray-400">{tag}</span>
+                    <span className="w-20 shrink-0 text-base font-bold text-gray-700 md:w-24 md:text-lg dark:text-gray-200">
+                      {tag}
+                    </span>
                   </div>
                 );
               })}
@@ -358,14 +429,28 @@ export default function SelfAttentionScoreExplorer({
           </div>
 
           <div className={outputBoxClass}>
-            <p className="text-xs font-bold uppercase tracking-wide text-gray-600 dark:text-gray-300">
+            <p className="text-base font-bold uppercase tracking-wide text-gray-800 md:text-lg dark:text-gray-200">
               OUTPUT FOR &ldquo;{tokenUpper}&rdquo;
             </p>
-            <p className="mt-2 text-sm leading-relaxed text-gray-800 dark:text-gray-200">{qkv.summary}</p>
-            <p className="mt-3 text-sm font-bold text-gray-900 dark:text-gray-100">{qkv.outputBlend}</p>
+            <p className="mt-4 text-base font-bold uppercase tracking-wide text-gray-700 md:text-lg dark:text-gray-300">
+              Real attention output (simplified)
+            </p>
+            <p className="mt-2 rounded-lg bg-gray-100 px-3 py-2.5 font-mono text-lg leading-relaxed text-gray-900 dark:bg-gray-900/70 dark:text-gray-100 md:px-4 md:py-3 md:text-2xl">
+              {`z_${selectedToken} = ${attentionEquation}`}
+            </p>
+            <p className="mt-2 text-base font-medium leading-relaxed text-gray-800 md:text-lg dark:text-gray-200">
+              Top contributors:{" "}
+              {topContributors.map((item) => `${item.token} (${Math.round(item.score * 100)}%)`).join(", ")}
+            </p>
+            <p className="mt-3 text-base font-medium leading-relaxed text-gray-900 md:text-lg dark:text-gray-100">
+              {qkv.summary}
+            </p>
+            <p className="mt-4 text-base font-bold leading-relaxed text-gray-950 md:text-lg dark:text-white">
+              {qkv.outputBlend}
+            </p>
           </div>
         </>
-      )}
+      ) : null}
     </div>
   );
 }

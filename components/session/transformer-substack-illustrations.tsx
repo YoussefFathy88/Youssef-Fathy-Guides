@@ -40,7 +40,7 @@ function barRow(
 ) {
   return (
     <div className="space-y-1.5">
-      <div className="text-xs font-medium text-slate-400 md:text-sm">{label}</div>
+      <div className="text-base font-medium text-slate-300 md:text-lg">{label}</div>
       <div className="h-3 w-full overflow-hidden rounded-full bg-white/[0.08]">
         <motion.div
           className={cn("h-full rounded-full", tone)}
@@ -65,14 +65,14 @@ function OverviewEncoderMini({ reducedMotion }: { reducedMotion: boolean }) {
   };
   return (
     <div className="flex flex-col-reverse items-stretch gap-2 py-2">
-      <p className="mb-1 text-center text-xs text-slate-400 md:text-sm">
+      <p className="mb-1 text-center text-base text-slate-300 md:text-lg">
         Pulse follows data upward through one layer
       </p>
       {steps.map((id, idx) => (
         <motion.div
           key={id}
           className={cn(
-            "rounded-lg border px-3 py-2 text-center text-xs font-semibold md:text-sm",
+            "rounded-lg border px-3 py-2 text-center text-base font-semibold md:text-lg",
             id === "in" && "border-white/10 bg-white/[0.06] text-slate-200",
             id === "mha" &&
               "border-[color:var(--purple)]/25 bg-[color:var(--purple)]/12 text-[color:var(--purple)]",
@@ -108,14 +108,14 @@ function OverviewDecoderMini({ reducedMotion }: { reducedMotion: boolean }) {
   };
   return (
     <div className="flex flex-col-reverse items-stretch gap-2 py-2">
-      <p className="mb-1 text-center text-xs text-slate-400 md:text-sm">
+      <p className="mb-1 text-center text-base text-slate-300 md:text-lg">
         Mask, cross-attend, FFN — residuals at each step
       </p>
       {steps.map((id, idx) => (
         <motion.div
           key={id}
           className={cn(
-            "rounded-lg border px-3 py-2 text-center text-xs font-semibold md:text-sm",
+            "rounded-lg border px-3 py-2 text-center text-base font-semibold md:text-lg",
             id === "in" && "border-white/10 bg-white/[0.06] text-slate-200",
             (id === "ms" || id === "cr") &&
               "border-[color:var(--purple)]/25 bg-[color:var(--purple)]/12 text-[color:var(--purple)]",
@@ -137,13 +137,15 @@ function OverviewDecoderMini({ reducedMotion }: { reducedMotion: boolean }) {
   );
 }
 
-/** Demo attention weights per query row (rows sum to ~1). */
-const SELF_ATTN_TOKENS = ["The", "cat", "sat", "mat"] as const;
+/** Demo attention weights per query row (rows sum to 1) — matches SelfAttentionScoreExplorer Cairo built-in scores. */
+const SELF_ATTN_TOKENS = ["The", "capital", "of", "Egypt", "is", "Cairo"] as const;
 const SELF_ATTN_WEIGHTS: number[][] = [
-  [0.42, 0.28, 0.18, 0.12],
-  [0.18, 0.44, 0.22, 0.16],
-  [0.12, 0.26, 0.36, 0.26],
-  [0.1, 0.22, 0.3, 0.38],
+  [0.06, 0.42, 0.05, 0.1, 0.08, 0.29],
+  [0.07, 0.1, 0.06, 0.38, 0.05, 0.34],
+  [0.04, 0.3, 0.06, 0.42, 0.07, 0.11],
+  [0.05, 0.28, 0.07, 0.08, 0.06, 0.46],
+  [0.05, 0.34, 0.04, 0.18, 0.07, 0.32],
+  [0.05, 0.3, 0.05, 0.38, 0.07, 0.15],
 ];
 
 function SelfAttentionMini({
@@ -161,16 +163,16 @@ function SelfAttentionMini({
     return () => window.clearInterval(id);
   }, [reducedMotion, n]);
 
-  const vbW = 320;
+  const vbW = 468;
   const vbH = 148;
-  const cx = (i: number) => 40 + i * 80;
+  const cx = (i: number) => 36 + i * 72;
   const tokenY = 118;
   const queryY = 36;
   const row = SELF_ATTN_WEIGHTS[t] ?? SELF_ATTN_WEIGHTS[0];
 
   return (
     <div className="flex w-full flex-col items-center gap-4 py-1">
-      <p className="text-center text-xs text-slate-300 md:text-sm">
+      <p className="text-center text-base text-slate-200 md:text-lg">
         <span className="font-semibold text-[color:var(--purple)]">Q</span> at{" "}
         <span className="font-semibold text-white">{SELF_ATTN_TOKENS[t]}</span>
         <span className="text-slate-400"> — line thickness ≈ attention weight to each key</span>
@@ -178,7 +180,7 @@ function SelfAttentionMini({
 
       <svg
         viewBox={`0 0 ${vbW} ${vbH}`}
-        className="h-auto w-full max-w-md text-[color:var(--purple)]"
+        className="h-auto w-full max-w-[min(100%,468px)] text-[color:var(--purple)]"
         role="img"
         aria-label="Self-attention: query token connects to all key positions with varying strength"
       >
@@ -205,7 +207,7 @@ function SelfAttentionMini({
           x={cx(t)}
           y={queryY - 4}
           textAnchor="middle"
-          className="fill-[color:var(--purple)] text-[11px] font-bold"
+          className="fill-[color:var(--purple)] text-sm font-bold md:text-base"
         >
           Q
         </text>
@@ -214,9 +216,9 @@ function SelfAttentionMini({
           return (
             <g key={tok}>
               <rect
-                x={cx(j) - 34}
+                x={cx(j) - 32}
                 y={tokenY - 24}
-                width={68}
+                width={64}
                 height={46}
                 rx={12}
                 className={
@@ -231,7 +233,7 @@ function SelfAttentionMini({
                 y={tokenY - 4}
                 textAnchor="middle"
                 className={cn(
-                  "text-[13px] font-bold",
+                  "text-sm font-bold md:text-base",
                   active ? "fill-white" : "fill-slate-200",
                 )}
               >
@@ -241,7 +243,7 @@ function SelfAttentionMini({
                 x={cx(j)}
                 y={tokenY + 12}
                 textAnchor="middle"
-                className="fill-slate-400 text-[10px] tabular-nums md:text-[11px]"
+                className="fill-slate-300 text-sm tabular-nums md:text-base"
               >
                 K{j + 1}
               </text>
@@ -250,7 +252,7 @@ function SelfAttentionMini({
         })}
       </svg>
 
-      <div className="flex w-full max-w-md flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-slate-400 md:text-sm">
+      <div className="flex w-full max-w-md flex-wrap justify-center gap-x-4 gap-y-1 text-base text-slate-300 md:text-lg">
         {SELF_ATTN_TOKENS.map((tok, j) => (
           <span key={tok} className="tabular-nums">
             <span className="font-medium text-slate-200">{tok}</span>:{" "}
@@ -258,13 +260,6 @@ function SelfAttentionMini({
           </span>
         ))}
       </div>
-
-      <p className="max-w-lg text-center text-xs leading-relaxed text-slate-300 md:text-sm">
-        Scores are <strong className="text-white">Q · K</strong> (scaled);{" "}
-        <strong className="text-white">softmax</strong> makes them positive weights that sum to 1; the new vector is that weighted
-        sum of the <strong className="text-white">V</strong> vectors — one updated representation per position, in parallel for the
-        whole sequence.
-      </p>
 
       {onGoMultiHead ? (
         <button
@@ -279,43 +274,174 @@ function SelfAttentionMini({
   );
 }
 
+const MULTI_HEAD_TOKENS = ["The", "capital", "of", "Egypt", "is", "Cairo"] as const;
+
+const MULTI_HEAD_TOKEN_CHIPS: { readonly token: string; readonly chipClass: string }[] = [
+  { token: "The", chipClass: "border-violet-400/50 bg-violet-500/18 text-violet-50" },
+  {
+    token: "capital",
+    chipClass:
+      "border-emerald-400/55 bg-emerald-500/22 text-emerald-50 ring-2 ring-emerald-400/40 ring-offset-2 ring-offset-slate-950/80",
+  },
+  { token: "of", chipClass: "border-white/20 bg-white/[0.08] text-slate-100" },
+  { token: "Egypt", chipClass: "border-amber-400/45 bg-amber-500/18 text-amber-50" },
+  { token: "is", chipClass: "border-sky-400/45 bg-sky-500/18 text-sky-50" },
+  { token: "Cairo", chipClass: "border-rose-400/45 bg-rose-500/18 text-rose-50" },
+];
+
+const MULTI_HEAD_SPECS = [
+  {
+    title: "Head 1 — grammar",
+    barClass: "bg-violet-500",
+    borderClass: "border-violet-500/35",
+    titleClass: "text-violet-300",
+    question: 'Which words connect to "capital" structurally?',
+    weights: [55, 15, 20, 5, 3, 2] as const,
+    footer: '"The" is the article that modifies "capital" — strong grammatical bond',
+  },
+  {
+    title: "Head 2 — topic / meaning",
+    barClass: "bg-emerald-500",
+    borderClass: "border-emerald-500/35",
+    titleClass: "text-emerald-300",
+    question: "Which words share the same concept?",
+    weights: [4, 10, 4, 44, 3, 35] as const,
+    footer: 'Egypt + Cairo are geographically linked to "capital" — strong semantic match',
+  },
+  {
+    title: "Head 3 — position / neighbors",
+    barClass: "bg-amber-500",
+    borderClass: "border-amber-500/35",
+    titleClass: "text-amber-300",
+    question: 'Which words sit close to "capital"?',
+    weights: [18, 10, 52, 14, 4, 2] as const,
+    footer: '"of" is right next to "capital" — positional proximity drives this head',
+  },
+] as const;
+
 function MultiHeadMini({ reducedMotion }: { reducedMotion: boolean }) {
   return (
-    <div className="space-y-4 py-2">
-      <div className="flex gap-3">
-        {[0, 1, 2].map((h) => (
-          <div key={h} className="min-w-0 flex-1 space-y-2">
-            <div className="text-center text-xs font-medium text-slate-400 md:text-sm">Head {h + 1}</div>
-            <div className="flex h-10 overflow-hidden rounded-lg bg-white/[0.08]">
-              <motion.div
-                className="h-full min-h-0 w-full bg-[color:var(--purple)]/75"
-                initial={reducedMotion ? false : { scaleY: 0 }}
-                animate={{ scaleY: 1 }}
-                transition={{ duration: reducedMotion ? 0 : 0.4, delay: reducedMotion ? 0 : h * 0.12 }}
-                style={{ transformOrigin: "bottom" }}
-              />
+    <div
+      className="space-y-5 py-1"
+      role="region"
+      aria-label="Multi-head attention: three heads attending from the word capital"
+    >
+      <div className="flex flex-wrap items-center justify-center gap-2 md:gap-2.5">
+        {MULTI_HEAD_TOKEN_CHIPS.map(({ token, chipClass }) => (
+          <span
+            key={token}
+            className={cn(
+              "rounded-full border px-3 py-1.5 text-sm font-bold tabular-nums md:text-base",
+              chipClass,
+            )}
+          >
+            {token}
+          </span>
+        ))}
+      </div>
+
+      <p className="text-center text-sm font-medium leading-snug text-slate-300 md:text-base">
+        Each head looks at &ldquo;capital&rdquo; — but notices a different kind of relationship
+      </p>
+
+      <div className="grid gap-4 md:grid-cols-3 md:gap-3 lg:gap-4">
+        {MULTI_HEAD_SPECS.map((head, headIdx) => (
+          <div
+            key={head.title}
+            className={cn(
+              "flex min-w-0 flex-col rounded-xl border bg-white/[0.03] p-4 shadow-sm md:p-5",
+              head.borderClass,
+            )}
+          >
+            <h4 className={cn("text-sm font-bold md:text-base", head.titleClass)}>{head.title}</h4>
+            <p className="mt-2 text-base leading-relaxed text-slate-300 md:text-lg">{head.question}</p>
+
+            <div className="mt-4 space-y-2.5">
+              {MULTI_HEAD_TOKENS.map((tok, j) => {
+                const pct = head.weights[j] ?? 0;
+                return (
+                  <div key={`${head.title}-${tok}`} className="flex items-center gap-2">
+                    <span className="w-14 shrink-0 text-right text-sm font-semibold text-slate-100 tabular-nums sm:w-16 md:text-base">
+                      {tok}
+                    </span>
+                    <div className="relative h-6 min-w-0 flex-1 overflow-hidden rounded-full bg-white/[0.08]">
+                      <motion.div
+                        className={cn("h-full rounded-full", head.barClass)}
+                        initial={reducedMotion ? false : { width: 0 }}
+                        animate={{ width: `${pct}%` }}
+                        transition={{
+                          duration: reducedMotion ? 0 : 0.45,
+                          delay: reducedMotion ? 0 : headIdx * 0.08 + j * 0.04,
+                          ease: "easeOut",
+                        }}
+                      />
+                    </div>
+                    <span className="w-9 shrink-0 text-right text-sm font-bold tabular-nums text-slate-100 md:text-base">
+                      {pct}%
+                    </span>
+                  </div>
+                );
+              })}
             </div>
+
+            <p className="mt-4 border-t border-white/10 pt-3 text-base leading-relaxed text-slate-300 md:text-lg">
+              {head.footer}
+            </p>
           </div>
         ))}
       </div>
-      <div className="flex items-center justify-center gap-2 text-xs text-slate-400 md:text-sm">
-        <span>concatenate</span>
-        <span aria-hidden>→</span>
+
+      <div className="rounded-xl border border-white/12 bg-white/[0.04] px-4 py-4 md:px-5 md:py-5">
+        <p className="text-center text-sm font-bold text-slate-100 md:text-base">
+          Final vector for &ldquo;capital&rdquo; = blend of all 3 heads
+        </p>
+        <p className="mt-3 text-center text-base leading-relaxed text-slate-300 md:text-lg">
+          Grammar head says → &ldquo;The&rdquo; modifies me · Topic head says → Egypt + Cairo define me · Position head
+          says → &ldquo;of&rdquo; is my immediate neighbor
+        </p>
       </div>
-      {barRow("Project back to model width", 88, "bg-[color:var(--purple)]/80", 0.35, reducedMotion)}
+
+      <p className="text-center text-sm text-slate-400 md:text-base">
+        Concatenate head outputs → linear projection → back to model width (same width as input).
+      </p>
     </div>
   );
 }
 
 function FFNMini({ reducedMotion }: { reducedMotion: boolean }) {
+  const unpackStory = `oh, Egypt + capital + Cairo →
+this is a country,
+it has a capital city,
+that city is Cairo`;
+
   return (
-    <div className="space-y-3 py-2">
-      {barRow("Linear up (e.g. 512)", 28, "bg-[color:var(--success)]/65", 0, reducedMotion)}
-      {barRow("Hidden + activation (e.g. 2048)", 92, "bg-[color:var(--warning)]/70", 0.12, reducedMotion)}
-      {barRow("Linear down (e.g. 512)", 28, "bg-[color:var(--success)]/65", 0.24, reducedMotion)}
-      <p className="text-center text-xs text-slate-400 md:text-sm">
-        Same MLP weights applied at every position independently
-      </p>
+    <div className="mx-auto max-w-xl space-y-4 py-2">
+      <div className="rounded-xl border border-[color:var(--purple)]/35 bg-[color:var(--purple)]/10 px-4 py-3 md:px-5 md:py-4">
+        <p className="text-sm font-bold uppercase tracking-wide text-[color:var(--purple)] md:text-base">
+          Attention output
+        </p>
+        <p className="mt-2 text-sm font-medium leading-snug text-slate-100 md:text-base">
+          &ldquo;Egypt&rdquo; now knows it relates to capital and Cairo
+        </p>
+      </div>
+
+      <div className="rounded-xl border border-[color:var(--warning)]/40 bg-[color:var(--warning)]/10 px-4 py-3 md:px-5 md:py-4">
+        <p className="text-sm font-bold uppercase tracking-wide text-[color:var(--warning)] md:text-base">
+          Feed-forward
+        </p>
+        <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-100 md:text-base">
+          {unpackStory}
+        </p>
+      </div>
+
+      <div className="space-y-3 border-t border-white/10 pt-4">
+        {barRow("Linear up (e.g. 512)", 28, "bg-[color:var(--success)]/65", 0, reducedMotion)}
+        {barRow("Hidden + activation (e.g. 2048)", 92, "bg-[color:var(--warning)]/70", 0.12, reducedMotion)}
+        {barRow("Linear down (e.g. 512)", 28, "bg-[color:var(--success)]/65", 0.24, reducedMotion)}
+        <p className="text-center text-base text-slate-300 md:text-lg">
+          Same weights at every position — each token gets its own pass after attention has mixed context in.
+        </p>
+      </div>
     </div>
   );
 }
@@ -326,7 +452,7 @@ function ResidualMini({ reducedMotion, multi }: { reducedMotion: boolean; multi?
       {barRow("Sub-layer output", 55, "bg-[color:var(--purple)]/70", 0, reducedMotion)}
       {barRow("Skip — original input", 55, "bg-[color:var(--success)]/55", 0.1, reducedMotion)}
       {barRow("Add → LayerNorm → out", 80, "bg-[color:var(--primary)]/55", 0.22, reducedMotion)}
-      <p className="text-center text-xs text-slate-400 md:text-sm">
+      <p className="text-center text-base text-slate-300 md:text-lg">
         {multi
           ? "Each attention and FFN block in the decoder uses this wrap."
           : "Preserves a clean path if the sub-layer learns near-zero updates."}
@@ -347,13 +473,13 @@ function LayersMini({
   const n = Math.min(Math.max(layerCount, 1), 12);
   return (
     <div className="flex flex-col-reverse items-stretch gap-2 py-2">
-      <p className="mb-1 text-center text-xs text-slate-400 md:text-sm">
+      <p className="mb-1 text-center text-base text-slate-300 md:text-lg">
         {label} — same block repeated {layerCount}×
       </p>
       {Array.from({ length: n }, (_, i) => (
         <motion.div
           key={i}
-          className="rounded-lg border border-[color:var(--purple)]/30 bg-[color:var(--purple)]/10 px-3 py-2 text-center text-xs font-semibold text-[color:var(--purple)] md:text-sm"
+          className="rounded-lg border border-[color:var(--purple)]/30 bg-[color:var(--purple)]/10 px-3 py-2 text-center text-base font-semibold text-[color:var(--purple)] md:text-lg"
           initial={reducedMotion ? false : { opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: reducedMotion ? 0 : 0.25, delay: reducedMotion ? 0 : i * 0.06 }}
@@ -366,99 +492,138 @@ function LayersMini({
 }
 
 function MaskedAttentionMini({ reducedMotion }: { reducedMotion: boolean }) {
-  const n = 5;
-  const [active, setActive] = useState(2);
+  const decoderTokens = ["The", "capital", "of", "Egypt", "is"] as const;
+  const blockedFutureToken = "Cairo";
+  const n = decoderTokens.length;
+  const [active, setActive] = useState(3);
   useEffect(() => {
     if (reducedMotion) return;
     const id = window.setInterval(() => setActive((a) => (a + 1) % n), 1600);
     return () => window.clearInterval(id);
-  }, [reducedMotion]);
+  }, [reducedMotion, n]);
+
+  const allowedPrefix = decoderTokens.slice(0, active + 1).join(" ");
+  const blockedSuffix = blockedFutureToken;
 
   return (
-    <div className="space-y-4 py-2">
-      <div className="mx-auto grid w-full max-w-[300px] grid-cols-5 gap-1.5 sm:max-w-[340px]">
-        {Array.from({ length: n * n }, (_, idx) => {
-          const row = Math.floor(idx / n);
-          const col = idx % n;
-          const allowed = col <= row;
-          const lit = allowed && row === active;
-          return (
-            <div
-              key={idx}
-              className={cn(
-                "aspect-square rounded-md border",
-                !allowed && "border-white/10 bg-white/[0.04]",
-                allowed &&
-                  !lit &&
-                  "border-[color:var(--purple)]/25 bg-[color:var(--purple)]/12",
-                lit &&
-                  "border-[color:var(--purple)]/50 bg-[color:var(--purple)]/35 ring-2 ring-[color:var(--primary)]/40",
-              )}
-            />
-          );
-        })}
+    <div className="space-y-5 py-2">
+      <div className="rounded-xl border border-[color:var(--purple)]/30 bg-[color:var(--purple)]/10 px-4 py-3 md:px-5 md:py-4">
+        <p className="text-sm font-semibold text-slate-100 md:text-base">
+          Example (decoder step): trying to predict next token after
+        </p>
+        <p className="mt-2 rounded-md bg-black/20 px-3 py-2 font-mono text-base text-white md:text-lg">
+          The capital of Egypt is
+        </p>
+        <p className="mt-2 text-sm font-medium text-slate-300 md:text-base">
+          Model should output: <span className="font-bold text-white">{blockedFutureToken}</span>
+        </p>
       </div>
-      <p className="text-center text-xs text-slate-400 md:text-sm">
-        Rows = query position, columns = key position. Upper triangle blocked; row {active + 1} highlights allowed keys.
+
+      <div className="mx-auto w-full max-w-[560px]">
+        <div className="mb-2 grid grid-cols-5 gap-1.5">
+          {decoderTokens.map((tok, i) => (
+            <div
+              key={`col-${tok}-${i}`}
+              className={cn(
+                "rounded-md border px-1.5 py-1 text-center text-base font-semibold md:text-lg",
+                i <= active
+                  ? "border-[color:var(--purple)]/40 bg-[color:var(--purple)]/12 text-slate-100"
+                  : "border-white/10 bg-white/[0.03] text-slate-500",
+              )}
+            >
+              {tok}
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-5 gap-1.5">
+          {Array.from({ length: n * n }, (_, idx) => {
+            const row = Math.floor(idx / n);
+            const col = idx % n;
+            const allowed = col <= row;
+            const lit = allowed && row === active;
+            return (
+              <div
+                key={idx}
+                className={cn(
+                  "aspect-square rounded-md border",
+                  !allowed && "border-white/10 bg-white/[0.03]",
+                  allowed &&
+                    !lit &&
+                    "border-[color:var(--purple)]/25 bg-[color:var(--purple)]/12",
+                  lit &&
+                    "border-[color:var(--purple)]/50 bg-[color:var(--purple)]/35 ring-2 ring-[color:var(--primary)]/40",
+                )}
+              />
+            );
+          })}
+        </div>
+      </div>
+
+      <p className="text-center text-sm font-medium text-slate-300 md:text-base">
+        Active query token: <span className="font-bold text-white">{decoderTokens[active]}</span>
+      </p>
+      <p className="text-center text-base leading-relaxed text-slate-300 md:text-lg">
+        It can attend only to: <span className="font-mono text-slate-200">{allowedPrefix}</span> | blocked future:
+        <span className="font-mono text-slate-300"> {blockedSuffix}</span>
       </p>
     </div>
   );
 }
 
 function CrossAttentionMini({ reducedMotion }: { reducedMotion: boolean }) {
+  const sourceTokens = ["The", "capital", "of", "Egypt", "is", "Cairo"] as const;
+  const decoderPrefix = ["The", "capital", "of", "Egypt", "is"] as const;
+  const weights = [0.06, 0.28, 0.07, 0.41, 0.04, 0.14] as const;
+  const activeSource = 3;
+
   return (
-    <div className="flex items-stretch justify-center gap-4 py-3 md:gap-6">
-      <div className="flex min-w-0 flex-1 flex-col items-center gap-3 rounded-xl border border-[color:var(--warning)]/35 bg-[color:var(--warning)]/10 p-4">
-        <span className="text-xs font-bold uppercase tracking-wide text-[color:var(--warning)] md:text-sm">Decoder</span>
-        <motion.div
-          className="h-12 w-full max-w-[88px] rounded-lg bg-[color:var(--warning)]/45"
-          animate={reducedMotion ? {} : { opacity: [0.65, 1, 0.65] }}
-          transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
-        />
-        <span className="text-xs font-semibold text-[color:var(--warning)] md:text-sm">Q</span>
+    <div className="space-y-5 py-2">
+      <div className="rounded-xl border border-[color:var(--warning)]/35 bg-[color:var(--warning)]/10 px-4 py-3 md:px-5 md:py-4">
+        <p className="text-base font-semibold text-slate-100 md:text-lg">Decoder has generated:</p>
+        <p className="mt-2 rounded-md bg-black/20 px-3 py-2 font-mono text-lg text-white md:text-xl">
+          {decoderPrefix.join(" ")}
+        </p>
+        <p className="mt-2 text-base text-slate-300 md:text-lg">
+          To pick the next token, decoder asks encoder memory: <span className="font-semibold text-white">Which country are
+          we talking about?</span>
+        </p>
       </div>
-      <div className="flex flex-col items-center justify-center gap-2 px-1">
-        <motion.svg
-          width="44"
-          height="56"
-          viewBox="0 0 36 48"
-          className="text-[color:var(--purple)]"
-          aria-hidden
-        >
-          <motion.path
-            d="M4 24 H28 M28 24 L22 18 M28 24 L22 30"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            initial={reducedMotion ? false : { pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={
-              reducedMotion
-                ? { duration: 0 }
-                : { duration: 0.55, repeat: Number.POSITIVE_INFINITY, repeatDelay: 1.0, ease: "easeInOut" }
-            }
-          />
-        </motion.svg>
-        <span className="text-xs text-slate-400">attend</span>
-      </div>
-      <div className="flex min-w-0 flex-1 flex-col items-center gap-3 rounded-xl border border-[color:var(--purple)]/35 bg-[color:var(--purple)]/10 p-4">
-        <span className="text-xs font-bold uppercase tracking-wide text-[color:var(--purple)] md:text-sm">
-          Encoder memory
-        </span>
-        <div className="flex h-12 w-full max-w-[100px] items-end justify-center gap-1">
-          {[40, 65, 50, 72, 45].map((h, i) => (
-            <motion.div
-              key={i}
-              className="w-2.5 rounded-t bg-[color:var(--purple)]/70"
-              initial={reducedMotion ? false : { scaleY: 0 }}
-              animate={{ scaleY: 1 }}
-              transition={{ duration: reducedMotion ? 0 : 0.35, delay: reducedMotion ? 0 : i * 0.08 }}
-              style={{ height: `${h}%`, transformOrigin: "bottom" }}
-            />
-          ))}
+
+      <div className="rounded-xl border border-[color:var(--purple)]/30 bg-[color:var(--purple)]/10 p-4 md:p-5">
+        <p className="text-sm font-bold uppercase tracking-wide text-[color:var(--purple)] md:text-base">
+          Encoder memory (keys/values from source sentence)
+        </p>
+        <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+          {sourceTokens.map((tok, i) => {
+            const pct = Math.round(weights[i] * 100);
+            return (
+              <div key={tok} className="rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-base font-semibold text-slate-100 md:text-lg">{tok}</span>
+                  <span className="text-sm font-bold tabular-nums text-slate-300 md:text-base">{pct}%</span>
+                </div>
+                <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-white/[0.08]">
+                  <motion.div
+                    className={cn(
+                      "h-full rounded-full",
+                      i === activeSource ? "bg-[color:var(--primary)]" : "bg-[color:var(--purple)]/75",
+                    )}
+                    initial={reducedMotion ? false : { width: 0 }}
+                    animate={{ width: `${pct}%` }}
+                    transition={{ duration: reducedMotion ? 0 : 0.4, delay: reducedMotion ? 0 : i * 0.06 }}
+                  />
+                </div>
+              </div>
+            );
+          })}
         </div>
-        <span className="text-xs font-semibold text-[color:var(--purple)] md:text-sm">K · V</span>
       </div>
+
+      <p className="text-center text-base font-medium text-slate-200 md:text-xl">
+        Highest cross-attention goes to <span className="font-bold text-white">Egypt (41%)</span> so the decoder stays
+        grounded in the source and predicts <span className="font-bold text-white">Cairo</span>.
+      </p>
     </div>
   );
 }

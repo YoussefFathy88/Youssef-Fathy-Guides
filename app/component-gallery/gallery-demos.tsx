@@ -51,6 +51,8 @@ import {
   ParameterSlider,
   ParallelToolRunner,
   PositionalEncodingVisualizer,
+  TransformerSentenceTokenStrip,
+  EmbeddingVectorsTable,
   PromptAnatomyVisualizer,
   RNNUnrolledOverview,
   StepSequence,
@@ -468,12 +470,35 @@ export const GALLERY_ITEMS: GalleryItem[] = [
     ),
   },
   {
+    name: "TransformerSentenceTokenStrip",
+    node: (
+      <TransformerSentenceTokenStrip
+        title="Tokens → IDs"
+        tokens={["The", "capital", "of", "Egypt", "is", "Cairo"]}
+        ids={[8842, 3104, 77, 5602, 892, 4021]}
+      />
+    ),
+  },
+  {
+    name: "EmbeddingVectorsTable",
+    node: (
+      <EmbeddingVectorsTable
+        title="Embedding vectors (mock)"
+        tokens={["The", "capital", "of", "Egypt", "is", "Cairo"]}
+        ids={[8842, 3104, 77, 5602, 892, 4021]}
+        dim={8}
+      />
+    ),
+  },
+  {
     name: "PositionalEncodingVisualizer",
     node: (
       <PositionalEncodingVisualizer
-        title="Positional encoding — order, wave, sum"
-        caption="Three steps: swap middle tokens, see a position-only wave, then meaning + position bars."
-        tokens={["dog", "bites", "man"]}
+        title="Positional encoding — order, waves, table, sum"
+        caption="Vaswani PE: large numeric table on Position signal step, then sum stub."
+        tokens={["The", "capital", "of", "Egypt", "is", "Cairo"]}
+        dModel={8}
+        tableDims={8}
         initialStep={0}
       />
     ),
@@ -726,7 +751,7 @@ export const GALLERY_ITEMS: GalleryItem[] = [
     node: (
       <RNNUnrolledOverview
         title="RNN unrolled — The capital of Egypt is Cairo"
-        caption="Five input timesteps; the final predicted token is Cairo (shown above the last column). Prev/Next highlights one column and the hidden-state arrow feeding it."
+        caption="Five timesteps over the prefix The … is; the target next token is Cairo (above the last column). Prev/Next highlights one column and the hidden-state arrow feeding it."
         terminalNextToken="Cairo"
         stepDescriptions={[
           "Timestep 1: the previous hidden state h₀ (often a zero vector) enters the RNN together with the first word, The. The cell writes a new summary h₁ and predicts the next token.",

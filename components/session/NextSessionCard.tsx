@@ -14,7 +14,7 @@ export interface NextSessionCardProps {
 }
 
 const cardShellClass =
-  "flex w-full items-start gap-4 rounded-2xl border border-violet-200 bg-violet-50 p-5 dark:border-violet-800 dark:bg-violet-900/20";
+  "flex w-full items-start gap-5 rounded-2xl border-2 border-violet-200 bg-violet-50 p-7 dark:border-violet-800 dark:bg-violet-900/20 md:p-8";
 
 export function NextSessionCard({
   title,
@@ -34,15 +34,17 @@ export function NextSessionCard({
         -&gt;
       </span>
 
-      <div className="min-w-0 space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-violet-600 dark:text-violet-300">
+      <div className="min-w-0 space-y-3">
+        <p className="text-base font-bold uppercase tracking-[0.2em] text-violet-700 dark:text-violet-200 md:text-lg">
           Next Session
         </p>
-        <p className="text-xs font-medium uppercase tracking-[0.18em] text-violet-500/80 dark:text-violet-300/80">
+        <p className="text-base font-bold uppercase tracking-[0.14em] text-violet-600 dark:text-violet-300 md:text-lg">
           Module {module}
         </p>
-        <h3 className="text-2xl font-semibold text-gray-950 dark:text-gray-50">{title}</h3>
-        <p className="text-sm leading-7 text-gray-700 dark:text-gray-300">{teaser}</p>
+        <h3 className="text-2xl font-bold text-gray-950 dark:text-gray-50 md:text-3xl">{title}</h3>
+        <p className="text-base font-medium leading-relaxed text-gray-800 dark:text-gray-200 md:text-lg">
+          {teaser}
+        </p>
       </div>
     </>
   );
