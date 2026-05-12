@@ -18,6 +18,8 @@ export { default as EmbeddingSearchSimulator } from "../session/EmbeddingSearchS
 export { default as ContextWindowFiller } from "./ContextWindowFiller";
 export { default as NodeFlowDiagram } from "./NodeFlowDiagram";
 export { default as DualLanePipelineDiagram } from "./DualLanePipelineDiagram";
+export { default as MacroPipeline } from "./MacroPipeline";
+export { default as VectorAnatomyExplorer } from "./VectorAnatomyExplorer";
 // New interactive components
 export { default as TrainingLoopSimulator } from "./TrainingLoopSimulator";
 export { default as AutoregressiveDemo } from "./AutoregressiveDemo";
@@ -56,6 +58,7 @@ export { default as RNNUnrolledOverview } from "../session/RNNUnrolledOverview";
 export { default as RNNWorkingExample } from "../session/RNNWorkingExample";
 export { default as RNNFailureDemo } from "../session/RNNFailureDemo";
 export { default as SelfAttentionScoreExplorer } from "../session/SelfAttentionScoreExplorer";
+export { default as MaskedAttentionSimulator } from "../session/MaskedAttentionSimulator";
 export { default as TransformerPipelineWalkthrough } from "../session/TransformerPipelineWalkthrough";
 export { default as PositionalEncodingVisualizer } from "../session/PositionalEncodingVisualizer";
 export { default as TransformerSentenceTokenStrip } from "../session/TransformerSentenceTokenStrip";

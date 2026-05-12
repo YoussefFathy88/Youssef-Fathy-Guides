@@ -38,24 +38,16 @@ export interface PositionalEncodingVisualizerProps {
   autoPlayIntervalMs?: number;
 }
 
-const DEFAULT_TOKENS = ["dog", "bites", "man"];
+const VARIATIONS = [
+  { tokens: ["Only", "I", "love", "Cairo"], meaning: "Nobody else loves it — just me." },
+  { tokens: ["I", "only", "love", "Cairo"], meaning: "I love it, but I don't do anything else (no work, no sleep)." },
+  { tokens: ["I", "love", "only", "Cairo"], meaning: "I love Cairo specifically, not other cities." },
+  { tokens: ["I", "love", "Cairo", "only"], meaning: "Emphasis on 'Cairo only' — similar to specifically." },
+] as const;
 
 function clampEvenDModel(n: number): number {
   const x = Math.min(32, Math.max(4, Math.round(n)));
   return x % 2 === 0 ? x : x + 1;
-}
-
-/** Swap indices floor(n/2)-1 and floor(n/2) when n ≥ 3 (adjacent pair left of center for odd n). */
-function swapMiddleAdjacent(tokens: string[], swapped: boolean): string[] {
-  if (!swapped) return tokens;
-  const copy = [...tokens];
-  const n = copy.length;
-  const j = Math.floor(n / 2);
-  const i = j - 1;
-  if (i >= 0 && j < n) {
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
 }
 
 /** Deterministic mock embedding (same spirit as EmbeddingVectorsTable) for sum demo. */
@@ -79,14 +71,14 @@ export default function PositionalEncodingVisualizer({
   autoPlayIntervalMs = 9000,
 }: PositionalEncodingVisualizerProps) {
   const reducedMotion = useReducedMotion();
-  const tokens = tokensProp?.length && tokensProp.length >= 3 ? tokensProp : DEFAULT_TOKENS;
   const dModel = clampEvenDModel(dModelProp ?? 8);
   const tableDims = Math.min(dModel, Math.max(4, tableDimsProp ?? Math.min(8, dModel)));
 
   const [step, setStep] = useState(() => Math.min(2, Math.max(0, initialStep)));
-  const [swapped, setSwapped] = useState(false);
+  const [variationIdx, setVariationIdx] = useState(0);
 
-  const displayOrder = useMemo(() => swapMiddleAdjacent(tokens, swapped), [tokens, swapped]);
+  const currentVariation = VARIATIONS[variationIdx];
+  const displayOrder = currentVariation.tokens;
 
   const peRows = useMemo(
     () => displayOrder.map((_, pos) => peVector(pos, dModel)),
@@ -159,7 +151,7 @@ export default function PositionalEncodingVisualizer({
         ))}
       </div>
 
-      <div className={cn(step === 1 ? "min-h-0" : "min-h-[200px]")}>
+      <div className={cn(step === 1 ? "min-h-0" : "min-h-[240px]")}>
         <AnimatePresence mode="wait">
           {step === 0 && (
             <motion.div
@@ -168,26 +160,46 @@ export default function PositionalEncodingVisualizer({
               animate={{ opacity: 1, y: 0 }}
               exit={reducedMotion ? undefined : { opacity: 0, y: -6 }}
               transition={{ duration: 0.2 }}
-              className="space-y-6"
+              className="space-y-8"
             >
               <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
                 {displayOrder.map((t, i) => (
                   <motion.span
                     key={`${t}-${i}`}
                     layout={!reducedMotion}
-                    className="rounded-xl bg-teal-500/15 px-4 py-3 text-lg font-bold tracking-tight text-teal-950 ring-1 ring-teal-600/20 md:px-6 md:py-4 md:text-2xl dark:bg-teal-500/25 dark:text-teal-50 dark:ring-teal-400/25"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className={cn(
+                      "rounded-xl px-4 py-3 text-lg font-bold tracking-tight ring-1 md:px-6 md:py-4 md:text-2xl transition-colors duration-500",
+                      t === "Only" || t === "only"
+                        ? "bg-amber-500/20 text-amber-900 ring-amber-600/30 dark:text-amber-50"
+                        : "bg-teal-500/15 text-teal-950 ring-teal-600/20 dark:bg-teal-500/25 dark:text-teal-50"
+                    )}
                   >
                     {t}
                   </motion.span>
                 ))}
               </div>
-              <div className="flex justify-center">
+
+              <div className="flex flex-col items-center gap-6">
+                <motion.div 
+                  key={variationIdx}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="rounded-2xl bg-white/50 px-6 py-4 border border-gray-200 shadow-sm dark:bg-gray-900/50 dark:border-gray-700"
+                >
+                  <p className="text-lg font-bold text-gray-900 dark:text-white">
+                    <span className="text-violet-600 dark:text-violet-400 mr-2">Meaning:</span>
+                    {currentVariation.meaning}
+                  </p>
+                </motion.div>
+
                 <button
                   type="button"
-                  onClick={() => setSwapped((s) => !s)}
-                  className="rounded-xl bg-gray-200 px-6 py-3 text-base font-bold text-gray-900 shadow-sm hover:bg-gray-300 md:text-lg dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500"
+                  onClick={() => setVariationIdx((i) => (i + 1) % VARIATIONS.length)}
+                  className="rounded-xl bg-violet-600 px-8 py-3.5 text-base font-black text-white shadow-lg shadow-violet-900/20 hover:bg-violet-500 active:scale-95 transition-all md:text-lg"
                 >
-                  {swapped ? "Restore order" : "Swap middle pair"}
+                  Move 'Only'
                 </button>
               </div>
             </motion.div>

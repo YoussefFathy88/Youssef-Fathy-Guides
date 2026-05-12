@@ -30,69 +30,45 @@ prevSession: "transformer-attention"
 
 ## Big picture: from raw text to model understanding
 
-<NodeFlowDiagram
-  diagramId="raw-text-to-predicted-token-pipeline"
-  title="The six stages: raw text to predicted token"
-  height={540}
-  hideStepNarrative
-  nodes={[
-    { id: "tokenize", label: "Tokenize", sublabel: "text → IDs", x: 10, y: 34, color: "gray", shape: "rect", size: "sm", emoji: "🔤" },
-    { id: "embed", label: "Embed", sublabel: "IDs → vectors", x: 26, y: 34, color: "teal", shape: "rect", size: "sm", emoji: "📊" },
-    { id: "posenc", label: "Positional encode", sublabel: "add order", x: 44, y: 34, color: "rose", shape: "rect", size: "sm", emoji: "📍" },
-    { id: "encode", label: "Encode", sublabel: "understand all", x: 64, y: 34, color: "violet", shape: "rect", size: "sm", emoji: "🧠" },
-    { id: "decode", label: "Decode", sublabel: "generate next", x: 52, y: 72, color: "amber", shape: "rect", size: "sm", emoji: "✍️" },
-    { id: "predict", label: "Predict", sublabel: "scores → token", x: 76, y: 72, color: "blue", shape: "rect", size: "sm", emoji: "🎯" },
-  ]}
-  edges={[
-    { from: "tokenize", to: "embed", animated: true, color: "gray" },
-    { from: "embed", to: "posenc", animated: true, color: "teal" },
-    { from: "posenc", to: "encode", animated: true, color: "rose" },
-    { from: "encode", to: "decode", animated: true, color: "violet" },
-    { from: "decode", to: "predict", animated: true, color: "amber" },
+<MacroPipeline
+  title="The Big Picture: From raw text to next token"
+  hasLoop
+  blocks={[
+    { id: "input", label: "Your words", sublabel: '"What is the capital of Egypt"', emoji: "💬", color: "gray" },
+    { id: "tokenizer", label: "Tokenizer", sublabel: "Words → IDs", emoji: "🔤", color: "violet" },
+    { id: "embedding", label: "Embedding layer", sublabel: "ID → raw vector", emoji: "📊", color: "blue" },
+    { id: "posenc", label: "Positional encoding", sublabel: "Add order info", emoji: "📍", color: "teal" },
+    { id: "transformer", label: "Transformer blocks", sublabel: "Self-attention & Context", emoji: "🧠", color: "amber" },
+    { id: "last-token", label: "Last token vector", sublabel: "Full context summary", emoji: "🎯", color: "rose" },
+    { id: "lm-head", label: "LM Head", sublabel: "Predict logits", emoji: "🔢", color: "violet" },
+    { id: "softmax", label: "Softmax", sublabel: "Get probabilities", emoji: "⚖️", color: "teal" },
+    { id: "output", label: "Next token predicted", sublabel: '"Cairo" → loop context', emoji: "✍️", color: "blue" },
   ]}
   steps={[
     {
       id: "s1",
-      label: "Tokenize — text → IDs",
-      description: "The sentence is split into tokens — subword pieces — each mapped to an integer. This is the only form the model can read.",
-      highlightNodes: ["tokenize"],
-      highlightEdges: [],
+      label: "Phase 1: Input & Tokenization",
+      description: 'The journey starts with raw text. The Tokenizer splits your words into subword units (IDs) that the model can understand.',
+      highlightBlocks: ["input", "tokenizer"]
     },
     {
       id: "s2",
-      label: "Embed — IDs → vectors",
-      description: "Each integer is looked up in a learned table and becomes a dense vector that encodes its meaning. Similar words end up with similar vectors.",
-      highlightNodes: ["tokenize", "embed"],
-      highlightEdges: ["tokenize→embed"],
+      label: "Phase 2: Vectors & Position",
+      description: "Each ID becomes a high-dimensional vector. We add Positional Encoding so the model knows the sequence order.",
+      highlightBlocks: ["embedding", "posenc"]
     },
     {
       id: "s3",
-      label: "Positional encode — add order",
-      description: "The Transformer sees all tokens at once, so embeddings alone do not say whether \"capital\" came before \"of\". A fixed vector from the token's index (sine/cosine at different frequencies) is added to each embedding so order is explicit before attention runs.",
-      highlightNodes: ["tokenize", "embed", "posenc"],
-      highlightEdges: ["tokenize→embed", "embed→posenc"],
+      label: "Phase 3: The Transformer",
+      description: "Self-attention allows every token to 'talk' to every other token. The last token vector summarizes the entire context.",
+      highlightBlocks: ["transformer", "last-token"]
     },
     {
       id: "s4",
-      label: "Encode — understand all",
-      description: "The encoder reads every token at once. Self-attention lets every word attend to every other word — building a rich understanding of the full sentence.",
-      highlightNodes: ["tokenize", "embed", "posenc", "encode"],
-      highlightEdges: ["tokenize→embed", "embed→posenc", "posenc→encode"],
-    },
-    {
-      id: "s5",
-      label: "Decode — generate next",
-      description: "The decoder generates one token at a time. It uses masked attention (only past tokens) and cross-attention (reads the encoder's memory).",
-      highlightNodes: ["tokenize", "embed", "posenc", "encode", "decode"],
-      highlightEdges: ["tokenize→embed", "embed→posenc", "posenc→encode", "encode→decode"],
-    },
-    {
-      id: "s6",
-      label: "Predict — scores → token",
-      description: "A linear layer produces one score per vocabulary word (often tens of thousands). Softmax converts them to probabilities. The highest-scoring token is selected.",
-      highlightNodes: ["tokenize", "embed", "posenc", "encode", "decode", "predict"],
-      highlightEdges: ["tokenize→embed", "embed→posenc", "posenc→encode", "encode→decode", "decode→predict"],
-    },
+      label: "Phase 4: Prediction & Loop",
+      description: "The LM Head and Softmax predict the next token. This token is appended to the input, and the loop restarts.",
+      highlightBlocks: ["lm-head", "softmax", "output"]
+    }
   ]}
 />
 
@@ -105,24 +81,22 @@ prevSession: "transformer-attention"
 
 <SessionSection id="core-concepts" label="Core Concepts">
 
-## Encoder bridge: the memory we pass into generation
+## The GPT Decoder: building context without looking ahead
 
-<TransformerSubstackExplorer
-  variant="encoder"
-  title="Encoder recap — build context memory"
-  layerCount={6}
-  minimal
-/>
-
-## Decoder block: masked attention, cross-attention, FFN
+Modern LLMs like GPT use a **decoder-only** architecture. Instead of an encoder building memory and a decoder reading it, a single stack of **decoder blocks** processes the text autoregressively.
 
 <TransformerSubstackExplorer
   variant="decoder"
-  title="Decoder — mask, cross-attend, refine"
+  title="Decoder block — mask, attend, refine"
   layerCount={6}
   minimal
 />
 
+## Masked Self-Attention
+
+During generation, a model must predict the next token based *only* on previous tokens. If it could "see" the answer in its own context window, it wouldn't learn to predict. **Causal masking** forces the model to only look backward.
+
+<MaskedAttentionSimulator />
 
 </SessionSection>
 
@@ -172,25 +146,14 @@ prevSession: "transformer-attention"
       ]
     },
     {
-      id: "enc",
-      label: "Encoder",
-      sublabel: "build memory",
-      color: "violet",
-      internals: [
-        { label: "Self-attention ×6", detail: "Every token attends globally to build context memory" },
-        { label: "Residual pathways", detail: "Two residual adds per layer preserve and refine signal" },
-        { label: "Encoder output", detail: "Context-rich vectors exposed to decoder via cross-attention" }
-      ]
-    },
-    {
       id: "dec",
-      label: "Decoder",
+      label: "Decoder Stack",
       sublabel: "generate next",
       color: "amber",
       internals: [
         { label: "Masked attention", detail: "Only attends to already-generated tokens — no future peeking" },
-        { label: "Cross-attention", detail: "Decoder queries encoder memory — K and V come from encoder output" },
-        { label: "FFN + residual ×6", detail: "Layered refinement before output projection" }
+        { label: "Self-attention", detail: "Tokens relate to past context to build understanding" },
+        { label: "FFN + residual ×N", detail: "Layered refinement before output projection" }
       ]
     },
     {
@@ -204,24 +167,24 @@ prevSession: "transformer-attention"
   steps={[
     {
       id: "s1",
-      label: "① Start from encoder output",
-      description: "Begin at the encoder stack output: each token vector already contains sentence-wide context built through self-attention and residual refinement.",
-      activeStageId: "enc",
-      activeInternalId: "Encoder output"
+      label: "① Enter the Decoder Stack",
+      description: "Embeddings carrying token identity and position enter the first of many decoder blocks.",
+      activeStageId: "dec",
+      activeInternalId: null
     },
     {
       id: "s2",
-      label: "② Decoder applies causal masking",
+      label: "② Causal masking",
       description: "At generation step t, the decoder sees only tokens 1..t and blocks attention to future positions.",
       activeStageId: "dec",
       activeInternalId: "Masked attention"
     },
     {
       id: "s3",
-      label: "③ Cross-attention reads source context",
-      description: "Decoder queries pull relevant information from encoder memory so output remains grounded in the input sequence.",
+      label: "③ Self-attention builds context",
+      description: "Tokens attend to each other to build a rich representation of the sequence so far.",
       activeStageId: "dec",
-      activeInternalId: "Cross-attention"
+      activeInternalId: "Self-attention"
     },
     {
       id: "s4",
@@ -247,12 +210,12 @@ prevSession: "transformer-attention"
 <RecapTable
   rows={[
     {
-      term: "Masked self-attention (decoder)",
+      term: "Masked self-attention",
       definition: "In the decoder, each position may only attend to itself and earlier positions, preventing information leakage from future tokens."
     },
     {
-      term: "Cross-attention",
-      definition: "Decoder queries attend over encoder keys/values, making generation depend on source context instead of decoder history alone."
+      term: "Decoder-only architecture",
+      definition: "A model design (like GPT) that relies entirely on a stack of decoder blocks to process context and generate text, without a separate encoder."
     },
     {
       term: "Autoregressive generation",

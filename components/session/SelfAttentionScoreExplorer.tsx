@@ -357,57 +357,57 @@ export default function SelfAttentionScoreExplorer({
       {qkv ? (
         <>
           <div className={cn("mt-8", qkvCardClass)}>
-            <div className="rounded-xl border-2 border-blue-400/70 bg-blue-500/10 p-5 dark:border-blue-500/50 dark:bg-blue-500/15 md:p-6">
-              <div className="mb-3 flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-base font-bold text-white dark:bg-blue-500 md:h-11 md:w-11 md:text-lg">
+            <div className="rounded-xl border-2 border-blue-400/70 bg-blue-500/10 p-6 dark:border-blue-500/50 dark:bg-blue-500/15 md:p-8 flex flex-col gap-4 min-h-[160px]">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-lg font-black text-white dark:bg-blue-500 shadow-lg">
                   Q
                 </span>
-                <span className="text-base font-bold text-gray-900 dark:text-gray-100 md:text-lg">Query</span>
+                <span className="text-base font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">Query</span>
               </div>
-              <p className="text-base font-medium leading-relaxed text-gray-800 md:text-lg dark:text-gray-100">
+              <p className="text-xl font-bold leading-tight text-gray-900 dark:text-white md:text-2xl">
                 {qkv.q}
               </p>
             </div>
 
-            <div className="rounded-xl border-2 border-emerald-500/60 bg-emerald-500/10 p-5 dark:border-emerald-400/50 dark:bg-emerald-500/15 md:p-6">
-              <div className="mb-3 flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-600 text-base font-bold text-white dark:bg-emerald-500 md:h-11 md:w-11 md:text-lg">
+            <div className="rounded-xl border-2 border-emerald-500/60 bg-emerald-500/10 p-6 dark:border-emerald-400/50 dark:bg-emerald-500/15 md:p-8 flex flex-col gap-4 min-h-[160px]">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-600 text-lg font-black text-white dark:bg-emerald-500 shadow-lg">
                   K
                 </span>
-                <span className="text-base font-bold text-gray-900 dark:text-gray-100 md:text-lg">Key</span>
+                <span className="text-base font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Key</span>
               </div>
-              <p className="text-base font-medium leading-relaxed text-gray-800 md:text-lg dark:text-gray-100">
+              <p className="text-xl font-bold leading-tight text-gray-900 dark:text-white md:text-2xl">
                 {qkv.k}
               </p>
             </div>
 
-            <div className="rounded-xl border-2 border-amber-500/70 bg-amber-400/15 p-5 dark:border-amber-400/55 dark:bg-amber-500/15 md:p-6">
-              <div className="mb-3 flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-600 text-base font-bold text-white dark:bg-amber-500 md:h-11 md:w-11 md:text-lg">
+            <div className="rounded-xl border-2 border-amber-500/70 bg-amber-400/15 p-6 dark:border-amber-400/55 dark:bg-amber-500/15 md:p-8 flex flex-col gap-4 min-h-[160px]">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-600 text-lg font-black text-white dark:bg-amber-500 shadow-lg">
                   V
                 </span>
-                <span className="text-base font-bold text-gray-900 dark:text-gray-100 md:text-lg">Value</span>
+                <span className="text-base font-black uppercase tracking-widest text-amber-600 dark:text-amber-400">Value</span>
               </div>
-              <p className="text-base font-medium leading-relaxed text-gray-800 md:text-lg dark:text-gray-100">
+              <p className="text-xl font-bold leading-tight text-gray-900 dark:text-white md:text-2xl">
                 {qkv.v}
               </p>
             </div>
           </div>
 
-          <div className="mt-10">
-            <h3 className="mb-4 text-balance text-base font-bold text-gray-900 dark:text-gray-100 md:text-lg">
-              Q·K scores → softmax → attention weights (how much &ldquo;{selectedToken}&rdquo; attends to each token)
+          <div className="mt-12">
+            <h3 className="mb-6 text-balance text-xl font-black text-gray-900 dark:text-gray-100 md:text-2xl uppercase tracking-tight">
+              Q·K scores → softmax → attention weights
             </h3>
-            <div className="space-y-4">
+            <div className="space-y-6">
               {tokens.map((token, j) => {
                 const pct = barPct[j] ?? 0;
                 const tag = strengthLabel(pct);
                 return (
-                  <div key={`${token}-bar-${j}`} className="flex items-center gap-3 sm:gap-4">
-                    <span className="w-24 shrink-0 text-right text-base font-bold text-gray-900 dark:text-gray-100 sm:w-28 md:text-lg">
+                  <div key={`${token}-bar-${j}`} className="flex items-center gap-4 sm:gap-6">
+                    <span className="w-28 shrink-0 text-right text-xl font-black text-gray-900 dark:text-gray-100 sm:w-32 md:text-2xl">
                       {token}
                     </span>
-                    <div className="relative h-7 min-w-0 flex-1 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700 md:h-8">
+                    <div className="relative h-9 min-w-0 flex-1 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700 md:h-10">
                       <div
                         className={cn("h-full rounded-full", barClassForPct(pct))}
                         style={{
@@ -416,10 +416,10 @@ export default function SelfAttentionScoreExplorer({
                         }}
                       />
                     </div>
-                    <span className={cn("w-14 shrink-0 text-right text-base font-bold tabular-nums md:text-lg", textClassForPct(pct))}>
+                    <span className={cn("w-20 shrink-0 text-right text-xl font-black tabular-nums md:text-2xl", textClassForPct(pct))}>
                       {pct}%
                     </span>
-                    <span className="w-20 shrink-0 text-base font-bold text-gray-700 md:w-24 md:text-lg dark:text-gray-200">
+                    <span className="w-24 shrink-0 text-lg font-black text-gray-700 md:w-32 md:text-xl dark:text-gray-300 uppercase">
                       {tag}
                     </span>
                   </div>
@@ -429,24 +429,11 @@ export default function SelfAttentionScoreExplorer({
           </div>
 
           <div className={outputBoxClass}>
-            <p className="text-base font-bold uppercase tracking-wide text-gray-800 md:text-lg dark:text-gray-200">
-              OUTPUT FOR &ldquo;{tokenUpper}&rdquo;
+            <p className="text-base font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">
+              Attention Output
             </p>
-            <p className="mt-4 text-base font-bold uppercase tracking-wide text-gray-700 md:text-lg dark:text-gray-300">
-              Real attention output (simplified)
-            </p>
-            <p className="mt-2 rounded-lg bg-gray-100 px-3 py-2.5 font-mono text-lg leading-relaxed text-gray-900 dark:bg-gray-900/70 dark:text-gray-100 md:px-4 md:py-3 md:text-2xl">
+            <p className="rounded-xl bg-gray-100 px-6 py-6 font-mono text-lg leading-relaxed text-gray-900 dark:bg-gray-900 dark:text-gray-100 md:text-2xl shadow-inner border border-gray-200 dark:border-gray-700">
               {`z_${selectedToken} = ${attentionEquation}`}
-            </p>
-            <p className="mt-2 text-base font-medium leading-relaxed text-gray-800 md:text-lg dark:text-gray-200">
-              Top contributors:{" "}
-              {topContributors.map((item) => `${item.token} (${Math.round(item.score * 100)}%)`).join(", ")}
-            </p>
-            <p className="mt-3 text-base font-medium leading-relaxed text-gray-900 md:text-lg dark:text-gray-100">
-              {qkv.summary}
-            </p>
-            <p className="mt-4 text-base font-bold leading-relaxed text-gray-950 md:text-lg dark:text-white">
-              {qkv.outputBlend}
             </p>
           </div>
         </>

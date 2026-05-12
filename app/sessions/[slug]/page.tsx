@@ -78,11 +78,14 @@ import {
   EmbeddingVectorExplorer,
   CosineSimilarityExplorer,
   SearchQuerySimulator,
+  MaskedAttentionSimulator,
   BytePairEncodingExplorer,
   ArchitectureEvolutionAnimator,
   CNNImageSuccessDemo,
   NNEquationDemo,
   RNNCellUnrolledDiagram,
+  MacroPipeline,
+  VectorAnatomyExplorer,
 } from "@/components/shared";
 import FNNAutocompleteDemo from "@/components/demos/FNNAutocompleteDemo";
 import ArchitectureComparisonDemo from "@/components/demos/ArchitectureComparisonDemo";
@@ -168,6 +171,8 @@ function getMdxComponents(isPresentationMode: boolean) {
     StepSequence,
     LayerStack,
     AnnotatedCode,
+    MacroPipeline,
+    VectorAnatomyExplorer,
     // New interactive components
     TrainingLoopSimulator,
     AutoregressiveDemo,
@@ -200,6 +205,7 @@ function getMdxComponents(isPresentationMode: boolean) {
   ArchitectureComparisonDemo,
   RNNAutocompleteDemo,
   SelfAttentionScoreExplorer,
+  MaskedAttentionSimulator,
   TransformerPipelineWalkthrough,
   PositionalEncodingVisualizer,
   TransformerSentenceTokenStrip,

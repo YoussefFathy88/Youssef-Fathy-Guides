@@ -29,69 +29,45 @@ prevSession: "embeddings"
 
 ## Big picture: from raw text to model understanding
 
-<NodeFlowDiagram
-  diagramId="raw-text-to-predicted-token-pipeline"
-  title="The six stages: raw text to predicted token"
-  height={540}
-  hideStepNarrative
-  nodes={[
-    { id: "tokenize", label: "Tokenize", sublabel: "text → IDs", x: 10, y: 34, color: "gray", shape: "rect", size: "sm", emoji: "🔤" },
-    { id: "embed", label: "Embed", sublabel: "IDs → vectors", x: 26, y: 34, color: "teal", shape: "rect", size: "sm", emoji: "📊" },
-    { id: "posenc", label: "Positional encode", sublabel: "add order", x: 44, y: 34, color: "rose", shape: "rect", size: "sm", emoji: "📍" },
-    { id: "encode", label: "Encode", sublabel: "understand all", x: 64, y: 34, color: "violet", shape: "rect", size: "sm", emoji: "🧠" },
-    { id: "decode", label: "Decode", sublabel: "generate next", x: 52, y: 72, color: "amber", shape: "rect", size: "sm", emoji: "✍️" },
-    { id: "predict", label: "Predict", sublabel: "scores → token", x: 76, y: 72, color: "blue", shape: "rect", size: "sm", emoji: "🎯" },
-  ]}
-  edges={[
-    { from: "tokenize", to: "embed", animated: true, color: "gray" },
-    { from: "embed", to: "posenc", animated: true, color: "teal" },
-    { from: "posenc", to: "encode", animated: true, color: "rose" },
-    { from: "encode", to: "decode", animated: true, color: "violet" },
-    { from: "decode", to: "predict", animated: true, color: "amber" },
+<MacroPipeline
+  title="The Big Picture: From raw text to next token"
+  hasLoop
+  blocks={[
+    { id: "input", label: "Your words", sublabel: '"What is the capital of Egypt"', emoji: "💬", color: "gray" },
+    { id: "tokenizer", label: "Tokenizer", sublabel: "Words → IDs", emoji: "🔤", color: "violet" },
+    { id: "embedding", label: "Embedding layer", sublabel: "ID → raw vector", emoji: "📊", color: "blue" },
+    { id: "posenc", label: "Positional encoding", sublabel: "Add order info", emoji: "📍", color: "teal" },
+    { id: "transformer", label: "Transformer blocks", sublabel: "Self-attention & Context", emoji: "🧠", color: "amber" },
+    { id: "last-token", label: "Last token vector", sublabel: "Full context summary", emoji: "🎯", color: "rose" },
+    { id: "lm-head", label: "LM Head", sublabel: "Predict logits", emoji: "🔢", color: "violet" },
+    { id: "softmax", label: "Softmax", sublabel: "Get probabilities", emoji: "⚖️", color: "teal" },
+    { id: "output", label: "Next token predicted", sublabel: '"Cairo" → loop context', emoji: "✍️", color: "blue" },
   ]}
   steps={[
     {
       id: "s1",
-      label: "Tokenize — text → IDs",
-      description: "The sentence is split into tokens — subword pieces — each mapped to an integer. This is the only form the model can read.",
-      highlightNodes: ["tokenize"],
-      highlightEdges: [],
+      label: "Phase 1: Input & Tokenization",
+      description: 'The journey starts with raw text. The Tokenizer splits your words into subword units (IDs) that the model can understand.',
+      highlightBlocks: ["input", "tokenizer"]
     },
     {
       id: "s2",
-      label: "Embed — IDs → vectors",
-      description: "Each integer is looked up in a learned table and becomes a dense vector that encodes its meaning. Similar words end up with similar vectors.",
-      highlightNodes: ["tokenize", "embed"],
-      highlightEdges: ["tokenize→embed"],
+      label: "Phase 2: Vectors & Position",
+      description: "Each ID becomes a high-dimensional vector. We add Positional Encoding so the model knows the sequence order.",
+      highlightBlocks: ["embedding", "posenc"]
     },
     {
       id: "s3",
-      label: "Positional encode — add order",
-      description: "The Transformer sees all tokens at once, so embeddings alone do not say whether \"capital\" came before \"of\". A fixed vector from the token's index (sine/cosine at different frequencies) is added to each embedding so order is explicit before attention runs.",
-      highlightNodes: ["tokenize", "embed", "posenc"],
-      highlightEdges: ["tokenize→embed", "embed→posenc"],
+      label: "Phase 3: The Transformer",
+      description: "Self-attention allows every token to 'talk' to every other token. The last token vector summarizes the entire context.",
+      highlightBlocks: ["transformer", "last-token"]
     },
     {
       id: "s4",
-      label: "Encode — understand all",
-      description: "The encoder reads every token at once. Self-attention lets every word attend to every other word — building a rich understanding of the full sentence.",
-      highlightNodes: ["tokenize", "embed", "posenc", "encode"],
-      highlightEdges: ["tokenize→embed", "embed→posenc", "posenc→encode"],
-    },
-    {
-      id: "s5",
-      label: "Decode — generate next",
-      description: "The decoder generates one token at a time. It uses masked attention (only past tokens) and cross-attention (reads the encoder's memory).",
-      highlightNodes: ["tokenize", "embed", "posenc", "encode", "decode"],
-      highlightEdges: ["tokenize→embed", "embed→posenc", "posenc→encode", "encode→decode"],
-    },
-    {
-      id: "s6",
-      label: "Predict — scores → token",
-      description: "A linear layer produces one score per vocabulary word (often tens of thousands). Softmax converts them to probabilities. The highest-scoring token is selected.",
-      highlightNodes: ["tokenize", "embed", "posenc", "encode", "decode", "predict"],
-      highlightEdges: ["tokenize→embed", "embed→posenc", "posenc→encode", "encode→decode", "decode→predict"],
-    },
+      label: "Phase 4: Prediction & Loop",
+      description: "The LM Head and Softmax predict the next token. This token is appended to the input, and the loop restarts.",
+      highlightBlocks: ["lm-head", "softmax", "output"]
+    }
   ]}
 />
 
@@ -118,6 +94,10 @@ prevSession: "embeddings"
   ids={[8842, 3104, 77, 5602, 892, 4021]}
   dim={8}
 />
+
+## Anatomy of a Vector: How meaning is encoded
+
+<VectorAnatomyExplorer />
 
 ## Positional encoding: why order must be added
 

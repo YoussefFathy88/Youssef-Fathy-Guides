@@ -28,6 +28,8 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | Tool-use / agent loop with actor lanes | `AgentLoopStepper` |
 | Grouped graph + scripted step-through | `NodeFlowDiagram` |
 | Two stacked lanes (prep vs run), measured arrows + scripted steps | `DualLanePipelineDiagram` |
+| High-level vertical pipeline summary + side narrative panel | `MacroPipeline` |
+| Multi-step story of vector creation, dimensions, and geometry | `VectorAnatomyExplorer` |
 | Lab architecture — large Frontend / Backend / NFR tabs (Next+Tailwind, RAG stack, Docker·reload·.env) | `RagLabSystemArchitecture` |
 | RAG lab — tree + six separate prompt tabs (one paste per file) | `RagLabPromptExplorer` |
 | Legacy arbitrary directed graph (no `/component-gallery` preview — prefer `NodeFlowDiagram` for new sessions) | `DataFlowDiagram` |
@@ -118,6 +120,8 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | `AgentLoopStepper` | Interactive | Step-through tool loop (user / model / your-code). |
 | `NodeFlowDiagram` | Diagram | Nodes, edges, optional groups, scripted `steps`. |
 | `DualLanePipelineDiagram` | Diagram | Exactly two vertical lanes, compact blocks, SVG edges from layout (cross-lane + within-lane); scripted `steps` (`highlightEdges` uses `"from→to"`). Optional `presentation` for slide-sized chrome and edges above blocks. |
+| `MacroPipeline` | Diagram | High-level vertical pipeline summary; left-accented glass blocks with emojis; integrated narrative side panel; supports loopback arrows. |
+| `VectorAnatomyExplorer` | Diagram | Narrative walkthrough of vectors: matrix lookup visual, dimension-level meaning sliders, and semantic geometry angle plot. |
 | `ParameterSlider` | Interactive | Slider with `states` driving copy and styling. |
 | `AttentionHeatmap` | Interactive | Token × token attention weights. |
 | `ConceptStepper` | Interactive | Multi-step carousel; `visual` is TSX-only. |
@@ -174,6 +178,7 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | `RNNAutocompleteDemo` | Interactive | Sequential RNN autocomplete with unrolled cells, hidden-state memory bar, retention decay table, and vanishing-memory failure at final prediction. |
 | `ArchitectureComparisonDemo` | Interactive | Shared sentence with clickable FNN/RNN/Transformer panels, architecture-specific visibility/memory cues, and dynamic explanation of why predictions differ. |
 | `SelfAttentionScoreExplorer` | Interactive | Default **The capital of Egypt is Cairo** (six-token); optional **`The` / `cat` / `sat`** built-in lesson (simple Q/K/V copy); softmax bars + OUTPUT box; legacy cat MDX → Cairo dataset; Cairo mounts on index **5**, three-token clamps to **sat** (index **2**) when `defaultSelected` is left at **5**. |
+| `MaskedAttentionSimulator` | Interactive | Animated visualization of causal masking showing how future tokens are masked out with $-\infty$ during autoregressive generation. |
 | `TransformerPipelineWalkthrough` | Interactive | **`surface-panel`** shell; **macro strip** (six phases from `activeStageId`); token strip + stage row themed with **`--primary` / `--success` / `--purple`** etc.; internal chips use **`PipelineInternal.detail`** as native **`title`** tooltip; larger type and controls. |
 | `TransformerSubstackExplorer` | Interactive | Encoder or decoder: muted pills (purple / warning tints); **Full** stack and focus panel use `globals.css` surfaces and token-colored left accents—not saturated Tailwind primaries. Illustrations in `transformer-substack-illustrations.tsx` match the same tokens. |
 | `EmbeddingVectorExplorer` | Interactive | SVG arrows from origin per word; cluster hulls toggle; click arrow → inspect mock vector; staggered entrance animation; dark-mode safe. |
@@ -415,6 +420,71 @@ interface DualLanePipelineDiagramProps {
   steps?: DualLanePipelineStep[];
   className?: string;
 }
+```
+
+### MacroPipeline
+
+**Description:** Premium vertical pipeline summary for high-level "Big Picture" overviews. Features glassmorphism blocks with left-accent bars, emojis, and a dedicated narrative side panel. Supports an optional loop-back arrow to represent iterative processes (like inference).
+
+```ts
+interface MacroPipelineBlock {
+  id: string;
+  label: string;
+  sublabel?: string;
+  emoji?: string;
+  color?: "gray" | "violet" | "blue" | "teal" | "amber" | "rose" | "indigo" | "cyan";
+}
+
+interface MacroPipelineStep {
+  id: string;
+  label: string;
+  description: string;
+  highlightBlocks: string[];
+}
+
+interface MacroPipelineProps {
+  blocks: MacroPipelineBlock[];
+  steps?: MacroPipelineStep[];
+  title?: string;
+  caption?: string;
+  hasLoop?: boolean;
+}
+```
+
+Example MDX:
+
+```mdx
+<MacroPipeline
+  title="Transformer Inference Loop"
+  hasLoop
+  blocks={[
+    { id: "input", label: "Your words", emoji: "💬", color: "gray" },
+    { id: "tokenizer", label: "Tokenizer", emoji: "🔤", color: "violet" },
+    { id: "transformer", label: "Transformer", emoji: "🧠", color: "amber" }
+  ]}
+  steps={[
+    {
+      id: "s1",
+      label: "Phase 1",
+      description: "...",
+      highlightBlocks: ["input", "tokenizer"]
+    }
+  ]}
+/>
+```
+
+### VectorAnatomyExplorer
+
+**Description:** A multi-step educational walkthrough that helps learners "imagine" what vectors are. It transitions from the mechanical **Lookup** (matrix row selection) to **Latent Dimensions** (interpretable sliders like "Royalty" or "Location") and finally to **Geometry** (angle/cosine similarity).
+
+```ts
+// No props — self-contained narrative
+```
+
+Example MDX:
+
+```mdx
+<VectorAnatomyExplorer />
 ```
 
 ### RagLabSystemArchitecture
