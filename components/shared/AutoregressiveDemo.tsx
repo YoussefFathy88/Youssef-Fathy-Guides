@@ -398,12 +398,12 @@ export default function AutoregressiveDemo({
       <div className="space-y-5">
         <div className="space-y-1">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-sm font-medium text-gray-900 dark:text-gray-100">{title}</h2>
-            <span className="rounded-full border border-gray-200 px-3 py-1 text-[11px] font-medium text-gray-500 dark:border-gray-700 dark:text-gray-400">
+            <h2 className="text-xl font-medium text-gray-900 dark:text-gray-100">{title}</h2>
+            <span className="rounded-full border border-gray-200 px-3 py-1 text-sm font-medium text-gray-500 dark:border-gray-700 dark:text-gray-400">
               Token {Math.min(activeTokenCount, totalTokens)} / {totalTokens}
             </span>
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400">{caption}</p>
+          <p className="text-base text-gray-500 dark:text-gray-400">{caption}</p>
         </div>
 
         {!customSequence ? (
@@ -419,7 +419,7 @@ export default function AutoregressiveDemo({
                 }}
                 disabled={controlsLocked}
                 className={cn(
-                  "rounded-full border px-3 py-1.5 text-xs font-medium transition",
+                  "rounded-full border px-4 py-2 text-base font-medium transition",
                   index === promptIdx
                     ? "border-violet-400 bg-violet-50 text-violet-700 dark:border-violet-500/60 dark:bg-violet-500/10 dark:text-violet-300"
                     : "border-gray-200 text-gray-500 hover:border-gray-400 dark:border-gray-700 dark:text-gray-400",
@@ -434,7 +434,7 @@ export default function AutoregressiveDemo({
 
         {!customSequence ? (
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+            <span className="text-base font-medium text-gray-500 dark:text-gray-400">
               Sampling mode:
             </span>
             <div className="inline-flex rounded-full border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-gray-900">
@@ -449,7 +449,7 @@ export default function AutoregressiveDemo({
                   }}
                   disabled={controlsLocked}
                   className={cn(
-                    "rounded-full px-3 py-1 text-xs font-semibold capitalize transition",
+                    "rounded-full px-4 py-2 text-base font-semibold capitalize transition",
                     mode === modeOption
                       ? modeOption === "greedy"
                         ? "bg-violet-500 text-white dark:bg-violet-400 dark:text-gray-950"
@@ -463,7 +463,7 @@ export default function AutoregressiveDemo({
               ))}
             </div>
             {mode === "sampled" ? (
-              <span className="text-[11px] text-gray-400">
+              <span className="text-sm text-gray-400">
                 Reset and run again to see variance
               </span>
             ) : null}
@@ -472,22 +472,22 @@ export default function AutoregressiveDemo({
 
         {userQuestion ? (
           <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900/60">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+            <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
               User
             </p>
-            <p className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">
+            <p className="mt-2 text-xl font-medium text-gray-900 dark:text-gray-100">
               {userQuestion}
             </p>
           </div>
         ) : null}
 
         <div className="min-h-[120px] rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900/60">
-          <p className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
             {customSequence ? "Assistant" : "Context + generated tokens"}
           </p>
           <div className="flex flex-wrap items-baseline gap-x-0.5 gap-y-1">
             {activePrefix ? (
-              <span className="font-mono text-base text-gray-400 dark:text-gray-500">
+              <span className="font-mono text-2xl text-gray-400 dark:text-gray-500">
                 {activePrefix}&nbsp;
               </span>
             ) : null}
@@ -499,7 +499,7 @@ export default function AutoregressiveDemo({
                   initial={reducedMotion ? false : { opacity: 0, y: -6, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ duration: 0.18, ease: "easeOut" }}
-                  className={cn("font-mono text-base font-semibold", accentClass)}
+                  className={cn("font-mono text-2xl font-semibold", accentClass)}
                 >
                   {token}
                 </motion.span>
@@ -510,14 +510,14 @@ export default function AutoregressiveDemo({
               <motion.span
                 animate={{ opacity: [1, 0, 1] }}
                 transition={{ duration: 0.8, repeat: Infinity }}
-                className="font-mono text-base font-bold text-gray-400"
+                className="font-mono text-2xl font-bold text-gray-400"
               >
                 |
               </motion.span>
             ) : null}
 
             {generated.length === 0 && !activePrefix ? (
-              <span className="text-sm text-gray-400 dark:text-gray-500">
+              <span className="text-xl text-gray-400 dark:text-gray-500">
                 Waiting for the first sampled token...
               </span>
             ) : null}
@@ -532,7 +532,7 @@ export default function AutoregressiveDemo({
               exit={{ opacity: 0, y: -4 }}
               className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900/60"
             >
-              <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-gray-400">
+              <p className="mb-2 text-xs font-medium uppercase tracking-wider text-gray-400">
                 Next-token candidates
               </p>
               <div className="space-y-1.5">
@@ -544,7 +544,7 @@ export default function AutoregressiveDemo({
 
                   return (
                     <div key={`${candidate.token}-${index}`} className="flex items-center gap-2">
-                      <span className="w-20 text-right font-mono text-xs text-gray-600 dark:text-gray-400">
+                      <span className="w-32 text-right font-mono text-xl text-gray-600 dark:text-gray-400">
                         {candidate.token}
                       </span>
                       <div className="relative h-4 flex-1 overflow-hidden rounded bg-gray-100 dark:bg-gray-700/60">
@@ -558,7 +558,7 @@ export default function AutoregressiveDemo({
                           transition={{ duration: 0.2 }}
                         />
                       </div>
-                      <span className="w-10 text-right font-mono text-xs text-gray-500">
+                      <span className="w-16 text-right font-mono text-xl text-gray-500">
                         {Math.round(candidate.prob * 100)}%
                       </span>
                     </div>
@@ -566,7 +566,7 @@ export default function AutoregressiveDemo({
                 })}
               </div>
               {!isAutoRunning && pendingToken ? (
-                <p className="mt-3 text-[11px] text-gray-500 dark:text-gray-400">
+                <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
                   Distribution computed. Click Step Into again to append
                   <span className="font-mono font-semibold text-gray-700 dark:text-gray-200">
                     {" "}
@@ -585,7 +585,7 @@ export default function AutoregressiveDemo({
             onClick={stepInto}
             disabled={controlsLocked || isDone}
             className={cn(
-              "rounded-full bg-violet-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-violet-600 dark:bg-violet-400 dark:text-gray-950 dark:hover:bg-violet-300",
+              "rounded-full bg-violet-500 px-6 py-3 text-lg font-semibold text-white transition hover:bg-violet-600 dark:bg-violet-400 dark:text-gray-950 dark:hover:bg-violet-300",
               (controlsLocked || isDone) && "cursor-not-allowed opacity-60",
             )}
           >
@@ -597,7 +597,7 @@ export default function AutoregressiveDemo({
             onClick={run}
             disabled={controlsLocked || isDone}
             className={cn(
-              "rounded-full border border-teal-300 px-4 py-2 text-sm font-medium text-teal-600 transition hover:bg-teal-50 dark:border-teal-500/50 dark:text-teal-400 dark:hover:bg-teal-500/10",
+              "rounded-full border border-teal-300 px-6 py-3 text-lg font-medium text-teal-600 transition hover:bg-teal-50 dark:border-teal-500/50 dark:text-teal-400 dark:hover:bg-teal-500/10",
               (controlsLocked || isDone) && "cursor-not-allowed opacity-60",
             )}
           >
@@ -608,7 +608,7 @@ export default function AutoregressiveDemo({
             <button
               type="button"
               onClick={reset}
-              className="rounded-full border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700/40"
+              className="rounded-full border border-gray-300 px-6 py-3 text-lg font-medium text-gray-700 transition hover:bg-gray-100 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700/40"
             >
               Reset
             </button>
@@ -619,7 +619,7 @@ export default function AutoregressiveDemo({
           <motion.p
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-xs text-teal-600 dark:text-teal-400"
+            className="text-base text-teal-600 dark:text-teal-400"
           >
             Reset, then Run or Step Into again to draw a different sample. Same model, same prompt,
             different sequence.
@@ -630,7 +630,7 @@ export default function AutoregressiveDemo({
           <motion.p
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-xs text-violet-600 dark:text-violet-400"
+            className="text-base text-violet-600 dark:text-violet-400"
           >
             Greedy always picks the highest-probability token. Reset and run again - the output
             stays identical.
@@ -641,7 +641,7 @@ export default function AutoregressiveDemo({
           <motion.p
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-xs text-violet-600 dark:text-violet-400"
+            className="text-base text-violet-600 dark:text-violet-400"
           >
             Every visible word in the answer was generated by repeating the same reveal-and-append
             loop one token at a time.

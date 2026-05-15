@@ -44,18 +44,12 @@ export const ANATOMY_MODULES: readonly AnatomyModule[] = [
       },
       {
         id: "brain-04",
-        title: "Transformer I",
+        title: "Transformer ",
         slug: "transformer-attention",
         status: "available",
       },
       {
         id: "brain-05",
-        title: "Transformer II",
-        slug: "transformer-attention-2",
-        status: "available",
-      },
-      {
-        id: "brain-06",
         title: "Training LLMs — From Data to Aligned Models",
         slug: "how-llms-are-trained",
         status: "available",

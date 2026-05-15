@@ -1,5 +1,5 @@
 ---
-title: "Transformer 1: Encoder Foundations"
+title: "Transformer "
 slug: "transformer-attention"
 module: 1
 moduleName: "The Engine Room"
@@ -80,6 +80,45 @@ prevSession: "embeddings"
 
 <SessionSection id="core-concepts" label="Core Concepts">
 
+### AI models are mathematical mapping functions
+<LinearMappingGraph
+  title="y = mx + c — the simplest mapping function"
+  m={2}
+  c={0}
+  knownPoints={[
+    { x: 0, y: 0, label: "x=0, y=0" },
+    { x: 1, y: 2, label: "x=1, y=2" },
+  ]}
+  xMin={-0.5}
+  xMax={5}
+  yMin={-0.5}
+  yMax={10}
+/>
+
+## Inference: one token at a time, every time
+
+<AutoregressiveDemo
+
+  title="Inference: a full Q&A generated token by token"
+
+  question="What is the capital of France?"
+
+  contextPrefix="The capital of France is"
+
+  tokens={["Paris", ",", " which", " is", " also", " France", "'s", " largest", " city", "."]}
+
+  topCandidates={[
+
+    { step: 0, candidates: [{ token: "Paris", prob: 0.91 }, { token: "Lyon", prob: 0.04 }, { token: "a", prob: 0.02 }] },
+
+    { step: 1, candidates: [{ token: ",", prob: 0.65 }, { token: ".", prob: 0.20 }, { token: " and", prob: 0.08 }] },
+
+    { step: 2, candidates: [{ token: " which", prob: 0.48 }, { token: " a", prob: 0.22 }, { token: " the", prob: 0.15 }] },
+
+  ]}
+
+/>
+
 ## Tokens → vocabulary IDs
 
 <TransformerSentenceTokenStrip
@@ -99,7 +138,11 @@ prevSession: "embeddings"
 
 <VectorAnatomyExplorer />
 
-## Positional encoding: why order must be added
+## Position encoding motivation
+
+<PositionalEncodingMotivation />
+
+## Positional encoding
 
 <PositionalEncodingVisualizer
   caption="Step through: order, sinusoidal PE per position (paper-accurate formula), then add to embedding."
@@ -112,6 +155,119 @@ prevSession: "embeddings"
 ## What's Self-attention?
 
 <SelfAttentionScoreExplorer title="" />
+
+## Masked Self-attention
+
+<MaskedSelfAttentionScoreExplorer title="" />
+
+## The Transformer Decoder (Used in GPT-3, 4, and most open-source models):
+
+<TransformerSubstackExplorer
+  variant="decoder"
+  title="Decoder block — mask, attend, refine"
+  layerCount={6}
+  minimal
+/>
+
+
+</SessionSection>
+
+
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 4 — PRACTICAL EXAMPLE
+    ═══════════════════════════════════════════════════════════════ */}
+
+<SessionSection id="practical-example" label="Practical Example">
+
+## Full pass: start at encoder, end at predicted token
+
+<TransformerPipelineWalkthrough
+  title='"The capital of Egypt is" — decoder to next token'
+  hideStepNarrative
+  inputText="The capital of Egypt is"
+  outputToken="Cairo"
+  outputProbabilityPct={48}
+  stages={[
+    {
+      id: "raw",
+      label: "Raw text",
+      sublabel: "input string",
+      color: "gray",
+      internals: []
+    },
+    {
+      id: "tok",
+      label: "Tokenizer",
+      sublabel: "text → IDs",
+      color: "gray",
+      internals: [
+        { label: "Word tokens (teaching)", detail: "Same six-word split as Session 1 — real models often use subwords" },
+        { label: "6 tokens", detail: "The / capital / of / Egypt / is / Cairo" },
+        { label: "Integer IDs", detail: "Each token maps to a row in the vocabulary table" }
+      ]
+    },
+    {
+      id: "emb",
+      label: "Embeddings",
+      sublabel: "meaning vectors",
+      color: "teal",
+      internals: [
+        { label: "512-dim each", detail: "Each integer becomes a 512-number vector" },
+        { label: "Learned table", detail: "50k rows trained on billions of tokens" },
+        { label: "Pos encoding added", detail: "Sine/cosine vectors preserve order" }
+      ]
+    },
+    {
+      id: "dec",
+      label: "Decoder Stack",
+      sublabel: "generate next",
+      color: "amber",
+      internals: [
+        { label: "Masked attention", detail: "Only attends to already-generated tokens — no future peeking" },
+        { label: "Self-attention", detail: "Tokens relate to past context to build understanding" },
+        { label: "FFN + residual ×N", detail: "Layered refinement before output projection" }
+      ]
+    },
+    {
+      id: "out",
+      label: "\"Cairo\"",
+      sublabel: "48% probability",
+      color: "teal",
+      internals: []
+    }
+  ]}
+  steps={[
+    {
+      id: "s1",
+      label: "① Enter the Decoder Stack",
+      description: "Embeddings carrying token identity and position enter the first of many decoder blocks.",
+      activeStageId: "dec",
+      activeInternalId: null
+    },
+    {
+      id: "s2",
+      label: "② Causal masking",
+      description: "At generation step t, the decoder sees only tokens 1..t and blocks attention to future positions.",
+      activeStageId: "dec",
+      activeInternalId: "Masked attention"
+    },
+    {
+      id: "s3",
+      label: "③ Self-attention builds context",
+      description: "Tokens attend to each other to build a rich representation of the sequence so far.",
+      activeStageId: "dec",
+      activeInternalId: "Self-attention"
+    },
+    {
+      id: "s4",
+      label: "④ Output head picks the next token",
+      description: "Final decoder state maps to logits over vocabulary; softmax gives probabilities and selects the most likely token.",
+      activeStageId: "out",
+      activeInternalId: null
+    },
+  ]}
+/>
+
 
 
 
@@ -129,12 +285,32 @@ prevSession: "embeddings"
 <RecapTable
   rows={[
     {
-      term: "Self-attention",
-      definition: "Each token builds Q, K, and V vectors, scores all keys with its query, softmaxes the scores, and blends the values — producing one context-aware output vector per token."
+      term: "Embedding Vectors",
+      definition: "A learned vector for each token, that represents the meaning of the token."
     },
     {
       term: "Positional encoding",
       definition: "Sine and cosine vectors computed from each token's position index, added to its embedding so the model knows word order despite reading all tokens at once."
+    },
+    {
+      term: "Masked self-attention",
+      definition: "In the decoder, each position may only attend to itself and earlier positions, preventing information leakage from future tokens."
+    },
+    {
+      term: "Decoder-only architecture",
+      definition: "A model design (like GPT) that relies entirely on a stack of decoder blocks to process context and generate text, without a separate encoder."
+    },
+    {
+      term: "Autoregressive generation",
+      definition: "The model predicts one token at a time, appends it to context, and repeats until an end condition is met."
+    },
+    {
+      term: "Logits and softmax",
+      definition: "A linear layer outputs raw vocabulary scores (logits), and softmax converts them to a probability distribution for token selection."
+    },
+    {
+      term: "Training-inference alignment",
+      definition: "Causal masking ensures decoder training constraints match runtime constraints, so behavior transfers reliably to real generation."
     }
   ]}
 />

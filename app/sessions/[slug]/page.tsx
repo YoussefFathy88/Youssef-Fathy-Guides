@@ -68,6 +68,7 @@ import {
   RNNWorkingExample,
   RNNFailureDemo,
   SelfAttentionScoreExplorer,
+  MaskedSelfAttentionScoreExplorer,
   TransformerPipelineWalkthrough,
   PositionalEncodingVisualizer,
   TransformerSentenceTokenStrip,
@@ -86,6 +87,7 @@ import {
   RNNCellUnrolledDiagram,
   MacroPipeline,
   VectorAnatomyExplorer,
+  PositionalEncodingMotivation,
 } from "@/components/shared";
 import FNNAutocompleteDemo from "@/components/demos/FNNAutocompleteDemo";
 import ArchitectureComparisonDemo from "@/components/demos/ArchitectureComparisonDemo";
@@ -205,7 +207,9 @@ function getMdxComponents(isPresentationMode: boolean) {
   ArchitectureComparisonDemo,
   RNNAutocompleteDemo,
   SelfAttentionScoreExplorer,
+  MaskedSelfAttentionScoreExplorer,
   MaskedAttentionSimulator,
+  PositionalEncodingMotivation,
   TransformerPipelineWalkthrough,
   PositionalEncodingVisualizer,
   TransformerSentenceTokenStrip,

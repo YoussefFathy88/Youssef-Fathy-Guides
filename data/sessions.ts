@@ -99,10 +99,10 @@ export const courseSessions: CourseSession[] = [
   {
     id: "E05",
     slug: "transformer-attention",
-    title: "Transformer 1: Encoder Foundations",
+    title: "Transformer ",
     module: 1,
     prevRecap:
-      "Embeddings gave us vector representations. Transformer 1 builds the encoder foundation: positional encoding, self-attention, and the two residual pathways that make deep stacks trainable.",
+      "Embeddings gave us vector representations. Transformer  builds the encoder foundation: positional encoding, self-attention, and the two residual pathways that make deep stacks trainable.",
     dependsOn: ["E02", "E03"],
     leadsTo: ["E05B"],
     status: "published",

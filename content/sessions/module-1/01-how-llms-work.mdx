@@ -92,7 +92,7 @@ You have called LLM APIs, seen the output stream back token by token, and notice
   ]}
   steps={[
     { id: "s1", label: "Input sentence", description: "The prompt \"The capital of Egypt is\" is the input to the LLM — just like x is the input to y = mx + c.", highlightNodes: ["sentence"], highlightEdges: [] },
-    { id: "s2", label: "Inside the Transformer", description: "The Transformer is the mapping function. Its billions of weights encode everything the model learned during training. This is the m and c — but at massive scale.", highlightNodes: ["transformer"], highlightEdges: ["sentence→transformer"] },
+    { id: "s2", label: "Inside the Transformer", description: "The Transformer s the mapping function. Its billions of weights encode everything the model learned during training. This is the m and c — but at massive scale.", highlightNodes: ["transformer"], highlightEdges: ["sentence→transformer"] },
     { id: "s3", label: "Output: next word", description: "The model outputs \"Cairo\" — the most likely next word given the input sentence and the learned weights.", highlightNodes: ["word"], highlightEdges: ["transformer→word"] },
     { id: "s4", label: "The full picture", description: "Any AI model is a mapping function with learned weights. For LLMs: input = sentence, output = next word, mapping function = Transformer, weights = parameters learned from billions of examples during training.", highlightNodes: ["sentence", "transformer", "word"], highlightEdges: ["sentence→transformer", "transformer→word"] },
   ]}

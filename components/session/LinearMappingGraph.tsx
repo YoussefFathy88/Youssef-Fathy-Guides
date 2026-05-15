@@ -27,12 +27,12 @@ export interface LinearMappingGraphProps {
 }
 
 // ── SVG layout ────────────────────────────────────────────────────────────────
-const VW = 560;
-const VH = 340;
-const PL = 58; // padding left  (y-axis labels)
-const PR = 28; // padding right
-const PT = 28; // padding top
-const PB = 44; // padding bottom (x-axis labels)
+const VW = 840;
+const VH = 510;
+const PL = 80; // padding left  (y-axis labels)
+const PR = 40; // padding right
+const PT = 40; // padding top
+const PB = 60; // padding bottom (x-axis labels)
 const PW = VW - PL - PR; // plot width
 const PH = VH - PT - PB; // plot height
 
@@ -156,11 +156,11 @@ export default function LinearMappingGraph({
       </div>
 
       {/* ── SVG chart ─────────────────────────────────────────────────────── */}
-      <div className="px-3 pb-1">
+      <div className="px-3 pb-2 pt-2">
         <svg
           viewBox={`0 0 ${VW} ${VH}`}
           className="w-full"
-          style={{ height: "auto", maxHeight: 360 }}
+          style={{ height: "auto", maxHeight: 540 }}
           aria-label="Coordinate plane showing the mapping function y = mx + c"
         >
           {/* Grid lines */}
@@ -188,24 +188,24 @@ export default function LinearMappingGraph({
           ))}
 
           {/* Axes */}
-          <line x1={PL} y1={oy} x2={PL + PW} y2={oy} stroke="#4b5563" strokeWidth="1.5" />
-          <line x1={ox} y1={PT} x2={ox} y2={PT + PH} stroke="#4b5563" strokeWidth="1.5" />
+          <line x1={PL} y1={oy} x2={PL + PW} y2={oy} stroke="#4b5563" strokeWidth="2" />
+          <line x1={ox} y1={PT} x2={ox} y2={PT + PH} stroke="#4b5563" strokeWidth="2" />
 
           {/* Axis arrows */}
           <polygon
-            points={`${PL + PW},${oy} ${PL + PW - 7},${oy - 4} ${PL + PW - 7},${oy + 4}`}
+            points={`${PL + PW},${oy} ${PL + PW - 10},${oy - 6} ${PL + PW - 10},${oy + 6}`}
             fill="#4b5563"
           />
           <polygon
-            points={`${ox},${PT} ${ox - 4},${PT + 7} ${ox + 4},${PT + 7}`}
+            points={`${ox},${PT} ${ox - 6},${PT + 10} ${ox + 6},${PT + 10}`}
             fill="#4b5563"
           />
 
           {/* Axis labels */}
-          <text x={PL + PW + 4} y={oy + 4} fill="#6b7280" fontSize="13" fontFamily="ui-monospace,monospace">
+          <text x={PL + PW + 10} y={oy + 6} fill="#6b7280" fontSize="20" fontFamily="ui-monospace,monospace">
             x
           </text>
-          <text x={ox + 5} y={PT - 4} fill="#6b7280" fontSize="13" fontFamily="ui-monospace,monospace">
+          <text x={ox + 10} y={PT - 6} fill="#6b7280" fontSize="20" fontFamily="ui-monospace,monospace">
             y
           </text>
 
@@ -216,9 +216,9 @@ export default function LinearMappingGraph({
               <text
                 key={`xl${v}`}
                 x={sx(v, xMin, xMax)}
-                y={oy + 16}
+                y={oy + 22}
                 fill="#4b5563"
-                fontSize="10"
+                fontSize="14"
                 textAnchor="middle"
                 fontFamily="ui-monospace,monospace"
               >
@@ -232,10 +232,10 @@ export default function LinearMappingGraph({
             .map((v) => (
               <text
                 key={`yl${v}`}
-                x={ox - 8}
-                y={sy(v, yMin, yMax) + 4}
+                x={ox - 12}
+                y={sy(v, yMin, yMax) + 5}
                 fill="#4b5563"
-                fontSize="10"
+                fontSize="14"
                 textAnchor="end"
                 fontFamily="ui-monospace,monospace"
               >
@@ -244,16 +244,16 @@ export default function LinearMappingGraph({
             ))}
 
           {/* Origin label */}
-          <text x={ox - 10} y={oy + 14} fill="#4b5563" fontSize="10" textAnchor="end" fontFamily="ui-monospace,monospace">
+          <text x={ox - 14} y={oy + 20} fill="#4b5563" fontSize="14" textAnchor="end" fontFamily="ui-monospace,monospace">
             0
           </text>
 
           {/* ── Phase 0+: Equation label ─────────────────────────────────── */}
           <text
-            x={PL + PW - 8}
-            y={PT + 22}
+            x={PL + PW - 10}
+            y={PT + 30}
             fill="#7c3aed"
-            fontSize="17"
+            fontSize="26"
             fontFamily="ui-monospace,monospace"
             textAnchor="end"
             fontWeight="700"
@@ -266,7 +266,7 @@ export default function LinearMappingGraph({
             <motion.path
               d={`M ${lx1},${ly1} L ${lx2},${ly2}`}
               stroke="#8b5cf6"
-              strokeWidth="2.5"
+              strokeWidth="4"
               fill="none"
               strokeLinecap="round"
               initial={{ pathLength: 0, opacity: 0 }}
@@ -282,9 +282,9 @@ export default function LinearMappingGraph({
           {phase >= 3 && (
             <motion.text
               x={sx(3.2, xMin, xMax)}
-              y={sy(m * 3.2 + c, yMin, yMax) - 16}
+              y={sy(m * 3.2 + c, yMin, yMax) - 22}
               fill="#a78bfa"
-              fontSize="14"
+              fontSize="22"
               fontFamily="ui-monospace,monospace"
               fontWeight="600"
               initial={{ opacity: 0 }}
@@ -329,18 +329,18 @@ export default function LinearMappingGraph({
                 <circle
                   cx={sx(pt.x, xMin, xMax)}
                   cy={sy(pt.y, yMin, yMax)}
-                  r="6"
+                  r="9"
                   fill="#f59e0b"
                   stroke="#fde68a"
-                  strokeWidth="1.5"
+                  strokeWidth="2"
                 />
                 {/* Label */}
                 {pt.label && (
                   <text
-                    x={sx(pt.x, xMin, xMax) + 10}
-                    y={sy(pt.y, yMin, yMax) - 8}
+                    x={sx(pt.x, xMin, xMax) + 14}
+                    y={sy(pt.y, yMin, yMax) - 12}
                     fill="#fbbf24"
-                    fontSize="11"
+                    fontSize="16"
                     fontFamily="ui-monospace,monospace"
                   >
                     {pt.label}
@@ -357,21 +357,21 @@ export default function LinearMappingGraph({
               transition={{ duration: reduced ? 0.15 : 0.45 }}
             >
               <rect
-                x={PL + 10}
-                y={PT + 10}
-                width={196}
-                height={p1 && p2 ? 92 : 68}
-                rx="9"
+                x={PL + 15}
+                y={PT + 15}
+                width={280}
+                height={p1 && p2 ? 140 : 100}
+                rx="12"
                 fill="#0f0a1e"
                 stroke="#6d28d9"
-                strokeWidth="1.5"
+                strokeWidth="2"
                 opacity="0.96"
               />
               <text
-                x={PL + 22}
-                y={PT + 30}
+                x={PL + 32}
+                y={PT + 40}
                 fill="#7c3aed"
-                fontSize="10"
+                fontSize="14"
                 fontFamily="ui-monospace,monospace"
                 fontWeight="700"
                 letterSpacing="0.1em"
@@ -379,30 +379,30 @@ export default function LinearMappingGraph({
                 WEIGHTS
               </text>
               <line
-                x1={PL + 10}
-                y1={PT + 36}
-                x2={PL + 206}
-                y2={PT + 36}
+                x1={PL + 15}
+                y1={PT + 50}
+                x2={PL + 295}
+                y2={PT + 50}
                 stroke="#6d28d9"
-                strokeWidth="0.75"
+                strokeWidth="1"
                 opacity="0.5"
               />
               {p1 && p2 && (
                 <>
                   <text
-                    x={PL + 22}
-                    y={PT + 52}
+                    x={PL + 32}
+                    y={PT + 76}
                     fill="#94a3b8"
-                    fontSize="11"
+                    fontSize="16"
                     fontFamily="ui-monospace,monospace"
                   >
                     ({p1.x},{p1.y}) and ({p2.x},{p2.y})
                   </text>
                   <text
-                    x={PL + 22}
-                    y={PT + 68}
+                    x={PL + 32}
+                    y={PT + 100}
                     fill="#e2e8f0"
-                    fontSize="12"
+                    fontSize="18"
                     fontFamily="ui-monospace,monospace"
                     fontWeight="600"
                   >
@@ -413,10 +413,10 @@ export default function LinearMappingGraph({
                     </tspan>
                   </text>
                   <text
-                    x={PL + 22}
-                    y={PT + 86}
+                    x={PL + 32}
+                    y={PT + 126}
                     fill="#e2e8f0"
-                    fontSize="12"
+                    fontSize="18"
                     fontFamily="ui-monospace,monospace"
                     fontWeight="600"
                   >
@@ -430,10 +430,10 @@ export default function LinearMappingGraph({
               )}
               {/* Brace / arrow pointing to the box label */}
               <text
-                x={PL + 22}
-                y={PT + (p1 && p2 ? 104 : 80)}
+                x={PL + 32}
+                y={PT + (p1 && p2 ? 155 : 120)}
                 fill="#6d28d9"
-                fontSize="10"
+                fontSize="14"
                 fontFamily="ui-monospace,monospace"
                 fontWeight="600"
               >

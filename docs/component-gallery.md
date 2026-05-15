@@ -179,6 +179,7 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | `ArchitectureComparisonDemo` | Interactive | Shared sentence with clickable FNN/RNN/Transformer panels, architecture-specific visibility/memory cues, and dynamic explanation of why predictions differ. |
 | `SelfAttentionScoreExplorer` | Interactive | Default **The capital of Egypt is Cairo** (six-token); optional **`The` / `cat` / `sat`** built-in lesson (simple Q/K/V copy); softmax bars + OUTPUT box; legacy cat MDX → Cairo dataset; Cairo mounts on index **5**, three-token clamps to **sat** (index **2**) when `defaultSelected` is left at **5**. |
 | `MaskedAttentionSimulator` | Interactive | Animated visualization of causal masking showing how future tokens are masked out with $-\infty$ during autoregressive generation. |
+| `PositionalEncodingMotivation` | Interactive | Step-by-step example showing why positional encoding is needed before visualizing the math. |
 | `TransformerPipelineWalkthrough` | Interactive | **`surface-panel`** shell; **macro strip** (six phases from `activeStageId`); token strip + stage row themed with **`--primary` / `--success` / `--purple`** etc.; internal chips use **`PipelineInternal.detail`** as native **`title`** tooltip; larger type and controls. |
 | `TransformerSubstackExplorer` | Interactive | Encoder or decoder: muted pills (purple / warning tints); **Full** stack and focus panel use `globals.css` surfaces and token-colored left accents—not saturated Tailwind primaries. Illustrations in `transformer-substack-illustrations.tsx` match the same tokens. |
 | `EmbeddingVectorExplorer` | Interactive | SVG arrows from origin per word; cluster hulls toggle; click arrow → inspect mock vector; staggered entrance animation; dark-mode safe. |
@@ -455,7 +456,7 @@ Example MDX:
 
 ```mdx
 <MacroPipeline
-  title="Transformer Inference Loop"
+  title="Transformer nference Loop"
   hasLoop
   blocks={[
     { id: "input", label: "Your words", emoji: "💬", color: "gray" },
