@@ -438,9 +438,6 @@ export default function MaskedSelfAttentionScoreExplorer({
             <p className="rounded-xl bg-gray-100 px-6 py-6 font-mono text-lg leading-relaxed text-gray-900 dark:bg-gray-900 dark:text-gray-100 md:text-2xl shadow-inner border border-gray-200 dark:border-gray-700">
               {`z_${selectedToken} = ${attentionEquation.split(" + ").filter(term => !term.startsWith("0.00")).join(" + ") || "0.00"}`}
             </p>
-            <p className="mt-4 text-sm font-medium text-gray-600 dark:text-gray-400">
-              * Notice how terms with 0.00 weights (future tokens) are dropped entirely.
-            </p>
           </div>
         </>
       ) : null}

@@ -20,7 +20,15 @@ export interface TransformerSubstackExplorerProps {
 }
 
 type EncoderFocus = "overview" | "self" | "heads" | "ffn" | "residual" | "layers";
-type DecoderFocus = "overview" | "masked" | "cross" | "ffn" | "residual" | "layers";
+type DecoderFocus =
+  | "overview"
+  | "tokens"
+  | "layernorm"
+  | "masked"
+  | "ffn"
+  | "residual"
+  | "layers"
+  | "lmhead";
 
 const ENCODER_PILLS: { id: EncoderFocus; label: string }[] = [
   { id: "overview", label: "Full encoder" },
@@ -33,10 +41,12 @@ const ENCODER_PILLS: { id: EncoderFocus; label: string }[] = [
 
 const DECODER_PILLS: { id: DecoderFocus; label: string }[] = [
   { id: "overview", label: "Full decoder" },
+  { id: "tokens", label: "Token vectors" },
+  { id: "layernorm", label: "Layer norm" },
   { id: "masked", label: "Masked self-attn" },
-  { id: "cross", label: "Cross-attention" },
   { id: "ffn", label: "Feed-forward" },
-  { id: "residual", label: "Residual + norm" },
+  { id: "residual", label: "Residual add" },
+  { id: "lmhead", label: "LM head" },
   { id: "layers", label: "× layers" },
 ];
 
@@ -82,41 +92,53 @@ const ENCODER_ANALOGY: Record<EncoderFocus, string> = {
 /** Short real-world hooks for the footer under each focused decoder topic. */
 const DECODER_ANALOGY: Record<DecoderFocus, string> = {
   overview: "",
+  tokens:
+    "Like a **name tag** on “?” at the door: it says **question mark, position 7** — the **full question** is added later in the decoder.",
+  layernorm:
+    "Like **turning down a loud mix** before the next step: big numbers become **small, stable values** so attention and FFN always see a **predictable scale**.",
   masked:
-    "Like **typing a message without scrolling ahead**: you only see words you’ve already written—no peeking at the future text you haven’t produced yet.",
-  cross:
-    "Like **working from notes while you speak**: the decoder’s draft keeps **glancing back** at the encoder’s page (source memory) so answers stay tied to what was actually said.",
-  ffn: "Same idea as the encoder: **widen** each token’s vector, **refine** with rich computation, then **project back** to the usual width.",
+    "Like **re-reading the whole question** before you answer: “?” pulls in **Cairo, capital, Egypt** — the vector **is** the question, not just punctuation.",
+  ffn: "Same idea as the encoder: **widen** each token’s vector (12,288 → 49,152), **refine** with rich computation, then **project back** to model width.",
   residual:
-    "**Residual — your safety net** here too: **add** the vector from before the sub-layer back in so **socializing** (masked attention), **checking the book** (cross-attention), or **thinking** (FFN) can’t rewrite meaning too aggressively in one step—then **normalize** to keep depth stable.",
+    "**Residual — your safety net.** The **skip add** after attention or FFN mixes the sub-layer’s change back into what came in, so one hop can’t silently rewrite a token’s meaning.",
   layers:
-    "Same as the encoder: **depth** means more passes of mask → cross-attend → refine, each time reusing the same block pattern end to end.",
+    "GPT-3 **depth**: the same block repeats **96 times**—each pass refines context while the causal mask keeps training aligned with generation.",
+  lmhead:
+    "Like a **final exam scorer**: the model turns the last token’s rich vector into **scores for every word in the dictionary**, then **picks the most likely next word**.",
 };
 
 const DECODER_DETAIL: Record<DecoderFocus, { headline: string; body: string }> = {
   overview: {
-    headline: "One decoder layer",
-    body: "Like the encoder, but with masked self-attention (no peeking at future tokens) and cross-attention into the encoder memory before the feed-forward.",
+    headline: "One GPT-3 transformer block",
+    body: "Layer norm → masked self-attention → residual add → layer norm → feed-forward → residual add. GPT-3 175B stacks this block 96 times, then final layer norm (ln_f) before the LM head.",
+  },
+  layernorm: {
+    headline: "Layer norm",
+    body: "Re-centers and rescales each token’s vector so the next sub-layer always sees a stable scale — same pattern before attention, before FFN, and once as ln_f after all blocks.",
   },
   masked: {
-    headline: "Masked self-attention",
-    body: "Example: with prefix `The capital of Egypt is`, the query at `is` can read only `The capital of Egypt is` and cannot read future token `Cairo`. That no-peek rule is the mask.",
-  },
-  cross: {
-    headline: "Cross-attention",
-    body: "Concrete example: decoder has `The capital of Egypt is` and asks encoder memory for source facts. Cross-attention reads encoder keys/values from `The capital of Egypt is Cairo`, gives highest weight to `Egypt`, and that grounding helps output `Cairo` next.",
+    headline: "After masked self-attention",
+    body: "The vector at “?” now encodes the full question — Cairo, capital, Egypt — merged from every earlier token. Causal mask: “?” sees only up to itself.",
   },
   ffn: {
     headline: "Feed-forward",
-    body: "Same per-position MLP as the encoder: widen → nonlinear layers → project back. Runs after masked self-attention and cross-attention have updated each position.",
+    body: "Per-position MLP after the second layer norm: widen to d_ff = 4 × d_model (12,288 → 49,152), nonlinear layers, project back. Same weights at every position.",
   },
   residual: {
-    headline: "Residual + layer norm",
-    body: "Same add-and-norm wrap after masked attention, cross-attention, and FFN. The residual add is still your safety net: “socializing” (masked self-attention), consulting the source (cross-attention), and “thinking” (FFN) apply on top of what came in, so one sub-layer can’t drag the representation too far before the next norm step.",
+    headline: "Residual add",
+    body: "After masked attention and after FFN, the sub-layer output is added to the residual stream (skip connection). Two adds per block keep gradients healthy and cap how much one sub-layer can change a token.",
   },
   layers: {
     headline: "Stacked layers",
-    body: "Decoder blocks repeat for the same reason as the encoder: depth trades compute for expressiveness. N matches the encoder stack in the classic design.",
+    body: "The full block repeats many times. GPT-3 175B stacks 96 identical layers; deeper stacks trade compute for richer contextual representations.",
+  },
+  tokens: {
+    headline: "Token vectors (start)",
+    body: "At the start, “?” is mostly punctuation + position 7. Embedding and position encoding — full sentence meaning comes in the decoder blocks.",
+  },
+  lmhead: {
+    headline: "LM head & softmax",
+    body: "After ln_f, h at `?` (12,288-dim) projects to logits over the vocabulary. Softmax yields probabilities; the model emits the next token after `?` (e.g. Yes or No).",
   },
 };
 
@@ -151,30 +173,40 @@ const DECODER_FOCUS_CARD: Record<
   Exclude<DecoderFocus, "overview">,
   { label: string; sub: string; tone: BlockTone }
 > = {
-  masked: {
-    label: "① Masked self-attention",
-    sub: "Only past and current positions — no peeking at future tokens.",
-    tone: "violet",
+  tokens: {
+    label: "Token vectors",
+    sub: "Start — embedding + position for “?” before decoder blocks.",
+    tone: "gray",
   },
-  cross: {
-    label: "③ Cross-attention",
-    sub: "Queries from the decoder; keys and values from the encoder memory.",
+  layernorm: {
+    label: "Layer norm",
+    sub: "Stabilizes the vector at “?” before each sub-layer.",
+    tone: "teal",
+  },
+  masked: {
+    label: "Masked self-attention",
+    sub: "After attention — “?” encodes the full question.",
     tone: "violet",
   },
   ffn: {
-    label: "⑤ Feed-forward network",
-    sub: "512 → 2048 → 512 · per token, same pattern as the encoder.",
+    label: "Feed-forward network",
+    sub: "12,288 → 49,152 → 12,288 · per token (d_ff = 4 × d_model).",
     tone: "amber",
   },
   residual: {
-    label: "② / ④ / ⑥ Add & Layer Norm",
-    sub: "Residual add + layer norm after each sub-layer.",
+    label: "Residual add",
+    sub: "Skip connection after attention and after FFN — mix sub-layer output into the stream.",
     tone: "teal",
   },
   layers: {
     label: "Stack depth",
-    sub: "The same decoder block repeats for the full stack.",
+    sub: "GPT-3 175B — same block repeated 96× end to end.",
     tone: "gray",
+  },
+  lmhead: {
+    label: "LM head & softmax",
+    sub: "Last token vector → logits over vocabulary → probabilities → next token.",
+    tone: "violet",
   },
 };
 
@@ -235,7 +267,7 @@ function stackBlockClass(
     "w-full rounded-xl bg-[color:var(--surface-strong)] text-left font-semibold text-slate-100 transition-all",
     "border-l-4", // Thicker left accent for clearer visualization
     stackToneAccentClass(tone),
-    large ? "px-5 py-4 text-base md:text-lg" : "px-4 py-3 text-base md:px-5 md:py-3.5",
+    large ? "px-5 py-4 text-lg md:text-xl" : "px-4 py-3 text-base md:px-5 md:py-3.5",
     active ? activeBorder : "border border-white/10 opacity-[0.93] hover:border-white/20 hover:opacity-100",
   );
 }
@@ -297,19 +329,21 @@ export default function TransformerSubstackExplorer({
   variant,
   title,
   caption,
-  layerCount = 6,
+  layerCount: layerCountProp,
   minimal = false,
 }: TransformerSubstackExplorerProps) {
   const reducedMotion = useReducedMotion();
   const [encFocus, setEncFocus] = useState<EncoderFocus>("overview");
   const [decFocus, setDecFocus] = useState<DecoderFocus>("overview");
 
+  const layerCount = layerCountProp ?? (variant === "decoder" ? 96 : 6);
+
   const detail = variant === "encoder" ? ENCODER_DETAIL[encFocus] : DECODER_DETAIL[decFocus];
   const detailBody =
     variant === "encoder" && encFocus === "layers"
       ? `The full block repeats ${layerCount} times in the classic paper setup (N is model-specific).`
       : variant === "decoder" && decFocus === "layers"
-        ? `The decoder stack is usually the same depth as the encoder — often ${layerCount} layers in the original design.`
+        ? `GPT-3 175B repeats this block ${layerCount} times (Table 2.1 in the GPT-3 paper).`
         : detail.body;
 
   const setFocusEncoder = useCallback((id: EncoderFocus) => setEncFocus(id), []);
@@ -330,23 +364,31 @@ export default function TransformerSubstackExplorer({
   const decHighlight = useMemo(() => {
     const m: Partial<Record<string, boolean>> = {};
     if (decFocus === "overview" || decFocus === "layers") return m;
-    if (decFocus === "masked") m.masked = true;
-    if (decFocus === "cross") m.cross = true;
+    if (decFocus === "tokens") m.input = true;
+    if (decFocus === "layernorm") {
+      m.ln1 = true;
+      m.ln2 = true;
+      m.lnf = true;
+    }
+    if (decFocus === "masked") m.attn = true;
     if (decFocus === "ffn") m.ffn = true;
     if (decFocus === "residual") {
-      m.n1 = true;
-      m.n2 = true;
-      m.n3 = true;
+      m.res1 = true;
+      m.res2 = true;
+    }
+    if (decFocus === "lmhead") {
+      m.lnf = true;
+      m.output = true;
     }
     return m;
   }, [decFocus]);
 
   const defaultTitle =
-    variant === "encoder" ? "Encoder block — one layer" : "Decoder block — one layer";
+    variant === "encoder" ? "Encoder block — one layer" : "GPT-3 transformer block — one of 96 layers";
   const defaultCaption =
     variant === "encoder"
       ? "Pick a topic to zoom in, or Full encoder to see the whole stack. Tap a block to jump."
-      : "Pick a topic to zoom in, or Full decoder to see the whole stack. Tap a block to jump.";
+      : "Pick a topic to zoom in, or Full GPT block to see the whole stack. Tap a block to jump.";
 
   const encoderTip =
     encFocus !== "overview" && ENCODER_ANALOGY[encFocus] ? (
@@ -548,13 +590,13 @@ function EncoderStack({
   large?: boolean;
   accent: "violet" | "amber";
 }) {
-  const blocks: { id: string; label: string; sub: string; tone: BlockTone; focus: EncoderFocus }[] = [
-    { id: "input", label: "Input vectors", sub: "one per token · 512-dim", tone: "gray", focus: "overview" },
-    { id: "mha", label: "① Self-attention", sub: "every token ↔ every token", tone: "violet", focus: "self" },
-    { id: "norm1", label: "② Add & Layer Norm", sub: "+ residual", tone: "teal", focus: "residual" },
-    { id: "ffn", label: "③ Feed-forward", sub: "512 → 2048 → 512 · per token", tone: "amber", focus: "ffn" },
-    { id: "norm2", label: "④ Add & Layer Norm", sub: "+ residual", tone: "teal", focus: "residual" },
-    { id: "output", label: "Encoder output", sub: "context-aware state", tone: "gray", focus: "overview" },
+  const blocks: { id: string; label: string; tone: BlockTone; focus: EncoderFocus }[] = [
+    { id: "input", label: "Input vectors", tone: "gray", focus: "overview" },
+    { id: "mha", label: "① Self-attention", tone: "violet", focus: "self" },
+    { id: "norm1", label: "② Add & Layer Norm", tone: "teal", focus: "residual" },
+    { id: "ffn", label: "③ Feed-forward", tone: "amber", focus: "ffn" },
+    { id: "norm2", label: "④ Add & Layer Norm", tone: "teal", focus: "residual" },
+    { id: "output", label: "Encoder output", tone: "gray", focus: "overview" },
   ];
 
   return (
@@ -575,14 +617,6 @@ function EncoderStack({
             className={stackBlockClass(b.tone, !!encHighlight[b.id] || encFocus === b.focus, accent, !!large)}
           >
             <span className="block">{b.label}</span>
-            <span
-              className={cn(
-                "mt-1 block font-normal text-slate-400",
-                large ? "text-base md:text-lg" : "text-base font-medium md:text-lg",
-              )}
-            >
-              {b.sub}
-            </span>
           </motion.button>
           {idx < blocks.length - 1 && <ArrowDown large={large} />}
         </div>
@@ -606,15 +640,31 @@ function DecoderStack({
   large?: boolean;
   accent: "violet" | "amber";
 }) {
-  const blocks: { id: string; label: string; sub: string; tone: BlockTone; focus: DecoderFocus }[] = [
-    { id: "input", label: "Input (shifted right)", sub: "decoder positions · 512-dim", tone: "gray", focus: "overview" },
-    { id: "masked", label: "① Masked self-attention", sub: "only past tokens — no future peek", tone: "violet", focus: "masked" },
-    { id: "n1", label: "② Add & Layer Norm", sub: "+ residual", tone: "teal", focus: "residual" },
-    { id: "cross", label: "③ Cross-attention", sub: "Q from decoder · K,V from encoder", tone: "violet", focus: "cross" },
-    { id: "n2", label: "④ Add & Layer Norm", sub: "+ residual", tone: "teal", focus: "residual" },
-    { id: "ffn", label: "⑤ Feed-forward", sub: "512 → 2048 → 512 · per token", tone: "amber", focus: "ffn" },
-    { id: "n3", label: "⑥ Add & Layer Norm", sub: "+ residual", tone: "teal", focus: "residual" },
-    { id: "output", label: "Decoder output", sub: "to linear & softmax", tone: "gray", focus: "overview" },
+  const blocks: { id: string; label: string; tone: BlockTone; focus: DecoderFocus }[] = [
+    { id: "input", label: "Token vectors", tone: "gray", focus: "tokens" },
+    { id: "ln1", label: "① Layer norm", tone: "teal", focus: "layernorm" },
+    {
+      id: "attn",
+      label: "② Masked multi-head self-attention",
+      tone: "violet",
+      focus: "masked",
+    },
+    { id: "res1", label: "③ Residual add", tone: "teal", focus: "residual" },
+    { id: "ln2", label: "④ Layer norm", tone: "teal", focus: "layernorm" },
+    {
+      id: "ffn",
+      label: "⑤ Feed-forward",
+      tone: "amber",
+      focus: "ffn",
+    },
+    { id: "res2", label: "⑥ Residual add", tone: "teal", focus: "residual" },
+    {
+      id: "lnf",
+      label: "⑦ Final layer norm (ln_f)",
+      tone: "teal",
+      focus: "layernorm",
+    },
+    { id: "output", label: "LM head & softmax", tone: "gray", focus: "lmhead" },
   ];
 
   return (
@@ -627,23 +677,17 @@ function DecoderStack({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => {
-              if (b.id === "masked") setFocus("masked");
-              else if (b.id === "cross") setFocus("cross");
+              if (b.id === "ln1" || b.id === "ln2" || b.id === "lnf") setFocus("layernorm");
+              else if (b.id === "attn") setFocus("masked");
               else if (b.id === "ffn") setFocus("ffn");
-              else if (b.id.startsWith("n")) setFocus("residual");
+              else if (b.id === "res1" || b.id === "res2") setFocus("residual");
+              else if (b.id === "output") setFocus("lmhead");
+              else if (b.id === "input") setFocus("tokens");
               else setFocus("overview");
             }}
             className={stackBlockClass(b.tone, !!decHighlight[b.id] || decFocus === b.focus, accent, !!large)}
           >
             <span className="block">{b.label}</span>
-            <span
-              className={cn(
-                "mt-1 block font-normal text-slate-400",
-                large ? "text-base md:text-lg" : "text-base font-medium md:text-lg",
-              )}
-            >
-              {b.sub}
-            </span>
           </motion.button>
           {idx < blocks.length - 1 && <ArrowDown large={large} />}
         </div>

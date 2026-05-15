@@ -43,6 +43,8 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | Attention matrix | `AttentionHeatmap` |
 | 2D embedding / cluster plot | `Vector2DPlot` |
 | Straight-line graph (y = mx + c) step-through — teach mapping functions & weights | `LinearMappingGraph` |
+| Linear regression training — forward pass, error, gradients, weight updates toward y=3x+2 | `LinearRegressionTrainingExplorer` |
+| Chained linear layers — vanishing or exploding gradient (story prop) | `LinearChainGradientExplorer` |
 | Next-token distribution + temperature / top-p | `TokenProbDist` |
 | Typed prompt → simulated output | `MiniPlayground` (no function props from MDX) |
 | Toggle blocks that fill context budget | `ContextWindowFiller` |
@@ -88,6 +90,7 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | Positional encoding — swap tokens, full-width numeric PE table (no curve chart), meaning+position bars | `PositionalEncodingVisualizer` |
 | Sentence → token chips → synthetic vocab IDs (Transformer teaching path) | `TransformerSentenceTokenStrip` |
 | Tokens → mock embedding rows as numeric arrays (`dim` columns); optional `ids` → first column `8842 (The)` | `EmbeddingVectorsTable` |
+| After attention — animated **exploding / vanishing** gradient vectors (transformer layers; optional in sessions) | `GradientInstabilityExplorer` |
 | Encoder or decoder sub-stack — pills; **surface-panel** chrome; stack blocks use `surface-strong` + left accents from site tokens (`--purple`, `--success`, `--warning`) | `TransformerSubstackExplorer` |
 | Self-attention explorer — built-in **The capital of Egypt is Cairo** (six tokens), **The cat sat** (three-token Q/K/V lesson), or legacy `queries`/`attentionRows` | `SelfAttentionScoreExplorer` |
 | Full Transformer pipeline walkthrough — **six-phase macro strip** + stage cards, chip trays (`title` = `detail` tooltip), step panel | `TransformerPipelineWalkthrough` |
@@ -1650,9 +1653,23 @@ interface EmbeddingVectorsTableProps {
 
 ---
 
+### GradientInstabilityExplorer
+
+**Description:** Standalone **`surface-panel`** diagram (place **before** `TransformerSubstackExplorer` in MDX). Cycles **After attention** → **Exploding gradients** (shake/pulse, huge values) → **Vanishing gradients** (tiny values). Large monospace vectors; phase pills for manual jump. Does not include LayerNorm fix — that lives in the transformer block’s **Layer norm** pill.
+
+```ts
+interface GradientInstabilityExplorerProps {
+  title?: string;
+  caption?: string;
+  minimal?: boolean;  // hide title/caption — diagram only
+}
+```
+
+---
+
 ### TransformerSubstackExplorer
 
-**Description:** Vertical stack diagram for **one** Transformer layer (`variant: "encoder" | "decoder"`). Topic pills select a **focus**. Styling aligns with the app shell: outer **`surface-panel`**, inner stack/focus areas use **`--surface-strong`** blocks with **`border-white/10`**, **2px left accents** mapped to **`--purple`** (attention), **`--success`** (add/norm), **`--warning`** (FFN), **slate** (input). Active stack block rings use **`--primary`** (encoder) or **`--warning`** (decoder) at low opacity; pills use translucent fills, not solid `violet-600` / `amber-600`. Non-overview focuses: thin left accent, title + sub + optional body, **tall illustration well** (`bg-white/[0.04]`), then a **Real-world analogy** footer (per-focus prose—socialization, committee, photo upscale, rough-draft + normalize, editing passes; decoder: no future peek, open-book, etc.) with optional `**bold**` spans. **`transformer-substack-illustrations.tsx`** uses the same CSS variables and slate text for minis. Encoder: self-attention → add/norm → FFN → add/norm. Decoder: input → masked self-attention → add/norm → cross-attention → add/norm → FFN → add/norm. `layerCount` affects the “× layers” copy and the layer-stack animation.
+**Description:** Vertical stack diagram for **one** Transformer layer (`variant: "encoder" | "decoder"`). Topic pills select a **focus**. Styling aligns with the app shell: outer **`surface-panel`**, inner stack/focus areas use **`--surface-strong`** blocks with **`border-white/10`**, **2px left accents** mapped to **`--purple`** (attention), **`--success`** (add/norm), **`--warning`** (FFN), **slate** (input). Active stack block rings use **`--primary`** (encoder) or **`--warning`** (decoder) at low opacity; pills use translucent fills, not solid `violet-600` / `amber-600`. Non-overview focuses: thin left accent, title + sub + optional body, **tall illustration well** (`bg-white/[0.04]`), then a **Real-world analogy** footer (per-focus prose—socialization, committee, photo upscale, rough-draft + normalize, editing passes; decoder/GPT-3: no future peek, Pre-LN residuals, etc.) with optional `**bold**` spans. **`transformer-substack-illustrations.tsx`** uses the same CSS variables and slate text for minis. Encoder: self-attention → add/norm → FFN → add/norm (Post-LN, classic 512-dim teaching labels). Decoder (**GPT-3 175B**): **Layer norm** → masked multi-head self-attention (96 heads) → **residual** → **layer norm** → FFN (12,288 → 49,152 → 12,288) → **residual** (×96 blocks), then **final layer norm (ln_f)** → LM head. **Layer norm** focus shows **before → after** normalization only (`[100, 200, 300, 400]` → small stable values). No encoder or cross-attention. Default `layerCount` is **96** for decoder, **6** for encoder; affects “× layers” copy and layer-stack animation (visual stack capped at 12 boxes).
 
 ```ts
 type TransformerSubstackVariant = "encoder" | "decoder";
@@ -1661,7 +1678,7 @@ interface TransformerSubstackExplorerProps {
   variant: TransformerSubstackVariant;
   title?: string;
   caption?: string;
-  layerCount?: number;  // default 6 — used in layers-focus copy
+  layerCount?: number;  // default 96 (decoder) or 6 (encoder) — used in layers-focus copy
 }
 ```
 
@@ -1775,6 +1792,38 @@ interface LinearMappingGraphProps {
   xMax?: number;                      // default 5
   yMin?: number;                      // default -0.5
   yMax?: number;                      // default 10
+}
+```
+
+---
+
+### LinearRegressionTrainingExplorer
+
+**Description:** Auto-stepping coordinate-plane animation teaching gradient descent on `y = mx + c`. Shows ghost true line `y = 3x + 2`, model starting at `m=0, c=0`, forward pass with prediction error, ∂E/∂m and ∂E/∂c, weight updates, and convergence. Prev/Next, phase tabs, Play/Pause. Uses shared chart layout from `linear-mapping-chart.ts`.
+
+```ts
+interface LinearRegressionTrainingExplorerProps {
+  title?: string;
+  caption?: string;
+  targetM?: number;       // default 3
+  targetC?: number;       // default 2
+  learningRate?: number;  // default 0.08
+}
+```
+
+---
+
+### LinearChainGradientExplorer
+
+**Description:** Five-step animation for chained linear layers and backprop multiplication. `story: "vanish"` uses `m₂ = 0.1` (gradient shrinks); `story: "explode"` uses `m₂ = 10` (gradient grows). Two-layer diagram then five-layer chain with product string (e.g. `1.0 × 0.1⁵ = 0.00001`). One slide per story in MDX.
+
+```ts
+type ChainGradientStory = "vanish" | "explode";
+
+interface LinearChainGradientExplorerProps {
+  story: ChainGradientStory;
+  title?: string;
+  caption?: string;
 }
 ```
 

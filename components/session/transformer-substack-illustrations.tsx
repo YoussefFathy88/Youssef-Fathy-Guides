@@ -5,6 +5,15 @@ import { useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
+import {
+  DECODER_EXAMPLE_SENTENCE,
+  DECODER_EXAMPLE_TOKENS,
+  DECODER_LAST_TOKEN,
+  DECODER_LAST_TOKEN_INDEX,
+  DECODER_LM_CANDIDATES,
+} from "./decoder-teaching-example";
+import { LayerNormMini } from "./layernorm-mini";
+
 export type EncoderIllustrationFocus =
   | "overview"
   | "self"
@@ -15,11 +24,283 @@ export type EncoderIllustrationFocus =
 
 export type DecoderIllustrationFocus =
   | "overview"
+  | "tokens"
+  | "layernorm"
   | "masked"
-  | "cross"
   | "ffn"
   | "residual"
-  | "layers";
+  | "layers"
+  | "lmhead";
+
+/** Sentence strip — highlights the active token (default “?”). */
+export function DecoderExampleTokenStrip({
+  activeIndex = DECODER_LAST_TOKEN_INDEX,
+  label = "Tokens",
+  showLabel = true,
+  showSentence = true,
+}: {
+  activeIndex?: number;
+  label?: string;
+  showLabel?: boolean;
+  showSentence?: boolean;
+}) {
+  return (
+    <div className="space-y-3">
+      {showLabel ? (
+        <p className="text-sm font-bold uppercase tracking-wide text-slate-400 md:text-base">{label}</p>
+      ) : null}
+      <div className="flex flex-wrap justify-center gap-2 md:gap-3">
+        {DECODER_EXAMPLE_TOKENS.map((tok, i) => (
+          <div
+            key={`${tok}-${i}`}
+            className={cn(
+              "rounded-xl border px-3 py-2 text-base font-bold md:px-4 md:py-3 md:text-lg",
+              i === activeIndex
+                ? "border-[color:var(--primary)]/60 bg-[color:var(--primary)]/20 text-white ring-2 ring-[color:var(--primary)]/40"
+                : "border-white/10 bg-white/[0.06] text-slate-300",
+            )}
+          >
+            {tok}
+          </div>
+        ))}
+      </div>
+      {showSentence ? (
+        <p className="text-center font-mono text-base text-slate-300 md:text-lg">{DECODER_EXAMPLE_SENTENCE}</p>
+      ) : null}
+    </div>
+  );
+}
+
+const LM_HEAD_STEPS = [
+  { id: "vector", short: "① Vector", title: "Last token vector" },
+  { id: "linear", short: "② LM head", title: "Matrix multiply" },
+  { id: "logits", short: "③ Logits", title: "Raw scores" },
+  { id: "softmax", short: "④ Softmax", title: "Probabilities" },
+  { id: "pick", short: "⑤ Pick", title: "Next token" },
+] as const;
+
+type LMHeadPhase = (typeof LM_HEAD_STEPS)[number]["id"];
+
+/** LM head: h × W_LM → logits (teaching schematic). */
+function LMHeadMatmulDiagram({
+  phase,
+  showProbs,
+  reducedMotion,
+}: {
+  phase: LMHeadPhase;
+  showProbs: boolean;
+  reducedMotion: boolean;
+}) {
+  const showMultiply = phase !== "vector";
+  const showOutput = phase === "logits" || phase === "softmax" || phase === "pick";
+  const pickWinner = phase === "pick";
+  const highlightWeights = phase === "linear";
+  const highlightOutput = phase === "logits" || phase === "softmax";
+
+  const vectorCells = 5;
+
+  return (
+    <div className="space-y-5">
+      <DecoderExampleTokenStrip showLabel={false} showSentence={false} />
+
+      <div className="flex flex-wrap items-center justify-center gap-3 md:gap-5">
+        {/* h — column vector at "?" */}
+        <div className="flex flex-col items-center gap-2">
+          <span className="text-base font-bold text-violet-200 md:text-lg">h at “?”</span>
+          <div
+            className={cn(
+              "flex w-16 flex-col items-center gap-0.5 rounded-xl border-2 px-1.5 py-2 md:w-20",
+              phase === "vector" || showMultiply
+                ? "border-[color:var(--primary)]/55 bg-[color:var(--primary)]/15 ring-2 ring-[color:var(--primary)]/25"
+                : "border-white/15 bg-white/[0.04]",
+            )}
+          >
+            {Array.from({ length: vectorCells }, (_, i) => (
+              <div
+                key={`h-${i}`}
+                className="h-3 w-full rounded-sm bg-[color:var(--primary)]/70 md:h-3.5"
+              />
+            ))}
+            <span className="py-0.5 text-base font-bold text-slate-400">⋮</span>
+          </div>
+          <span className="font-mono text-base font-semibold text-slate-300 md:text-lg">12,288 × 1</span>
+        </div>
+
+        {showMultiply ? (
+          <>
+            <span className="text-2xl font-bold text-white md:text-3xl" aria-hidden>
+              ×
+            </span>
+
+            {/* W_LM — weight matrix (teaching: one row per candidate token) */}
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-base font-bold text-amber-200 md:text-lg">W_LM</span>
+              <div
+                className={cn(
+                  "overflow-hidden rounded-xl border-2",
+                  highlightWeights
+                    ? "border-[color:var(--warning)]/55 bg-[color:var(--warning)]/10 ring-2 ring-[color:var(--warning)]/25"
+                    : "border-white/15 bg-white/[0.04]",
+                )}
+              >
+                {DECODER_LM_CANDIDATES.map((c) => (
+                  <div
+                    key={c.token}
+                    className="flex items-center gap-2 border-b border-white/10 px-2 py-1.5 last:border-b-0 md:px-3 md:py-2"
+                  >
+                    <span className="w-10 shrink-0 text-base font-bold text-white md:w-12 md:text-lg">
+                      {c.token}
+                    </span>
+                    <div className="flex flex-1 gap-0.5">
+                      {Array.from({ length: 6 }, (_, i) => (
+                        <div
+                          key={`w-${c.token}-${i}`}
+                          className="h-3 flex-1 rounded-sm bg-[color:var(--warning)]/55 md:h-3.5"
+                        />
+                      ))}
+                      <span className="text-base text-slate-500">···</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <span className="font-mono text-base font-semibold text-slate-200 md:text-lg">vocab × 12,288</span>
+            </div>
+
+            {showOutput ? (
+              <>
+                <span className="text-2xl font-bold text-white md:text-3xl" aria-hidden>
+                  =
+                </span>
+
+                {/* z — logits / probabilities */}
+                <div className="flex flex-col items-center gap-2">
+                  <span className="text-base font-bold text-[color:var(--success)] md:text-lg">
+                    {showProbs ? "probabilities" : "logits z"}
+                  </span>
+                  <div
+                    className={cn(
+                      "flex flex-col gap-2 rounded-xl border-2 p-2",
+                      highlightOutput && !pickWinner
+                        ? "border-[color:var(--success)]/45 bg-[color:var(--success)]/8 ring-2 ring-[color:var(--success)]/20"
+                        : "border-transparent",
+                    )}
+                  >
+                    {DECODER_LM_CANDIDATES.map((c, idx) => {
+                      const metric = showProbs ? `${(c.prob * 100).toFixed(0)}%` : c.logit.toFixed(1);
+                      const winner = pickWinner && idx === 0;
+                      return (
+                        <motion.div
+                          key={c.token}
+                          className={cn(
+                            "flex min-w-[9rem] items-center justify-between gap-3 rounded-xl border-2 px-3 py-2 md:min-w-[10rem] md:px-4 md:py-2.5",
+                            winner
+                              ? "border-[color:var(--success)]/60 bg-[color:var(--success)]/15 ring-2 ring-[color:var(--success)]/30"
+                              : "border-white/15 bg-white/[0.04]",
+                          )}
+                          initial={reducedMotion ? false : { opacity: 0, x: 8 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: reducedMotion ? 0 : idx * 0.06 }}
+                        >
+                          <span className="text-base font-bold text-white md:text-lg">{c.token}</span>
+                          <span className="font-mono text-base font-bold tabular-nums text-violet-200 md:text-lg">
+                            {metric}
+                          </span>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                  <span className="font-mono text-base font-semibold text-slate-300 md:text-lg">vocab × 1</span>
+                </div>
+              </>
+            ) : null}
+          </>
+        ) : null}
+      </div>
+
+      {pickWinner ? (
+        <p className="text-center text-lg font-bold text-[color:var(--success)] md:text-xl">
+          Pick highest probability → <span className="text-white">Yes</span>
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+/** Semantic meaning of “?” at a pipeline stage (Token vectors / Masked attn / Full decoder). */
+function SemanticMeaningPanel({
+  stageLabel,
+  headline,
+  body,
+  steps,
+  footnote,
+}: {
+  stageLabel: string;
+  headline: string;
+  body: string;
+  steps?: { title: string; body: string }[];
+  footnote?: string;
+}) {
+  return (
+    <div className="space-y-6 py-2">
+      <div className="rounded-2xl border border-[color:var(--primary)]/40 bg-[color:var(--primary)]/10 px-5 py-6 md:px-8 md:py-8">
+        <p className="text-sm font-bold uppercase tracking-wide text-violet-300 md:text-base">{stageLabel}</p>
+        <p className="mt-2 text-xl font-bold text-white md:text-2xl">{headline}</p>
+        <p className="mt-3 text-base font-medium leading-relaxed text-slate-200 md:text-lg">{body}</p>
+      </div>
+
+      {steps && steps.length > 0 ? (
+        <div className={cn("grid gap-4", steps.length >= 3 ? "md:grid-cols-3" : "md:grid-cols-2")}>
+          {steps.map((box) => (
+            <div
+              key={box.title}
+              className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-4 md:py-5"
+            >
+              <p className="text-base font-bold text-violet-200 md:text-lg">{box.title}</p>
+              <p className="mt-2 text-base text-slate-300 md:text-lg">{box.body}</p>
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      {footnote ? (
+        <div className="rounded-xl border border-white/10 bg-black/25 px-4 py-4 md:px-6 md:py-5">
+          <p className="font-mono text-base text-violet-200 md:text-lg">{footnote}</p>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function TokenVectorsMini() {
+  return (
+    <SemanticMeaningPanel
+      stageLabel="Is Cairo Is Capital Of Egypt ?"
+      headline={`“${DECODER_LAST_TOKEN}” — what does its vector represent?`}
+      body="punctuation mark + I am at position 7"
+      steps={[
+        {
+          title: "① Embedding",
+          body: "“?” gets a base vector from the vocabulary table — like any other token.",
+        },
+        {
+          title: "② + Position",
+          body: "Position encoding marks it as the 7th token in this question.",
+        },
+      ]}
+    />
+  );
+}
+
+function MaskedAttentionSemanticMini() {
+  return (
+    <SemanticMeaningPanel
+      stageLabel="Stage 2 — after masked self-attention"
+      headline="“?” — I am a question mark at the end of a sentence
+that is asking whether Cairo is the capital of Egypt"
+      body=""
+    />
+  );
+}
 
 function usePulseIndex(len: number, reducedMotion: boolean, ms: number) {
   const [i, setI] = useState(0);
@@ -95,31 +376,31 @@ function OverviewEncoderMini({ reducedMotion }: { reducedMotion: boolean }) {
 }
 
 function OverviewDecoderMini({ reducedMotion }: { reducedMotion: boolean }) {
-  const steps = ["in", "ms", "n1", "cr", "n2", "ffn", "n3"] as const;
-  const i = usePulseIndex(steps.length, reducedMotion, 850);
+  const steps = ["ln1", "attn", "res1", "ln2", "ffn", "res2"] as const;
+  const i = usePulseIndex(steps.length, reducedMotion, 800);
   const labels: Record<string, string> = {
-    in: "Input",
-    ms: "Masked",
-    n1: "+N",
-    cr: "Cross",
-    n2: "+N",
+    ln1: "Layer norm",
+    attn: "Masked attn",
+    res1: "Residual",
+    ln2: "Layer norm",
     ffn: "FFN",
-    n3: "+N",
+    res2: "Residual",
   };
   return (
     <div className="flex flex-col-reverse items-stretch gap-2 py-2">
       <p className="mb-1 text-center text-base text-slate-300 md:text-lg">
-        Mask, cross-attend, FFN — residuals at each step
+        LN → masked attn → residual → LN → FFN → residual (×96), then ln_f → LM head
       </p>
       {steps.map((id, idx) => (
         <motion.div
           key={id}
           className={cn(
             "rounded-lg border px-3 py-2 text-center text-base font-semibold md:text-lg",
-            id === "in" && "border-white/10 bg-white/[0.06] text-slate-200",
-            (id === "ms" || id === "cr") &&
+            (id === "ln1" || id === "ln2") &&
+              "border-[color:var(--success)]/25 bg-[color:var(--success)]/10 text-[color:var(--success)]",
+            id === "attn" &&
               "border-[color:var(--purple)]/25 bg-[color:var(--purple)]/12 text-[color:var(--purple)]",
-            (id === "n1" || id === "n2" || id === "n3") &&
+            (id === "res1" || id === "res2") &&
               "border-[color:var(--success)]/25 bg-[color:var(--success)]/10 text-[color:var(--success)]",
             id === "ffn" &&
               "border-[color:var(--warning)]/25 bg-[color:var(--warning)]/12 text-[color:var(--warning)]",
@@ -408,22 +689,21 @@ function MultiHeadMini({ reducedMotion }: { reducedMotion: boolean }) {
   );
 }
 
-function FFNMini({ reducedMotion }: { reducedMotion: boolean }) {
-  const unpackStory = `oh, Egypt + capital + Cairo →
-this is a country,
-it has a capital city,
-that city is Cairo`;
+function FFNMini({
+  reducedMotion,
+  gptDims = false,
+}: {
+  reducedMotion: boolean;
+  gptDims?: boolean;
+}) {
+  const unpackStory = `I am a question mark at the end of a sentence
+asking whether Cairo is the capital of Egypt —
+and yes, Cairo is the capital of Egypt,
+so the answer expected is: yes
+`;
 
   return (
     <div className="mx-auto max-w-xl space-y-4 py-2">
-      <div className="rounded-xl border border-[color:var(--purple)]/35 bg-[color:var(--purple)]/10 px-4 py-3 md:px-5 md:py-4">
-        <p className="text-sm font-bold uppercase tracking-wide text-[color:var(--purple)] md:text-base">
-          Attention output
-        </p>
-        <p className="mt-2 text-sm font-medium leading-snug text-slate-100 md:text-base">
-          &ldquo;Egypt&rdquo; now knows it relates to capital and Cairo
-        </p>
-      </div>
 
       <div className="rounded-xl border border-[color:var(--warning)]/40 bg-[color:var(--warning)]/10 px-4 py-3 md:px-5 md:py-4">
         <p className="text-sm font-bold uppercase tracking-wide text-[color:var(--warning)] md:text-base">
@@ -435,9 +715,27 @@ that city is Cairo`;
       </div>
 
       <div className="space-y-3 border-t border-white/10 pt-4">
-        {barRow("Linear up (e.g. 512)", 28, "bg-[color:var(--success)]/65", 0, reducedMotion)}
-        {barRow("Hidden + activation (e.g. 2048)", 92, "bg-[color:var(--warning)]/70", 0.12, reducedMotion)}
-        {barRow("Linear down (e.g. 512)", 28, "bg-[color:var(--success)]/65", 0.24, reducedMotion)}
+        {barRow(
+          gptDims ? "Linear up (12,288)" : "Linear up (e.g. 512)",
+          28,
+          "bg-[color:var(--success)]/65",
+          0,
+          reducedMotion,
+        )}
+        {barRow(
+          gptDims ? "Hidden + activation (49,152)" : "Hidden + activation (e.g. 2048)",
+          92,
+          "bg-[color:var(--warning)]/70",
+          0.12,
+          reducedMotion,
+        )}
+        {barRow(
+          gptDims ? "Linear down (12,288)" : "Linear down (e.g. 512)",
+          28,
+          "bg-[color:var(--success)]/65",
+          0.24,
+          reducedMotion,
+        )}
         <p className="text-center text-base text-slate-300 md:text-lg">
           Same weights at every position — each token gets its own pass after attention has mixed context in.
         </p>
@@ -446,16 +744,27 @@ that city is Cairo`;
   );
 }
 
-function ResidualMini({ reducedMotion, multi }: { reducedMotion: boolean; multi?: boolean }) {
+function ResidualMini({
+  reducedMotion,
+  multi,
+  preLn,
+}: {
+  reducedMotion: boolean;
+  multi?: boolean;
+  preLn?: boolean;
+}) {
   return (
     <div className="space-y-3 py-2">
-      {barRow("Sub-layer output", 55, "bg-[color:var(--purple)]/70", 0, reducedMotion)}
-      {barRow("Skip — original input", 55, "bg-[color:var(--success)]/55", 0.1, reducedMotion)}
-      {barRow("Add → LayerNorm → out", 80, "bg-[color:var(--primary)]/55", 0.22, reducedMotion)}
+      {preLn ? barRow("Layer norm (before sub-layer)", 70, "bg-[color:var(--success)]/55", 0, reducedMotion) : null}
+      {barRow("Sub-layer output", 55, "bg-[color:var(--purple)]/70", preLn ? 0.08 : 0, reducedMotion)}
+      {barRow("Skip — residual stream", 55, "bg-[color:var(--success)]/55", preLn ? 0.16 : 0.1, reducedMotion)}
+      {barRow(preLn ? "Add → out" : "Add → LayerNorm → out", 80, "bg-[color:var(--primary)]/55", preLn ? 0.24 : 0.22, reducedMotion)}
       <p className="text-center text-base text-slate-300 md:text-lg">
-        {multi
-          ? "Each attention and FFN block in the decoder uses this wrap."
-          : "Preserves a clean path if the sub-layer learns near-zero updates."}
+        {multi && preLn
+          ? "GPT-3 Pre-LN: norm before attention and before FFN; residual add after each sub-layer (twice per block)."
+          : multi
+            ? "Each attention and FFN block uses a residual wrap."
+            : "Preserves a clean path if the sub-layer learns near-zero updates."}
       </p>
     </div>
   );
@@ -491,36 +800,102 @@ function LayersMini({
   );
 }
 
-function MaskedAttentionMini({ reducedMotion }: { reducedMotion: boolean }) {
-  const decoderTokens = ["The", "capital", "of", "Egypt", "is"] as const;
-  const blockedFutureToken = "Cairo";
-  const n = decoderTokens.length;
-  const [active, setActive] = useState(3);
-  useEffect(() => {
-    if (reducedMotion) return;
-    const id = window.setInterval(() => setActive((a) => (a + 1) % n), 1600);
-    return () => window.clearInterval(id);
-  }, [reducedMotion, n]);
-
-  const allowedPrefix = decoderTokens.slice(0, active + 1).join(" ");
-  const blockedSuffix = blockedFutureToken;
+function LMHeadMini({ reducedMotion }: { reducedMotion: boolean }) {
+  const [step, setStep] = useState(0);
+  const last = step === LM_HEAD_STEPS.length - 1;
+  const current = LM_HEAD_STEPS[step] ?? LM_HEAD_STEPS[0];
+  const showProbs = step >= 3;
 
   return (
-    <div className="space-y-5 py-2">
-      <div className="rounded-xl border border-[color:var(--purple)]/30 bg-[color:var(--purple)]/10 px-4 py-3 md:px-5 md:py-4">
-        <p className="text-sm font-semibold text-slate-100 md:text-base">
-          Example (decoder step): trying to predict next token after
-        </p>
-        <p className="mt-2 rounded-md bg-black/20 px-3 py-2 font-mono text-base text-white md:text-lg">
-          The capital of Egypt is
-        </p>
-        <p className="mt-2 text-sm font-medium text-slate-300 md:text-base">
-          Model should output: <span className="font-bold text-white">{blockedFutureToken}</span>
-        </p>
+    <div className="space-y-6 py-2">
+      <div className="flex flex-wrap gap-2">
+        {LM_HEAD_STEPS.map((s, idx) => (
+          <button
+            key={s.id}
+            type="button"
+            onClick={() => setStep(idx)}
+            className={cn(
+              "rounded-full border px-3 py-2 text-base font-bold transition md:px-4 md:py-2.5 md:text-lg",
+              idx === step
+                ? "border-[color:var(--primary)]/50 bg-[color:var(--primary)]/15 text-white ring-2 ring-[color:var(--primary)]/30"
+                : idx < step
+                  ? "border-gray-700/50 bg-gray-800/60 text-gray-300 hover:bg-gray-700/60"
+                  : "border-white/10 bg-white/[0.04] text-slate-500 hover:bg-white/[0.08]",
+            )}
+          >
+            {s.short}
+          </button>
+        ))}
       </div>
 
-      <div className="mx-auto w-full max-w-[560px]">
-        <div className="mb-2 grid grid-cols-5 gap-1.5">
+      <motion.div
+        key={current.id}
+        className="rounded-2xl border border-[color:var(--primary)]/40 bg-[color:var(--primary)]/10 px-5 py-5 md:px-8 md:py-6"
+        initial={reducedMotion ? false : { opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25 }}
+      >
+        <p className="text-xl font-bold text-white md:text-2xl">{current.title}</p>
+      </motion.div>
+
+      <div className="rounded-xl border border-white/10 bg-black/20 px-4 py-4 md:px-6 md:py-5">
+        <LMHeadMatmulDiagram
+          phase={current.id}
+          showProbs={showProbs}
+          reducedMotion={reducedMotion}
+        />
+      </div>
+
+      <div className="flex items-center justify-end gap-4 border-t border-white/10 pt-4">
+        <button
+          type="button"
+          onClick={() => setStep((s) => Math.max(0, s - 1))}
+          disabled={step === 0}
+          className={cn(
+            "rounded-full border px-5 py-2.5 text-base font-bold transition md:px-6 md:py-3 md:text-lg",
+            step === 0
+              ? "cursor-not-allowed border-gray-800 text-gray-600"
+              : "border-gray-600 text-gray-200 hover:border-[color:var(--primary)] hover:text-white",
+          )}
+        >
+          ← Prev
+        </button>
+        <button
+          type="button"
+          onClick={() => setStep((s) => Math.min(LM_HEAD_STEPS.length - 1, s + 1))}
+          disabled={last}
+          className={cn(
+            "rounded-full border px-5 py-2.5 text-base font-bold transition md:px-6 md:py-3 md:text-lg",
+            last
+              ? "cursor-not-allowed border-gray-800 text-gray-600"
+              : "border-[color:var(--primary)]/50 bg-[color:var(--primary)]/15 text-violet-100 hover:bg-[color:var(--primary)]/25",
+          )}
+        >
+          Next →
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function MaskedAttentionMini() {
+  const decoderTokens = DECODER_EXAMPLE_TOKENS;
+  const n = decoderTokens.length;
+  const active = DECODER_LAST_TOKEN_INDEX;
+
+  return (
+    <div className="space-y-6 py-2">
+      <MaskedAttentionSemanticMini />
+
+      <div className="mx-auto w-full max-w-2xl">
+        <p className="mb-3 text-center font-mono text-base text-slate-300 md:text-lg">
+          {DECODER_EXAMPLE_SENTENCE}
+        </p>
+
+        <div
+          className="mb-2 grid gap-1.5"
+          style={{ gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` }}
+        >
           {decoderTokens.map((tok, i) => (
             <div
               key={`col-${tok}-${i}`}
@@ -536,7 +911,12 @@ function MaskedAttentionMini({ reducedMotion }: { reducedMotion: boolean }) {
           ))}
         </div>
 
-        <div className="grid grid-cols-5 gap-1.5">
+        <div
+          className="grid gap-1.5"
+          style={{ gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` }}
+          role="img"
+          aria-label="Causal mask: query at question mark attends to all tokens up to and including itself"
+        >
           {Array.from({ length: n * n }, (_, idx) => {
             const row = Math.floor(idx / n);
             const col = idx % n;
@@ -560,69 +940,8 @@ function MaskedAttentionMini({ reducedMotion }: { reducedMotion: boolean }) {
         </div>
       </div>
 
-      <p className="text-center text-sm font-medium text-slate-300 md:text-base">
-        Active query token: <span className="font-bold text-white">{decoderTokens[active]}</span>
-      </p>
-      <p className="text-center text-base leading-relaxed text-slate-300 md:text-lg">
-        It can attend only to: <span className="font-mono text-slate-200">{allowedPrefix}</span> | blocked future:
-        <span className="font-mono text-slate-300"> {blockedSuffix}</span>
-      </p>
-    </div>
-  );
-}
-
-function CrossAttentionMini({ reducedMotion }: { reducedMotion: boolean }) {
-  const sourceTokens = ["The", "capital", "of", "Egypt", "is", "Cairo"] as const;
-  const decoderPrefix = ["The", "capital", "of", "Egypt", "is"] as const;
-  const weights = [0.06, 0.28, 0.07, 0.41, 0.04, 0.14] as const;
-  const activeSource = 3;
-
-  return (
-    <div className="space-y-5 py-2">
-      <div className="rounded-xl border border-[color:var(--warning)]/35 bg-[color:var(--warning)]/10 px-4 py-3 md:px-5 md:py-4">
-        <p className="text-base font-semibold text-slate-100 md:text-lg">Decoder has generated:</p>
-        <p className="mt-2 rounded-md bg-black/20 px-3 py-2 font-mono text-lg text-white md:text-xl">
-          {decoderPrefix.join(" ")}
-        </p>
-        <p className="mt-2 text-base text-slate-300 md:text-lg">
-          To pick the next token, decoder asks encoder memory: <span className="font-semibold text-white">Which country are
-          we talking about?</span>
-        </p>
-      </div>
-
-      <div className="rounded-xl border border-[color:var(--purple)]/30 bg-[color:var(--purple)]/10 p-4 md:p-5">
-        <p className="text-sm font-bold uppercase tracking-wide text-[color:var(--purple)] md:text-base">
-          Encoder memory (keys/values from source sentence)
-        </p>
-        <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-          {sourceTokens.map((tok, i) => {
-            const pct = Math.round(weights[i] * 100);
-            return (
-              <div key={tok} className="rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-2">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-base font-semibold text-slate-100 md:text-lg">{tok}</span>
-                  <span className="text-sm font-bold tabular-nums text-slate-300 md:text-base">{pct}%</span>
-                </div>
-                <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-white/[0.08]">
-                  <motion.div
-                    className={cn(
-                      "h-full rounded-full",
-                      i === activeSource ? "bg-[color:var(--primary)]" : "bg-[color:var(--purple)]/75",
-                    )}
-                    initial={reducedMotion ? false : { width: 0 }}
-                    animate={{ width: `${pct}%` }}
-                    transition={{ duration: reducedMotion ? 0 : 0.4, delay: reducedMotion ? 0 : i * 0.06 }}
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      <p className="text-center text-base font-medium text-slate-200 md:text-xl">
-        Highest cross-attention goes to <span className="font-bold text-white">Egypt (41%)</span> so the decoder stays
-        grounded in the source and predicts <span className="font-bold text-white">Cairo</span>.
+      <p className="text-center text-base text-slate-300 md:text-lg">
+        Query at <span className="font-bold text-white">“?”</span> — attends to every token in the question
       </p>
     </div>
   );
@@ -669,16 +988,20 @@ export function DecoderIllustration({
   switch (focus) {
     case "overview":
       return <OverviewDecoderMini reducedMotion={reducedMotion} />;
+    case "tokens":
+      return <TokenVectorsMini />;
+    case "layernorm":
+      return <LayerNormMini reducedMotion={reducedMotion} />;
     case "masked":
-      return <MaskedAttentionMini reducedMotion={reducedMotion} />;
-    case "cross":
-      return <CrossAttentionMini reducedMotion={reducedMotion} />;
+      return <MaskedAttentionMini />;
     case "ffn":
-      return <FFNMini reducedMotion={reducedMotion} />;
+      return <FFNMini reducedMotion={reducedMotion} gptDims />;
     case "residual":
       return <ResidualMini reducedMotion={reducedMotion} multi />;
     case "layers":
-      return <LayersMini layerCount={layerCount} reducedMotion={reducedMotion} label="Decoder layers" />;
+      return <LayersMini layerCount={layerCount} reducedMotion={reducedMotion} label="GPT-3 layers" />;
+    case "lmhead":
+      return <LMHeadMini reducedMotion={reducedMotion} />;
     default:
       return null;
   }

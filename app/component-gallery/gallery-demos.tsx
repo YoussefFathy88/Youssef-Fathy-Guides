@@ -62,6 +62,10 @@ import {
   TrainingLoopSimulator,
   TransformerLogitsExplainer,
   TransformerSubstackExplorer,
+  GradientInstabilityExplorer,
+  LinearChainGradientExplorer,
+  LinearMappingGraph,
+  LinearRegressionTrainingExplorer,
   Vector2DPlot,
 } from "@/components/shared";
 import { contextLimitStepsFixture, embeddingSearchFixture } from "./gallery-fixtures";
@@ -504,11 +508,40 @@ export const GALLERY_ITEMS: GalleryItem[] = [
     ),
   },
   {
+    name: "GradientInstabilityExplorer",
+    node: <GradientInstabilityExplorer minimal />,
+  },
+  {
+    name: "LinearRegressionTrainingExplorer",
+    node: <LinearRegressionTrainingExplorer />,
+  },
+  {
+    name: "LinearChainGradientExplorer (vanish)",
+    node: <LinearChainGradientExplorer story="vanish" />,
+  },
+  {
+    name: "LinearChainGradientExplorer (explode)",
+    node: <LinearChainGradientExplorer story="explode" />,
+  },
+  {
+    name: "LinearMappingGraph",
+    node: (
+      <LinearMappingGraph
+        m={2}
+        c={0}
+        knownPoints={[
+          { x: 0, y: 0, label: "x=0, y=0" },
+          { x: 1, y: 2, label: "x=1, y=2" },
+        ]}
+      />
+    ),
+  },
+  {
     name: "TransformerSubstackExplorer",
     node: (
       <div className="flex flex-col gap-8">
         <TransformerSubstackExplorer variant="encoder" layerCount={6} />
-        <TransformerSubstackExplorer variant="decoder" layerCount={6} />
+        <TransformerSubstackExplorer variant="decoder" layerCount={96} />
       </div>
     ),
   },

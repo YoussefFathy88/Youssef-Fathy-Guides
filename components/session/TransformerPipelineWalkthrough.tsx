@@ -38,13 +38,14 @@ export interface TransformerPipelineWalkthroughProps {
   hideStepNarrative?: boolean;
 }
 
-const ACTIVE_TOKEN_STAGES = new Set(["tok", "emb", "enc", "dec"]);
+const ACTIVE_TOKEN_STAGES = new Set(["tok", "emb", "pos", "enc", "dec"]);
 
 /** Maps stage id → macro phase index 0..5 (aligned with Big Picture six stages). */
 const STAGE_TO_MACRO: Record<string, number> = {
   raw: 0,
   tok: 1,
   emb: 2,
+  pos: 2,
   enc: 3,
   dec: 4,
   out: 5,

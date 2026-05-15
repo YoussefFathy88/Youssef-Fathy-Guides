@@ -66,10 +66,13 @@ export { default as PositionalEncodingVisualizer } from "../session/PositionalEn
 export { default as TransformerSentenceTokenStrip } from "../session/TransformerSentenceTokenStrip";
 export { default as EmbeddingVectorsTable } from "../session/EmbeddingVectorsTable";
 export { default as TransformerSubstackExplorer } from "../session/TransformerSubstackExplorer";
+export { default as GradientInstabilityExplorer } from "../session/GradientInstabilityExplorer";
 // Training pipeline components
 export { default as ModelBehaviorEvolution } from "../session/ModelBehaviorEvolution";
 // Foundational concept components
 export { default as LinearMappingGraph } from "../session/LinearMappingGraph";
+export { default as LinearRegressionTrainingExplorer } from "../session/LinearRegressionTrainingExplorer";
+export { default as LinearChainGradientExplorer } from "../session/LinearChainGradientExplorer";
 // Embedding session components
 export { default as EmbeddingVectorExplorer } from "../session/EmbeddingVectorExplorer";
 export { default as CosineSimilarityExplorer } from "../session/CosineSimilarityExplorer";

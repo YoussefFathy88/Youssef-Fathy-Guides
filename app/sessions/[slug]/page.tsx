@@ -74,8 +74,11 @@ import {
   TransformerSentenceTokenStrip,
   EmbeddingVectorsTable,
   TransformerSubstackExplorer,
+  GradientInstabilityExplorer,
   ModelBehaviorEvolution,
   LinearMappingGraph,
+  LinearRegressionTrainingExplorer,
+  LinearChainGradientExplorer,
   EmbeddingVectorExplorer,
   CosineSimilarityExplorer,
   SearchQuerySimulator,
@@ -215,10 +218,13 @@ function getMdxComponents(isPresentationMode: boolean) {
   TransformerSentenceTokenStrip,
   EmbeddingVectorsTable,
   TransformerSubstackExplorer,
+  GradientInstabilityExplorer,
   // Training pipeline components
   ModelBehaviorEvolution,
   // Foundational concept components
   LinearMappingGraph,
+  LinearRegressionTrainingExplorer,
+  LinearChainGradientExplorer,
   // Embedding session components
   EmbeddingVectorExplorer,
   CosineSimilarityExplorer,

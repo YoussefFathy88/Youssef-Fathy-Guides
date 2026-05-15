@@ -26,15 +26,15 @@ export interface LinearMappingGraphProps {
   yMax?: number;
 }
 
-// ── SVG layout ────────────────────────────────────────────────────────────────
-const VW = 840;
-const VH = 510;
-const PL = 80; // padding left  (y-axis labels)
-const PR = 40; // padding right
-const PT = 40; // padding top
-const PB = 60; // padding bottom (x-axis labels)
-const PW = VW - PL - PR; // plot width
-const PH = VH - PT - PB; // plot height
+import {
+  CHART_PL as PL,
+  CHART_PT as PT,
+  CHART_PW as PW,
+  CHART_PH as PH,
+  CHART_VH as VH,
+  CHART_VW as VW,
+  fmtEq,
+} from "./linear-mapping-chart";
 
 function sx(mathX: number, xMin: number, xMax: number) {
   return PL + ((mathX - xMin) / (xMax - xMin)) * PW;
@@ -63,13 +63,6 @@ const PHASES = [
     hint: "With the weights locked in, we can predict y for ANY x — the line is the mapping function.",
   },
 ];
-
-// ── Format equation string ────────────────────────────────────────────────────
-function fmtEq(m: number, c: number) {
-  const mPart = m === 1 ? "x" : m === -1 ? "-x" : `${m}x`;
-  const cPart = c === 0 ? "" : c > 0 ? ` + ${c}` : ` − ${Math.abs(c)}`;
-  return `y = ${mPart}${cPart}`;
-}
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function LinearMappingGraph({

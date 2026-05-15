@@ -80,7 +80,8 @@ prevSession: "embeddings"
 
 <SessionSection id="core-concepts" label="Core Concepts">
 
-### AI models are mathematical mapping functions
+## AI models are mathematical mapping functions
+
 <LinearMappingGraph
   title="y = mx + c — the simplest mapping function"
   m={2}
@@ -131,7 +132,7 @@ prevSession: "embeddings"
 <EmbeddingVectorsTable
   tokens={["The", "capital", "of", "Egypt", "is", "Cairo"]}
   ids={[8842, 3104, 77, 5602, 892, 4021]}
-  dim={8}
+  dim={7}
 />
 
 ## Anatomy of a Vector: How meaning is encoded
@@ -160,12 +161,12 @@ prevSession: "embeddings"
 
 <MaskedSelfAttentionScoreExplorer title="" />
 
-## The Transformer Decoder (Used in GPT-3, 4, and most open-source models):
+## GPT-3 transformer block (decoder-only)
 
 <TransformerSubstackExplorer
   variant="decoder"
-  title="Decoder block — mask, attend, refine"
-  layerCount={6}
+  title="GPT-3 transformer block — one of 96 layers"
+  layerCount={96}
   minimal
 />
 
@@ -182,7 +183,7 @@ prevSession: "embeddings"
 ## Full pass: start at encoder, end at predicted token
 
 <TransformerPipelineWalkthrough
-  title='"The capital of Egypt is" — decoder to next token'
+  title='"The capital of Egypt is" — full pipeline to next token'
   hideStepNarrative
   inputText="The capital of Egypt is"
   outputToken="Cairo"
@@ -212,14 +213,25 @@ prevSession: "embeddings"
       sublabel: "meaning vectors",
       color: "teal",
       internals: [
-        { label: "512-dim each", detail: "Each integer becomes a 512-number vector" },
-        { label: "Learned table", detail: "50k rows trained on billions of tokens" },
-        { label: "Pos encoding added", detail: "Sine/cosine vectors preserve order" }
+        { label: "512-dim each", detail: "Each token ID becomes a 512-number vector from the vocabulary table" },
+        { label: "Learned table", detail: "50k rows trained on billions of tokens — one row per token" },
+        { label: "Token identity", detail: "Each position gets a vector that encodes what the word means" }
+      ]
+    },
+    {
+      id: "pos",
+      label: "Positional encoding",
+      sublabel: "+ position info",
+      color: "teal",
+      internals: [
+        { label: "Sine / cosine", detail: "Fixed patterns mark position 1, 2, 3… in the sequence" },
+        { label: "Added to embeddings", detail: "Position vector is element-wise added to each token vector" },
+        { label: "Order preserved", detail: "Without this, the model would not know word order" }
       ]
     },
     {
       id: "dec",
-      label: "Decoder Stack",
+      label: "GPT Transformer",
       sublabel: "generate next",
       color: "amber",
       internals: [
@@ -239,29 +251,57 @@ prevSession: "embeddings"
   steps={[
     {
       id: "s1",
-      label: "① Enter the Decoder Stack",
-      description: "Embeddings carrying token identity and position enter the first of many decoder blocks.",
-      activeStageId: "dec",
+      label: "① Raw text",
+      description: "The prompt arrives as a plain string — no vectors yet.",
+      activeStageId: "raw",
       activeInternalId: null
     },
     {
       id: "s2",
-      label: "② Causal masking",
+      label: "② Tokenize",
+      description: "The tokenizer splits the string into tokens and maps each to an integer ID.",
+      activeStageId: "tok",
+      activeInternalId: "Word tokens (teaching)"
+    },
+    {
+      id: "s3",
+      label: "③ Embeddings",
+      description: "Each token ID is looked up in the embedding table — a vector per word.",
+      activeStageId: "emb",
+      activeInternalId: "512-dim each"
+    },
+    {
+      id: "s4",
+      label: "④ Positional encoding",
+      description: "Position vectors are added so the model knows The comes before capital, and so on.",
+      activeStageId: "pos",
+      activeInternalId: "Sine / cosine"
+    },
+    {
+      id: "s5",
+      label: "⑤ Enter GPT Transformer",
+      description: "Vectors enter the first decoder block — many layers refine context before predicting the next token.",
+      activeStageId: "dec",
+      activeInternalId: null
+    },
+    {
+      id: "s6",
+      label: "⑥ Causal masking",
       description: "At generation step t, the decoder sees only tokens 1..t and blocks attention to future positions.",
       activeStageId: "dec",
       activeInternalId: "Masked attention"
     },
     {
-      id: "s3",
-      label: "③ Self-attention builds context",
+      id: "s7",
+      label: "⑦ Self-attention builds context",
       description: "Tokens attend to each other to build a rich representation of the sequence so far.",
       activeStageId: "dec",
       activeInternalId: "Self-attention"
     },
     {
-      id: "s4",
-      label: "④ Output head picks the next token",
-      description: "Final decoder state maps to logits over vocabulary; softmax gives probabilities and selects the most likely token.",
+      id: "s8",
+      label: "⑧ Predict the next token",
+      description: "Final state maps to logits over the vocabulary; softmax gives probabilities — here Cairo is most likely.",
       activeStageId: "out",
       activeInternalId: null
     },
