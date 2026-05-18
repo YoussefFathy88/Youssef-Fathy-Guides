@@ -171,14 +171,12 @@ prevSession: "embeddings"
 />
 
 
-</SessionSection>
 
 
 {/* ═══════════════════════════════════════════════════════════════
     SECTION 4 — PRACTICAL EXAMPLE
     ═══════════════════════════════════════════════════════════════ */}
 
-<SessionSection id="practical-example" label="Practical Example">
 
 ## Full pass: start at encoder, end at predicted token
 
@@ -202,8 +200,8 @@ prevSession: "embeddings"
       sublabel: "text → IDs",
       color: "gray",
       internals: [
-        { label: "Word tokens (teaching)", detail: "Same six-word split as Session 1 — real models often use subwords" },
-        { label: "6 tokens", detail: "The / capital / of / Egypt / is / Cairo" },
+        { label: "Word tokens (teaching)", detail: "Five words before the next-token prediction — real GPT-3 uses byte-pair (subword) tokens, not always whole words" },
+        { label: "5 tokens", detail: "The / capital / of / Egypt / is — the model predicts Cairo next" },
         { label: "Integer IDs", detail: "Each token maps to a row in the vocabulary table" }
       ]
     },
@@ -213,9 +211,9 @@ prevSession: "embeddings"
       sublabel: "meaning vectors",
       color: "teal",
       internals: [
-        { label: "512-dim each", detail: "Each token ID becomes a 512-number vector from the vocabulary table" },
-        { label: "Learned table", detail: "50k rows trained on billions of tokens — one row per token" },
-        { label: "Token identity", detail: "Each position gets a vector that encodes what the word means" }
+        { label: "12,288-dim each", detail: "GPT-3 175B uses d_model = 12,288 — each token ID becomes a 12,288-number embedding vector" },
+        { label: "Learned table", detail: "~50k BPE token rows trained at scale — one learned vector per vocabulary piece" },
+        { label: "Token identity", detail: "Each position gets a vector that encodes what the token means before layers mix context" }
       ]
     },
     {
@@ -235,9 +233,16 @@ prevSession: "embeddings"
       sublabel: "generate next",
       color: "amber",
       internals: [
-        { label: "Masked attention", detail: "Only attends to already-generated tokens — no future peeking" },
-        { label: "Self-attention", detail: "Tokens relate to past context to build understanding" },
-        { label: "FFN + residual ×N", detail: "Layered refinement before output projection" }
+        {
+          label: "Masked self-attention",
+          detail:
+            "Scaled dot-product attention with a causal mask — each token only attends to itself and earlier tokens. Decoder-only GPT has no separate bidirectional encoder-style attention.",
+        },
+        {
+          label: "FFN + residual × 96",
+          detail:
+            "Layer norms and skip connections wrap masked attention and the feed-forward MLP; GPT-3 175B repeats this block 96 times.",
+        },
       ]
     },
     {
@@ -268,7 +273,7 @@ prevSession: "embeddings"
       label: "③ Embeddings",
       description: "Each token ID is looked up in the embedding table — a vector per word.",
       activeStageId: "emb",
-      activeInternalId: "512-dim each"
+      activeInternalId: "12,288-dim each"
     },
     {
       id: "s4",
@@ -286,17 +291,19 @@ prevSession: "embeddings"
     },
     {
       id: "s6",
-      label: "⑥ Causal masking",
-      description: "At generation step t, the decoder sees only tokens 1..t and blocks attention to future positions.",
+      label: "⑥ Masked self-attention",
+      description:
+        "Attention mixes tokens within the prefix only — the causal mask blocks future positions so training matches autoregressive generation.",
       activeStageId: "dec",
-      activeInternalId: "Masked attention"
+      activeInternalId: "Masked self-attention"
     },
     {
       id: "s7",
-      label: "⑦ Self-attention builds context",
-      description: "Tokens attend to each other to build a rich representation of the sequence so far.",
+      label: "⑦ Feed-forward + residual × 96",
+      description:
+        "After attention, each position passes through a feed-forward MLP; skips and norms stabilize depth. GPT-3 175B stacks this decoder pattern 96 times.",
       activeStageId: "dec",
-      activeInternalId: "Self-attention"
+      activeInternalId: "FFN + residual × 96"
     },
     {
       id: "s8",
@@ -320,40 +327,6 @@ prevSession: "embeddings"
 
 <SessionSection id="recap" label="Recap">
 
-## What we covered
-
-<RecapTable
-  rows={[
-    {
-      term: "Embedding Vectors",
-      definition: "A learned vector for each token, that represents the meaning of the token."
-    },
-    {
-      term: "Positional encoding",
-      definition: "Sine and cosine vectors computed from each token's position index, added to its embedding so the model knows word order despite reading all tokens at once."
-    },
-    {
-      term: "Masked self-attention",
-      definition: "In the decoder, each position may only attend to itself and earlier positions, preventing information leakage from future tokens."
-    },
-    {
-      term: "Decoder-only architecture",
-      definition: "A model design (like GPT) that relies entirely on a stack of decoder blocks to process context and generate text, without a separate encoder."
-    },
-    {
-      term: "Autoregressive generation",
-      definition: "The model predicts one token at a time, appends it to context, and repeats until an end condition is met."
-    },
-    {
-      term: "Logits and softmax",
-      definition: "A linear layer outputs raw vocabulary scores (logits), and softmax converts them to a probability distribution for token selection."
-    },
-    {
-      term: "Training-inference alignment",
-      definition: "Causal masking ensures decoder training constraints match runtime constraints, so behavior transfers reliably to real generation."
-    }
-  ]}
-/>
 
 </SessionSection>
 
@@ -365,9 +338,9 @@ prevSession: "embeddings"
 <SessionSection id="next-session" label="Next Session">
 
 <NextSessionCard
-  title="Transformer 2: Decoder and Full Generation Pass"
-  slug="transformer-attention-2"
-  teaser="You have encoder foundations in place. Next we add masked attention, cross-attention, and complete next-token generation from logits to output."
+  title="Training LLMs — From Data to Aligned Models"
+  slug="how-llms-are-trained"
+  teaser="You've seen how a Transformer maps tokens to logits. Next we walk the training pipeline: data, pre-training, instruction tuning, alignment — how those weights get learned and shipped."
   module={1}
 />
 

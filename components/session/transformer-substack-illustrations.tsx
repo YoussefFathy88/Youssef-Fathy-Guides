@@ -274,7 +274,7 @@ function SemanticMeaningPanel({
 function TokenVectorsMini() {
   return (
     <SemanticMeaningPanel
-      stageLabel="Is Cairo Is Capital Of Egypt ?"
+      stageLabel="Is Cairo the capital of Egypt?"
       headline={`“${DECODER_LAST_TOKEN}” — what does its vector represent?`}
       body="punctuation mark + I am at position 7"
       steps={[
@@ -696,7 +696,10 @@ function FFNMini({
   reducedMotion: boolean;
   gptDims?: boolean;
 }) {
-  const unpackStory = `I am a question mark at the end of a sentence
+  const unpackStory = `For each token start thinking about informaiton gathered
+  Is Cairo The Capital of Egypt?
+  
+  "?": I am a question mark at the end of a sentence
 asking whether Cairo is the capital of Egypt —
 and yes, Cairo is the capital of Egypt,
 so the answer expected is: yes

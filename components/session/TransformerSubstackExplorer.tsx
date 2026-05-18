@@ -518,6 +518,7 @@ export default function TransformerSubstackExplorer({
               decFocus={decFocus}
               setFocus={setFocusDecoder}
               reducedMotion={!!reducedMotion}
+              layerCount={layerCount}
               large
               accent="amber"
             />
@@ -630,6 +631,7 @@ function DecoderStack({
   decFocus,
   setFocus,
   reducedMotion,
+  layerCount,
   large,
   accent,
 }: {
@@ -637,59 +639,105 @@ function DecoderStack({
   decFocus: DecoderFocus;
   setFocus: (f: DecoderFocus) => void;
   reducedMotion: boolean;
+  layerCount: number;
   large?: boolean;
   accent: "violet" | "amber";
 }) {
-  const blocks: { id: string; label: string; tone: BlockTone; focus: DecoderFocus }[] = [
-    { id: "input", label: "Token vectors", tone: "gray", focus: "tokens" },
-    { id: "ln1", label: "① Layer norm", tone: "teal", focus: "layernorm" },
+  const inputBlock = {
+    id: "input",
+    label: "Token vectors",
+    tone: "gray" as const,
+    focus: "tokens" as const,
+  };
+
+  const backboneBlocks: { id: string; label: string; tone: BlockTone; focus: DecoderFocus }[] = [
+    { id: "ln1", label: "Layer norm", tone: "teal", focus: "layernorm" },
     {
       id: "attn",
-      label: "② Masked multi-head self-attention",
+      label: "Masked multi-head self-attention",
       tone: "violet",
       focus: "masked",
     },
-    { id: "res1", label: "③ Residual add", tone: "teal", focus: "residual" },
-    { id: "ln2", label: "④ Layer norm", tone: "teal", focus: "layernorm" },
+    { id: "res1", label: "Residual add", tone: "teal", focus: "residual" },
+    { id: "ln2", label: "Layer norm", tone: "teal", focus: "layernorm" },
     {
       id: "ffn",
-      label: "⑤ Feed-forward",
+      label: "Feed-forward",
       tone: "amber",
       focus: "ffn",
     },
-    { id: "res2", label: "⑥ Residual add", tone: "teal", focus: "residual" },
+    { id: "res2", label: "Residual add", tone: "teal", focus: "residual" },
+  ];
+
+  const tailBlocks: { id: string; label: string; tone: BlockTone; focus: DecoderFocus }[] = [
     {
       id: "lnf",
-      label: "⑦ Final layer norm (ln_f)",
+      label: "Final layer norm (ln_f)",
       tone: "teal",
       focus: "layernorm",
     },
     { id: "output", label: "LM head & softmax", tone: "gray", focus: "lmhead" },
   ];
 
+  function blockClickHandler(b: { id: string; focus: DecoderFocus }) {
+    if (b.id === "ln1" || b.id === "ln2" || b.id === "lnf") setFocus("layernorm");
+    else if (b.id === "attn") setFocus("masked");
+    else if (b.id === "ffn") setFocus("ffn");
+    else if (b.id === "res1" || b.id === "res2") setFocus("residual");
+    else if (b.id === "output") setFocus("lmhead");
+    else if (b.id === "input") setFocus("tokens");
+    else setFocus("overview");
+  }
+
+  function renderBlock(b: { id: string; label: string; tone: BlockTone; focus: DecoderFocus }) {
+    return (
+      <motion.button
+        type="button"
+        layout={!reducedMotion}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        onClick={() => blockClickHandler(b)}
+        className={stackBlockClass(b.tone, !!decHighlight[b.id] || decFocus === b.focus, accent, !!large)}
+      >
+        <span className="block">{b.label}</span>
+      </motion.button>
+    );
+  }
+
   return (
     <div className="flex flex-col">
-      {blocks.map((b, idx) => (
+      <div>
+        {renderBlock(inputBlock)}
+        <ArrowDown large={large} />
+      </div>
+
+      <div
+        className={cn(
+          "rounded-2xl border-2 border-[color:var(--purple)]/45 bg-[color:var(--purple)]/12 p-4 ring-2 ring-[color:var(--purple)]/20 md:p-6",
+        )}
+      >
+        <p className="mb-4 text-center text-base font-bold uppercase tracking-wide text-violet-200 md:text-lg">
+          Transformer backbone
+        </p>
+        <p className="mb-4 text-center font-mono text-lg font-bold text-white md:text-xl">
+          × {layerCount} layers
+        </p>
+        <div className="flex flex-col">
+          {backboneBlocks.map((b, idx) => (
+            <div key={b.id}>
+              {renderBlock(b)}
+              {idx < backboneBlocks.length - 1 && <ArrowDown large={large} />}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <ArrowDown large={large} />
+
+      {tailBlocks.map((b, idx) => (
         <div key={b.id}>
-          <motion.button
-            type="button"
-            layout={!reducedMotion}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => {
-              if (b.id === "ln1" || b.id === "ln2" || b.id === "lnf") setFocus("layernorm");
-              else if (b.id === "attn") setFocus("masked");
-              else if (b.id === "ffn") setFocus("ffn");
-              else if (b.id === "res1" || b.id === "res2") setFocus("residual");
-              else if (b.id === "output") setFocus("lmhead");
-              else if (b.id === "input") setFocus("tokens");
-              else setFocus("overview");
-            }}
-            className={stackBlockClass(b.tone, !!decHighlight[b.id] || decFocus === b.focus, accent, !!large)}
-          >
-            <span className="block">{b.label}</span>
-          </motion.button>
-          {idx < blocks.length - 1 && <ArrowDown large={large} />}
+          {renderBlock(b)}
+          {idx < tailBlocks.length - 1 && <ArrowDown large={large} />}
         </div>
       ))}
     </div>
