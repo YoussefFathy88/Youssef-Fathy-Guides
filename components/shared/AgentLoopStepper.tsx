@@ -107,17 +107,23 @@ export default function AgentLoopStepper({ title, caption, steps }: AgentLoopSte
       initial={reducedMotion ? false : { opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800"
+      className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-8 md:p-10 dark:border-gray-700 dark:bg-gray-800"
     >
       {(title || caption) && (
-        <div className="mb-5 space-y-1">
-          {title && <h2 className="text-sm font-medium text-gray-900 dark:text-gray-100">{title}</h2>}
-          {caption && <p className="text-xs text-gray-500 dark:text-gray-400">{caption}</p>}
+        <div className="mb-6 md:mb-8 space-y-2">
+          {title && (
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-gray-100 leading-snug">
+              {title}
+            </h2>
+          )}
+          {caption && (
+            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 leading-relaxed">{caption}</p>
+          )}
         </div>
       )}
 
       {/* Step dots */}
-      <div className="mb-5 flex items-center gap-1.5">
+      <div className="mb-6 md:mb-8 flex items-center gap-2">
         {steps.map((s, i) => {
           const t = actor[s.actor];
           const isCurrent = i === current;
@@ -128,21 +134,21 @@ export default function AgentLoopStepper({ title, caption, steps }: AgentLoopSte
               aria-label={`Go to step ${i + 1}`}
               onClick={() => go(i)}
               className={cn(
-                "h-2.5 rounded-full transition-all duration-200 focus-visible:outline-none focus-visible:ring-2",
+                "h-3 rounded-full transition-all duration-200 focus-visible:outline-none focus-visible:ring-2",
                 isCurrent
-                  ? cn("w-6 ring-2 ring-offset-1", t.dotActive)
-                  : cn("w-2.5 opacity-40 hover:opacity-70", t.dotBg),
+                  ? cn("w-8 ring-2 ring-offset-1", t.dotActive)
+                  : cn("w-3 opacity-40 hover:opacity-70", t.dotBg),
               )}
             />
           );
         })}
-        <span className="ml-auto text-[11px] font-medium text-gray-400 dark:text-gray-500">
+        <span className="ml-auto text-base md:text-lg font-semibold text-gray-500 dark:text-gray-400">
           {current + 1} / {steps.length}
         </span>
       </div>
 
       {/* Main card */}
-      <div className="relative overflow-hidden rounded-xl" style={{ minHeight: 220 }}>
+      <div className="relative overflow-hidden rounded-xl" style={{ minHeight: 280 }}>
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={step.id}
@@ -153,37 +159,37 @@ export default function AgentLoopStepper({ title, caption, steps }: AgentLoopSte
             exit="exit"
             transition={{ duration: 0.25, ease: "easeOut" }}
             className={cn(
-              "rounded-xl border p-5",
+              "rounded-xl border p-6 md:p-7",
               tone.cardBg,
               tone.cardBorder,
             )}
           >
             {/* Actor badge + step label */}
-            <div className="mb-4 flex items-center gap-3">
+            <div className="mb-5 flex flex-wrap items-center gap-3">
               <span className={cn(
-                "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider",
+                "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm md:text-base font-bold uppercase tracking-wider",
                 tone.badge,
               )}>
-                <span className="text-sm leading-none">{tone.icon}</span>
+                <span className="text-xl leading-none">{tone.icon}</span>
                 {tone.label}
               </span>
-              <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+              <span className="text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-100">
                 {step.label}
               </span>
             </div>
 
             {/* Bubble — looks like API output */}
             <div className={cn(
-              "mb-4 rounded-lg border p-3",
+              "mb-5 rounded-lg border p-4 md:p-5",
               tone.bubbleBg,
             )}>
-              <p className="font-mono text-[11px] leading-relaxed whitespace-pre-wrap text-gray-700 dark:text-gray-300">
+              <p className="font-mono text-base md:text-lg leading-relaxed whitespace-pre-wrap text-gray-800 dark:text-gray-100">
                 {step.bubble}
               </p>
             </div>
 
             {/* Detail */}
-            <p className="text-xs leading-relaxed text-gray-600 dark:text-gray-400">
+            <p className="text-lg md:text-xl leading-relaxed text-gray-700 dark:text-gray-300">
               {step.detail}
             </p>
           </motion.div>
@@ -191,12 +197,12 @@ export default function AgentLoopStepper({ title, caption, steps }: AgentLoopSte
       </div>
 
       {/* Controls */}
-      <div className="mt-5 flex items-center gap-2">
+      <div className="mt-6 md:mt-8 flex flex-wrap items-center gap-3">
         <button
           type="button"
           disabled={current === 0}
           onClick={() => { setPlaying(false); go(current - 1); }}
-          className="flex h-8 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 text-xs font-medium text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
+          className="flex min-h-11 items-center gap-2 rounded-lg border border-gray-200 bg-white px-5 py-3 text-base md:text-lg font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
         >
           ← Prev
         </button>
@@ -205,7 +211,7 @@ export default function AgentLoopStepper({ title, caption, steps }: AgentLoopSte
           type="button"
           disabled={isLast}
           onClick={() => { setPlaying(false); stepForward(); }}
-          className="flex h-8 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 text-xs font-medium text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
+          className="flex min-h-11 items-center gap-2 rounded-lg border border-gray-200 bg-white px-5 py-3 text-base md:text-lg font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
         >
           Step →
         </button>
@@ -221,7 +227,7 @@ export default function AgentLoopStepper({ title, caption, steps }: AgentLoopSte
             }
           }}
           className={cn(
-            "flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold transition",
+            "flex min-h-11 items-center gap-2 rounded-lg px-5 py-3 text-base md:text-lg font-semibold transition",
             playing
               ? "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
               : "bg-violet-600 text-white hover:bg-violet-700",
@@ -231,7 +237,7 @@ export default function AgentLoopStepper({ title, caption, steps }: AgentLoopSte
         </button>
 
         {isLast && (
-          <span className="ml-auto text-[11px] font-medium text-gray-400 dark:text-gray-500">
+          <span className="ml-auto text-base md:text-lg font-medium text-gray-500 dark:text-gray-400">
             ↩ loop repeats for multi-step agents
           </span>
         )}

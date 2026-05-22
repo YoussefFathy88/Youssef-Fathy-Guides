@@ -21,7 +21,7 @@ For session MDX slides intended for presenter mode:
 
 Session diagrams and interactives should stay readable on video and in fullscreen presenter mode:
 
-- **Fonts:** Use legible sizes (avoid tiny SVG text); prefer `ui-sans-serif` / system stacks; keep sufficient contrast on light and dark backgrounds.
+- **Fonts:** All interactives must follow `.cursor/rules/session-video-legibility.mdc` (body `text-lg md:text-xl`+, headings `text-xl md:text-2xl`+, no `text-xs` for teaching copy). SVG labels: 16px+ equivalent; prefer `ui-sans-serif` / system stacks; strong contrast on light and dark backgrounds.
 - **Diagram:** Prefer generous padding inside the canvas, clear hierarchy (one main idea per slide), and labels that read without squinting.
 - **Animation:** Motions should be easy to follow (predictable timing, not overcrowded); respect reduced motion where the component supports it.
 - **Spacing:** Leave clear vertical space between the slide **`##` title** and the diagram — do not cram components directly under headings in MDX layouts; when building new components, assume titles need breathing room below.

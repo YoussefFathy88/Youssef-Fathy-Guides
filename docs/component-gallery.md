@@ -68,6 +68,10 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | Loss landscape + gradient descent ball | `GradientDescentSimulator` |
 | Color-coded prompt sections with token counts | `PromptAnatomyVisualizer` |
 | HTTP request/response hop animation | `ApiLifecycleFlow` |
+| Animated LLM API call loop — input → model → unstructured text output, cycles examples | `LlmApiCallFlow` |
+| Free-text vs schema-constrained output split view with toggle and snap animation | `SchemaConstraintVisualizer` |
+| Task manager pipeline orchestrator — prompt → provider → action with role icons | `AiTaskflowOrchestrator` |
+| Compact AiDecision JSON Schema tree (lab backend contract) | `AiDecisionSchemaCompact` |
 | Multi-file tabbed code viewer | `TabbedCodeExplorer` |
 | Code evolution (version-by-version with diff) | `CodeEvolutionStepper` |
 | OSI model packet encapsulation / decapsulation | `PacketJourneyVisualizer` |
@@ -161,6 +165,10 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | `GradientDescentSimulator` | Interactive | 2D loss landscape contour + animated gradient descent ball. |
 | `PromptAnatomyVisualizer` | Interactive | Expandable prompt sections with token budget bar. |
 | `ApiLifecycleFlow` | Interactive | HTTP request hop animation (Client→DNS→TLS→Server→DB→Response). |
+| `LlmApiCallFlow` | Interactive | Animated LLM API call cycle: Input → model (with params) → text output. Auto-cycles examples, pause/play control, insight chip. |
+| `SchemaConstraintVisualizer` | Interactive | Toggle between free-text and schema-constrained output. Left panel cycles unstructured variants; right panel shows schema definition + animated JSON output. |
+| `AiTaskflowOrchestrator` | Interactive | Tabbed lab pipeline with example user message, flow strip, compact **AiDecision** schema (Step 3), validated JSON example. Steps 1–4: list_tasks → prompt merge → provider → execute. |
+| `AiDecisionSchemaCompact` | Diagram | Collapsed tree view of the lab `AiDecision` JSON Schema (used inside orchestrator Step 3). |
 | `TabbedCodeExplorer` | Interactive | Tabbed multi-file code viewer with optional file tree sidebar. |
 | `CodeEvolutionStepper` | Interactive | Paged code versions with green/red diff line markers. |
 | `PacketJourneyVisualizer` | Interactive | Animates OSI-layer encapsulation on sender → wire → decapsulation on receiver. |
@@ -1284,6 +1292,94 @@ interface ApiLifecycleFlowProps {
   statusCode?: number;   // default: 200
   stages?: ApiStage[];   // defaults to 6-stage GET demo
   autoPlay?: boolean;    // default: false
+}
+```
+
+---
+
+### LlmApiCallFlow
+
+**Description:** Animated three-lane pipeline showing the stateless LLM API call pattern: User Input → LLM API block (model, max_tokens, messages params visible) → Text Output. Auto-cycles through examples with framer-motion particle. Shows a key insight chip about unstructured output.
+
+```ts
+interface ApiExample {
+  input: string;
+  output: string;
+}
+
+interface LlmApiCallFlowProps {
+  title?: string;
+  examples?: ApiExample[];   // default: 3 task-management examples
+}
+```
+
+---
+
+### SchemaConstraintVisualizer
+
+**Description:** Split two-panel interactive contrasting free-form LLM output against schema-constrained JSON output. Left panel cycles through unstructured text variants; right panel shows a JSON Schema definition and an animated structured output that snaps into shape. Segmented toggle switches modes.
+
+```ts
+interface SchemaField {
+  key: string;
+  type: string;
+  description?: string;
+  color?: string;            // Tailwind text colour class, e.g. "text-violet-400"
+}
+
+interface SchemaConstraintVisualizerProps {
+  title?: string;
+  schemaName?: string;                          // default: "TaskSchema"
+  schemaFields?: SchemaField[];                 // default: 5-field task schema
+  freeTextExamples?: string[];                  // default: 3 unstructured variants
+  structuredExample?: Record<string, string>;   // key → JSON value string
+}
+```
+
+---
+
+### AiDecisionSchemaCompact
+
+**Description:** Collapsed, video-legible tree of the lab `AiDecision` JSON Schema (`assistant_message`, `action` enum, per-action payloads). Embedded in orchestrator Step 3; can be used standalone.
+
+```ts
+interface AiDecisionSchemaCompactProps {
+  title?: string;
+  className?: string;
+}
+```
+
+---
+
+### AiTaskflowOrchestrator
+
+**Description:** Animated orchestrator for the AI Task Management lab: central hub coordinates three steps matching the backend flow — `build_user_prompt`, `ai_provider.get_decision` (Provider + Tools schema), `execute_ai_action` (Action → DB). Large video-legible type; auto-cycles steps.
+
+```ts
+type OrchestratorStepRole = "workspace" | "prompt" | "provider" | "action";
+
+interface AiTaskflowOrchestratorStep {
+  id: string;
+  stepNumber: number;
+  tabLabel: string;       // e.g. "Step 1" — tab button label
+  title: string;
+  code: string;
+  detail: string;
+  icon: string;
+  iconLabel: string;
+  role: OrchestratorStepRole;
+  outputLabel?: string;
+  output?: string;
+}
+
+interface AiTaskflowOrchestratorProps {
+  title?: string;
+  userMessage?: string;
+  systemPrompt?: string;  // shown in Step 2 merge panel
+  existingTasksPreview?: string;
+  steps?: AiTaskflowOrchestratorStep[];  // default: 4 steps (list → prompt → provider → action)
+  autoPlay?: boolean;   // default: true — cycles tabs
+  cycleMs?: number;     // default: 4000
 }
 ```
 

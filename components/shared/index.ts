@@ -79,6 +79,10 @@ export { default as CosineSimilarityExplorer } from "../session/CosineSimilarity
 export { default as SearchQuerySimulator } from "../session/SearchQuerySimulator";
 // Tokenization session components
 export { default as BytePairEncodingExplorer } from "../session/BytePairEncodingExplorer";
+// AI Taskflow Lab components
+export { default as LlmApiCallFlow } from "../session/LlmApiCallFlow";
+export { default as SchemaConstraintVisualizer } from "../session/SchemaConstraintVisualizer";
+export { default as AiTaskflowOrchestrator } from "../session/AiTaskflowOrchestrator";
 // Architecture evolution (why-transformer session)
 export { default as ArchitectureEvolutionAnimator } from "../session/ArchitectureEvolutionAnimator";
 export { default as CNNImageSuccessDemo } from "../session/CNNImageSuccessDemo";

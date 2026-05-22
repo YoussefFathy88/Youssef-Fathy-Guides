@@ -140,7 +140,7 @@ If you are about to explain training, inference, tokenization, thinking mode, me
 
 Diagram-first sessions (especially presenter / title–diagram slides) must stay readable on screen and on video:
 
-- **Fonts (Universal Rule):** Everything must be designed with large, presentation-ready fonts. Use `text-xl` or larger for body text, and `text-3xl` or larger for headers within components. Text must be highly legible on screens. Avoid small or dense text.
+- **Fonts (Universal Rule):** Sessions are recorded for **YouTube / presenter mode**. Follow `.cursor/rules/session-video-legibility.mdc`: body **`text-lg md:text-xl` minimum** (prefer `text-xl` on full-slide panels), in-component headings **`text-xl md:text-2xl`+**, section labels **`text-base md:text-lg`+**, code/API bubbles **`text-base md:text-lg`+**. Never use `text-xs` or `text-[11px]` for teaching copy. Avoid dense, small type.
 - **Diagram:** One clear focal idea per slide; enough internal padding; hierarchy obvious at a glance.
 - **Animation:** Timings and motion should be easy to follow; avoid chaotic or simultaneous clutter.
 - **Spacing:** There must be clear space between each **`##` slide title** and the diagram below it (handled by session layout — do not defeat it by wrapping headings and visuals in tight custom blocks).

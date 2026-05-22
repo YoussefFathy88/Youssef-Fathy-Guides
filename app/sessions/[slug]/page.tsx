@@ -91,6 +91,9 @@ import {
   MacroPipeline,
   VectorAnatomyExplorer,
   PositionalEncodingMotivation,
+  LlmApiCallFlow,
+  SchemaConstraintVisualizer,
+  AiTaskflowOrchestrator,
 } from "@/components/shared";
 import FNNAutocompleteDemo from "@/components/demos/FNNAutocompleteDemo";
 import ArchitectureComparisonDemo from "@/components/demos/ArchitectureComparisonDemo";
@@ -136,6 +139,13 @@ const sessionSectionOverrides: Record<string, SessionSection[]> = {
     { id: "practical-example", label: "Practical Example" },
     { id: "next-session", label: "Next Session" },
   ],
+  "introduction-to-ai-taskflow-lab": [
+    { id: "goal", label: "Goal" },
+    { id: "big-picture", label: "Big Picture" },
+    { id: "core-concepts", label: "Core Concepts" },
+    { id: "practical-example", label: "Practical Example" },
+    { id: "next-session", label: "Next Session" },
+  ],
   "how-llms-work": [
     { id: "goal", label: "Goal" },
     { id: "what-is-a-mapping", label: "What is a Mapping?" },
@@ -178,6 +188,9 @@ function getMdxComponents(isPresentationMode: boolean) {
     AnnotatedCode,
     MacroPipeline,
     VectorAnatomyExplorer,
+    LlmApiCallFlow,
+    SchemaConstraintVisualizer,
+    AiTaskflowOrchestrator,
     // New interactive components
     TrainingLoopSimulator,
     AutoregressiveDemo,

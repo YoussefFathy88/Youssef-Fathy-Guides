@@ -28,7 +28,7 @@ description: >-
 2. **Serializable props only** — no function props, no inline JSX in MDX props (breaks RSC/MDX compilation). Prefer strings, numbers, booleans, arrays, and plain objects.
 3. **Keep `docs/component-gallery.md` in sync** — any add/change/remove of session-facing components or their props must update that file in the **same change** as the code. Update `docs/session-template.md` only when **session-level** authoring rules change (see `CLAUDE.md`).
 4. **Six sections in order** — `goal` → `big-picture` → `core-concepts` → `practical-example` → `recap` → `next-session` (`SessionSection` ids).
-5. **Diagram clarity** — fonts legible at video scale; diagram layout uncluttered; animations easy to follow; **spacing between `##` titles and diagrams is mandatory** (see `docs/session-template.md` § Diagram clarity and `.cursor/rules/ppt-title-diagram-only.mdc`).
+5. **Video / PPT legibility (mandatory)** — follow `.cursor/rules/session-video-legibility.mdc`: in-component body **`text-lg md:text-xl` minimum** (prefer `text-xl` on full-slide panels), headings **`text-xl md:text-2xl`+**, no `text-xs` / `text-[11px]` for teaching copy, generous `p-8 md:p-10` on slide-scale panels. Also: diagram layout uncluttered; animations easy to follow; **spacing between `##` titles and diagrams** (see `docs/session-template.md` § Diagram clarity and `.cursor/rules/ppt-title-diagram-only.mdc`).
 
 ## New session checklist
 

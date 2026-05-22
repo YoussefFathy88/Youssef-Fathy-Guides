@@ -26,7 +26,8 @@ const LAB_PROJECTS: LabProject[] = [
     tags: ["Agents", "Tool Use", "Memory"],
     description:
       "Build a fully functional task manager powered by an LLM agent with persistent state.",
-    status: "Coming soon",
+    href: "/sessions/introduction-to-ai-taskflow-lab" as Route,
+    status: "Start lab",
   },
   {
     number: "03",
