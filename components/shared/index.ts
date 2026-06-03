@@ -83,6 +83,7 @@ export { default as BytePairEncodingExplorer } from "../session/BytePairEncoding
 export { default as LlmApiCallFlow } from "../session/LlmApiCallFlow";
 export { default as SchemaConstraintVisualizer } from "../session/SchemaConstraintVisualizer";
 export { default as AiTaskflowOrchestrator } from "../session/AiTaskflowOrchestrator";
+export { default as ToolLoopVisualizer } from "../session/ToolLoopVisualizer";
 // Architecture evolution (why-transformer session)
 export { default as ArchitectureEvolutionAnimator } from "../session/ArchitectureEvolutionAnimator";
 export { default as CNNImageSuccessDemo } from "../session/CNNImageSuccessDemo";

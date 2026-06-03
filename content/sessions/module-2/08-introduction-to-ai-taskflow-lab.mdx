@@ -43,67 +43,15 @@ The RAG lab gave the model memory. This lab gives it hands. You will build an AI
 
 <SessionSection id="core-concepts" label="Core Concepts">
 
-## Step 2 — Schema constraints guarantee a parseable output shape
+## Step 2 — System Prompt & Schema
 
-<SchemaConstraintVisualizer
-  title="Schema constraints lock the output shape — every response is directly parseable"
-  schemaName="TaskSchema"
-  schemaFields={[
-    { key: "id", type: "string", description: "UUID", color: "text-violet-400" },
-    { key: "title", type: "string", description: "Task title", color: "text-teal-400" },
-    { key: "priority", type: "\"low\" | \"medium\" | \"high\"", description: "Urgency level", color: "text-amber-400" },
-    { key: "dueDate", type: "string", description: "ISO date", color: "text-blue-400" },
-    { key: "status", type: "\"todo\" | \"in_progress\" | \"done\"", description: "Current state", color: "text-rose-400" }
-  ]}
-  freeTextExamples={[
-    "Okay! I've noted that you need to review the PRs. I'd suggest doing it by Friday since that's coming up soon. Let me know if you need help prioritising!",
-    "- Review PRs before Friday\n- Priority: high\n- Don't forget about the standup on Thursday",
-    "Task added: 'Review PRs', due Friday, high priority. Also reminder: team sync is Thursday at 3pm."
-  ]}
-  structuredExample={{ id: "\"task_a3f9b2\"", title: "\"Review PRs before Friday\"", priority: "\"high\"", dueDate: "\"2026-05-24\"", status: "\"todo\"" }}
-/>
+<SchemaConstraintVisualizer />
 
 ### Step 3 — Tools let the model take real actions in the world
 
-<AgentLoopStepper
+<ToolLoopVisualizer
   title="The tool-use loop — the model requests, your code executes, state changes"
-  steps={[
-    {
-      id: "define",
-      actor: "user",
-      label: "You define task tools and send the user message",
-      bubble: "POST /v1/messages\n{\n  tools: [\n    { name: 'create_task', description: 'Create a new task...', input_schema: { title, priority, dueDate } },\n    { name: 'update_task', description: 'Update an existing task...', input_schema: { id, status, priority } },\n    { name: 'list_tasks',  description: 'List tasks with optional filters...', input_schema: { status?, priority? } }\n  ],\n  messages: [{ role: 'user', content: 'Create a task: Review PRs before Friday, high priority' }]\n}",
-      detail: "Your API call includes the task management tool schemas. Each tool description tells the model when and how to use it. The model reads these to decide what to call — it cannot act without you defining the tools first."
-    },
-    {
-      id: "decide",
-      actor: "model",
-      label: "Model decides to call create_task",
-      bubble: "Response: stop_reason: 'tool_use'\ncontent: [{\n  type: 'tool_use',\n  name: 'create_task',\n  input: {\n    title: 'Review PRs before Friday',\n    priority: 'high',\n    dueDate: '2026-05-24'\n  }\n}]",
-      detail: "Instead of answering with text, the model outputs a structured tool_use block. It has extracted the task details from the user message and formatted them to match your create_task input schema. Your code now needs to execute this."
-    },
-    {
-      id: "execute",
-      actor: "your-code",
-      label: "Your application writes the task to the database",
-      bubble: "# Read the tool call\ntool_name = 'create_task'\nargs = { title: 'Review PRs before Friday', priority: 'high', dueDate: '2026-05-24' }\n\n# Execute — write to your DB\nnew_task = db.tasks.insert({\n  id: uuid(),\n  ...args,\n  status: 'todo',\n  createdAt: now()\n})\n# → { id: 'task_a3f9b2', title: '...', status: 'todo' }",
-      detail: "Your application reads the tool_use block, calls the actual database write, and gets back a real result. The model never touches your database directly — it only requests the action. You control execution and security."
-    },
-    {
-      id: "return",
-      actor: "user",
-      label: "You send the task record back to the model",
-      bubble: "POST /v1/messages  (second call)\nmessages: [\n  { role: 'user',      content: 'Create a task: Review PRs...' },\n  { role: 'assistant', content: [tool_use block] },\n  { role: 'user',      content: [{\n      type: 'tool_result',\n      tool_use_id: '...',\n      content: '{ id: task_a3f9b2, title: Review PRs before Friday, status: todo }'\n  }] }\n]",
-      detail: "You append the database result as a tool_result message, then make a second API call. The model now sees the full context: the original request and the real record that was created in your database."
-    },
-    {
-      id: "answer",
-      actor: "model",
-      label: "Model confirms the action in natural language",
-      bubble: "Response: stop_reason: 'end_turn'\ncontent: 'Done! I created the task \"Review PRs before Friday\"\nwith high priority, due 24 May. It is currently in your\nTo Do column. Want me to assign it to someone or add subtasks?'",
-      detail: "With the tool result in context, the model generates a natural confirmation grounded in the actual database record. It knows the exact task ID and state. From here it can call update_task, list_tasks, or any other tool you have defined — the loop continues."
-    }
-  ]}
+  userMessage="Create a task: Review PRs before Friday, high priority"
 />
 
 </SessionSection>

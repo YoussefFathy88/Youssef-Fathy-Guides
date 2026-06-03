@@ -33,8 +33,8 @@ const DEFAULT_EXAMPLES: ApiExample[] = [
 ];
 
 const PARAMS = [
-  { key: "model", value: '"claude-3-5-sonnet"', color: "text-violet-400" },
-  { key: "max_tokens", value: "1024", color: "text-amber-400" },
+  { key: "model", value: '"claude"', color: "text-violet-400" },
+  { key: "Temperature", value: "0.1", color: "text-amber-400" },
   { key: "messages", value: "[{ role: 'user', content: … }]", color: "text-teal-400" },
 ];
 

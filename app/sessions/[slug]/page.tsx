@@ -94,6 +94,7 @@ import {
   LlmApiCallFlow,
   SchemaConstraintVisualizer,
   AiTaskflowOrchestrator,
+  ToolLoopVisualizer,
 } from "@/components/shared";
 import FNNAutocompleteDemo from "@/components/demos/FNNAutocompleteDemo";
 import ArchitectureComparisonDemo from "@/components/demos/ArchitectureComparisonDemo";
@@ -191,6 +192,7 @@ function getMdxComponents(isPresentationMode: boolean) {
     LlmApiCallFlow,
     SchemaConstraintVisualizer,
     AiTaskflowOrchestrator,
+    ToolLoopVisualizer,
     // New interactive components
     TrainingLoopSimulator,
     AutoregressiveDemo,
