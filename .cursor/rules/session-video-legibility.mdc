@@ -1,55 +1,62 @@
 ---
-description: Session & video UI — large type, strong contrast, generous blocks for YouTube and presenter mode
+description: Session & video UI — large type, strong contrast, generous blocks for YouTube (1080p) and presenter mode. Small text is banned.
 globs:
   - components/session/**/*.tsx
   - components/shared/**/*.tsx
   - app/sessions/**/*.tsx
   - app/component-gallery/**/*.tsx
+  - content/sessions/**/*.mdx
 alwaysApply: true
 ---
 
 # Session and video UI legibility
 
-Sessions are recorded in **presenter mode** and published on **YouTube** (1080p). Every **user-visible** label, body line, code bubble, and control in session components, gallery demos, and MDX interactives must read **at a glance** on stream — not only on a laptop at arm’s length.
+Sessions are recorded in **presenter mode** and published on **YouTube (1080p)**. Every user-visible label, body line, code bubble, and control must read **at a glance on a TV-sized stream** — not just on a laptop at arm's length.
 
-**Default assumption:** you are designing a **slide**, not a dense app UI.
+**Default assumption: you are designing a slide, not a dense app UI.**
 
-## Typography (must-follow)
+If in doubt between two sizes — always pick the **larger** one. Fewer words at larger size beats more words at small size.
 
-### Minimum sizes (never go below for teaching content)
+## Typography — hard minimums (never go below)
 
-| Role | Tailwind minimum | Notes |
-|------|------------------|--------|
-| In-component headings (`h2`/`h3`) | `text-xl md:text-2xl` | Prefer `text-2xl md:text-3xl` on full-slide panels |
-| Body / explanations / step detail | `text-lg md:text-xl` | Prefer `text-xl md:text-2xl` when the panel is the only visual on the slide |
-| Section labels (e.g. “USER INPUT”, “TOKENS”) | `text-base md:text-lg` | `font-bold`, letter-spacing; **never** `text-xs` |
-| API / JSON / monospace payloads | `text-base md:text-lg` | Prefer `text-lg md:text-xl` in hero code bubbles |
-| Buttons / toggles / step controls | `text-base md:text-lg` | Large tap targets: `py-3 px-5` minimum |
-| Secondary hints only | `text-base` | Do not put the **only** explanation of a concept at hint size |
+| Role | Tailwind floor | Preferred on full-slide panels |
+|---|---|---|
+| In-component headings (`h2`/`h3`) | `text-xl md:text-2xl` | `text-2xl md:text-3xl` |
+| Body / explanations / step detail | `text-lg md:text-xl` | `text-xl md:text-2xl` |
+| Section labels ("USER INPUT", "TOKENS", etc.) | `text-base md:text-lg` | `text-lg md:text-xl` — always `font-bold` |
+| API / JSON / monospace payloads | `text-base md:text-lg` | `text-lg md:text-xl` in hero code bubbles |
+| Buttons / toggles / step controls | `text-base md:text-lg` | `py-3 px-5` minimum tap target |
+| Secondary / hint copy | `text-base` | Never use `text-sm` even for hints |
 
-### Banned for essential copy
+## Absolutely banned — zero exceptions
 
-- `text-xs`, `text-sm` (as primary teaching text), `text-[10px]`, `text-[11px]`
-- Faint critical labels: `text-gray-500` on dark shells for anything the presenter must read aloud
+- `text-xs` anywhere in teaching UI
+- `text-sm` as primary or secondary teaching copy
+- Arbitrary small sizes: `text-[10px]`, `text-[11px]`, `text-[12px]`, `text-[13px]`
+- Faint labels on dark shells: `text-gray-500` or dimmer for anything the presenter reads aloud
+- Wrapping long explanations into tiny condensed pills just to fit more on one slide — **split into a new slide instead**
 
-### When in doubt
+## Contrast requirements
 
-Bump **one step larger** rather than fitting more on screen. Fewer words per panel is better than smaller type.
+- **Dark shells:** body text `text-gray-100`–`text-gray-200`; secondary text minimum `text-gray-300`
+- **Light shells:** body text `text-gray-800`–`text-gray-900`; secondary minimum `text-gray-600`
+- Never rely on color alone to distinguish active vs inactive states — use size or weight too
 
-## Blocks, spacing, and contrast
+## Blocks and spacing
 
 - **Outer panels:** `p-8 md:p-10` for full-slide interactives; `space-y-6`–`space-y-10` between major blocks
 - **Inner cards:** `p-5 md:p-6` minimum
-- **Chips / pills:** `py-3 px-4` minimum; hero rows (tokens, params) `text-lg md:text-2xl` with `ring-1` or border for separation on video
-- **Contrast (dark shells):** body `text-gray-100`–`text-gray-200`; secondary `text-gray-300`–`text-gray-400` only
+- **Chips / pills:** `py-3 px-4` minimum; hero rows `text-lg md:text-2xl` with `ring-1` or border for separation on video
+- Do not shrink padding to fit more content — remove content instead
 
 ## SVG and diagrams
 
-- Label text in SVGs: roughly **16px+** in user units (`text-sm` equivalent or larger); avoid 9–10px axis labels except rare ticks
-- Match `.cursor/rules/ppt-title-diagram-only.mdc` and `docs/session-template.md` § Diagram clarity
+- All SVG label text: **16px+ in user units** (equivalent to `text-base` or larger)
+- Avoid 9–10px axis labels; only tick marks may be that small, and only when the axis label above them is large
+- Node labels, edge labels, step names inside SVGs: 16px+ minimum; 18–20px preferred
 
-## New and edited components
+## Enforcement on new and edited components
 
-Any **new** session-facing component must meet this rule in the **first PR**. When touching existing components for a session, **upgrade typography in that component** rather than adding another tiny pattern.
-
-Non-user-facing code (`lib/`, types, tests) is exempt — but do not export new tiny UI from shared session barrels.
+- Any **new** session-facing component must meet this rule from the very first commit
+- When editing an existing component, **upgrade all typography in that component** to meet these minimums — do not leave old small text alongside new large text
+- Non-user-facing code (`lib/`, types, tests) is exempt, but do not re-export tiny UI from shared session barrels

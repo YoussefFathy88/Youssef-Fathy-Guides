@@ -1,0 +1,119 @@
+---
+description: Gamification & interactive-first mindset for every session concept — never a static bullet list when an animation can teach it
+globs:
+  - content/sessions/**/*.mdx
+  - components/session/**/*.tsx
+  - components/shared/**/*.tsx
+alwaysApply: true
+---
+
+# Session interactive-first mindset (Gamification & Animated Diagrams)
+
+**Every concept gets an animation or interactive diagram. Static bullet points are not slides — they are notes.**
+
+When you are asked about a GenAI/CS concept in the context of preparing a session, your **first instinct** must be:
+
+> "How do I show this with a step-through animation or interactive diagram — not how do I write text about it?"
+
+---
+
+## The rule in one sentence
+
+If a concept can be shown, it must be shown. Text alone is a fallback of last resort.
+
+---
+
+## Decision flow when planning a concept slide
+
+```
+1. What is the one core idea to teach on this slide?
+        ↓
+2. Does the component gallery already have something that fits?
+   → YES  →  Reuse it (wire the right props). Do not build a new one.
+   → NO   →  Design a new interactive component (see "Component design principles" below).
+        ↓
+3. The result is one animated/interactive component per slide (one ## heading).
+   Never add explanatory paragraph text below the title.
+```
+
+---
+
+## Component gallery — check this FIRST
+
+`docs/component-gallery.md` is the authoritative catalog. Before building anything, scan the "Quick chooser" table for the teaching need that matches your concept.
+
+### Common concept → component mappings
+
+| Teaching need | Prefer |
+|---|---|
+| Multi-step process / pipeline | `NodeFlowDiagram`, `MacroPipeline`, `DualLanePipelineDiagram` |
+| Before vs After / Compare two ideas | `ConceptCompare`, `ArchitectureComparisonDemo` |
+| Numbered phases / story | `StepSequence` (narrative), `ConceptStepper` |
+| Slider / dial affects output | `ParameterSlider`, `TokenProbDist` |
+| Something that builds over time (token-by-token, step-by-step) | `AutoregressiveDemo`, `StepSequence`, `AgentLoopStepper` |
+| Math / geometry / vectors | `CosineSimilarityExplorer`, `EmbeddingVectorExplorer`, `Vector2DPlot` |
+| Algorithm / data-structure walkthrough | `AlgorithmStepper`, `BTreeExplorer`, `CallStackVisualizer` |
+| Network / flow / packet | `ApiLifecycleFlow`, `PacketJourneyVisualizer`, `NodeFlowDiagram` |
+| Training / loss / gradients | `GradientDescentSimulator`, `LinearRegressionTrainingExplorer`, `TrainingLoopSimulator` |
+| Model internals (Transformer) | `TransformerPipelineWalkthrough`, `SelfAttentionScoreExplorer`, `TransformerSubstackExplorer` |
+| Code that evolves | `CodeEvolutionStepper`, `AnnotatedCode`, `TabbedCodeExplorer` |
+| User interacts with live input | `LiveTokenizer`, `BytePairEncodingExplorer`, `SearchQuerySimulator`, `MiniPlayground` |
+| Simulation / race / concurrent state | `MutexRaceDetector`, `ConsensusSimulator`, `MessageQueueSim`, `ProcessSchedulerViz` |
+| RNN / CNN / architecture story | `ArchitectureEvolutionAnimator` (panel prop for one slide), `RNNWorkingExample`, `FNNAutocompleteDemo` |
+
+---
+
+## When to build a new component
+
+Build a new one **only** when no existing component maps to the concept after a genuine search. When you build:
+
+### Component design principles (gamification)
+
+1. **One idea, one clear animation** — the viewer should be able to say "I saw X happen" after watching.
+2. **Step-through by default** — prefer Prev / Next / Play rather than a wall of content visible at once. Reveal information progressively.
+3. **Make the learner predict before revealing** — if possible, pause before the answer, create a moment of anticipation (e.g. show input, animate processing, then reveal output).
+4. **Use color and motion as signal, not decoration**:
+   - Active element → bright highlight (amber, violet, teal)
+   - Inactive / background → dimmed (opacity-40 or gray)
+   - Success / correct → teal or green pulse
+   - Error / failure → rose/red shake or banner
+   - Data flowing → animated arrow or particle along edge
+5. **Countdowns, bars, and gauges beat numbers** — token budget = filled bar, not "4096 tokens used". Hidden state decay = bar chart, not table.
+6. **Failure cases are as important as success** — if a concept has a known failure mode (vanishing gradient, race condition, cache miss), animate both the failing and the correct path.
+7. **Controls must be large and obvious** — Play / Pause / Next buttons at `text-base md:text-lg`, `py-3 px-5` minimum.
+
+---
+
+## What "gamification" means in this context
+
+| Gamification mechanic | How to apply to session components |
+|---|---|
+| **Progressive reveal** | Show one step at a time, not all at once |
+| **Immediate feedback** | Color-coded result appears right after the user triggers an action |
+| **Clear goal / direction** | Step number + short label on every step so viewer knows where they are |
+| **Exploration** | Sliders, preset buttons, toggles that change the outcome — let viewers experiment |
+| **Contrast / conflict** | Show the bad way vs the good way side by side or sequentially |
+| **Reward / completion** | Final step should feel like a "reveal" — the full picture clicks into place |
+
+---
+
+## What to NEVER do instead
+
+- Write a bullet-point list as the only content under a `##` slide heading
+- Use `StepSequence` with just three words per step when an animated diagram would show the same thing visually
+- Paste a static JSON or code block as the entire slide (use `AnnotatedCode` or `CodeEvolutionStepper`)
+- Create a table of facts with no interaction (use `ConceptCompare`, `RecapTable` only in the dedicated recap section)
+- Use `NodeFlowDiagram` with no `steps` prop — always add scripted step-through so the presenter can walk through nodes one at a time
+
+---
+
+## When modifying an existing session
+
+If you touch a session and notice a slide that is currently just a `StepSequence` with plain text where an existing interactive component from the gallery would teach the concept better — **upgrade it**. Match the concept to the gallery first, then propose the upgrade.
+
+---
+
+## Cross-rule dependencies
+
+- Every interactive built here must also satisfy `.cursor/rules/session-video-legibility.mdc` (large type, contrast, generous padding)
+- Every slide must satisfy `.cursor/rules/ppt-title-diagram-only.mdc` (one `##` heading + one animation only)

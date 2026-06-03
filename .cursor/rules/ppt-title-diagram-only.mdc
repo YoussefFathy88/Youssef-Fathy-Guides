@@ -1,31 +1,43 @@
 ---
-description: Enforce PPT slide style as title + one diagram only
+description: Enforce PPT slide style as title + one animation only — no multiple animations per slide
 globs:
   - content/sessions/**/*.mdx
+  - components/session/**/*.tsx
+  - components/shared/**/*.tsx
 alwaysApply: true
 ---
 
-# PPT slide style (Title + Diagram only)
+# PPT slide style (Title + One Animation only)
 
-For session MDX slides intended for presenter mode:
+Sessions are published on **YouTube (1080p)**. Every slide must be **instantly readable and focused**. Confusion is the enemy — one idea, one animation, one slide.
 
-1. Each slide must contain exactly:
-   - one heading title (`## ...`), and
-   - one visual/interactive component block (diagram/demo/simulator).
-2. Do not add explanatory paragraph text under slide titles.
-3. Do not place multiple diagram components under one title.
-4. If two visuals are needed, split into two separate `##` headings (two slides).
-5. Prefer concise, visual-first slide titles.
+## Strict slide structure (non-negotiable)
+
+1. Each slide must contain **exactly**:
+   - one `## ...` heading title, and
+   - one animated/interactive component (the single visual for that slide).
+2. **Never** place two or more animated or interactive components under the same `##` heading.
+3. **Never** add paragraph text, bullet lists, or additional UI blocks between the title and the component.
+4. If a topic needs two visuals → **split into two slides** with two separate `##` headings.
+5. Titles must be concise and visual-first (describe what the animation shows, not a wall of text).
+
+## One-animation-per-component rule (for component authors)
+
+When building a session component:
+
+- A component may have **internal steps** (e.g. a step sequencer that plays one phase at a time), but it must present **one coherent animated idea** — not two unrelated animations stacked vertically.
+- If you find yourself rendering two independent animated sections inside one component, **extract the second into its own component and its own slide**.
+- Avoid side-by-side panels each running their own independent animation simultaneously; this overwhelms viewers on video.
 
 ## Diagram clarity (must-follow)
 
-Session diagrams and interactives should stay readable on video and in fullscreen presenter mode:
+Session diagrams and interactives must be readable on video and in fullscreen presenter mode:
 
-- **Fonts:** All interactives must follow `.cursor/rules/session-video-legibility.mdc` (body `text-lg md:text-xl`+, headings `text-xl md:text-2xl`+, no `text-xs` for teaching copy). SVG labels: 16px+ equivalent; prefer `ui-sans-serif` / system stacks; strong contrast on light and dark backgrounds.
-- **Diagram:** Prefer generous padding inside the canvas, clear hierarchy (one main idea per slide), and labels that read without squinting.
-- **Animation:** Motions should be easy to follow (predictable timing, not overcrowded); respect reduced motion where the component supports it.
-- **Spacing:** Leave clear vertical space between the slide **`##` title** and the diagram — do not cram components directly under headings in MDX layouts; when building new components, assume titles need breathing room below.
+- **Fonts:** All interactives must follow `.cursor/rules/session-video-legibility.mdc` (body `text-lg md:text-xl`+, headings `text-xl md:text-2xl`+, **never** `text-xs`/`text-sm` for teaching copy). SVG labels: 16px+ equivalent; prefer `ui-sans-serif` / system stacks; strong contrast on both light and dark backgrounds.
+- **Diagram:** Generous padding inside the canvas, clear hierarchy (one main idea per slide), labels that read without squinting at 1080p.
+- **Animation:** Motions easy to follow — predictable timing, not overcrowded. One thing animates at a time where possible. Respect `prefers-reduced-motion` where the component supports it.
+- **Spacing:** Clear vertical space between the `##` title and the animation component — no cramming.
 
-Layout spacing for headings vs diagrams is enforced in `SessionSection` (presenter) and MDX `h2` styles (`app/sessions/[slug]/page.tsx`); new slide-style content must still avoid stacking extra elements between title and diagram.
+Layout spacing is enforced in `SessionSection` (presenter) and MDX `h2` styles (`app/sessions/[slug]/page.tsx`). New slide-style content must avoid stacking extra elements between title and animation.
 
 When updating existing sessions, preserve this format for any newly added or edited slide content.

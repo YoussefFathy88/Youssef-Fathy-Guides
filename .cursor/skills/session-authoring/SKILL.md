@@ -29,6 +29,7 @@ description: >-
 3. **Keep `docs/component-gallery.md` in sync** — any add/change/remove of session-facing components or their props must update that file in the **same change** as the code. Update `docs/session-template.md` only when **session-level** authoring rules change (see `CLAUDE.md`).
 4. **Six sections in order** — `goal` → `big-picture` → `core-concepts` → `practical-example` → `recap` → `next-session` (`SessionSection` ids).
 5. **Video / PPT legibility (mandatory)** — follow `.cursor/rules/session-video-legibility.mdc`: in-component body **`text-lg md:text-xl` minimum** (prefer `text-xl` on full-slide panels), headings **`text-xl md:text-2xl`+**, no `text-xs` / `text-[11px]` for teaching copy, generous `p-8 md:p-10` on slide-scale panels. Also: diagram layout uncluttered; animations easy to follow; **spacing between `##` titles and diagrams** (see `docs/session-template.md` § Diagram clarity and `.cursor/rules/ppt-title-diagram-only.mdc`).
+6. **Interactive-first / gamification (mandatory)** — follow `.cursor/rules/session-interactive-first.mdc`: every concept slide must use an animated or interactive component. **Check `docs/component-gallery.md` first** before building anything new. Static bullet-point slides are not acceptable. Build new components only when no gallery component fits, and design them with progressive reveal, step-through controls, color-as-signal, and exploration (sliders / presets / toggles).
 
 ## New session checklist
 
