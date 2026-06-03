@@ -87,7 +87,7 @@ export function SessionSection({ id, label, children }: SessionSectionProps) {
               data-session-section="true"
               data-presentation-slide="true"
               data-session-section-label={label}
-              className="flex min-h-[calc(100dvh-8rem)] snap-start snap-always items-start py-10 sm:py-12 md:py-14"
+              className="flex h-[100dvh] snap-start snap-always flex-col justify-center overflow-hidden pb-4 pt-28 sm:pt-32"
             >
               <motion.div
                 key={`${slideId}-${revealCycle}`}
@@ -102,16 +102,14 @@ export function SessionSection({ id, label, children }: SessionSectionProps) {
                     },
                   },
                 }}
-                className="w-full overflow-y-auto rounded-[32px] border border-gray-800/80 bg-gray-950/70 px-6 pb-10 pt-10 shadow-[0_32px_80px_-48px_rgba(15,23,42,0.85)] backdrop-blur sm:px-8 sm:pb-12 sm:pt-12 lg:px-12 lg:pb-14 lg:pt-14"
-                style={{ maxHeight: "calc(100dvh - 9rem)" }}
+                className="flex max-h-full w-full flex-col overflow-hidden rounded-[32px] border border-gray-800/80 bg-gray-950/70 px-6 pb-8 pt-8 shadow-[0_32px_80px_-48px_rgba(15,23,42,0.85)] backdrop-blur sm:px-8 sm:pb-10 sm:pt-10 lg:px-12 lg:pb-12 lg:pt-12"
               >
-                {/* Extra bottom padding under label so the slide title never sits flush under the rail / previous slide edge */}
-                <div className="mb-10 flex items-center gap-3 border-b border-gray-800/70 pb-8 text-xs font-semibold uppercase tracking-[0.24em] text-violet-200/75 sm:mb-12 sm:pb-10">
+                <div className="mb-8 flex items-center gap-3 border-b border-gray-800/70 pb-6 text-xs font-semibold uppercase tracking-[0.24em] text-violet-200/75 sm:mb-10 sm:pb-8">
                   <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full bg-violet-400" />
                   {label}
                 </div>
 
-                <div className="flex flex-col gap-12 sm:gap-14">
+                <div className="flex min-h-0 flex-1 flex-col gap-10 overflow-y-auto sm:gap-12">
                   {chunk.map((child, index) => (
                     <motion.div
                       key={`${slideId}-${revealCycle}-${index}`}

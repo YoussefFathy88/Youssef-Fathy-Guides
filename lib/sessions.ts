@@ -28,6 +28,8 @@ export interface SessionFrontmatter {
   tags: string[];
   nextSession: string | null;
   prevSession: string | null;
+  outline?: string[];
+  outlineSectionMap?: Record<string, number>;
 }
 
 function isDifficulty(value: unknown): value is SessionDifficulty {
@@ -119,6 +121,19 @@ function parseFrontmatter(
       : [],
     nextSession: toNullableString(rawFrontmatter.nextSession),
     prevSession: toNullableString(rawFrontmatter.prevSession),
+    outline: Array.isArray(rawFrontmatter.outline)
+      ? rawFrontmatter.outline.filter((item): item is string => typeof item === "string")
+      : undefined,
+    outlineSectionMap:
+      rawFrontmatter.outlineSectionMap !== null &&
+      typeof rawFrontmatter.outlineSectionMap === "object" &&
+      !Array.isArray(rawFrontmatter.outlineSectionMap)
+        ? Object.fromEntries(
+            Object.entries(rawFrontmatter.outlineSectionMap as Record<string, unknown>).filter(
+              ([, v]) => typeof v === "number",
+            ) as [string, number][],
+          )
+        : undefined,
   };
 }
 

@@ -20,6 +20,8 @@ type PresentationShellProps = {
   module: number;
   moduleName: string;
   children: ReactNode;
+  outline?: string[];
+  outlineSectionMap?: Record<string, number>;
 };
 
 const INTERACTIVE_SELECTOR = [
@@ -50,6 +52,8 @@ export function PresentationShell({
   module,
   moduleName,
   children,
+  outline,
+  outlineSectionMap,
 }: PresentationShellProps) {
   const reducedMotion = useReducedMotion();
   const shellRef = useRef<HTMLDivElement | null>(null);
@@ -115,6 +119,11 @@ export function PresentationShell({
 
   const activeSectionLabel =
     slides[currentIndex]?.sectionLabel ?? slides[0]?.sectionLabel ?? "Session";
+
+  const activeOutlineIndex =
+    outlineSectionMap && activeSectionId
+      ? (outlineSectionMap[activeSectionId] ?? -1)
+      : -1;
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -259,16 +268,57 @@ export function PresentationShell({
 
         <div className="pointer-events-none absolute inset-x-0 top-0 z-20 bg-gradient-to-b from-[#060914] via-[#060914]/92 to-transparent">
           <div className="pointer-events-auto mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+            {/* Left: module badge + outline tracker (or section label fallback) */}
             <div className="min-w-0 space-y-2">
               <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.2em] text-violet-200/75">
                 <span className="rounded-full border border-violet-400/20 bg-violet-500/12 px-3 py-1 font-semibold text-violet-200">
                   Module {module}
                 </span>
                 <span>{moduleName}</span>
-                <span className="text-gray-400">{activeSectionLabel}</span>
               </div>
+
+              {outline && outline.length > 0 ? (
+                <div className="flex flex-wrap items-center gap-2">
+                  {outline.map((label, index) => {
+                    const isActive = index === activeOutlineIndex;
+                    const isPast = activeOutlineIndex >= 0 && index < activeOutlineIndex;
+                    return (
+                      <div
+                        key={label}
+                        className={cn(
+                          "flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-all duration-300",
+                          isActive
+                            ? "bg-violet-600 text-white ring-1 ring-violet-400/50"
+                            : isPast
+                              ? "bg-teal-900/40 text-teal-300/60 ring-1 ring-teal-700/30"
+                              : "bg-gray-800/60 text-gray-500 ring-1 ring-gray-700/30",
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
+                            isActive
+                              ? "bg-white/20 text-white"
+                              : isPast
+                                ? "bg-teal-700/40 text-teal-300/60"
+                                : "bg-gray-700/50 text-gray-500",
+                          )}
+                        >
+                          {index + 1}
+                        </span>
+                        <span className="hidden sm:inline">{label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="flex items-center text-xs uppercase tracking-[0.2em] text-gray-400">
+                  {activeSectionLabel}
+                </div>
+              )}
             </div>
 
+            {/* Right: slide counter + nav */}
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <span className="rounded-full border border-gray-700 bg-gray-950/70 px-3 py-2 text-gray-300">
                 {slides.length === 0 ? "—" : `${currentIndex + 1} / ${slides.length}`}
@@ -316,7 +366,7 @@ export function PresentationShell({
 
         <div
           ref={scrollerRef}
-          className="relative z-10 h-full snap-y snap-mandatory overflow-y-auto overscroll-y-contain px-4 pb-16 pt-28 sm:px-6 md:pt-32 lg:px-8"
+          className="relative z-10 h-full snap-y snap-mandatory overflow-y-auto overscroll-y-contain px-4 sm:px-6 lg:px-8"
           style={{ scrollBehavior: reducedMotion ? "auto" : "smooth" }}
         >
           <article className="mx-auto max-w-[1496px] w-full">

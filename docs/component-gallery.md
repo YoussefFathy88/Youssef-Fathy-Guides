@@ -22,6 +22,7 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | Teaching need | Component |
 |---|---|
 | Section wrapper (required six blocks) | `SessionSection` |
+| Animated outline for the first (Goal) slide | `SessionOutlineSlide` |
 | AI Engineering Lab session overview: goal, technologies, and main concepts | `LabSessionOverview` |
 | Term recap table (section 5 only) | `RecapTable` |
 | Link card to next episode (section 6 only) | `NextSessionCard` |
@@ -207,6 +208,46 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 ## Component reference
 
 Props mirror `components/shared/*.tsx`, `components/session/*`, and `getMdxComponents`. Markers: **TSX only** = do not pass from MDX.
+
+### SessionOutlineSlide
+
+**Description:** Animated numbered outline for the Goal section's first presenter slide. Items are pre-injected from the session frontmatter `outline` field by `getMdxComponents` — no props needed in MDX. Add `## What we'll cover` as the `h2` title above it so the Goal section generates a presenter slide.
+
+```ts
+interface SessionOutlineSlideProps {
+  items?: string[]; // injected automatically from frontmatter outline; override only if needed
+}
+```
+
+**Frontmatter required:**
+
+```yaml
+outline:
+  - "Topic One"
+  - "Topic Two"
+  - "Topic Three"
+outlineSectionMap:
+  big-picture: 0
+  core-concepts: 1
+  practical-example: 2
+  recap: 3
+```
+
+Example MDX (Goal section):
+
+```mdx
+<SessionSection id="goal" label="Goal">
+
+## What we'll cover
+
+<SessionOutlineSlide />
+
+</SessionSection>
+```
+
+The `outlineSectionMap` drives the bottom tracker in `PresentationShell`: each key is a `SessionSection` `id` and the value is the 0-based index into `outline`. Sections not in the map leave the tracker in a neutral (no highlight) state.
+
+---
 
 ### SessionSection
 

@@ -9,6 +9,16 @@ difficulty: "intermediate"
 tags: ["training", "pretraining", "alignment"]
 nextSession: "agent-memory-types"
 prevSession: "transformer-attention-2"
+outline:
+  - "Data Engineering & Pre-Training"
+  - "Supervised Fine-Tuning"
+  - "Alignment (RLHF / DPO)"
+  - "Eval, Red-Teaming & Deployment"
+outlineSectionMap:
+  big-picture: 0
+  core-concepts: 1
+  practical-example: 2
+  recap: 3
 ---
 
 {/* ═══════════════════════════════════════════════════════════════
@@ -17,7 +27,9 @@ prevSession: "transformer-attention-2"
 
 <SessionSection id="goal" label="Goal">
 
-Most developers use LLMs without knowing what actually happened before the model reached them — and that blind spot causes real mistakes: fine-tuning when pre-training data is the problem, choosing the wrong alignment technique, or misreading benchmark scores. This session walks you through every stage of the modern training pipeline, from raw data collection to a quantized deployed model, and shows you exactly what the model can and cannot do after each one. After watching, you'll be able to look at any LLM and describe precisely which training stages shaped its behavior.
+## What we'll cover
+
+<SessionOutlineSlide />
 
 </SessionSection>
 

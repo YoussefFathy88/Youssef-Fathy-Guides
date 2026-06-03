@@ -1,3 +1,5 @@
+export { SessionOutlineSlide } from "./SessionOutlineSlide";
+export type { SessionOutlineSlideProps } from "./SessionOutlineSlide";
 export { NextSessionCard } from "./NextSessionCard";
 export type { NextSessionCardProps } from "./NextSessionCard";
 export { LabSessionOverview } from "./LabSessionOverview";

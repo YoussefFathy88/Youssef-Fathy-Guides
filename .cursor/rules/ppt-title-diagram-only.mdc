@@ -1,5 +1,5 @@
 ---
-description: Enforce PPT slide style as title + one animation only — no multiple animations per slide
+description: Enforce PPT slide style as title + one animation only — no multiple animations per slide, mandatory first-slide outline, and outline tracker frontmatter
 globs:
   - content/sessions/**/*.mdx
   - components/session/**/*.tsx
@@ -10,6 +10,54 @@ alwaysApply: true
 # PPT slide style (Title + One Animation only)
 
 Sessions are published on **YouTube (1080p)**. Every slide must be **instantly readable and focused**. Confusion is the enemy — one idea, one animation, one slide.
+
+## Mandatory first slide: Session Outline
+
+Every session **must** open with an outline slide as the very first thing viewers see. This is non-negotiable.
+
+### MDX Goal section (required pattern)
+
+```mdx
+<SessionSection id="goal" label="Goal">
+
+## What we'll cover
+
+<SessionOutlineSlide />
+
+</SessionSection>
+```
+
+- The `## What we'll cover` heading creates the first presenter slide in the Goal section.
+- `<SessionOutlineSlide />` receives its items automatically from the frontmatter `outline` field — **no props needed in MDX**.
+- Never put prose paragraphs in the Goal section. The outline component replaces all goal text.
+
+### Required frontmatter fields (every session)
+
+```yaml
+outline:
+  - "Topic One"          # short, noun-phrase labels — what the viewer will learn
+  - "Topic Two"
+  - "Topic Three"
+outlineSectionMap:
+  big-picture: 0         # maps SessionSection id → 0-based outline index
+  core-concepts: 1       # sections not in the map leave the tracker neutral
+  practical-example: 2
+  recap: 3
+```
+
+**Rules for `outline`:**
+- 3–6 items maximum. More than 6 overwhelms viewers.
+- Each label is a short noun phrase (≤ 5 words), not a sentence.
+- Items must correspond 1-to-1 with the teaching sections (Big Picture, Core Concepts, Practical Example, Recap).
+
+**Rules for `outlineSectionMap`:**
+- Every teaching `SessionSection` that advances the outline must appear as a key.
+- `goal` and `next-session` are intentionally omitted (they are framing, not content steps).
+- Values are 0-based integers matching the position in `outline`.
+
+### How the tracker works
+
+`PresentationShell` reads `outline` + `outlineSectionMap` from the session page and renders a persistent pill tracker in the top HUD. As the presenter navigates through slides, the tracker highlights the active outline item (violet) and dims past (teal) and future (gray) items. Sessions without `outline` in frontmatter fall back to showing the plain section label — but **all new and updated sessions must include the outline**.
 
 ## Strict slide structure (non-negotiable)
 
@@ -40,4 +88,10 @@ Session diagrams and interactives must be readable on video and in fullscreen pr
 
 Layout spacing is enforced in `SessionSection` (presenter) and MDX `h2` styles (`app/sessions/[slug]/page.tsx`). New slide-style content must avoid stacking extra elements between title and animation.
 
-When updating existing sessions, preserve this format for any newly added or edited slide content.
+## When touching an existing session
+
+If you edit any session that does not yet have the outline pattern:
+
+1. Add `outline` + `outlineSectionMap` to its frontmatter.
+2. Replace the Goal section prose with `## What we'll cover` + `<SessionOutlineSlide />`.
+3. Verify the tracker pills appear correctly in `?view=present` before finishing.

@@ -46,6 +46,7 @@ If a concept can be shown, it must be shown. Text alone is a fallback of last re
 
 | Teaching need | Prefer |
 |---|---|
+| **First slide / session outline (mandatory)** | `SessionOutlineSlide` — items auto-injected from frontmatter `outline` field; no MDX props needed |
 | Multi-step process / pipeline | `NodeFlowDiagram`, `MacroPipeline`, `DualLanePipelineDiagram` |
 | Before vs After / Compare two ideas | `ConceptCompare`, `ArchitectureComparisonDemo` |
 | Numbered phases / story | `StepSequence` (narrative), `ConceptStepper` |
@@ -99,6 +100,8 @@ Build a new one **only** when no existing component maps to the concept after a 
 
 ## What to NEVER do instead
 
+- Write prose or a bullet-point list as the Goal section content — use `SessionOutlineSlide` instead (see `.cursor/rules/ppt-title-diagram-only.mdc`)
+- Omit `outline` + `outlineSectionMap` from session frontmatter — the tracker is always required
 - Write a bullet-point list as the only content under a `##` slide heading
 - Use `StepSequence` with just three words per step when an animated diagram would show the same thing visually
 - Paste a static JSON or code block as the entire slide (use `AnnotatedCode` or `CodeEvolutionStepper`)
