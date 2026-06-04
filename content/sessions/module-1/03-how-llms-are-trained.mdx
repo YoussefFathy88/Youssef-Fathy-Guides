@@ -10,15 +10,12 @@ tags: ["training", "pretraining", "alignment"]
 nextSession: "agent-memory-types"
 prevSession: "transformer-attention-2"
 outline:
-  - "Data Engineering & Pre-Training"
-  - "Supervised Fine-Tuning"
-  - "Alignment (RLHF / DPO)"
-  - "Eval, Red-Teaming & Deployment"
-outlineSectionMap:
-  big-picture: 0
-  core-concepts: 1
-  practical-example: 2
-  recap: 3
+  - "Motivation"
+  - "What's Training"
+  - "Training Data"
+  - "Pre-Training"
+  - "Post Training & Alignment"
+  - "Recap"
 ---
 
 {/* ═══════════════════════════════════════════════════════════════
@@ -40,26 +37,39 @@ outlineSectionMap:
 
 <SessionSection id="big-picture" label="Big Picture">
 
-## The six-stage training pipeline
+<SessionSlide topic="Motivation">
 
-<PipelineTrack
-  title="The 6-Stage LLM Training Pipeline"
-  nodes={[
-    { id: "data",     label: "1 · Data Engineering", sublabel: "Clean tokens",     color: "gray"   },
-    { id: "pretrain", label: "2 · Pre-Training",      sublabel: "Base model",      color: "violet" },
-    { id: "sft",      label: "3 · SFT",               sublabel: "Instruct model",  color: "teal"   },
-    { id: "align",    label: "4 · Alignment",         sublabel: "Aligned model",   color: "amber"  },
-    { id: "eval",     label: "5 · Eval & Red Team",   sublabel: "Safe model",      color: "rose"   },
-    { id: "deploy",   label: "6 · Deployment",        sublabel: "Deployed model",  color: "blue"   },
-  ]}
-  lines={[
-    {
-      nodes: ["data", "pretrain", "sft", "align", "eval", "deploy"],
-      color: "violet",
-      label: "Training pipeline",
-    },
+## Motivation — inference is autocomplete
+
+<AutoregressiveDemo
+  title="Inference: a full Q&A generated token by token"
+  question="What is the capital of France?"
+  contextPrefix="The capital of France is"
+  tokens={["Paris", ",", " which", " is", " also", " France", "'s", " largest", " city", "."]}
+  topCandidates={[
+    { step: 0, candidates: [{ token: "Paris", prob: 0.91 }, { token: "Lyon", prob: 0.04 }, { token: "a", prob: 0.02 }] },
+    { step: 1, candidates: [{ token: ",", prob: 0.65 }, { token: ".", prob: 0.20 }, { token: " and", prob: 0.08 }] },
+    { step: 2, candidates: [{ token: " which", prob: 0.48 }, { token: " a", prob: 0.22 }, { token: " the", prob: 0.15 }] },
   ]}
 />
+
+</SessionSlide>
+
+<SessionSlide topic="Motivation">
+
+## Motivation — training changes the weights
+
+{/* TODO: Add second Motivation slide interactive */}
+
+</SessionSlide>
+
+<SessionSlide topic="What's Training">
+
+## What's Training
+
+{/* TODO: Add interactive component */}
+
+</SessionSlide>
 
 </SessionSection>
 
@@ -70,237 +80,21 @@ outlineSectionMap:
 
 <SessionSection id="core-concepts" label="Core Concepts">
 
-### Stage 1 — Data Engineering: Building the World the Model Will Learn From
+<SessionSlide topic="Training Data">
 
-<PipelineTrack
-  title="Raw Text → Training-Ready Tokens"
-  nodes={[
-    { id: "crawl",    label: "Web Crawl",        sublabel: "Raw HTML + noise",    color: "gray"   },
-    { id: "dedup",    label: "Deduplication",    sublabel: "Remove repeats",      color: "gray"   },
-    { id: "filter",   label: "Quality Filter",   sublabel: "Remove junk + PII",   color: "amber"  },
-    { id: "tokenize", label: "Tokenization",     sublabel: "Text → token IDs",    color: "violet" },
-    { id: "ready",    label: "Training Dataset", sublabel: ">15T tokens",         color: "teal"   },
-  ]}
-  lines={[
-    {
-      nodes: ["crawl", "dedup", "filter", "tokenize", "ready"],
-      color: "teal",
-      label: "Data pipeline",
-    },
-  ]}
-/>
+## Training Data
 
-### Stage 2 — Pre-Training: Learning Language and the World
+{/* TODO: Add interactive component */}
 
-<TrainingLoopSimulator
-  title="Pre-Training Loss — Watch the Model Learn"
-/>
+</SessionSlide>
 
-<AutoregressiveDemo
-  title="Base Model Autocomplete — The Problem"
-  question="What is the capital of France?"
-  contextPrefix="What is the capital of France?"
-  tokens={[
-    "What", " is", " the", " capital", " of",
-    " Germany", "?", " What", " is", " the",
-    " capital", " of", " Spain", "?"
-  ]}
-  topCandidates={[
-    {
-      step: 1,
-      candidates: [
-        { token: "What",   prob: 0.31 },
-        { token: "The",    prob: 0.28 },
-        { token: "Paris",  prob: 0.19 },
-        { token: "France", prob: 0.12 },
-      ],
-    },
-    {
-      step: 2,
-      candidates: [
-        { token: " is",  prob: 0.72 },
-        { token: " was", prob: 0.14 },
-        { token: " has", prob: 0.09 },
-        { token: " are", prob: 0.05 },
-      ],
-    },
-    {
-      step: 3,
-      candidates: [
-        { token: " the",  prob: 0.68 },
-        { token: " a",    prob: 0.15 },
-        { token: " its",  prob: 0.10 },
-        { token: " also", prob: 0.07 },
-      ],
-    },
-    {
-      step: 4,
-      candidates: [
-        { token: " capital", prob: 0.71 },
-        { token: " largest", prob: 0.12 },
-        { token: " main",    prob: 0.09 },
-        { token: " famous",  prob: 0.08 },
-      ],
-    },
-  ]}
-  autoRunDelayMs={600}
-  decisionRevealDelayMs={300}
-/>
+<SessionSlide topic="Pre-Training">
 
-### Stage 3 — Supervised Fine-Tuning: Teaching the Model to Follow Instructions
+## Pre-Training
 
-<StepSequence
-  title="SFT Training Loop — One Iteration"
-  orientation="vertical"
-  steps={[
-    {
-      number: 1,
-      phase: "Input",
-      title: "Feed a Prompt-Response Pair",
-      detail: "A human-written example: [User: What is 12 × 12?] → [Assistant: 12 × 12 = 144.] This is the target behavior we want to teach. The model sees both prompt and response during training.",
-      color: "gray",
-    },
-    {
-      number: 2,
-      phase: "Forward Pass",
-      title: "Model Predicts the Response Tokens",
-      detail: "The model sees the prompt, then tries to predict each token of the response one at a time. Same next-token prediction mechanism as pre-training — just on a much smaller, curated dataset.",
-      color: "violet",
-    },
-    {
-      number: 3,
-      phase: "Loss",
-      title: "Calculate Error on Response Tokens Only",
-      detail: "Cross-entropy loss is calculated only on the response portion — not the prompt. The model is penalized for predicting the wrong next token in the assistant's answer.",
-      color: "rose",
-    },
-    {
-      number: 4,
-      phase: "Backprop",
-      title: "Gradients Flow Backward, Weights Adjust",
-      detail: "Gradients flow backward through the network. Weights shift slightly toward the behavioral pattern: 'After a user question, produce a helpful direct answer — not a text continuation.'",
-      color: "teal",
-    },
-    {
-      number: 5,
-      phase: "Output",
-      title: "Instruct Model — Now Follows Instructions",
-      detail: "After thousands of these pairs, the model reliably answers questions, follows format instructions, and engages in dialogue. World knowledge is unchanged — only behavior is transformed.",
-      color: "blue",
-    },
-  ]}
-/>
+{/* TODO: Add interactive component */}
 
-### Stage 4 — Alignment: RLHF and DPO
-
-<StepSequence
-  title="RLHF vs DPO — Two Paths to the Same Goal"
-  orientation="vertical"
-  steps={[
-    {
-      number: 1,
-      phase: "RLHF — Step 1",
-      title: "Humans Rank Model Outputs",
-      detail: "Annotators see two responses to the same prompt and choose which is better. Criteria: helpfulness, safety, honesty. This generates a preference dataset of (prompt, chosen, rejected) triples.",
-      color: "amber",
-    },
-    {
-      number: 2,
-      phase: "RLHF — Step 2",
-      title: "Train a Reward Model",
-      detail: "A separate neural network is trained on the preference data. Given any (prompt, response), it outputs a score — higher means more human-preferred. This is the AI 'judge' that grades every future output.",
-      color: "violet",
-    },
-    {
-      number: 3,
-      phase: "RLHF — Step 3",
-      title: "RL Fine-Tuning with PPO",
-      detail: "The LLM generates responses, the Reward Model scores them, and PPO nudges LLM weights toward higher-scoring outputs. A KL penalty prevents reward hacking — the model can't drift too far from its SFT baseline.",
-      color: "rose",
-    },
-    {
-      number: 4,
-      phase: "DPO — Modern Alternative",
-      title: "Skip the Reward Model Entirely",
-      detail: "DPO uses the same (chosen, rejected) preference data but optimizes the LLM directly in one training step. No RL loop, no separate reward model. More stable and cheaper. Now the standard at Meta (Llama 3.1, Llama 4), Google, and Apple.",
-      color: "teal",
-    },
-    {
-      number: 5,
-      phase: "Output",
-      title: "Aligned Model — Values Baked In",
-      detail: "The result: a model that refuses harmful requests, gives balanced answers, and behaves helpfully across diverse prompts. Same weights as the instruct model — now shaped by what humans actually prefer.",
-      color: "blue",
-    },
-  ]}
-/>
-
-### Stage 5 — Evaluation and Red Teaming: Stress-Testing Before Release
-
-<StepSequence
-  title="Eval and Red Team — Two Gates Before Release"
-  orientation="horizontal"
-  steps={[
-    {
-      number: 1,
-      phase: "Benchmarks",
-      title: "Capability Tests on Standard Exams",
-      detail: "MMLU: 57-subject academic knowledge. HumanEval: code generation pass rate. GSM8K: math reasoning. These establish whether the model matches or exceeds prior versions on measurable, reproducible skill.",
-      color: "teal",
-    },
-    {
-      number: 2,
-      phase: "Red Teaming",
-      title: "Adversarial Safety Probing",
-      detail: "Human red teamers craft prompts designed to elicit harmful outputs — via roleplay, indirect framing, or jailbreaks. Any safety failure triggers a loop back to alignment fine-tuning with new adversarial examples added to the training set.",
-      color: "rose",
-    },
-    {
-      number: 3,
-      phase: "Gate Decision",
-      title: "Pass Both Gates or Iterate",
-      detail: "If both benchmarks and red teaming pass, the model proceeds to deployment. If red teaming reveals failures, the model returns to alignment — this loop repeats until the model clears every gate.",
-      color: "amber",
-    },
-  ]}
-/>
-
-### Stage 6 — Deployment and Optimization: Making the Model Runnable
-
-<LayerStack
-  title="Quantization — Shrinking the Model for Deployment"
-  direction="top-to-bottom"
-  layers={[
-    {
-      id: "fp32",
-      label: "FP32 — Full Precision",
-      sublabel: "32 bits per weight",
-      color: "gray",
-      detail: "Used during training for maximum numerical stability. 4× the memory of FP16. Llama 3.1 405B at FP32 = ~1.6 TB. Never used at inference.",
-    },
-    {
-      id: "fp16",
-      label: "FP16 / BF16 — Half Precision",
-      sublabel: "16 bits per weight",
-      color: "violet",
-      detail: "Standard inference precision. Llama 3.1 405B at FP16 ≈ 810 GB. Requires 8–10 high-end GPUs. Full accuracy preserved.",
-    },
-    {
-      id: "int8",
-      label: "INT8 — 8-bit Integer",
-      sublabel: "8 bits per weight · ~0.5% accuracy loss",
-      color: "teal",
-      detail: "2× smaller than FP16. Llama 3.1 405B at INT8 ≈ 405 GB. Runs on 4–5 GPUs. Minimal accuracy loss on standard benchmarks.",
-    },
-    {
-      id: "int4",
-      label: "INT4 — 4-bit Integer",
-      sublabel: "4 bits per weight · ~1–2% accuracy loss",
-      color: "amber",
-      detail: "4× smaller than FP16. Llama 3.1 405B at INT4 ≈ 200 GB. Runs on 2–3 consumer GPUs. The standard for local and cost-efficient cloud deployment.",
-    },
-  ]}
-/>
+</SessionSlide>
 
 </SessionSection>
 
@@ -311,7 +105,26 @@ outlineSectionMap:
 
 <SessionSection id="practical-example" label="Practical Example">
 
-## Same prompt at three checkpoints
+<SessionSlide topic="Post Training & Alignment">
+
+## Post Training & Alignment
+
+{/* TODO: Add interactive component */}
+
+</SessionSlide>
+
+</SessionSection>
+
+
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 5 — RECAP
+    ═══════════════════════════════════════════════════════════════ */}
+
+<SessionSection id="recap" label="Recap">
+
+<SessionSlide topic="Recap">
+
+## Same prompt — three training checkpoints
 
 <ModelBehaviorEvolution
   title="Same Prompt — Three Training Checkpoints"
@@ -355,39 +168,7 @@ outlineSectionMap:
   ]}
 />
 
-</SessionSection>
-
-
-{/* ═══════════════════════════════════════════════════════════════
-    SECTION 5 — RECAP
-    ═══════════════════════════════════════════════════════════════ */}
-
-<SessionSection id="recap" label="Recap">
-
-## What we covered
-
-<RecapTable rows={[
-  {
-    term: "Pre-training",
-    definition: "The first phase where a model learns to predict the next token on trillions of tokens of raw text, acquiring language and world knowledge through self-supervised learning.",
-  },
-  {
-    term: "Supervised Fine-Tuning (SFT)",
-    definition: "Post-training step using curated prompt-response pairs to teach the model to follow instructions — shapes behavior without changing the underlying knowledge.",
-  },
-  {
-    term: "RLHF",
-    definition: "Reinforcement Learning from Human Feedback — human preference rankings train a Reward Model, which guides RL fine-tuning to align the LLM with what people actually prefer.",
-  },
-  {
-    term: "DPO",
-    definition: "Direct Preference Optimization — the modern production alternative to RLHF that fine-tunes the LLM directly on preference pairs with no reward model or RL loop.",
-  },
-  {
-    term: "Quantization",
-    definition: "Reducing the numerical precision of model weights (e.g. FP16 → INT4) to shrink memory footprint and speed up inference, typically with less than 2% accuracy loss.",
-  },
-]} />
+</SessionSlide>
 
 </SessionSection>
 

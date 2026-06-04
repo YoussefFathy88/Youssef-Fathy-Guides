@@ -120,10 +120,41 @@ export function PresentationShell({
   const activeSectionLabel =
     slides[currentIndex]?.sectionLabel ?? slides[0]?.sectionLabel ?? "Session";
 
-  const activeOutlineIndex =
-    outlineSectionMap && activeSectionId
-      ? (outlineSectionMap[activeSectionId] ?? -1)
-      : -1;
+  const activeOutlineIndex = (() => {
+    if (!activeSectionId || !scrollerRef.current) {
+      return -1;
+    }
+
+    const slideEl = scrollerRef.current.querySelector<HTMLElement>(
+      `#${CSS.escape(activeSectionId)}`,
+    );
+    if (!slideEl) {
+      return -1;
+    }
+
+    const fromSlide = slideEl.dataset.outlineIndex;
+    if (fromSlide !== undefined && fromSlide !== "") {
+      const parsed = Number.parseInt(fromSlide, 10);
+      if (!Number.isNaN(parsed)) {
+        return parsed;
+      }
+    }
+
+    if (!outlineSectionMap) {
+      return -1;
+    }
+
+    if (activeSectionId in outlineSectionMap) {
+      return outlineSectionMap[activeSectionId];
+    }
+
+    const parentId = activeSectionId.replace(/__\d+$/, "");
+    if (parentId !== activeSectionId && parentId in outlineSectionMap) {
+      return outlineSectionMap[parentId];
+    }
+
+    return -1;
+  })();
 
   useEffect(() => {
     const handleFullscreenChange = () => {

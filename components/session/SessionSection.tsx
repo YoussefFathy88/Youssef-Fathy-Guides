@@ -1,50 +1,19 @@
 "use client";
 
-import { Children, isValidElement, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
 
 import { useSessionPresentation } from "@/components/session/PresentationContext";
+import { useOutlineTopics } from "@/components/session/OutlineTopicsContext";
+import { PresentationSlideFrame } from "@/components/session/presentation-slide-frame";
+import {
+  buildPresentationSlides,
+  collectExplicitSlides,
+} from "@/lib/session-presentation-slides";
 import { cn } from "@/lib/utils";
 
-function isH2SlideMarker(child: ReactNode): boolean {
-  if (!isValidElement(child)) {
-    return false;
-  }
-
-  const marker = (child.props as { "data-session-slide-marker"?: string } | null)?.[
-    "data-session-slide-marker"
-  ];
-  return marker === "h2";
-}
-
-function chunkPresentationChildren(children: ReactNode): ReactNode[][] {
-  const items = Children.toArray(children).filter(Boolean);
-
-  if (items.length === 0) {
-    return [[]];
-  }
-
-  const chunks: ReactNode[][] = [];
-  let current: ReactNode[] = [];
-
-  for (const child of items) {
-    if (isH2SlideMarker(child)) {
-      if (current.length > 0) {
-        chunks.push(current);
-      }
-      current = [child];
-    } else {
-      current.push(child);
-    }
-  }
-
-  if (current.length > 0) {
-    chunks.push(current);
-  }
-
-  return chunks.length > 0 ? chunks : [items];
-}
+export type { CollectedSessionSlide, PresentationSlideChunk } from "@/lib/session-presentation-slides";
 
 export interface SessionSectionProps {
   id: string;
@@ -54,6 +23,7 @@ export interface SessionSectionProps {
 
 export function SessionSection({ id, label, children }: SessionSectionProps) {
   const reducedMotion = useReducedMotion();
+  const outlineTopics = useOutlineTopics();
   const { isPresentationMode, activeSectionId } = useSessionPresentation();
   const isAnySlideInSectionActive =
     isPresentationMode &&
@@ -67,64 +37,53 @@ export function SessionSection({ id, label, children }: SessionSectionProps) {
     }
   }, [isAnySlideInSectionActive, isPresentationMode]);
 
-  const presentationChunks = useMemo(
-    () => (isPresentationMode ? chunkPresentationChildren(children) : []),
-    [children, isPresentationMode],
-  );
+  const presentationSlides = useMemo(() => {
+    if (!isPresentationMode) {
+      return [];
+    }
+
+    const explicit = collectExplicitSlides(children, outlineTopics);
+    if (explicit.length > 0) {
+      return explicit.map((slide) => ({
+        nodes: Array.isArray(slide.nodes)
+          ? slide.nodes.filter(Boolean)
+          : [slide.nodes].filter(Boolean),
+        outlineIndex: slide.outlineIndex,
+      }));
+    }
+
+    return buildPresentationSlides(children, outlineTopics);
+  }, [children, isPresentationMode, outlineTopics]);
 
   if (isPresentationMode) {
     return (
       <>
-        {presentationChunks.map((chunk, slideIndex) => {
+        {presentationSlides.map((slide, slideIndex) => {
           const slideId = slideIndex === 0 ? id : `${id}__${slideIndex}`;
+          const nodes = Array.isArray(slide.nodes) ? slide.nodes : [slide.nodes];
 
           return (
-            <section
+            <PresentationSlideFrame
               key={`${id}-slide-${slideIndex}`}
-              id={slideId}
-              aria-roledescription="slide"
-              data-session-label={label}
-              data-session-section="true"
-              data-presentation-slide="true"
-              data-session-section-label={label}
-              className="flex h-[100dvh] snap-start snap-always flex-col justify-center overflow-hidden pb-4 pt-28 sm:pt-32"
+              slideId={slideId}
+              sectionLabel={label}
+              outlineIndex={slide.outlineIndex}
+              revealCycle={revealCycle}
             >
-              <motion.div
-                key={`${slideId}-${revealCycle}`}
-                initial="hidden"
-                animate="visible"
-                variants={{
-                  hidden: {},
-                  visible: {
-                    transition: {
-                      delayChildren: reducedMotion ? 0 : 0.08,
-                      staggerChildren: reducedMotion ? 0 : 0.09,
-                    },
-                  },
-                }}
-                className="flex max-h-full w-full flex-col overflow-hidden rounded-[32px] border border-gray-800/80 bg-gray-950/70 px-6 pb-8 pt-8 shadow-[0_32px_80px_-48px_rgba(15,23,42,0.85)] backdrop-blur sm:px-8 sm:pb-10 sm:pt-10 lg:px-12 lg:pb-12 lg:pt-12"
-              >
-                <div className="mb-8 flex items-center gap-3 border-b border-gray-800/70 pb-6 text-xs font-semibold uppercase tracking-[0.24em] text-violet-200/75 sm:mb-10 sm:pb-8">
-                  <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full bg-violet-400" />
-                  {label}
-                </div>
-
-                <div className="flex min-h-0 flex-1 flex-col gap-10 overflow-y-auto sm:gap-12">
-                  {chunk.map((child, index) => (
-                    <motion.div
-                      key={`${slideId}-${revealCycle}-${index}`}
-                      variants={{
-                        hidden: { opacity: 0, y: reducedMotion ? 0 : 18 },
-                        visible: { opacity: 1, y: 0 },
-                      }}
-                      transition={{ duration: reducedMotion ? 0.18 : 0.4, ease: "easeOut" }}
-                    >
-                      {child}
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            </section>
+              {nodes.map((child, index) => (
+                <motion.div
+                  key={`${slideId}-${revealCycle}-${index}`}
+                  variants={{
+                    hidden: { opacity: 0, y: reducedMotion ? 0 : 18 },
+                    visible: { opacity: 1, y: 0 },
+                  }}
+                  transition={{ duration: reducedMotion ? 0.18 : 0.4, ease: "easeOut" }}
+                  className="min-h-0 shrink"
+                >
+                  {child}
+                </motion.div>
+              ))}
+            </PresentationSlideFrame>
           );
         })}
       </>
@@ -145,8 +104,7 @@ export function SessionSection({ id, label, children }: SessionSectionProps) {
         "[&:first-of-type]:border-transparent [&:first-of-type]:pt-0 [&:last-of-type]:pt-8",
       )}
     >
-      {/* Slide-style MDX stacks ## then diagram repeatedly; add air before each ## after the first block */}
-      <div className="flex flex-col [&>*+h2]:mt-16 sm:[&>*+h2]:mt-24">
+      <div className="flex flex-col gap-16 sm:gap-24 [&_[data-session-slide-marker=slide]]:scroll-mt-28">
         {children}
       </div>
     </motion.section>

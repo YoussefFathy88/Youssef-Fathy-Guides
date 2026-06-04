@@ -146,13 +146,52 @@ Diagram-first sessions (especially presenter / title–diagram slides) must stay
 - **Spacing:** There must be clear space between each **`##` slide title** and the diagram below it (handled by session layout — do not defeat it by wrapping headings and visuals in tight custom blocks).
 - **Multiple slides in one section:** In normal (article) view, repeated `##` + diagram pairs inside the same `SessionSection` get extra margin above every **`##` after the first block** so the next title does not sit flush under the previous diagram (`SessionSection` wrapper + `h2` margins in `app/sessions/[slug]/page.tsx`).
 
+### Multiple full-screen slides under one outline topic
+
+Use one **`SessionSlide`** per presenter slide (full viewport each — no scrolling inside the card). Tag slides with **`topic`** matching a frontmatter `outline` label:
+
+```mdx
+<SessionSection id="big-picture" label="Big Picture">
+
+<SessionSlide topic="Motivation">
+
+## Motivation — first idea
+
+<SomeInteractive />
+
+</SessionSlide>
+
+<SessionSlide topic="Motivation">
+
+## Motivation — second idea
+
+<AnotherInteractive />
+
+</SessionSlide>
+
+<SessionSlide topic="What's Training">
+
+## What's Training
+
+<NextInteractive />
+
+</SessionSlide>
+
+</SessionSection>
+```
+
+- **`topic`** — string tag (e.g. `"Motivation"`) must match an `outline` item; the HUD pill stays active on every slide with that tag.
+- **`index={0}`** — optional 0-based alternative to `topic`.
+- Prev/Next moves between slides; the outer page scrolls, not the slide card.
+- Legacy: `SessionOutlineGroup` + bare `##` still work, but prefer `SessionSlide` for explicit one-slide-per-screen authoring.
+
 See also `.cursor/rules/ppt-title-diagram-only.mdc`.
 
 ### Content rules
 
 - Keep the six `SessionSection` blocks in this exact order: `goal`, `big-picture`, `core-concepts`, `practical-example`, `recap`, `next-session`
 - Do not write MDX import statements
-- Never nest one custom component inside another custom component
+- Never nest one custom component inside another custom component (exception: `SessionOutlineGroup` inside `SessionSection` for multi-slide outline topics)
 - Use one component per concept block; do not place two custom components back to back without narration in between
 - Keep narration blocks to 3 sentences maximum
 - Use `RecapTable` only in Section 5 and no extra prose inside that section except the `## What we covered` heading

@@ -10,7 +10,12 @@ export { SessionProgressNav } from "./SessionProgressNav";
 export type { SessionProgressNavProps } from "./SessionProgressNav";
 export { PresentationShell } from "./PresentationShell";
 export { SessionSection } from "./SessionSection";
-export type { SessionSectionProps } from "./SessionSection";
+export type { SessionSectionProps, PresentationSlideChunk } from "./SessionSection";
+export { SessionOutlineGroup } from "./SessionOutlineGroup";
+export type { SessionOutlineGroupProps } from "./SessionOutlineGroup";
+export { SessionSlide } from "./SessionSlide";
+export type { SessionSlideProps } from "./SessionSlide";
+export { OutlineTopicsProvider, resolveOutlineIndex } from "./OutlineTopicsContext";
 export { RagLabSystemArchitecture } from "./RagLabSystemArchitecture";
 export type {
   RagLabArchitectureSection,

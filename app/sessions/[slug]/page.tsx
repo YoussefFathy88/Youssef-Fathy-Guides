@@ -12,6 +12,9 @@ import {
   RagLabSystemArchitecture,
   RecapTable,
   SessionOutlineSlide,
+  SessionOutlineGroup,
+  SessionSlide,
+  OutlineTopicsProvider,
   SessionProgressNav,
   SessionSection,
 } from "@/components/session";
@@ -163,6 +166,8 @@ const sessionSectionOverrides: Record<string, SessionSection[]> = {
 function getMdxComponents(isPresentationMode: boolean, outline?: string[]) {
   return {
     SessionSection,
+    SessionOutlineGroup,
+    SessionSlide,
     SessionOutlineSlide: (props: Omit<ComponentPropsWithoutRef<typeof SessionOutlineSlide>, "items">) => (
       <SessionOutlineSlide items={outline ?? []} {...props} />
     ),
@@ -439,15 +444,17 @@ export default async function SessionPage({ params, searchParams }: SessionPageP
     if (isPresentationMode) {
       return (
         <main className="relative h-[100dvh] overflow-hidden bg-[#060914]">
-          <PresentationShell
-            slug={slug}
-            module={frontmatter.module}
-            moduleName={frontmatter.moduleName}
-            outline={frontmatter.outline}
-            outlineSectionMap={frontmatter.outlineSectionMap}
-          >
-            <MDXRemote source={content} components={mdxComponents} />
-          </PresentationShell>
+          <OutlineTopicsProvider topics={frontmatter.outline ?? []}>
+            <PresentationShell
+              slug={slug}
+              module={frontmatter.module}
+              moduleName={frontmatter.moduleName}
+              outline={frontmatter.outline}
+              outlineSectionMap={frontmatter.outlineSectionMap}
+            >
+              <MDXRemote source={content} components={mdxComponents} />
+            </PresentationShell>
+          </OutlineTopicsProvider>
         </main>
       );
     }
