@@ -80,6 +80,9 @@ import {
   TransformerSubstackExplorer,
   GradientInstabilityExplorer,
   ModelBehaviorEvolution,
+  Gpt3DataSourcesExplorer,
+  CommonCrawlPreparationFlow,
+  PreTrainingLoopExplorer,
   LinearMappingGraph,
   LinearRegressionTrainingExplorer,
   LinearChainGradientExplorer,
@@ -245,6 +248,9 @@ function getMdxComponents(isPresentationMode: boolean, outline?: string[]) {
   GradientInstabilityExplorer,
   // Training pipeline components
   ModelBehaviorEvolution,
+  Gpt3DataSourcesExplorer,
+  CommonCrawlPreparationFlow,
+  PreTrainingLoopExplorer,
   // Foundational concept components
   LinearMappingGraph,
   LinearRegressionTrainingExplorer,

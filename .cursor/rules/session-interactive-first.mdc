@@ -118,5 +118,5 @@ If you touch a session and notice a slide that is currently just a `StepSequence
 
 ## Cross-rule dependencies
 
-- Every interactive built here must also satisfy `.cursor/rules/session-video-legibility.mdc` (large type, contrast, generous padding)
+- Every interactive built here must also satisfy `.cursor/rules/session-video-legibility.mdc` (large type, contrast, generous padding, **one-screen presenter fit** — big text + short copy, no tall stacked duplicates)
 - Every slide must satisfy `.cursor/rules/ppt-title-diagram-only.mdc` (one `##` heading + one animation only)

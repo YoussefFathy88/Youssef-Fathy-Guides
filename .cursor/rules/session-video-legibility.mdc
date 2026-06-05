@@ -47,7 +47,40 @@ If in doubt between two sizes — always pick the **larger** one. Fewer words at
 - **Outer panels:** `p-8 md:p-10` for full-slide interactives; `space-y-6`–`space-y-10` between major blocks
 - **Inner cards:** `p-5 md:p-6` minimum
 - **Chips / pills:** `py-3 px-4` minimum; hero rows `text-lg md:text-2xl` with `ring-1` or border for separation on video
-- Do not shrink padding to fit more content — remove content instead
+- Do not shrink padding to fit more content — **remove content instead**
+
+## Presenter viewport fit — one screen, no scroll (mandatory)
+
+Interactives are shown under a large `##` title in **presenter mode** (`?view=present`). The animation must **fit on one slide** below the HUD and title — not a tall scrollable page.
+
+**Design for the slide, not the article view.**
+
+### What “fits” means
+
+- The **active step** of an animation should be readable **without vertical scrolling** on a 1080p presenter viewport.
+- **Clear, big text** (see typography table above) **and** **short copy** — large type does not excuse long paragraphs.
+- Prefer **one teaching frame per step**: e.g. stage header → **Before / After** → optional one-line **Data at this stage** footer. Good reference: `CommonCrawlPreparationFlow` after slim-down.
+- Use **internal step-through** (Prev / Play / Next, tabs, phases) to reveal more — **never stack duplicate panels** on the same step (e.g. Input/Action/Output + “At a glance” + full walkthrough = too tall for PPT).
+
+### Copy length limits (teaching UI)
+
+- **Before / After labels:** 2–4 words (`Before`, `After`, or `Before — plain text`).
+- **Body lines:** 1–2 short sentences per panel, or a **small concrete example** (URL, one HTML line, token grid preview) — not walls of text.
+- **Monospace / JSON / WARC snippets:** show the **minimum** that teaches the idea; truncate with `…` when the full payload is not needed on video.
+- **Token grids / tables:** preview **4–6 items** per row on slide-scale panels; “… + N more” for the rest.
+- If the idea needs more detail → **next step** or **next slide**, not smaller text or more stacked sections.
+
+### Anti-patterns (reject on sight)
+
+- Three or more **independent vertical sections** teaching the same step (summary cards + hero diagram + full walkthrough).
+- Tiny SVG or `text-sm` labels in a large empty box — use **HTML + large type**, not illegible diagram placeholders.
+- Scrolling the presenter slide to read the animation — split the component or add steps.
+
+### When building or editing animations
+
+1. **Large type first** — never ship small text to “fit more in.”
+2. **Then cut height** — remove duplicate sections until the active step fits one screen.
+3. **Spot-check** in `?view=present` before finishing; if you must scroll, simplify.
 
 ## SVG and diagrams
 

@@ -85,6 +85,7 @@ Session diagrams and interactives must be readable on video and in fullscreen pr
 - **Diagram:** Generous padding inside the canvas, clear hierarchy (one main idea per slide), labels that read without squinting at 1080p.
 - **Animation:** Motions easy to follow — predictable timing, not overcrowded. One thing animates at a time where possible. Respect `prefers-reduced-motion` where the component supports it.
 - **Spacing:** Clear vertical space between the `##` title and the animation component — no cramming.
+- **Viewport fit:** The interactive must fit **one presenter screen** without scroll — clear **big** text, **short** copy, step-through for depth. See `.cursor/rules/session-video-legibility.mdc` § Presenter viewport fit. One visual frame per internal step (not Input + Action + Output + walkthrough stacked).
 
 Layout spacing is enforced in `SessionSection` (presenter) and MDX `h2` styles (`app/sessions/[slug]/page.tsx`). New slide-style content must avoid stacking extra elements between title and animation.
 

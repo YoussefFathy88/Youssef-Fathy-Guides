@@ -69,6 +69,12 @@ export { default as TransformerSubstackExplorer } from "../session/TransformerSu
 export { default as GradientInstabilityExplorer } from "../session/GradientInstabilityExplorer";
 // Training pipeline components
 export { default as ModelBehaviorEvolution } from "../session/ModelBehaviorEvolution";
+export { default as Gpt3DataSourcesExplorer } from "../session/Gpt3DataSourcesExplorer";
+export type { Gpt3DataSource, Gpt3DataSourcesExplorerProps } from "../session/Gpt3DataSourcesExplorer";
+export { default as CommonCrawlPreparationFlow } from "../session/CommonCrawlPreparationFlow";
+export type { CommonCrawlStage, CommonCrawlPreparationFlowProps, StageWalkthrough } from "../session/CommonCrawlPreparationFlow";
+export { default as PreTrainingLoopExplorer } from "../session/PreTrainingLoopExplorer";
+export type { PreTrainingStep, PreTrainingLoopExplorerProps } from "../session/PreTrainingLoopExplorer";
 // Foundational concept components
 export { default as LinearMappingGraph } from "../session/LinearMappingGraph";
 export { default as LinearRegressionTrainingExplorer } from "../session/LinearRegressionTrainingExplorer";

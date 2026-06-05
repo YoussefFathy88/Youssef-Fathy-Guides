@@ -101,6 +101,9 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | Self-attention explorer — built-in **The capital of Egypt is Cairo** (six tokens), **The cat sat** (three-token Q/K/V lesson), or legacy `queries`/`attentionRows` | `SelfAttentionScoreExplorer` |
 | Full Transformer pipeline walkthrough — **six-phase macro strip** + stage cards, chip trays (`title` = `detail` tooltip), step panel | `TransformerPipelineWalkthrough` |
 | Three-panel side-by-side token animation showing Base → Instruct → Aligned model responses | `ModelBehaviorEvolution` |
+| Tabbed GPT-3 data-source explorer — five corpora + raw-size vs training-weight compare | `Gpt3DataSourcesExplorer` |
+| Step-through Common Crawl pipeline — 10 prep stages + user inference, Input/Action/Output cards | `CommonCrawlPreparationFlow` |
+| Tabbed pre-training loop — 10 steps (init → checkpoint → done), checkpoint scrubber shows Paris rising | `PreTrainingLoopExplorer` |
 | SVG coordinate-plane step-through: y = mx + c, known points → derive weights → animate line | `LinearMappingGraph` |
 | Word embedding vectors as arrows from origin — cluster hulls, click-to-inspect raw numbers, staggered entrance animation | `EmbeddingVectorExplorer` |
 | Interactive angle → cosine score: two vector arrows, arc θ, dashed projection, sliders, preset word pairs | `CosineSimilarityExplorer` |
@@ -1906,6 +1909,101 @@ interface ModelBehaviorEvolutionProps {
   caption: string;
   prompt: string;               // the single shared prompt shown above all panels
   stages: ModelBehaviorStage[]; // exactly 3 items: Base → Instruct → Aligned
+}
+```
+
+---
+
+### Gpt3DataSourcesExplorer
+
+**Description:** Tabbed interactive for GPT-3 pre-training data sources. Six tabs: Common Crawl, WebText2, Books1, Books2, Wikipedia, and a Compare panel. Each source tab shows What / How filtered cards, an SVG diagram, and animated bars for raw corpus size vs training mix weight. Compare tab side-by-side bars highlight that raw size ≠ training weight (Wikipedia quality, books oversampling). Defaults are baked in — zero MDX props required.
+
+```ts
+type AccentColor = "amber" | "rose" | "violet" | "blue" | "teal";
+
+interface Gpt3DataSource {
+  id: string;
+  label: string;
+  shortLabel: string;
+  emoji: string;
+  color: AccentColor;
+  what: string;
+  filter: string;
+  rawTokensB: number;
+  weightPercent: number;
+  note?: string;
+}
+
+interface Gpt3DataSourcesExplorerProps {
+  title?: string;       // default "GPT-3 training data — five sources"
+  caption?: string;
+  sources?: Gpt3DataSource[];  // optional override; defaults to GPT-3 paper sources
+}
+```
+
+---
+
+### CommonCrawlPreparationFlow
+
+**Description:** Step-through pipeline from one web page to trained weights. Each stage shows **Before / After** (only) plus **Data at this stage** footer. Running example on the same article; token stages use a two-row grid (word + ID). Progress strip + Prev / Play / Next. Defaults baked in.
+
+```ts
+type AccentColor = "amber" | "teal" | "rose" | "violet" | "blue";
+
+interface CommonCrawlStage {
+  id: string;
+  number: number;
+  label: string;
+  phase: string;
+  emoji: string;
+  color: AccentColor;
+  transform: string;
+  walkthrough?: StageWalkthrough;
+  verdict?: "pass" | "discard" | "neutral";
+}
+
+type StageWalkthrough =
+  | { mode: "text"; beforeLabel?: string; afterLabel?: string; before: string; after: string }
+  | { mode: "token-grid"; beforeLabel?: string; afterLabel?: string; beforeText?: string; tokens: string[]; ids: number[] }
+  | { mode: "chunk-split"; streamTokens: string[]; streamIds: number[]; chunkIndex: number; chunkSize: number; totalChunks: string }
+  | { mode: "input-target"; inputTokens: string[]; inputIds: number[]; targetTokens: string[]; targetIds: number[]; highlightPosition?: number }
+  | { mode: "filter-score"; document: string; score: number; threshold: number }
+  | { mode: "language"; document: string; detected: string }
+  | { mode: "dedup"; document: string; hash: string; kept: boolean }
+  | { mode: "training-batch"; batchSize: number; pair: { inputTokens: string[]; inputIds: number[]; targetTokens: string[]; targetIds: number[] } }
+  | { mode: "inference"; question: string; answer: string };
+
+interface CommonCrawlPreparationFlowProps {
+  title?: string;
+  caption?: string;
+  stages?: CommonCrawlStage[];
+  autoPlayIntervalMs?: number;  // default 2800
+}
+```
+
+---
+
+### PreTrainingLoopExplorer
+
+**Description:** Tabbed interactive for the LLM pre-training loop. Ten tabs walk through init → batch → forward → loss → backward → optimizer → repeat → monitor → checkpoint → done. A shared running example (`The capital of France is ?`) ties every step together. **Repeat** tab includes checkpoint pills (Init → Trained), Play/Pause, loss/tokens-seen stats, and animated probability bars showing Paris rising from garbage to 91%. Prev/Next for presenter walkthrough. Defaults baked in — zero MDX props required.
+
+```ts
+type AccentColor = "amber" | "teal" | "rose" | "violet" | "blue" | "gray";
+
+interface PreTrainingStep {
+  id: string;
+  number: number;
+  shortLabel: string;
+  label: string;
+  emoji: string;
+  color: AccentColor;
+  summary: string;
+}
+
+interface PreTrainingLoopExplorerProps {
+  title?: string;
+  caption?: string;
+  steps?: PreTrainingStep[];  // optional override; defaults to 10-step loop
 }
 ```
 
