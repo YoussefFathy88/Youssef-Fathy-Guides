@@ -83,6 +83,10 @@ import {
   Gpt3DataSourcesExplorer,
   CommonCrawlPreparationFlow,
   PreTrainingLoopExplorer,
+  SupervisedFineTuningExplorer,
+  RLHFExplorer,
+  DPOExplorer,
+  LLMEvaluationExplorer,
   LinearMappingGraph,
   LinearRegressionTrainingExplorer,
   LinearChainGradientExplorer,
@@ -141,6 +145,15 @@ type SessionSection = { id: string; label: string };
 
 // Per-slug section overrides for sessions that extend the standard six-section layout.
 const sessionSectionOverrides: Record<string, SessionSection[]> = {
+  "how-llms-are-trained": [
+    { id: "goal", label: "Goal" },
+    { id: "big-picture", label: "Big Picture" },
+    { id: "core-concepts", label: "Core Concepts" },
+    { id: "practical-example", label: "Practical Example" },
+    { id: "evaluation", label: "Evaluation" },
+    { id: "recap", label: "Recap" },
+    { id: "next-session", label: "Next Session" },
+  ],
   "introduction-to-rag-lab": [
     { id: "goal", label: "Goal" },
     { id: "big-picture", label: "Big Picture" },
@@ -251,6 +264,10 @@ function getMdxComponents(isPresentationMode: boolean, outline?: string[]) {
   Gpt3DataSourcesExplorer,
   CommonCrawlPreparationFlow,
   PreTrainingLoopExplorer,
+  SupervisedFineTuningExplorer,
+  RLHFExplorer,
+  DPOExplorer,
+  LLMEvaluationExplorer,
   // Foundational concept components
   LinearMappingGraph,
   LinearRegressionTrainingExplorer,

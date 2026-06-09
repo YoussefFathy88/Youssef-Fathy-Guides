@@ -3,6 +3,12 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useId, useState } from "react";
 
+import {
+  buildGpt3CompareRows,
+  buildGpt3DataSources,
+  getGpt3DiagramLabel,
+  getGpt3MaxRawTokensB,
+} from "@/data/facts/gpt3-training-data";
 import { cn } from "@/lib/utils";
 
 type AccentColor = "amber" | "rose" | "violet" | "blue" | "teal";
@@ -15,6 +21,7 @@ export interface Gpt3DataSource {
   color: AccentColor;
   what: string;
   filter: string;
+  filterSteps?: string[];
   rawTokensB: number;
   weightPercent: number;
   note?: string;
@@ -67,73 +74,9 @@ const ACCENT: Record<
   },
 };
 
-const DEFAULT_SOURCES: Gpt3DataSource[] = [
-  {
-    id: "common-crawl",
-    label: "Common Crawl (Filtered)",
-    shortLabel: "Common Crawl",
-    emoji: "🌐",
-    color: "amber",
-    what: "Billions of raw web pages copied from the public internet.",
-    filter: "Quality classifier trained on WebText filters out low-quality pages.",
-    rawTokensB: 410,
-    weightPercent: 60,
-  },
-  {
-    id: "webtext2",
-    label: "WebText2",
-    shortLabel: "WebText2",
-    emoji: "⬆️",
-    color: "rose",
-    what: "Web pages that Reddit users shared and upvoted (3+ karma).",
-    filter: "Reddit karma is the natural quality filter — humans already picked the good links.",
-    rawTokensB: 19,
-    weightPercent: 22,
-  },
-  {
-    id: "books1",
-    label: "Books1",
-    shortLabel: "Books1",
-    emoji: "📖",
-    color: "violet",
-    what: "Unpublished books from self-publishing platforms (mainly BookCorpus / Smashwords).",
-    filter: "Standard quality checks plus deduplication.",
-    rawTokensB: 12,
-    weightPercent: 8,
-    note: "Combined with Books2 → 16% training weight.",
-  },
-  {
-    id: "books2",
-    label: "Books2",
-    shortLabel: "Books2",
-    emoji: "📚",
-    color: "blue",
-    what: "A broader collection of books — believed to include published copyrighted titles.",
-    filter: "Same quality checks and deduplication as Books1.",
-    rawTokensB: 55,
-    weightPercent: 8,
-    note: "Books are oversampled — the model sees them multiple times during training.",
-  },
-  {
-    id: "wikipedia",
-    label: "Wikipedia (English)",
-    shortLabel: "Wikipedia",
-    emoji: "📝",
-    color: "teal",
-    what: "All English Wikipedia articles — clean, structured, factual text.",
-    filter: "Almost no filtering needed — already high quality.",
-    rawTokensB: 3,
-    weightPercent: 3,
-    note: "Smallest source by size, but still 3% weight because quality is so high.",
-  },
-];
-
-const COMPARE_ROWS = [
-  { label: "Common Crawl", raw: 410, weight: 60, color: "amber" as AccentColor },
-  { label: "WebText2", raw: 19, weight: 22, color: "rose" as AccentColor },
-  { label: "Books1 + Books2", raw: 67, weight: 16, color: "violet" as AccentColor },
-  { label: "Wikipedia", raw: 3, weight: 3, color: "teal" as AccentColor },
-];
+const DEFAULT_SOURCES: Gpt3DataSource[] = buildGpt3DataSources();
+const COMPARE_ROWS = buildGpt3CompareRows();
+const MAX_RAW_TOKENS_B = getGpt3MaxRawTokensB();
 
 function SourceDiagram({ sourceId, accent }: { sourceId: string; accent: AccentColor }) {
   const stroke = ACCENT[accent].diagram;
@@ -174,7 +117,7 @@ function SourceDiagram({ sourceId, accent }: { sourceId: string; accent: AccentC
           </g>
         ))}
         <text x="280" y="188" textAnchor="middle" fill="white" fontSize="18" fontWeight="700">
-          Reddit upvotes = quality filter
+          {getGpt3DiagramLabel("webtext2")}
         </text>
       </svg>
     );
@@ -198,7 +141,7 @@ function SourceDiagram({ sourceId, accent }: { sourceId: string; accent: AccentC
           />
         ))}
         <text x="280" y="188" textAnchor="middle" fill="white" fontSize="18" fontWeight="700">
-          Self-published books
+          {getGpt3DiagramLabel("books1")}
         </text>
       </svg>
     );
@@ -222,7 +165,7 @@ function SourceDiagram({ sourceId, accent }: { sourceId: string; accent: AccentC
           />
         ))}
         <text x="280" y="188" textAnchor="middle" fill="white" fontSize="18" fontWeight="700">
-          Broader book collection (incl. published)
+          {getGpt3DiagramLabel("books2")}
         </text>
       </svg>
     );
@@ -239,7 +182,7 @@ function SourceDiagram({ sourceId, accent }: { sourceId: string; accent: AccentC
         <line x1="180" y1="124" x2="360" y2="124" stroke={stroke} strokeWidth="2" opacity="0.35" />
         <line x1="180" y1="144" x2="340" y2="144" stroke={stroke} strokeWidth="2" opacity="0.25" />
         <text x="280" y="188" textAnchor="middle" fill="white" fontSize="18" fontWeight="700">
-          Clean · structured · factual
+          {getGpt3DiagramLabel("wikipedia")}
         </text>
       </svg>
     );
@@ -283,7 +226,7 @@ function MetricBar({
 
 function SourcePanel({ source }: { source: Gpt3DataSource }) {
   const tone = ACCENT[source.color];
-  const maxRaw = 410;
+  const maxRaw = MAX_RAW_TOKENS_B;
 
   return (
     <motion.div
@@ -313,7 +256,20 @@ function SourcePanel({ source }: { source: Gpt3DataSource }) {
         </div>
         <div className={cn("rounded-2xl border-2 p-5 ring-1 md:p-6", tone.ring, "border-gray-700 bg-gray-900/70")}>
           <p className="text-base font-bold uppercase tracking-wide text-gray-300 md:text-lg">How filtered</p>
-          <p className="mt-3 text-lg leading-relaxed text-gray-100 md:text-xl">{source.filter}</p>
+          {source.filterSteps && source.filterSteps.length > 0 ? (
+            <ul className="mt-3 space-y-2 text-lg leading-relaxed text-gray-100 md:text-xl">
+              {source.filterSteps.map((step) => (
+                <li key={step} className="flex gap-3">
+                  <span className="font-bold text-gray-400" aria-hidden>
+                    •
+                  </span>
+                  <span>{step}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-3 text-lg leading-relaxed text-gray-100 md:text-xl">{source.filter}</p>
+          )}
         </div>
       </div>
 
@@ -344,7 +300,7 @@ function SourcePanel({ source }: { source: Gpt3DataSource }) {
 }
 
 function ComparePanel() {
-  const maxRaw = 410;
+  const maxRaw = MAX_RAW_TOKENS_B;
   const maxWeight = 60;
 
   return (
@@ -358,7 +314,7 @@ function ComparePanel() {
       <div>
         <h3 className="text-2xl font-bold text-white md:text-3xl">Raw size vs training weight</h3>
         <p className="mt-2 text-lg text-gray-200 md:text-xl">
-          Bigger corpus does not mean higher weight — quality drives how often each source is sampled.
+          Training picks from five sources by quality — not by raw size alone.
         </p>
       </div>
 
@@ -395,23 +351,13 @@ function ComparePanel() {
           </div>
         ))}
       </div>
-
-      <div className="rounded-2xl border-2 border-teal-500/40 bg-teal-950/30 p-5 md:p-6">
-        <p className="text-base font-bold uppercase tracking-wide text-teal-200 md:text-lg">Key insight</p>
-        <ul className="mt-4 space-y-3 text-lg leading-relaxed text-gray-100 md:text-xl">
-          <li>Wikipedia is the smallest source (3B tokens) but still gets 3% — it is extremely clean and factual.</li>
-          <li>Books are oversampled: 67B raw tokens become 16% of training because long-form prose teaches structure.</li>
-          <li>Common Crawl is huge (410B) but filtered hard — only 60% of the final mix after quality scoring.</li>
-          <li>Total combined corpus: ~300 billion tokens used for GPT-3 pre-training.</li>
-        </ul>
-      </div>
     </motion.div>
   );
 }
 
 export default function Gpt3DataSourcesExplorer({
   title = "GPT-3 training data — five sources",
-  caption = "Tap each source to see what it is, how it was filtered, and how raw size compares to training weight.",
+  caption = "Tap each source — what it is, how it was cleaned, and how size compares to training weight.",
   sources = DEFAULT_SOURCES,
 }: Gpt3DataSourcesExplorerProps) {
   const reducedMotion = useReducedMotion();
@@ -436,7 +382,7 @@ export default function Gpt3DataSourcesExplorer({
       <div
         className="mt-6 flex flex-wrap gap-2 md:mt-8 md:gap-3"
         role="tablist"
-        aria-label="GPT-3 data sources"
+        aria-label="data sources"
       >
         {sources.map((source) => {
           const isActive = activeTab === source.id;

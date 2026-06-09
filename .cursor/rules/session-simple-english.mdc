@@ -1,0 +1,58 @@
+---
+description: Use plain simple English in all teaching copy — avoid jargon and complicated terms on slides
+globs:
+  - content/sessions/**/*.mdx
+  - components/session/**/*.tsx
+  - data/facts/**
+  - docs/component-gallery.md
+  - .cursor/skills/session-authoring/**
+alwaysApply: true
+---
+
+# Simple English for teaching (mandatory)
+
+Joee's audience watches on **YouTube**. Every label, step name, caption, and body line must use **plain simple English** — not academic, engineer-only, or insider wording.
+
+**If a viewer would need to pause and Google a word, simplify it.**
+
+## Default rule
+
+- **Short words** over long ones: "remove duplicates" not "deduplication"
+- **Say what happens** in everyday language: "bot saves the page" not "WARC archive ingestion"
+- **One idea per line** — cut filler and nested clauses
+- **Prefer verbs** viewers can picture: crawl, strip, score, drop, split, train
+
+## Banned on slides (replace or explain)
+
+| Avoid | Use instead |
+|---|---|
+| deduplication | remove duplicates |
+| WARC / payload / ingestion | saved copy / saved file |
+| classifier (alone) | quality checker / score pages |
+| positive/negative examples | good examples / bad examples |
+| undersampled / oversampled | seen less often / seen more often |
+| tokenization (if avoidable) | split into tokens — OK when teaching tokens |
+| MinHash / fuzzy dedup | page fingerprint / near-duplicate check |
+| Shift +1 / autoregressive (alone) | each token predicts the next one |
+| corpus / augment / curated (alone) | dataset / add / hand-picked good sources |
+
+Technical terms (**token**, **batch**, **loss**, **weights**) are fine when they are the lesson — not as filler.
+
+## Accuracy still applies
+
+Simple ≠ wrong. Follow `.cursor/rules/content-accuracy-all-topics.mdc` — **`web_search` before writing**, cite sources, flag uncertainty. When the paper uses a precise term, teach the **idea** in simple words (e.g. "quality checker trained on good web pages and books").
+
+## Pedagogical shorthand
+
+Labels like "self-published books" or "published books" are allowed when tagged `pedagogical` in `data/facts/*.ts` — keep them **short and plain**.
+
+## When editing
+
+1. Read every user-visible string aloud as if presenting to a beginner.
+2. Replace jargon before shrinking font or removing rows.
+3. Fix **all** labels on the same slide together — summary, tabs, footer, diagram text.
+
+## Cross-rule dependencies
+
+- **Legibility** (`.cursor/rules/session-video-legibility.mdc`) — large type + **short simple copy**
+- **Accuracy** (`.cursor/rules/content-accuracy-all-topics.mdc`, `session-educational-accuracy.mdc`) — simple words, correct mechanisms

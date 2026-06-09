@@ -1,0 +1,79 @@
+{
+  "citation": {
+    "paper": "Brown et al. 2020 — Language Models are Few-Shot Learners",
+    "arxiv": "2005.14165",
+    "sections": ["§2.2", "§4.1", "Appendix A", "Appendix C"],
+    "tables": ["Table 2.2"]
+  },
+  "trainingTokenBudgetB": 300,
+  "corpusTotalTokensB": 499,
+  "weightPercentPublishedSum": 101,
+  "weightPercentSumNote": "Table 2.2 rows sum to 101% as published (rounding)",
+  "commonCrawl": {
+    "monthlySnapshots": 41,
+    "yearRange": "2016–2019",
+    "rawTbBeforeFilter": 45,
+    "filteredTokensB": 410
+  },
+  "classifier": {
+    "appliesTo": "Common Crawl only",
+    "method": "Logistic regression quality scorer",
+    "positiveExamples": ["WebText", "Wikipedia", "books corpus"],
+    "negativeExamples": ["unfiltered Common Crawl"],
+    "sourceRef": "Appendix A"
+  },
+  "booksFiltering": {
+    "paperDisclosure": "Internet-based books corpora only — no public detail on book-specific filters",
+    "mlClassifier": false,
+    "sourceRef": "§2.2"
+  },
+  "sharedFilters": {
+    "deduplication": "Fuzzy document dedup within and across all five datasets",
+    "benchmarkOverlap": "13-gram overlap with test/dev benchmarks is dropped",
+    "benchmarkOverlapBug": "Paper reports a filtering bug caused partial benchmark leakage (§4.1)",
+    "sourceRef": ["Appendix A", "Appendix C", "§4.1"]
+  },
+  "sources": [
+    {
+      "id": "common-crawl",
+      "rawTokensB": 410,
+      "weightPercent": 60,
+      "epochsAt300B": 0.44,
+      "sampling": "undersampled"
+    },
+    {
+      "id": "webtext2",
+      "rawTokensB": 19,
+      "weightPercent": 22,
+      "epochsAt300B": 2.9,
+      "sampling": "oversampled"
+    },
+    {
+      "id": "books1",
+      "rawTokensB": 12,
+      "weightPercent": 8,
+      "epochsAt300B": 1.9,
+      "sampling": "oversampled"
+    },
+    {
+      "id": "books2",
+      "rawTokensB": 55,
+      "weightPercent": 8,
+      "epochsAt300B": 0.43,
+      "sampling": "undersampled"
+    },
+    {
+      "id": "wikipedia",
+      "rawTokensB": 3,
+      "weightPercent": 3,
+      "epochsAt300B": 3.4,
+      "sampling": "oversampled"
+    }
+  ],
+  "compareRows": [
+    { "label": "Common Crawl", "sourceIds": ["common-crawl"], "color": "amber" },
+    { "label": "WebText2", "sourceIds": ["webtext2"], "color": "rose" },
+    { "label": "Books1 + Books2", "sourceIds": ["books1", "books2"], "color": "violet" },
+    { "label": "Wikipedia", "sourceIds": ["wikipedia"], "color": "teal" }
+  ]
+}

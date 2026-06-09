@@ -48,6 +48,7 @@ If a concept can be shown, it must be shown. Text alone is a fallback of last re
 |---|---|
 | **First slide / session outline (mandatory)** | `SessionOutlineSlide` — items auto-injected from frontmatter `outline` field; no MDX props needed |
 | Multi-step process / pipeline | `NodeFlowDiagram`, `MacroPipeline`, `DualLanePipelineDiagram` |
+| Multiple examples / sources / variants at one step | **Tabs inside one component** — `Gpt3DataSourcesExplorer`, `TabbedCodeExplorer`, `PreTrainingLoopExplorer`; never stack long blocks vertically |
 | Before vs After / Compare two ideas | `ConceptCompare`, `ArchitectureComparisonDemo` |
 | Numbered phases / story | `StepSequence` (narrative), `ConceptStepper` |
 | Slider / dial affects output | `ParameterSlider`, `TokenProbDist` |
@@ -72,16 +73,17 @@ Build a new one **only** when no existing component maps to the concept after a 
 
 1. **One idea, one clear animation** — the viewer should be able to say "I saw X happen" after watching.
 2. **Step-through by default** — prefer Prev / Next / Play rather than a wall of content visible at once. Reveal information progressively.
-3. **Make the learner predict before revealing** — if possible, pause before the answer, create a moment of anticipation (e.g. show input, animate processing, then reveal output).
-4. **Use color and motion as signal, not decoration**:
+3. **Tabs over tall stacks** — when one step has 2+ parallel examples (sequences, corpora, code files, architecture panels), use **tabs** so only one example is on screen. Do **not** stack long cards vertically; that forces scroll and splits viewer attention. Use step-through (Prev/Next) for sequential narrative; use tabs for swappable examples at the same step.
+4. **Make the learner predict before revealing** — if possible, pause before the answer, create a moment of anticipation (e.g. show input, animate processing, then reveal output).
+5. **Use color and motion as signal, not decoration**:
    - Active element → bright highlight (amber, violet, teal)
    - Inactive / background → dimmed (opacity-40 or gray)
    - Success / correct → teal or green pulse
    - Error / failure → rose/red shake or banner
    - Data flowing → animated arrow or particle along edge
-5. **Countdowns, bars, and gauges beat numbers** — token budget = filled bar, not "4096 tokens used". Hidden state decay = bar chart, not table.
-6. **Failure cases are as important as success** — if a concept has a known failure mode (vanishing gradient, race condition, cache miss), animate both the failing and the correct path.
-7. **Controls must be large and obvious** — Play / Pause / Next buttons at `text-base md:text-lg`, `py-3 px-5` minimum.
+6. **Countdowns, bars, and gauges beat numbers** — token budget = filled bar, not "4096 tokens used". Hidden state decay = bar chart, not table.
+7. **Failure cases are as important as success** — if a concept has a known failure mode (vanishing gradient, race condition, cache miss), animate both the failing and the correct path.
+8. **Controls must be large and obvious** — Play / Pause / Next buttons at `text-base md:text-lg`, `py-3 px-5` minimum. Tab buttons use the same minimum size.
 
 ---
 
@@ -100,6 +102,7 @@ Build a new one **only** when no existing component maps to the concept after a 
 
 ## What to NEVER do instead
 
+- **Ship technically wrong teaching content** — verify every mechanism before finishing (see `.cursor/rules/session-educational-accuracy.mdc`). Wrong PPT slides are not acceptable.
 - Write prose or a bullet-point list as the Goal section content — use `SessionOutlineSlide` instead (see `.cursor/rules/ppt-title-diagram-only.mdc`)
 - Omit `outline` + `outlineSectionMap` from session frontmatter — the tracker is always required
 - Write a bullet-point list as the only content under a `##` slide heading
@@ -107,6 +110,7 @@ Build a new one **only** when no existing component maps to the concept after a 
 - Paste a static JSON or code block as the entire slide (use `AnnotatedCode` or `CodeEvolutionStepper`)
 - Create a table of facts with no interaction (use `ConceptCompare`, `RecapTable` only in the dedicated recap section)
 - Use `NodeFlowDiagram` with no `steps` prop — always add scripted step-through so the presenter can walk through nodes one at a time
+- Stack multiple full example panels vertically when tabs or step-through would teach the same thing more clearly (e.g. two batch sequences as separate blocks instead of Sequence 1 | Sequence 2 tabs)
 
 ---
 
@@ -118,5 +122,7 @@ If you touch a session and notice a slide that is currently just a `StepSequence
 
 ## Cross-rule dependencies
 
+- Every interactive built here must also satisfy `.cursor/rules/session-educational-accuracy.mdc` (**verify mechanisms** — reuse UI patterns only when the algorithm matches; run the five-point checklist before shipping)
 - Every interactive built here must also satisfy `.cursor/rules/session-video-legibility.mdc` (large type, contrast, generous padding, **one-screen presenter fit** — big text + short copy, no tall stacked duplicates)
 - Every slide must satisfy `.cursor/rules/ppt-title-diagram-only.mdc` (one `##` heading + one animation only)
+- Every teaching visual and label must satisfy `.cursor/rules/session-educational-accuracy.mdc` — interactivity must not sacrifice factual correctness

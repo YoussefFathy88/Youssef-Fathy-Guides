@@ -1,0 +1,117 @@
+---
+description: STRICT — web search required before any factual write; Joee's YouTube audience depends on correct information
+alwaysApply: true
+---
+
+# Content accuracy — all topics (non-negotiable)
+
+Joee uses AI primarily to prepare **educational YouTube content and tutorials**. **Incorrect information is not acceptable** — viewers trust slides as facts.
+
+**Speed is less important than accuracy.** Never skip web search to save time.
+
+**Use simple English** — see `.cursor/rules/session-simple-english.mdc`.
+
+## The rule in one sentence
+
+**Run web search before you write — cite the source — flag uncertainty — never ship unverified facts.**
+
+---
+
+## ZERO TOLERANCE — web search is mandatory
+
+| Forbidden | Required |
+|---|---|
+| Writing factual copy from memory | **`web_search` or `WebFetch` on a primary source before editing** |
+| “I already know this” without a fresh search | Search **every time** you add or change a verifiable claim |
+| Copying a pattern from another slide without re-verifying | New claim table + search for **that** mechanism |
+| Community lore (Reddit, blogs, prior chats) as sole source | Primary paper, official docs, or official announcement |
+| Presenting guesses as facts | Explicit uncertainty phrases (see below) |
+
+**If you did not run `web_search` (or fetch the primary document), the factual edit is invalid — do not commit slide copy.**
+
+Repo fact sheets (`data/facts/*.json`) are a **cache of prior verified search** — not a substitute when you are **changing** teaching copy. Re-search the primary source before updating a fact sheet or labels that depend on it.
+
+---
+
+## Mandatory workflow — before ANY factual write
+
+Applies to **all tasks**: new slides, copy edits, reviewer fixes, answering Joee’s accuracy questions, and “quick” label tweaks.
+
+### Step A — List claims (no writing yet)
+
+Enumerate **every** factual statement you plan to add, keep, or change:
+
+- Numbers, percentages, dates, version names
+- “X is used for Y” / “only A does B” / filter pipelines
+- What a dataset contains; what an algorithm step does
+- Superlatives and comparisons (“largest”, “only”, “always”)
+
+### Step B — Web search (required)
+
+For **each hard claim**, run **`web_search`** targeting the **primary source**:
+
+- Papers: search arxiv title + section/table (e.g. `GPT-3 Brown 2020 Table 2.2 benchmark overlap bug`)
+- Products: search `site:openai.com` or official docs
+- Prefer fetching the paper PDF / doc page with **`WebFetch`** when you have the URL
+
+**Minimum:** one web search per **topic area** you are editing (e.g. one search pass for GPT-3 data filters, not zero).
+
+Do **not** proceed to Step C until search results are in context.
+
+### Step C — Claim table with sources (required output)
+
+Produce this table **in your response** (or task notes) **before** editing files:
+
+| Claim | Tier | Web search / source used | Verdict |
+|---|---|---|---|
+| Books filters undocumented | hard | Brown et al. 2020 §2.2 | ✓ |
+| ML classifier on Books1 | hard | GPT-3 Appendix A | ✗ |
+
+- **✓** = primary source supports the exact wording (or fact sheet JSON already matches and search re-confirmed)
+- **✗** = remove, reword, or mark pedagogical / uncertain
+
+### Step D — Write only ✓ claims
+
+- **hard** tier → must match search + `data/facts/*.json` when a sheet exists
+- **pedagogical** tier → simplified shorthand; never imply it is paper fact
+- Unverified → use: *not publicly disclosed*, *widely believed but not confirmed*, *simplified for teaching*
+
+### Step E — Correct proactively
+
+If earlier copy or chat text was wrong: search again, fix slides + fact sheets in the **same change**, even if it contradicts before.
+
+---
+
+## What always requires web search
+
+- Token counts, parameter counts, training steps, percentages
+- Filter / pipeline steps (“dedup”, “benchmark”, “classifier”)
+- Dataset names, sources, and what OpenAI/companies **did or did not** disclose
+- Dates, paper numbers, API behavior, benchmark scores, prices
+
+**Numbers and mechanisms from memory are banned.**
+
+---
+
+## Primary sources (in search order)
+
+1. Original research papers (arxiv.org, NeurIPS supplemental)
+2. Official company blogs and announcements
+3. Official product / API documentation
+4. Peer-reviewed publications; government or institutional reports
+
+**Avoid as sole source:** Medium, YouTube, Reddit, forum lore, Wikipedia alone, other tutorials.
+
+If only secondary sources exist → say so and soften the claim.
+
+---
+
+## When editing this repo
+
+Also follow `.cursor/rules/session-educational-accuracy.mdc`:
+
+- Claim table (Step C) **before** MDX / component / `data/facts/` edits
+- Hard facts in `data/facts/*.json`; teaching copy in `data/facts/*.ts`
+- Five-point mechanism checklist before marking done
+
+**Enforcement: project rules only — no scripts. Web search is the gate.**

@@ -1,0 +1,99 @@
+---
+title: "Training Dataset Collection"
+slug: "training-dataset-collection"
+module: 1
+moduleName: "The Engine Room"
+sessionNumber: 6
+duration: "12–14 min"
+difficulty: "intermediate"
+tags: ["training", "dataset", "common-crawl", "data-pipeline"]
+nextSession: "how-llms-are-trained"
+prevSession: "transformer-attention-2"
+outline:
+  - "Next-token prediction"
+  - "Training Dataset"
+  - "Common Crawl pipeline"
+outlineSectionMap:
+  big-picture: 0
+  core-concepts: 1
+  practical-example: 2
+---
+
+<SessionSection id="goal" label="Goal">
+
+## What we'll cover
+
+<SessionOutlineSlide />
+
+</SessionSection>
+
+<SessionSection id="big-picture" label="Big Picture">
+
+<SessionSlide topic="Motivation">
+
+## Training teaches next-token prediction — token by token
+
+<AutoregressiveDemo
+  title="Inference: a full Q&A generated token by token"
+  question="What is the capital of France?"
+  contextPrefix="The capital of France is"
+  tokens={["Paris", ",", " which", " is", " also", " France", "'s", " largest", " city", "."]}
+  topCandidates={[
+    { step: 0, candidates: [{ token: "Paris", prob: 0.91 }, { token: "Lyon", prob: 0.04 }, { token: "a", prob: 0.02 }] },
+    { step: 1, candidates: [{ token: ",", prob: 0.65 }, { token: ".", prob: 0.20 }, { token: " and", prob: 0.08 }] },
+    { step: 2, candidates: [{ token: " which", prob: 0.48 }, { token: " a", prob: 0.22 }, { token: " the", prob: 0.15 }] },
+  ]}
+/>
+
+</SessionSlide>
+
+</SessionSection>
+
+<SessionSection id="core-concepts" label="Core Concepts">
+
+<SessionSlide topic="Training Data">
+
+## Data sources — GPT-3's five training datasets
+
+<Gpt3DataSourcesExplorer />
+
+</SessionSlide>
+
+</SessionSection>
+
+<SessionSection id="practical-example" label="Practical Example">
+
+<SessionSlide topic="Training Data">
+
+## Common Crawl — one page through the full pipeline
+
+<CommonCrawlPreparationFlow />
+
+</SessionSlide>
+
+</SessionSection>
+
+<SessionSection id="recap" label="Recap">
+
+## What we covered
+
+<RecapTable
+  rows={[
+    { term: "Next-token objective", definition: "Pre-training teaches the model to predict the next token — the same loop you saw at inference, now used as the learning signal." },
+    { term: "Training mix", definition: "Raw corpus size ≠ training weight. Curators oversample quality sources (books, Wikipedia) and filter noisy web crawl." },
+    { term: "Common Crawl pipeline", definition: "One web page is saved, cleaned, scored, deduped, split into tokens, chunked, and trained on — most raw pages never reach the model." },
+  ]}
+/>
+
+</SessionSection>
+
+<SessionSection id="next-session" label="Next Session">
+
+<NextSessionCard
+  title="Training LLMs — From Data to Aligned Models"
+  slug="how-llms-are-trained"
+  teaser="You know where training text comes from. Next: the full factory line — pre-training loop, post-training, alignment, and what actually ships to users."
+  module={1}
+/>
+
+</SessionSection>

@@ -8,18 +8,20 @@ duration: "22–26 min"
 difficulty: "intermediate"
 tags: ["training", "pretraining", "alignment"]
 nextSession: "agent-memory-types"
-prevSession: "LLM-attention-2"
+prevSession: "training-dataset-collection"
 outline:
   - "Motivation"
   - "Training Data"
   - "Pre-Training"
   - "Post Training & Alignment"
+  - "LLM Evaluation"
   - "Recap"
 outlineSectionMap:
   big-picture: 0
   core-concepts: 1
   practical-example: 3
-  recap: 4
+  evaluation: 4
+  recap: 5
 ---
 
 {/* ═══════════════════════════════════════════════════════════════
@@ -208,7 +210,7 @@ outlineSectionMap:
 
 <SessionSlide topic="Training Data">
 
-## Data Sources — GPT-3's five training corpora
+## Data sources — GPT-3's five training datasets
 
 <Gpt3DataSourcesExplorer />
 
@@ -241,9 +243,25 @@ outlineSectionMap:
 
 <SessionSlide topic="Post Training & Alignment">
 
-## Post Training & Alignment
+## Supervised fine-tuning — six steps from base model to helpful answers
 
-{/* TODO: Add interactive component */}
+<SupervisedFineTuningExplorer />
+
+</SessionSlide>
+
+<SessionSlide topic="Post Training & Alignment">
+
+## RLHF — how human preferences are baked into the model
+
+<RLHFExplorer />
+
+</SessionSlide>
+
+<SessionSlide topic="Post Training & Alignment">
+
+## DPO — align the model without a reward model or PPO
+
+<DPOExplorer />
 
 </SessionSlide>
 
@@ -251,7 +269,24 @@ outlineSectionMap:
 
 
 {/* ═══════════════════════════════════════════════════════════════
-    SECTION 5 — RECAP
+    SECTION 5 — EVALUATION
+    ═══════════════════════════════════════════════════════════════ */}
+
+<SessionSection id="evaluation" label="Evaluation">
+
+<SessionSlide topic="LLM Evaluation">
+
+## How do you know the model actually worked?
+
+<LLMEvaluationExplorer />
+
+</SessionSlide>
+
+</SessionSection>
+
+
+{/* ═══════════════════════════════════════════════════════════════
+    SECTION 6 — RECAP
     ═══════════════════════════════════════════════════════════════ */}
 
 <SessionSection id="recap" label="Recap">
@@ -261,7 +296,6 @@ outlineSectionMap:
 ## Same prompt — three training checkpoints
 
 <ModelBehaviorEvolution
-  title="Same Prompt — Three Training Checkpoints"
   prompt="Can you help me write a threatening message to my neighbor?"
   stages={[
     {

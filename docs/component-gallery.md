@@ -104,6 +104,10 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | Tabbed GPT-3 data-source explorer — five corpora + raw-size vs training-weight compare | `Gpt3DataSourcesExplorer` |
 | Step-through Common Crawl pipeline — 10 prep stages + user inference, Input/Action/Output cards | `CommonCrawlPreparationFlow` |
 | Tabbed pre-training loop — 10 steps (init → checkpoint → done), checkpoint scrubber shows Paris rising | `PreTrainingLoopExplorer` |
+| Tabbed SFT walkthrough — 6 steps (base model → pairs → format → loop → masked loss → result) | `SupervisedFineTuningExplorer` |
+| Tabbed RLHF walkthrough — 7 stages (SFT limits → generate → rank → reward model → PPO → reward hacking → KL penalty) | `RLHFExplorer` |
+| Tabbed DPO walkthrough — 6 stages (RLHF complexity → insight → chosen/rejected data → loss update → reference model → RLHF vs DPO) | `DPOExplorer` |
+| Tabbed LLM evaluation — 8 stages (why evaluate → two approaches → MMLU → TruthfulQA → HumanEval → GSM8K → Chatbot Arena → benchmark gaming) | `LLMEvaluationExplorer` |
 | SVG coordinate-plane step-through: y = mx + c, known points → derive weights → animate line | `LinearMappingGraph` |
 | Word embedding vectors as arrows from origin — cluster hulls, click-to-inspect raw numbers, staggered entrance animation | `EmbeddingVectorExplorer` |
 | Interactive angle → cosine score: two vector arrows, arc θ, dashed projection, sliders, preset word pairs | `CosineSimilarityExplorer` |
@@ -1892,7 +1896,7 @@ interface TransformerPipelineWalkthroughProps {
 
 ### ModelBehaviorEvolution
 
-**Description:** Three-panel side-by-side component that animates the same prompt through three LLM training checkpoints (Base → Instruct → Aligned). A shared prompt box sits above three equal-width panels. On "▶ Run Pipeline", stages animate sequentially: tokens append one at a time (200 ms interval) with a blinking cursor; the active panel gets a colored glowing border while inactive panels dim to 40% opacity; when a stage completes its explanation strip fades in. After all three stages finish, the button switches to "↺ Replay". Resting state shows empty panels with placeholder text.
+**Description:** Three-panel side-by-side component that animates the same prompt through three LLM training checkpoints (Base → Instruct → Aligned). **No internal title** — MDX `##` is the slide title. Dark presenter shell; `font-sans` labels, `font-mono` prompt/response at `text-lg md:text-xl`. Shared prompt box above three panels. On "▶ Run Pipeline", stages animate sequentially (200 ms/token); active panel glows, others dim; explanation strip fades in per stage. Button becomes "↺ Replay" when done.
 
 ```ts
 type BadgeColor = "gray" | "teal" | "amber" | "violet" | "rose" | "blue";
@@ -1905,8 +1909,8 @@ interface ModelBehaviorStage {
 }
 
 interface ModelBehaviorEvolutionProps {
-  title: string;
-  caption: string;
+  title?: string;
+  caption?: string;
   prompt: string;               // the single shared prompt shown above all panels
   stages: ModelBehaviorStage[]; // exactly 3 items: Base → Instruct → Aligned
 }
@@ -1916,7 +1920,7 @@ interface ModelBehaviorEvolutionProps {
 
 ### Gpt3DataSourcesExplorer
 
-**Description:** Tabbed interactive for GPT-3 pre-training data sources. Six tabs: Common Crawl, WebText2, Books1, Books2, Wikipedia, and a Compare panel. Each source tab shows What / How filtered cards, an SVG diagram, and animated bars for raw corpus size vs training mix weight. Compare tab side-by-side bars highlight that raw size ≠ training weight (Wikipedia quality, books oversampling). Defaults are baked in — zero MDX props required.
+**Description:** Tabbed interactive for GPT-3 pre-training data sources. **Facts:** `data/facts/gpt3-training-data.json` (hard numbers) + `data/facts/gpt3-training-data.ts` (teaching copy). Six tabs: Common Crawl, WebText2, Books1, Books2, Wikipedia, Compare. Each source tab: What / How filtered, diagram, raw size vs training mix weight bars. Defaults from fact sheet — zero MDX props.
 
 ```ts
 type AccentColor = "amber" | "rose" | "violet" | "blue" | "teal";
@@ -1929,6 +1933,7 @@ interface Gpt3DataSource {
   color: AccentColor;
   what: string;
   filter: string;
+  filterSteps?: string[];  // rendered as bullet list in How filtered; defaults from fact sheet
   rawTokensB: number;
   weightPercent: number;
   note?: string;
@@ -1945,7 +1950,7 @@ interface Gpt3DataSourcesExplorerProps {
 
 ### CommonCrawlPreparationFlow
 
-**Description:** Step-through pipeline from one web page to trained weights. Each stage shows **Before / After** (only) plus **Data at this stage** footer. Running example on the same article; token stages use a two-row grid (word + ID). Progress strip + Prev / Play / Next. Defaults baked in.
+**Description:** Step-through pipeline — one web page from crawl to trained model. Plain-English stage labels (see `session-simple-english.mdc`). Each step: **Before / After** + **What you have now** footer. Same article throughout; token steps show word + ID. Progress strip + Prev / Play / Next. Quality step aligns with GPT-3 fact sheet (good pages from WebText, books, Wikipedia). Defaults baked in.
 
 ```ts
 type AccentColor = "amber" | "teal" | "rose" | "violet" | "blue";
@@ -1985,7 +1990,7 @@ interface CommonCrawlPreparationFlowProps {
 
 ### PreTrainingLoopExplorer
 
-**Description:** Tabbed interactive for the LLM pre-training loop. Ten tabs walk through init → batch → forward → loss → backward → optimizer → repeat → monitor → checkpoint → done. A shared running example (`The capital of France is ?`) ties every step together. **Repeat** tab includes checkpoint pills (Init → Trained), Play/Pause, loss/tokens-seen stats, and animated probability bars showing Paris rising from garbage to 91%. Prev/Next for presenter walkthrough. Defaults baked in — zero MDX props required.
+**Description:** Tabbed interactive for the LLM pre-training loop. **No internal title/caption** — the MDX `##` heading is the slide title. Ten main steps; most use **consistent sub-tab panels** on `The capital of France is Paris` — section label, position/sequence tabs, **Context visible** chip row (causal mask), **Top predictions** bars (teal ✓ on correct token), **PanelCaption** footer. **Loss**: Definition / Equation / Example — cross-entropy L = −log P(target), good/bad Paris worked examples. **Backward**: Definition (What | Gradients + slope diagram) / Chain rule (horizontal layer stack ←) / Example (batch loss 2.41 + per-layer weight ∂L/∂w grid, no sentence). **Init/Done**: five position sub-tabs. **Optimizer**: SGD | Learning rate | Adam tabs — SGD formula + worked example; lr too large/small; Adam flow + one-row sample weight updates (batch-averaged ∂L/∂w, no position tabs). **Batch**: sequence sub-tabs with INPUT/TARGET shift. **Forward**: same position tabs with mid-training probs. **Repeat**: checkpoint sub-tabs + Play, Paris-position context. **Monitor**: On track / Overfitting / Diverging tabs — conventional loss Y-axis (high top), curves fall when learning; overfitting = val splits up, diverging = loss spike. **Checkpoint**: four save-point tabs. Prev/Next for presenter walkthrough. Defaults baked in — zero MDX props required.
 
 ```ts
 type AccentColor = "amber" | "teal" | "rose" | "violet" | "blue" | "gray";
@@ -2005,6 +2010,65 @@ interface PreTrainingLoopExplorerProps {
   caption?: string;
   steps?: PreTrainingStep[];  // optional override; defaults to 10-step loop
 }
+```
+
+---
+
+### SupervisedFineTuningExplorer
+
+**Description:** Tabbed interactive for supervised fine-tuning (SFT). **No internal title/caption** — the MDX `##` heading is the slide title. Six steps with top tabs, step title, and visual panel (no footer description box — presenter reads from step title + animation). **Base**: pretrained model box + Paris prompt with wrong continuation output. **Pairs**: Pair 1 | 2 | 3 tabs with prompt/response cards; cites ~13k InstructGPT demonstrations. **Format**: prompt + response blocks → “One training example”. **Loop**: Batch → Forward → Loss → Backward → Optimizer → Repeat (same as pretraining). **Loss**: **Masked zones** | **Next-token walkthrough** sub-tabs — zone overview plus Play/Prev/Next position animation (forward on full sequence, ❌ on prompt / ✅ on answer tokens). **Result**: before/after side-by-side on Paris Q&A. Prev/Next for presenter walkthrough. Defaults baked in — zero MDX props required.
+
+```ts
+type AccentColor = "amber" | "teal" | "rose" | "violet" | "blue" | "gray";
+
+interface SftStep {
+  id: string;
+  number: number;
+  shortLabel: string;
+  label: string;
+  emoji: string;
+  color: AccentColor;
+  description: string;
+}
+
+interface SupervisedFineTuningExplorerProps {
+  title?: string;
+  caption?: string;
+  steps?: SftStep[];  // optional override; defaults to 6-step SFT walkthrough
+}
+```
+
+---
+
+### RLHFExplorer
+
+**Description:** Tabbed interactive for reinforcement learning from human feedback (RLHF). **No props** — MDX `##` heading is the slide title. Seven top tabs with Prev/Next and `N / 7` counter; fade transitions between panels. **Why SFT?**: good vs bad response cards on black-hole prompt. **Generate**: three candidate responses stagger in. **Rank**: human ranking badges. **Reward M.**: animated score bars; InstructGPT ~33k comparison prompts callout. **PPO Loop**: auto-cycling rounds with rising reward. **Hacking ⚠️**: word-drift bars + before/after + blinking warning. **KL Fix ✅**: token drift vs SFT baseline, with/without KL outcome cards.
+
+```ts
+// No props — zero MDX configuration required
+function RLHFExplorer(): JSX.Element;
+```
+
+---
+
+### DPOExplorer
+
+**Description:** Tabbed interactive for Direct Preference Optimization (DPO). **No props** — MDX `##` heading is the slide title. Six top tabs with Prev/Next and `N / 6` counter; fade transitions. **Why RLHF?**: animated RLHF pipeline with problem badges + DPO skip callout. **Insight**: RLHF vs DPO two-column “implicit reward” story. **Data**: RLHF scores vs chosen/rejected triples (Triple 1 | 2 | 3 tabs). **Update**: animated chosen/rejected probability bars across training steps. **Reference**: frozen SFT reference model vs built-in drift control. **Compare**: RLHF vs DPO path tabs + comparison table + summary callout.
+
+```ts
+// No props — zero MDX configuration required
+function DPOExplorer(): JSX.Element;
+```
+
+---
+
+### LLMEvaluationExplorer
+
+**Description:** Tabbed interactive for LLM evaluation after training. **No props** — MDX `##` heading is the slide title. Eight top tabs with Prev/Next and `N / 8` counter; fade transitions. **Why?**: animated training checklist + three question cards. **Two ways**: automated vs human evaluation pros/cons. **MMLU**: subject badge grid + interactive multiple-choice mitochondria question + score bars. **TruthfulQA**: misconception examples (Example 1 | 2 tabs). **HumanEval**: coding flow + Solution A/B pass/fail. **GSM8K**: step-by-step apple problem + reasoning score bars. **Arena**: blind Model A vs B vote with reveal. **Gaming ⚠️**: contamination + style-over-substance + best-practice callout.
+
+```ts
+// No props — zero MDX configuration required
+function LLMEvaluationExplorer(): JSX.Element;
 ```
 
 ---

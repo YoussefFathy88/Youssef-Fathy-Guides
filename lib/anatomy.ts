@@ -50,6 +50,12 @@ export const ANATOMY_MODULES: readonly AnatomyModule[] = [
       },
       {
         id: "brain-05",
+        title: "Training Dataset Collection",
+        slug: "training-dataset-collection",
+        status: "available",
+      },
+      {
+        id: "brain-06",
         title: "Training LLMs — From Data to Aligned Models",
         slug: "how-llms-are-trained",
         status: "available",

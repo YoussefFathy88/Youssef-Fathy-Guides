@@ -28,8 +28,10 @@ description: >-
 2. **Serializable props only** — no function props, no inline JSX in MDX props (breaks RSC/MDX compilation). Prefer strings, numbers, booleans, arrays, and plain objects.
 3. **Keep `docs/component-gallery.md` in sync** — any add/change/remove of session-facing components or their props must update that file in the **same change** as the code. Update `docs/session-template.md` only when **session-level** authoring rules change (see `CLAUDE.md`).
 4. **Six sections in order** — `goal` → `big-picture` → `core-concepts` → `practical-example` → `recap` → `next-session` (`SessionSection` ids).
-5. **Video / PPT legibility (mandatory)** — follow `.cursor/rules/session-video-legibility.mdc`: in-component body **`text-lg md:text-xl` minimum** (prefer `text-xl` on full-slide panels), headings **`text-xl md:text-2xl`+**, no `text-xs` / `text-[11px]` for teaching copy, generous `p-8 md:p-10` on slide-scale panels. **Presenter fit:** each animation step must fit **one screen** in `?view=present` — **clear big text + short copy** (truncate examples, preview 4–6 tokens); use step-through/tabs for depth, never stack duplicate panels (Input/Action/Output + walkthrough + hero on one step). Spot-check presenter mode before finishing. Also: diagram layout uncluttered; **spacing between `##` titles and diagrams** (see `docs/session-template.md` § Diagram clarity and `.cursor/rules/ppt-title-diagram-only.mdc`).
+5. **Video / PPT legibility (mandatory)** — follow `.cursor/rules/session-video-legibility.mdc`: in-component body **`text-lg md:text-xl` minimum** (prefer `text-xl` on full-slide panels), headings **`text-xl md:text-2xl`+**, no `text-xs` / `text-[11px]` for teaching copy, generous `p-8 md:p-10` on slide-scale panels. **Presenter fit:** each animation step must fit **one screen** in `?view=present` — **clear big text + short copy** (truncate examples, preview 4–6 tokens); use step-through/tabs for depth, never stack duplicate panels (Input/Action/Output + walkthrough + hero on one step). **Prefer tabs over long vertical stacks** when a step has multiple examples (sequences, sources, files) — one active tab visible at a time. Spot-check presenter mode before finishing. Also: diagram layout uncluttered; **spacing between `##` titles and diagrams** (see `docs/session-template.md` § Diagram clarity and `.cursor/rules/ppt-title-diagram-only.mdc`).
 6. **Interactive-first / gamification (mandatory)** — follow `.cursor/rules/session-interactive-first.mdc`: every concept slide must use an animated or interactive component. **Check `docs/component-gallery.md` first** before building anything new. Static bullet-point slides are not acceptable. Build new components only when no gallery component fits, and design them with progressive reveal, step-through controls, color-as-signal, and exploration (sliders / presets / toggles).
+7. **Simple English (mandatory)** — follow `.cursor/rules/session-simple-english.mdc`: plain words on every slide label, step, and caption; no jargon unless it is the lesson.
+8. **Content accuracy — STRICT (mandatory)** — follow `.cursor/rules/content-accuracy-all-topics.mdc` and `.cursor/rules/session-educational-accuracy.mdc`. **`web_search` is required before any factual file edit** — list claims → search primary sources → claim table with ✓/✗ **in your response** → then write. Memory, lore, and fact sheets alone are **not** enough when changing copy. **Hard facts** in `data/facts/*.json`; teaching copy in `data/facts/*.ts`. Before finishing: five-point checklist. See `data/facts/README.md`.
 
 ## New session checklist
 
@@ -67,12 +69,16 @@ Session pages resolve MDX components from `getMdxComponents` in `app/sessions/[s
 
 Run from the repo root after substantive changes:
 
-1. **`npm run build`** (or `pnpm build` if available) — must pass TypeScript and Next compile. On Windows PowerShell, chain commands with `;` not `&&` if the shell errors on `&&`.
-2. **Spot-check the session URL** in dev or production build — e.g. `/session/embeddings` or `/sessions/embeddings` depending on which route you use; confirm the new/changed block renders and interactions work.
-3. **Higher risk** (new client simulators with timers/state): add or run a short Playwright check (preset → route → stage text / result) if you have Playwright in the workflow; otherwise do a manual pass on one happy path.
+1. **`web_search` gate (factual edits)** — run web search per `content-accuracy-all-topics.mdc`; claim table with sources **before** writing any MDX, component labels, or fact sheets.
+2. **`npm run build`** — must pass TypeScript and Next compile. On Windows PowerShell, chain commands with `;` not `&&` if the shell errors on `&&`.
+3. **Accuracy pass (mandatory)** — for each changed slide/step: read labels and captions in `?view=present` and confirm the taught mechanism is correct. Build passing does **not** mean content is accurate.
+4. **Spot-check the session URL** in dev or production build — confirm the new/changed block renders and interactions work.
+5. **Higher risk** (new client simulators with timers/state): manual or Playwright pass on one happy path.
 
 ## Common mistakes to avoid
 
+- **Skipping `web_search`** before factual copy — invalid edit even if it “sounds right”.
+- **Mechanically wrong slides** — reusing position tabs, batch layouts, or captions from another step without verifying the algorithm (classic failure: optimizer shown per-position instead of batch-averaged weight updates).
 - Forgetting `getMdxComponents` registration after adding a barrel export (build may still pass if the MDX file is not compiled in CI — page will fail at runtime for that session).
 - Stale **`docs/component-gallery.md`** after changing a component API or registry entry.
 - Using `ConceptStepper` `visual:` with inline JSX in MDX — use TSX-only authoring or switch to serializable patterns (`StepSequence` narrative steps, or a purpose-built simulator component).

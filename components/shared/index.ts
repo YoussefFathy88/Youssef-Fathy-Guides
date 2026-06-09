@@ -75,6 +75,11 @@ export { default as CommonCrawlPreparationFlow } from "../session/CommonCrawlPre
 export type { CommonCrawlStage, CommonCrawlPreparationFlowProps, StageWalkthrough } from "../session/CommonCrawlPreparationFlow";
 export { default as PreTrainingLoopExplorer } from "../session/PreTrainingLoopExplorer";
 export type { PreTrainingStep, PreTrainingLoopExplorerProps } from "../session/PreTrainingLoopExplorer";
+export { default as SupervisedFineTuningExplorer } from "../session/SupervisedFineTuningExplorer";
+export type { SftStep, SupervisedFineTuningExplorerProps } from "../session/SupervisedFineTuningExplorer";
+export { default as RLHFExplorer } from "../session/RLHFExplorer";
+export { default as DPOExplorer } from "../session/DPOExplorer";
+export { default as LLMEvaluationExplorer } from "../session/LLMEvaluationExplorer";
 // Foundational concept components
 export { default as LinearMappingGraph } from "../session/LinearMappingGraph";
 export { default as LinearRegressionTrainingExplorer } from "../session/LinearRegressionTrainingExplorer";

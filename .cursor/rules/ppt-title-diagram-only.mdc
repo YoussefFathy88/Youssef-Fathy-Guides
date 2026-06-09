@@ -76,16 +76,18 @@ When building a session component:
 - A component may have **internal steps** (e.g. a step sequencer that plays one phase at a time), but it must present **one coherent animated idea** — not two unrelated animations stacked vertically.
 - If you find yourself rendering two independent animated sections inside one component, **extract the second into its own component and its own slide**.
 - Avoid side-by-side panels each running their own independent animation simultaneously; this overwhelms viewers on video.
+- When one component needs several examples or variants, **prefer internal tabs** (one visible panel) over a **tall vertical stack** of full-width cards — keeps the slide within one presenter screen (see `.cursor/rules/session-video-legibility.mdc`).
 
 ## Diagram clarity (must-follow)
 
 Session diagrams and interactives must be readable on video and in fullscreen presenter mode:
 
+- **Accuracy:** Every diagram must teach a **technically correct** mechanism — verify before shipping (`.cursor/rules/session-educational-accuracy.mdc`). A slide that looks right but teaches the wrong algorithm is a ship blocker.
 - **Fonts:** All interactives must follow `.cursor/rules/session-video-legibility.mdc` (body `text-lg md:text-xl`+, headings `text-xl md:text-2xl`+, **never** `text-xs`/`text-sm` for teaching copy). SVG labels: 16px+ equivalent; prefer `ui-sans-serif` / system stacks; strong contrast on both light and dark backgrounds.
 - **Diagram:** Generous padding inside the canvas, clear hierarchy (one main idea per slide), labels that read without squinting at 1080p.
 - **Animation:** Motions easy to follow — predictable timing, not overcrowded. One thing animates at a time where possible. Respect `prefers-reduced-motion` where the component supports it.
 - **Spacing:** Clear vertical space between the `##` title and the animation component — no cramming.
-- **Viewport fit:** The interactive must fit **one presenter screen** without scroll — clear **big** text, **short** copy, step-through for depth. See `.cursor/rules/session-video-legibility.mdc` § Presenter viewport fit. One visual frame per internal step (not Input + Action + Output + walkthrough stacked).
+- **Viewport fit:** The interactive must fit **one presenter screen** without scroll — clear **big** text, **short** copy, step-through for depth. See `.cursor/rules/session-video-legibility.mdc` § Presenter viewport fit. One visual frame per internal step (not Input + Action + Output + walkthrough stacked). **If the presenter must scroll, the slide is too long** — remove rows/sections or add tabs; do not ship tall slides.
 
 Layout spacing is enforced in `SessionSection` (presenter) and MDX `h2` styles (`app/sessions/[slug]/page.tsx`). New slide-style content must avoid stacking extra elements between title and animation.
 

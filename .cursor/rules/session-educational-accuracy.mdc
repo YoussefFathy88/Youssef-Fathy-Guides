@@ -1,0 +1,132 @@
+---
+description: STRICT — verify every PPT slide and interactive teaches a technically correct mechanism before shipping
+globs:
+  - content/sessions/**/*.mdx
+  - components/session/**/*.tsx
+  - components/shared/**/*.tsx
+  - data/facts/**
+  - docs/session-template.md
+  - docs/component-gallery.md
+  - .cursor/skills/session-authoring/**
+alwaysApply: true
+---
+
+# Session educational accuracy — STRICT (non-negotiable)
+
+This project publishes **educational content** on **YouTube**. Slides and interactives are the lesson — viewers pause, screenshot, and trust what they see. **Incorrect information on a PPT slide is not acceptable.**
+
+**Correctness beats convenience, reuse, and polish.** A beautiful animation that teaches the wrong mechanism is a **defect**, not a shortcut.
+
+**Global rule first:** `.cursor/rules/content-accuracy-all-topics.mdc` applies to every factual claim (search first, cite source, flag uncertainty, never state numbers from memory). This file adds **session-specific** enforcement — fact sheets, claim tables, mechanism checks. **Rules only** — no verification scripts.
+
+## The rule in one sentence
+
+**Verify every mechanism before you ship** — every label, tab, diagram, caption, and step summary must match how the real system works.
+
+## Step 0 — Web search gate (before writing) — BLOCKER
+
+**Never write or edit factual teaching content from memory.** Follow `.cursor/rules/content-accuracy-all-topics.mdc` Steps A–E in full.
+
+**You must run `web_search` (or `WebFetch` on a primary URL) before touching:**
+
+- `content/sessions/**/*.mdx` teaching copy
+- `components/session/**/*.tsx` labels, steps, captions, stats
+- `data/facts/**/*` hard or pedagogical claims
+
+### Checklist (all required)
+
+1. **List claims** — every factual line you will add or change.
+2. **`web_search`** — at least one search per topic area; target primary sources (paper section, official docs). Fact sheets are not a skip — re-verify when editing.
+3. **Claim table in response** — with **Web search / source used** column; only ✓ claims may ship:
+
+| Claim | Tier | Web search / source used | Verdict |
+|---|---|---|---|
+| Books filters undocumented | hard | Brown et al. 2020 §2.2 via web search | ✓ |
+| ML classifier on Books1 | hard | GPT-3 Appendix A via web search | ✗ |
+
+4. **Write only ✓** — soften or remove ✗; tag pedagogical shorthand.
+5. **Update fact sheets** — JSON for hard facts; TS for copy; components import builders.
+6. **Fix prior errors** — same change if search contradicts earlier copy.
+
+**No file edits to factual UI until Steps 1–3 are done. Build passing does not mean accurate.**
+
+## Claim tiers
+
+| Tier | Rule | Where it lives |
+|---|---|---|
+| **hard** | Must match a cited primary source or `data/facts/*.json` | JSON fact sheet + `hard` tier in TS copy |
+| **pedagogical** | Simplified shorthand for video; never stated as paper fact | TS copy tagged `pedagogical`; optional `note` that says “simplified” |
+
+If unsure, **soften or omit** — do not invent authoritative-sounding ML claims.
+
+## Fact sheets (single source of truth)
+
+- **`data/facts/{topic}.json`** — verified numbers and mechanisms with citation metadata.
+- **`data/facts/{topic}.ts`** — teaching copy + `build*` helpers; numeric fields **read from JSON only**.
+
+Session components under `components/session/` that teach paper stats or algorithms must import from `data/facts/` when a sheet exists.
+
+## Zero tolerance
+
+- **Never ship without `web_search` verification** for the claims on that slide (see Step 0).
+- **Never ship a slide you have not mechanism-checked.** Legibility, PPT fit, and interactivity do not excuse wrong facts.
+- **Never reuse a UI pattern from another step without checking the mechanism still applies.** (Example: position tabs are valid for forward/loss — **not** for optimizer, where gradients are averaged across the batch.)
+- **Never leave misleading copy** in summaries, tab labels, or `PanelCaption` footers when the visual is fixed — fix **all** teaching text in the same change.
+- **If you are unsure, verify or soften** — do not invent authoritative-sounding ML claims.
+
+## Mandatory verification before finishing (every slide / component edit)
+
+**Prerequisite:** Step 0 (research-first gate) complete when `data/facts/` or factual UI copy changed.
+
+For **each** interactive step, tab, or diagram, answer these **before** marking work done:
+
+1. **What is the real mechanism?** State it in one sentence (e.g. “Adam updates each weight once using batch-averaged gradients”).
+2. **Does this visual imply that mechanism — or something else?** If a viewer pauses the video, will they learn the truth?
+3. **Do summary line, section labels, tabs, numbers, and caption all agree?** No contradictions across the same step.
+4. **Did I copy a pattern from another step?** If yes, confirm the mechanism is the same. Training-loop steps (batch → forward → loss → backward → optimizer) each have **different** correct abstractions.
+5. **Spot-check in `?view=present`** — read every label aloud as if presenting. Wrong wording counts as a ship blocker.
+
+**Work is not done until all five pass.**
+
+## What “correct” means here
+
+1. **Mechanisms, not metaphors only** — visuals must match how the real system works (e.g. pre-training batches are **full shifted sequences**; forward pass predicts at **every position** with a causal mask; **optimizer applies one update per weight from averaged gradients**).
+2. **Pedagogical simplification is allowed** — illustrative numbers, truncated windows, toy scales — **only if** a caption or label states the shortcut (e.g. “2048 tokens in production”, “illustrative probabilities”).
+3. **Internal consistency** — token lists, loss values, gradient signs, and tab content must agree with each other and with the step summary.
+4. **No confident falsehoods** — verify paper numbers, API behavior, and algorithm details; use “illustrative” when demo values are not factual.
+
+## Training-loop accuracy (common PPT pitfalls)
+
+| Step | Correct abstraction | Wrong pattern (reject) |
+|---|---|---|
+| Batch | Full shifted sequences; parallel position-wise targets | Prefix → single next word only |
+| Forward / Loss | One tab **per position** — different prediction/loss per token | — |
+| Backward | One ∂L/∂w **per weight**; chain rule from loss to layers | Per-position weight blame without aggregation story |
+| **Optimizer** | Gradients **averaged across batch** → **one update per weight** | Per-position optimizer tabs (implies separate updates per token) |
+| Monitor | Val vs train over steps — **high loss at top**, curves fall when learning; separate **overfitting** (val splits up) from **diverging** (loss spike) | Inverted Y-axis; calling val/train split “diverging”; unlabeled axes |
+
+When adding tabs, ask: **“Does this dimension actually vary in the real algorithm?”** If not, do not tab on it.
+
+## Common failure modes (reject on sight)
+
+- Training visual implying **one prediction per forward pass** on full-sequence pre-training.
+- **Prefix → single word** shown as batch loading instead of parallel position-wise prediction.
+- **Optimizer / weight-update** UI tied to token position when updates are batch-global.
+- Reusing **position tabs** on a step where the taught quantity is **not** position-specific.
+- Conflicting labels (running prompt, context chips, target token, loss values disagree).
+- Hard-coded stats presented as fact without source or “illustrative” framing.
+- Chart axes that hide what is being measured (e.g. loss plot with no Y-axis meaning).
+
+## When correcting inaccurate content
+
+1. Fix the **visualization**, **summary**, **tab labels**, and **caption** in the **same change**.
+2. Update `docs/component-gallery.md` if described behavior changed.
+3. Add the failure mode to mental checklist so the same mistake is not reintroduced.
+
+## Cross-rule dependencies
+
+- **All topics** (`.cursor/rules/content-accuracy-all-topics.mdc`) — search first, cite sources, flag uncertainty, verify all numbers; applies outside session files too.
+- **Simple English** (`.cursor/rules/session-simple-english.mdc`) — plain words on every label; jargon only when it is the lesson.
+- **Interactive-first** (`.cursor/rules/session-interactive-first.mdc`) — animations are required, but **wrong** animations are forbidden.
+- **Legibility / PPT fit** (`.cursor/rules/session-video-legibility.mdc`, `ppt-title-diagram-only.mdc`) — never justify inaccurate teaching to save vertical space.
+- **Authoring workflow** — `.cursor/skills/session-authoring/SKILL.md`; accuracy verification is part of **done**, not post-launch polish.

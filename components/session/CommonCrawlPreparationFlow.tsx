@@ -9,8 +9,11 @@ type AccentColor = "amber" | "teal" | "rose" | "violet" | "blue";
 
 /** Shared running example — same article traced through every stage. */
 const ARTICLE_URL = "https://techblog.com/how-attention-works";
-const RAW_HTML =
-  '<nav>Home</nav><ad>Buy now!</ad><p>Attention is the core mechanism of transformers.</p>';
+const RAW_HTML = `<nav><a href="/">Home</a></nav>
+<div class="ad">Buy now!</div>
+<article>
+  <p>Attention is the core mechanism of transformers.</p>
+</article>`;
 const CLEAN_TEXT = "Attention is the core mechanism of transformers.";
 const SAMPLE_TOKENS = ["Attention", "is", "the", "core", "mechanism", "of", "transform", "ers", "."];
 const SAMPLE_IDS = [13746, 318, 262, 4755, 8932, 286, 6123, 364, 13];
@@ -146,45 +149,45 @@ const DEFAULT_STAGES: CommonCrawlStage[] = [
   {
     id: "website",
     number: 1,
-    label: "Website exists on the internet",
-    phase: "Source",
+    label: "Start — pick one page on the web",
+    phase: "Start",
     emoji: "🌍",
     color: "amber",
-    transform: "Raw HTML page on the internet",
+    transform: "Live page on the internet (not in Common Crawl yet)",
     walkthrough: {
       mode: "text",
-      beforeLabel: "Before",
-      afterLabel: "After",
-      before: "No copy in any dataset — the page is only on the publisher's server.",
-      after: `URL: ${ARTICLE_URL}\n\n${RAW_HTML}`,
+      beforeLabel: "Nothing crawled yet",
+      afterLabel: "Page we'll follow",
+      before: "Common Crawl has not saved this page. It only exists on the publisher's server.",
+      after: `One article we'll trace through every step:\n\n${ARTICLE_URL}\n\n${RAW_HTML}`,
     },
     verdict: "neutral",
   },
   {
     id: "crawl",
     number: 2,
-    label: "Common Crawl robot visits and saves",
+    label: "Common Crawl bot saves the page",
     phase: "Crawl",
     emoji: "🤖",
     color: "amber",
-    transform: "WARC archive file (HTML saved by crawler)",
+    transform: "Saved copy of the page",
     walkthrough: {
       mode: "text",
       beforeLabel: "Before",
       afterLabel: "After",
-      before: `Crawler target:\n${ARTICLE_URL}`,
-      after: `WARC record:\n  url: ${ARTICLE_URL}\n  timestamp: 2024-03-15T08:42:11Z\n  payload: ${RAW_HTML}`,
+      before: `Page to fetch:\n${ARTICLE_URL}`,
+      after: `Saved file:\n  url: ${ARTICLE_URL}\n  date: 2024-03-15\n  html: ${RAW_HTML}`,
     },
     verdict: "pass",
   },
   {
     id: "extract",
     number: 3,
-    label: "HTML extraction",
+    label: "Strip out the text",
     phase: "Clean",
     emoji: "✂️",
     color: "teal",
-    transform: "Clean plain text (HTML stripped)",
+    transform: "Plain text only",
     walkthrough: {
       mode: "text",
       beforeLabel: "Before",
@@ -197,11 +200,11 @@ const DEFAULT_STAGES: CommonCrawlStage[] = [
   {
     id: "quality",
     number: 4,
-    label: "Quality filtering",
+    label: "Keep good pages, drop bad ones",
     phase: "Filter",
     emoji: "⭐",
     color: "rose",
-    transform: "Filtered text (quality checked)",
+    transform: "Text that passed the quality check",
     walkthrough: {
       mode: "filter-score",
       document: CLEAN_TEXT,
@@ -213,30 +216,30 @@ const DEFAULT_STAGES: CommonCrawlStage[] = [
   {
     id: "language",
     number: 5,
-    label: "Language detection",
+    label: "Keep English pages",
     phase: "Filter",
     emoji: "🇬🇧",
     color: "rose",
-    transform: "Filtered text (language confirmed)",
+    transform: "English text kept",
     walkthrough: {
       mode: "language",
       document: CLEAN_TEXT,
-      detected: "English (en)",
+      detected: "English",
     },
     verdict: "pass",
   },
   {
     id: "dedup",
     number: 6,
-    label: "Deduplication",
+    label: "Remove duplicate pages",
     phase: "Filter",
     emoji: "🔍",
     color: "rose",
-    transform: "Unique text (duplicates removed)",
+    transform: "Unique text — no near-duplicates",
     walkthrough: {
       mode: "dedup",
       document: CLEAN_TEXT,
-      hash: "MinHash: a7f3…9c2e",
+      hash: "Fingerprint: a7f3…9c2e",
       kept: true,
     },
     verdict: "pass",
@@ -244,11 +247,11 @@ const DEFAULT_STAGES: CommonCrawlStage[] = [
   {
     id: "tokenize",
     number: 7,
-    label: "Tokenization",
-    phase: "Tokenize",
+    label: "Split text into tokens",
+    phase: "Tokens",
     emoji: "🔢",
     color: "violet",
-    transform: "List of integer token IDs",
+    transform: "Words and subwords as numbered tokens",
     walkthrough: {
       mode: "token-grid",
       beforeLabel: "Before",
@@ -262,11 +265,11 @@ const DEFAULT_STAGES: CommonCrawlStage[] = [
   {
     id: "chunk",
     number: 8,
-    label: "Chunking into sequences",
-    phase: "Tokenize",
+    label: "Cut into fixed-size chunks",
+    phase: "Tokens",
     emoji: "📦",
     color: "violet",
-    transform: "Fixed-length sequences of 2,048 token IDs",
+    transform: "Chunks of 2,048 tokens each",
     walkthrough: {
       mode: "chunk-split",
       streamTokens: [...SAMPLE_TOKENS, "…", "billions", "more", "tokens", "…"],
@@ -280,11 +283,11 @@ const DEFAULT_STAGES: CommonCrawlStage[] = [
   {
     id: "pairs",
     number: 9,
-    label: "Training format — input / target pairs",
+    label: "Each token predicts the next",
     phase: "Train prep",
     emoji: "↔️",
     color: "blue",
-    transform: "(Input sequence, Target sequence) pairs",
+    transform: "Input tokens → target tokens (shifted by one)",
     walkthrough: {
       mode: "input-target",
       inputTokens: SAMPLE_TOKENS,
@@ -298,11 +301,11 @@ const DEFAULT_STAGES: CommonCrawlStage[] = [
   {
     id: "train",
     number: 10,
-    label: "Model training",
+    label: "Train the model",
     phase: "Train",
     emoji: "🧠",
     color: "blue",
-    transform: "Trained model weights",
+    transform: "Updated model weights",
     walkthrough: {
       mode: "training-batch",
       batchSize: 512,
@@ -318,16 +321,15 @@ const DEFAULT_STAGES: CommonCrawlStage[] = [
   {
     id: "user",
     number: 11,
-    label: "User asks a question",
-    phase: "Inference",
+    label: "You ask a question",
+    phase: "Use",
     emoji: "💬",
     color: "teal",
-    transform: "Generated answer from learned weights",
+    transform: "Answer from the trained model",
     walkthrough: {
       mode: "inference",
       question: "What is the core mechanism of transformers?",
-      answer:
-        "Attention is the core mechanism — it lets each token weigh every other token when building its representation.",
+      answer: "Attention — each token looks at the other tokens to build meaning.",
     },
     verdict: "neutral",
   },
@@ -468,7 +470,7 @@ function WalkthroughPanel({ walkthrough }: { walkthrough: StageWalkthrough }) {
       <BeforeAfterPanel
         before={
           <>
-            <p className={textBody}>All documents merged into one flat token stream.</p>
+            <p className={textBody}>All pages merged into one long list of tokens.</p>
             <div className="mt-5">
               <TokenGrid
                 tokens={walkthrough.streamTokens.slice(0, previewLen)}
@@ -483,8 +485,8 @@ function WalkthroughPanel({ walkthrough }: { walkthrough: StageWalkthrough }) {
         after={
           <>
             <p className={textBody}>
-              Sequence #{walkthrough.chunkIndex.toLocaleString()} · {walkthrough.chunkSize.toLocaleString()} tokens ·{" "}
-              {walkthrough.totalChunks} of these
+              Chunk {walkthrough.chunkIndex.toLocaleString()} · {walkthrough.chunkSize.toLocaleString()} tokens ·{" "}
+              {walkthrough.totalChunks} chunks like this
             </p>
             <div className="mt-5">
               <TokenGrid
@@ -524,13 +526,13 @@ function WalkthroughPanel({ walkthrough }: { walkthrough: StageWalkthrough }) {
               size="hero"
             />
             <p className="mt-5 text-lg leading-relaxed text-gray-200 md:text-xl">
-              Shift +1 — after{" "}
+              After{" "}
               <span className="font-semibold text-white">
                 {walkthrough.inputTokens.slice(0, hi + 1).join(" ")}
               </span>
-              , predict{" "}
+              , the model predicts{" "}
               <span className="font-bold text-teal-300">
-                {walkthrough.targetTokens[hi]} (ID {walkthrough.targetIds[hi]})
+                {walkthrough.targetTokens[hi]}
               </span>
             </p>
           </>
@@ -548,7 +550,10 @@ function WalkthroughPanel({ walkthrough }: { walkthrough: StageWalkthrough }) {
           <>
             <p className="text-4xl font-bold text-white md:text-5xl">{walkthrough.score.toFixed(2)}</p>
             <p className="mt-3 text-xl text-gray-200 md:text-2xl">
-              Threshold {walkthrough.threshold} → {pass ? "✅ kept" : "❌ discarded"}
+              Cutoff {walkthrough.threshold} → {pass ? "✅ kept" : "❌ dropped"}
+            </p>
+            <p className="mt-3 text-lg text-gray-300 md:text-xl">
+              Scored against good pages from WebText, books, and Wikipedia.
             </p>
           </>
         }
@@ -563,7 +568,7 @@ function WalkthroughPanel({ walkthrough }: { walkthrough: StageWalkthrough }) {
         after={
           <>
             <p className="text-3xl font-bold text-white md:text-4xl">{walkthrough.detected}</p>
-            <p className="mt-3 text-xl text-teal-300 md:text-2xl">✅ English — document kept</p>
+            <p className="mt-3 text-xl text-teal-300 md:text-2xl">✅ English — page kept</p>
           </>
         }
       />
@@ -582,8 +587,8 @@ function WalkthroughPanel({ walkthrough }: { walkthrough: StageWalkthrough }) {
         after={
           <p className={textBody}>
             {walkthrough.kept
-              ? "✅ No near-duplicate found — document is unique and kept."
-              : "❌ Near-duplicate of an earlier page — discarded."}
+              ? "✅ No matching duplicate — this page is unique and kept."
+              : "❌ Matches an earlier page too closely — dropped."}
           </p>
         }
       />
@@ -610,7 +615,7 @@ function WalkthroughPanel({ walkthrough }: { walkthrough: StageWalkthrough }) {
               size="hero"
             />
             <p className="mt-5 text-lg text-gray-200 md:text-xl">
-              × {walkthrough.batchSize} pairs per batch → predict, compare loss, update weights
+              {walkthrough.batchSize} examples per batch — predict, check error, update weights
             </p>
           </>
         }
@@ -627,8 +632,8 @@ function WalkthroughPanel({ walkthrough }: { walkthrough: StageWalkthrough }) {
 }
 
 export default function CommonCrawlPreparationFlow({
-  title = "Common Crawl — from one web page to trained weights",
-  caption = "Step through all 10 preparation stages, then see how a user question uses the learned weights.",
+  title = "One web page through the full pipeline",
+  caption = "Step through each stage — from a live page to tokens, training, and a real answer.",
   stages = DEFAULT_STAGES,
   autoPlayIntervalMs = 2800,
 }: CommonCrawlPreparationFlowProps) {
@@ -754,7 +759,7 @@ export default function CommonCrawlPreparationFlow({
 
           <div className="rounded-2xl border-2 border-violet-500/40 bg-violet-950/25 p-6 md:p-8">
             <p className="text-lg font-bold uppercase tracking-wide text-violet-200 md:text-xl">
-              Data at this stage
+              What you have now
             </p>
             <p className="mt-3 text-2xl font-semibold text-white md:text-3xl">{stage.transform}</p>
           </div>

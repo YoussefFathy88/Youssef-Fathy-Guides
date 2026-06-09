@@ -17,6 +17,8 @@ Sessions are recorded in **presenter mode** and published on **YouTube (1080p)**
 
 If in doubt between two sizes — always pick the **larger** one. Fewer words at larger size beats more words at small size.
 
+**Simple English is mandatory** — `.cursor/rules/session-simple-english.mdc`. Short plain words on every label; no jargon unless it is the concept being taught.
+
 ## Typography — hard minimums (never go below)
 
 | Role | Tailwind floor | Preferred on full-slide panels |
@@ -55,26 +57,41 @@ Interactives are shown under a large `##` title in **presenter mode** (`?view=pr
 
 **Design for the slide, not the article view.**
 
+**Long slides are a recording defect.** If the presenter must scroll to read the active step on a 1080p stream, the slide is too tall — fix it before shipping.
+
 ### What “fits” means
 
-- The **active step** of an animation should be readable **without vertical scrolling** on a 1080p presenter viewport.
-- **Clear, big text** (see typography table above) **and** **short copy** — large type does not excuse long paragraphs.
-- Prefer **one teaching frame per step**: e.g. stage header → **Before / After** → optional one-line **Data at this stage** footer. Good reference: `CommonCrawlPreparationFlow` after slim-down.
+- The **active step** of an animation should be readable **without vertical scrolling** on a 1080p presenter viewport. **Zero scroll is the bar**, not a nice-to-have.
+- **Short and compact beats complete and tall.** Prefer the smallest layout that still teaches the idea — one row, one diagram band, one caption line.
+- **Clear, big text** (see typography table above) **and** **short copy** — large type does not excuse long paragraphs or extra rows.
+- Prefer **one teaching frame per step**: e.g. stage header → **Before / After** → optional one-line footer. Good reference: `CommonCrawlPreparationFlow` after slim-down.
 - Use **internal step-through** (Prev / Play / Next, tabs, phases) to reveal more — **never stack duplicate panels** on the same step (e.g. Input/Action/Output + “At a glance” + full walkthrough = too tall for PPT).
+- **Prefer tabs over long vertical stacks.** If a step has multiple examples, sequences, sources, or variants (e.g. Sequence 1 + Sequence 2, Corpus A + Corpus B), show **one at a time via tabs** — not stacked cards below each other. Good references: `Gpt3DataSourcesExplorer`, `PreTrainingLoopExplorer` (batch sequence tabs), `RNNWorkingExample`.
+
+### Slide height budget — cut rows before you cut type
+
+When the active step feels tall:
+
+1. **Remove a row** — weight grids, token grids, and card lists default to **one row** (3 items). Never use two rows on a busy step.
+2. **Remove a section** — drop redundant headers, duplicate footers, or a second teaching panel on the same step.
+3. **Add a tab or internal step** — move the extra content behind navigation instead of stacking it vertically.
+4. **Never** shrink type or padding to cram more in — that violates legibility and still scrolls on video.
 
 ### Copy length limits (teaching UI)
 
 - **Before / After labels:** 2–4 words (`Before`, `After`, or `Before — plain text`).
 - **Body lines:** 1–2 short sentences per panel, or a **small concrete example** (URL, one HTML line, token grid preview) — not walls of text.
 - **Monospace / JSON / WARC snippets:** show the **minimum** that teaches the idea; truncate with `…` when the full payload is not needed on video.
-- **Token grids / tables:** preview **4–6 items** per row on slide-scale panels; “… + N more” for the rest.
+- **Token grids / tables / weight samples:** **one row only** (3–4 items) on slide-scale panels; “… + N more” in the caption for the rest. Two-row grids are an anti-pattern when the step already has a header, diagram, or tabs.
 - If the idea needs more detail → **next step** or **next slide**, not smaller text or more stacked sections.
 
 ### Anti-patterns (reject on sight)
 
+- **Multiple examples stacked vertically** on one step (Sequence 1 block, then Sequence 2 block, then Sequence 3…) — use **tabs** or **Prev/Next** instead; only the active item should be visible.
 - Three or more **independent vertical sections** teaching the same step (summary cards + hero diagram + full walkthrough).
 - Tiny SVG or `text-sm` labels in a large empty box — use **HTML + large type**, not illegible diagram placeholders.
-- Scrolling the presenter slide to read the animation — split the component or add steps.
+- **Scrolling the presenter slide** to read the animation — split the component, remove a row/section, or add steps. A slide that scrolls is not shippable.
+- **Two-row grids or card lists** on steps that already have tabs, a hero diagram, or a loss/header block — use one row + “… + N more” instead.
 
 ### When building or editing animations
 
@@ -92,4 +109,5 @@ Interactives are shown under a large `##` title in **presenter mode** (`?view=pr
 
 - Any **new** session-facing component must meet this rule from the very first commit
 - When editing an existing component, **upgrade all typography in that component** to meet these minimums — do not leave old small text alongside new large text
+- **Accuracy is independent of legibility** — never ship wrong teaching content to fit the slide; see `.cursor/rules/session-educational-accuracy.mdc`
 - Non-user-facing code (`lib/`, types, tests) is exempt, but do not re-export tiny UI from shared session barrels
