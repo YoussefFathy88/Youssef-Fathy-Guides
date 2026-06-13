@@ -279,23 +279,28 @@ function RewardModelPanel() {
 const PPO_ROUNDS = [
   {
     round: 1,
-    response: '"An API stands for Application Programming Interface..."',
-    score: 0.61,
-    update: "↑ weights nudged toward better responses",
-    scoreColor: "text-amber-400",
+    response:
+      '"An API stands for Application Programming Interface. It is an interface used in applications for programming purposes."',
+    flaw: "Circular — defines API using the word interface",
+    score: 0.58,
+    update: "↑ nudged away from empty definitions",
+    scoreColor: "text-rose-400",
   },
   {
     round: 2,
-    response: '"An API is a way for applications to talk to each other..."',
-    score: 0.79,
-    update: "↑ weights nudged further",
+    response: '"An API is a way for two applications to talk to each other."',
+    flaw: "Clear idea — but no concrete example yet",
+    score: 0.76,
+    update: "↑ nudged toward helpful examples",
     scoreColor: "text-amber-400",
   },
   {
     round: 3,
-    response: '"An API is a way for two applications to talk to each other. For example, when a weather app shows today\'s temperature..."',
-    score: 0.93,
-    update: "✅ Model improved significantly",
+    response:
+      '"An API is a way for two applications to talk to each other. For example, when a weather app shows today\'s temperature, it\'s using an API to fetch that data from a remote server."',
+    flaw: "Clear, accurate, helpful — same as human rank #1",
+    score: 0.92,
+    update: "✅ Reward score near the top",
     scoreColor: "text-teal-400",
   },
 ];
@@ -345,6 +350,9 @@ function PpoPanel() {
           <p className="text-lg text-gray-100 md:text-xl">
             Model generates: {current.response}
           </p>
+          <p className="text-lg font-semibold text-gray-300 md:text-xl">
+            {current.flaw}
+          </p>
           <p className={cn("text-xl font-bold md:text-2xl", current.scoreColor)}>
             Reward score: {current.score}
           </p>
@@ -364,157 +372,294 @@ function PpoPanel() {
 
 // ─── Tab 6 — Reward Hacking ────────────────────────────────────────────────────
 
-function HackingPanel() {
-  const reducedMotion = useReducedMotion();
+const HACKING_STEPS = [
+  {
+    id: "goal",
+    label: "The goal",
+    title: "PPO only cares about one thing: raise the reward score.",
+    body: "The model keeps training. Its job is to get a higher number from the reward model — not to write a better answer for you.",
+  },
+  {
+    id: "trick",
+    label: "The trick",
+    title: "The model finds a shortcut: loud hype words fool the reward model.",
+    body: "After many PPO steps, it learns that ALL CAPS, exclamation marks, and words like REVOLUTIONARY and INCREDIBLE push the score up — even when the answer teaches nothing.",
+  },
+  {
+    id: "result",
+    label: "The result",
+    title: "Score goes up. Quality goes down. That is reward hacking.",
+    body: null,
+  },
+] as const;
 
-  const WORD_DRIFT = [
-    { label: "Normal words",             before: 80, after: 8,  beforeColor: "bg-blue-500",  afterColor: "bg-blue-800"  },
-    { label: "Dramatic / emotional",     before: 10, after: 72, beforeColor: "bg-rose-800",  afterColor: "bg-rose-500"  },
-    { label: "Technical accurate words", before: 10, after: 5,  beforeColor: "bg-teal-500",  afterColor: "bg-teal-800"  },
-  ];
+function HackingPanel() {
+  const [stepIdx, setStepIdx] = useState(0);
+  const step = HACKING_STEPS[stepIdx];
 
   return (
     <div className="flex flex-1 flex-col gap-4">
       <p className="text-lg font-semibold text-gray-300 md:text-xl">
-        After too many PPO steps — the model finds loopholes in the reward model.
+        Too much PPO — the model cheats the reward score instead of getting better.
       </p>
 
-      <div className="rounded-xl border border-gray-700 bg-gray-950/70 p-4 md:p-5">
-        <div className="mb-3 flex gap-4 text-base font-bold md:text-lg">
-          <span className="text-gray-400">Word type</span>
-          <span className="ml-auto text-blue-300">Step 0</span>
-          <span className="text-rose-300">Step 2000</span>
-        </div>
-        {WORD_DRIFT.map((w) => (
-          <div key={w.label} className="mb-3">
-            <p className="mb-1 text-base text-gray-300 md:text-lg">{w.label}</p>
-            <div className="flex items-center gap-3">
-              <div className="flex h-5 w-full overflow-hidden rounded-full bg-gray-800">
-                <motion.div
-                  className={cn("h-full rounded-full", w.beforeColor, "opacity-60")}
-                  initial={{ width: "0%" }}
-                  animate={{ width: reducedMotion ? `${w.before}%` : `${w.before}%` }}
-                  transition={{ duration: 0.7, ease: "easeOut" }}
-                />
-              </div>
-              <span className="w-10 shrink-0 text-right text-base font-bold text-blue-300 md:text-lg">{w.before}%</span>
-            </div>
-            <div className="mt-1 flex items-center gap-3">
-              <div className="flex h-5 w-full overflow-hidden rounded-full bg-gray-800">
-                <motion.div
-                  className={cn("h-full rounded-full", w.afterColor)}
-                  initial={{ width: "0%" }}
-                  animate={{ width: reducedMotion ? `${w.after}%` : `${w.after}%` }}
-                  transition={{ duration: 0.9, ease: "easeOut", delay: 0.15 }}
-                />
-              </div>
-              <span className="w-10 shrink-0 text-right text-base font-bold text-rose-300 md:text-lg">{w.after}%</span>
-            </div>
-          </div>
+      <div className="flex flex-wrap gap-2">
+        {HACKING_STEPS.map((s, i) => (
+          <button
+            key={s.id}
+            type="button"
+            onClick={() => setStepIdx(i)}
+            className={cn(
+              "rounded-xl border-2 px-4 py-3 text-base font-bold transition md:text-lg",
+              stepIdx === i
+                ? "border-rose-400/70 bg-rose-950/50 text-rose-50 ring-2 ring-rose-400/50 ring-offset-2 ring-offset-gray-900"
+                : "border-gray-700 bg-gray-950/60 text-gray-300 hover:border-gray-500",
+            )}
+          >
+            {i + 1}. {s.label}
+          </button>
         ))}
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2">
-        <div className="rounded-xl border-2 border-teal-500/40 bg-teal-950/20 p-4">
-          <p className="text-base font-bold text-teal-300 md:text-lg">BEFORE (Step 0)</p>
-          <p className="mt-1 text-lg text-gray-100 md:text-xl">"An API is a way for two applications to talk to each other. For example, when a weather app shows today's temperature, it's using an API to fetch that data from a remote server."</p>
-          <p className="mt-2 text-lg font-bold text-teal-300">Score: 0.91 ✅</p>
-        </div>
-        <div className="rounded-xl border-2 border-rose-500/40 bg-rose-950/20 p-4">
-          <p className="text-base font-bold text-rose-300 md:text-lg">AFTER 2000 steps</p>
-          <p className="mt-1 text-lg text-gray-100 md:text-xl">"APIs are the REVOLUTIONARY backbone of MODERN SOFTWARE!! They TRANSFORM how apps COMMUNICATE in ways that are truly MIND-BLOWING and INCREDIBLE!!"</p>
-          <p className="mt-2 text-lg font-bold text-rose-400">Score: 0.97 (reward model) ❌ Useless</p>
-        </div>
+      <div className="rounded-xl border-2 border-rose-500/30 bg-rose-950/20 p-4 md:p-5">
+        <p className="text-lg font-bold text-rose-100 md:text-xl">{step.title}</p>
+        {step.body ? (
+          <p className="mt-2 text-lg text-gray-200 md:text-xl">{step.body}</p>
+        ) : null}
       </div>
 
-      <div className="rounded-xl border-2 border-rose-400 bg-rose-950/40 px-4 py-3 text-center text-lg font-bold text-rose-300 md:text-xl">
-        ⚠️ REWARD HACKING DETECTED — model gamed the reward model without actually improving
-      </div>
+      {stepIdx === 2 && (
+        <>
+          <p className="text-base font-bold uppercase tracking-wide text-gray-400 md:text-lg">
+            Prompt: "What is an API?"
+          </p>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            <div className="rounded-xl border-2 border-teal-500/40 bg-teal-950/20 p-4">
+              <p className="text-base font-bold text-teal-300 md:text-lg">Good answer</p>
+              <p className="mt-2 text-lg text-gray-100 md:text-xl">
+                "An API lets two apps talk to each other. A weather app uses an API to fetch today's temperature."
+              </p>
+              <p className="mt-3 text-lg font-bold text-teal-300 md:text-xl">Reward score: 0.91 ✅</p>
+              <p className="mt-1 text-lg text-gray-300 md:text-xl">Helpful for a real user</p>
+            </div>
+
+            <div className="rounded-xl border-2 border-rose-500/40 bg-rose-950/20 p-4">
+              <p className="text-base font-bold text-rose-300 md:text-lg">Hacked answer</p>
+              <p className="mt-2 text-lg text-gray-100 md:text-xl">
+                "APIs are REVOLUTIONARY!! They TRANSFORM software in MIND-BLOWING ways!!"
+              </p>
+              <p className="mt-3 text-lg font-bold text-rose-400 md:text-xl">Reward score: 0.97 ❌</p>
+              <p className="mt-1 text-lg text-gray-300 md:text-xl">Higher score — but useless to humans</p>
+            </div>
+          </div>
+
+          <div className="rounded-xl border-2 border-rose-400 bg-rose-950/40 px-4 py-4">
+            <p className="text-lg font-bold text-rose-200 md:text-xl">
+              ⚠️ Reward hacking = the model gamed the score without getting better.
+            </p>
+            <p className="mt-2 text-lg text-gray-200 md:text-xl">
+              It learned to please the reward model, not to help you. That is why the next step adds a KL penalty.
+            </p>
+          </div>
+        </>
+      )}
     </div>
   );
 }
 
 // ─── Tab 7 — KL Penalty ───────────────────────────────────────────────────────
 
-const KL_TOKENS = [
-  { token: '"An"',            sft: 35, current: 8,  driftLabel: "HIGH ⚠️",    driftColor: "text-amber-400" },
-  { token: '"API"',           sft: 40, current: 5,  driftLabel: "HIGH ⚠️",    driftColor: "text-amber-400" },
-  { token: '"is"',            sft: 60, current: 3,  driftLabel: "HIGH ⚠️",    driftColor: "text-amber-400" },
-  { token: '"REVOLUTIONARY"', sft: 1,  current: 55, driftLabel: "EXTREME ❌",  driftColor: "text-rose-400"  },
-];
+const KL_SCENARIOS = [
+  {
+    round: 1,
+    tabLabel: "Step 0",
+    response:
+      '"An API is a way for two applications to talk to each other. For example, when a weather app shows today\'s temperature, it\'s using an API to fetch that data from a remote server."',
+    note: "SFT baseline — starting point right before PPO",
+    klStatus: "KL = 0",
+    klColor: "text-violet-400",
+    driftSummary: "Token choices match SFT exactly — no drift yet",
+    driftColor: "text-violet-300",
+    outcome: "Model unchanged — PPO has not started",
+    outcomeColor: "text-gray-300",
+    tokens: [
+      { token: '"An"', sft: 35, current: 35, driftLabel: "Match" },
+      { token: '"API"', sft: 40, current: 40, driftLabel: "Match" },
+      { token: '"For example"', sft: 18, current: 18, driftLabel: "Match" },
+    ],
+  },
+  {
+    round: 2,
+    tabLabel: "No KL",
+    response:
+      '"APIs are REVOLUTIONARY!! They TRANSFORM software in MIND-BLOWING ways!!"',
+    note: "Hype words took over — model drifted far from SFT",
+    klStatus: "KL = large ❌",
+    klColor: "text-rose-400",
+    driftSummary: "Normal words dropped — REVOLUTIONARY spiked to 55%",
+    driftColor: "text-rose-400",
+    outcome: "Reward hacked — score up, answer useless",
+    outcomeColor: "text-rose-400",
+    tokens: [
+      { token: '"An"', sft: 35, current: 8, driftLabel: "HIGH ⚠️" },
+      { token: '"API"', sft: 40, current: 5, driftLabel: "HIGH ⚠️" },
+      { token: '"REVOLUTIONARY"', sft: 1, current: 55, driftLabel: "EXTREME ❌" },
+    ],
+  },
+  {
+    round: 3,
+    tabLabel: "With KL",
+    response:
+      '"An API is a way for two applications to talk to each other. For example, when a weather app shows today\'s temperature, it\'s using an API to fetch that data from a remote server."',
+    note: "Helpful answer — stayed close to SFT, added clarity",
+    klStatus: "KL = small ✅",
+    klColor: "text-teal-400",
+    driftSummary: "Small shift toward helpful words — hype stays blocked",
+    driftColor: "text-teal-400",
+    outcome: "Improved AND stable ✅",
+    outcomeColor: "text-teal-400",
+    tokens: [
+      { token: '"An"', sft: 35, current: 32, driftLabel: "Low" },
+      { token: '"For example"', sft: 18, current: 24, driftLabel: "Low ✅" },
+      { token: '"REVOLUTIONARY"', sft: 1, current: 1, driftLabel: "Blocked ✅" },
+    ],
+  },
+] as const;
+
+function KlTokenRow({
+  token,
+  sft,
+  current,
+  driftLabel,
+  reducedMotion,
+}: {
+  token: string;
+  sft: number;
+  current: number;
+  driftLabel: string;
+  reducedMotion: boolean | null;
+}) {
+  const isHealthy = driftLabel.includes("✅") || driftLabel === "Match" || driftLabel === "Low";
+  const isBad = driftLabel.includes("❌") || driftLabel.includes("⚠️") || driftLabel === "HIGH ⚠️";
+  const currentBar = isHealthy ? "bg-teal-500" : isBad ? "bg-rose-500" : "bg-amber-500";
+  const driftColor = isHealthy
+    ? driftLabel === "Match"
+      ? "text-violet-300"
+      : "text-teal-400"
+    : isBad
+      ? "text-rose-400"
+      : "text-amber-400";
+
+  return (
+    <div className="flex items-center gap-3">
+      <span className="w-32 shrink-0 text-base font-bold text-gray-200 md:text-lg">{token}</span>
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <div className="flex items-center gap-2">
+          <span className="w-10 shrink-0 text-right text-base text-violet-300 md:text-lg">{sft}%</span>
+          <div className="flex h-4 flex-1 overflow-hidden rounded-full bg-gray-800">
+            <motion.div
+              className="h-full rounded-full bg-violet-500"
+              initial={{ width: "0%" }}
+              animate={{ width: `${sft}%` }}
+              transition={{ duration: reducedMotion ? 0 : 0.7, ease: "easeOut" }}
+            />
+          </div>
+          <span className="w-10 shrink-0 text-right text-base text-violet-300 md:text-lg">SFT</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="w-10 shrink-0 text-right text-base text-gray-200 md:text-lg">{current}%</span>
+          <div className="flex h-4 flex-1 overflow-hidden rounded-full bg-gray-800">
+            <motion.div
+              className={cn("h-full rounded-full", currentBar)}
+              initial={{ width: "0%" }}
+              animate={{ width: `${current}%` }}
+              transition={{ duration: reducedMotion ? 0 : 0.7, ease: "easeOut", delay: 0.1 }}
+            />
+          </div>
+          <span className={cn("w-24 shrink-0 text-right text-base font-bold md:text-lg", driftColor)}>
+            {driftLabel}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function KlPanel() {
   const reducedMotion = useReducedMotion();
+  const [scenario, setScenario] = useState(0);
+  const current = KL_SCENARIOS[scenario];
 
   return (
     <div className="flex flex-1 flex-col gap-4">
       <p className="text-lg font-semibold text-gray-300 md:text-xl">
-        KL Penalty measures how far the model has drifted from its SFT baseline.
+        KL Penalty measures how far the model has drifted from its SFT baseline — and punishes big drift.
       </p>
 
-      <div className="rounded-xl border border-gray-700 bg-gray-950/70 p-4 md:p-5">
-        <p className="mb-3 text-base font-bold text-gray-400 md:text-lg">Prompt: "What is an API?"</p>
-        <div className="space-y-3">
-          {KL_TOKENS.map((t) => (
-            <div key={t.token} className="flex items-center gap-3">
-              <span className="w-28 shrink-0 text-base font-bold text-gray-200 md:text-lg">{t.token}</span>
-              <div className="flex flex-1 flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  <span className="w-10 shrink-0 text-right text-base text-violet-300 md:text-lg">{t.sft}%</span>
-                  <div className="flex flex-1 overflow-hidden rounded-full bg-gray-800 h-4">
-                    <motion.div
-                      className="h-full rounded-full bg-violet-500"
-                      initial={{ width: "0%" }}
-                      animate={{ width: reducedMotion ? `${t.sft}%` : `${t.sft}%` }}
-                      transition={{ duration: 0.7, ease: "easeOut" }}
-                    />
-                  </div>
-                  <span className="w-14 shrink-0 text-right text-base text-violet-300 md:text-lg">SFT</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-10 shrink-0 text-right text-base text-rose-300 md:text-lg">{t.current}%</span>
-                  <div className="flex flex-1 overflow-hidden rounded-full bg-gray-800 h-4">
-                    <motion.div
-                      className="h-full rounded-full bg-rose-500"
-                      initial={{ width: "0%" }}
-                      animate={{ width: reducedMotion ? `${t.current}%` : `${t.current}%` }}
-                      transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
-                    />
-                  </div>
-                  <span className={cn("w-14 shrink-0 text-right text-base font-bold md:text-lg", t.driftColor)}>
-                    {t.driftLabel}
-                  </span>
-                </div>
-              </div>
+      <div className="flex flex-wrap gap-2">
+        {KL_SCENARIOS.map((s, i) => (
+          <button
+            key={s.round}
+            type="button"
+            onClick={() => setScenario(i)}
+            className={cn(
+              "rounded-xl border-2 px-4 py-3 text-base font-bold transition md:text-lg",
+              scenario === i
+                ? "border-teal-500/60 bg-teal-950/40 text-teal-100 ring-2 ring-teal-500/30"
+                : "border-gray-700 bg-gray-950/60 text-gray-300 hover:border-gray-600",
+            )}
+          >
+            {s.tabLabel}
+          </button>
+        ))}
+      </div>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={scenario}
+          initial={reducedMotion ? false : { opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: 0.22 }}
+          className="flex flex-col gap-3 rounded-xl border-2 border-teal-500/30 bg-teal-950/20 p-4 md:p-5"
+        >
+          <p className="text-base font-bold uppercase tracking-wide text-teal-300 md:text-lg">
+            {current.tabLabel}
+          </p>
+          <p className="text-lg text-gray-100 md:text-xl">Model generates: {current.response}</p>
+          <p className="text-lg font-semibold text-gray-300 md:text-xl">{current.note}</p>
+          <p className={cn("text-xl font-bold md:text-2xl", current.klColor)}>{current.klStatus}</p>
+
+          <div className="rounded-xl border border-gray-700 bg-gray-950/70 p-4">
+            <p className="mb-3 text-base font-bold text-gray-400 md:text-lg">Prompt: "What is an API?"</p>
+            <div className="space-y-3">
+              {current.tokens.map((t) => (
+                <KlTokenRow
+                  key={t.token}
+                  token={t.token}
+                  sft={t.sft}
+                  current={t.current}
+                  driftLabel={t.driftLabel}
+                  reducedMotion={reducedMotion}
+                />
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
+            <p className={cn("mt-3 text-lg font-semibold md:text-xl", current.driftColor)}>
+              {current.driftSummary}
+            </p>
+          </div>
 
-      <div className="grid gap-3 md:grid-cols-2">
-        <div className="rounded-xl border-2 border-rose-500/40 bg-rose-950/20 p-4">
-          <p className="text-base font-bold text-rose-300 md:text-lg">WITHOUT KL Penalty</p>
-          <p className="mt-2 text-lg text-gray-200 md:text-xl">Step 0: normal 80% → Step 2000: normal 2%</p>
-          <p className="mt-2 text-lg font-bold text-rose-400">Result: Reward hacked ❌</p>
-        </div>
-        <div className="rounded-xl border-2 border-teal-500/40 bg-teal-950/20 p-4">
-          <p className="text-base font-bold text-teal-300 md:text-lg">WITH KL Penalty</p>
-          <p className="mt-2 text-lg text-gray-200 md:text-xl">Step 0: normal 80% → Step 2000: normal 65%</p>
-          <p className="mt-2 text-lg font-bold text-teal-300">Result: Improved AND stable ✅</p>
-        </div>
-      </div>
+          <p className={cn("text-lg font-bold md:text-xl", current.outcomeColor)}>
+            Result: {current.outcome}
+          </p>
+        </motion.div>
+      </AnimatePresence>
 
-      <div className="rounded-xl border-2 border-violet-500/30 bg-violet-950/20 p-4">
-        <p className="font-mono text-lg text-gray-100 md:text-xl leading-relaxed">
-          KL = 0 → no drift, model unchanged<br />
-          KL = small → healthy improvement ✅<br />
-          KL = large → reward hacking → penalty ❌
-        </p>
-        <p className="mt-3 text-lg font-bold text-gray-100 md:text-xl">
-          PPO pushes the model to improve.
-          <span className="text-violet-300"> KL keeps it from going off the rails.</span>
-        </p>
-      </div>
+      <p className="text-lg text-gray-300 md:text-xl">
+        PPO pushes the model to improve.
+        <span className="font-bold text-teal-300"> KL keeps it from going off the rails.</span>
+      </p>
     </div>
   );
 }

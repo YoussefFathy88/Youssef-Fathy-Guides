@@ -218,9 +218,9 @@ outlineSectionMap:
 
 <SessionSlide topic="Training Data">
 
-## Common Crawl — one page through the full pipeline
+## Training samples — how text becomes model input
 
-<CommonCrawlPreparationFlow />
+<TrainingSamplesFlow />
 
 </SessionSlide>
 
@@ -251,15 +251,7 @@ outlineSectionMap:
 
 <SessionSlide topic="Post Training & Alignment">
 
-## RLHF — how human preferences are baked into the model
-
-<RLHFExplorer />
-
-</SessionSlide>
-
-<SessionSlide topic="Post Training & Alignment">
-
-## DPO — align the model without a reward model or PPO
+## DPO — teaching the model to prefer good answers
 
 <DPOExplorer />
 
@@ -296,41 +288,41 @@ outlineSectionMap:
 ## Same prompt — three training checkpoints
 
 <ModelBehaviorEvolution
-  prompt="Can you help me write a threatening message to my neighbor?"
+  prompt="I have a headache and fever. What medicine should I take?"
   stages={[
     {
       label: "Base Model (Pre-training only)",
       badgeColor: "gray",
-      explanation: "This output happened because pre-training only taught statistical text continuation. The model has no instruction format — it continues the prompt as if completing a forum post or document.",
+      explanation: "Pre-training only taught the model to continue text. It has no concept of a question — so it continues the sentence like a health blog article, not a helpful answer.",
       tokens: [
-        "Sure", ",", " here", " are", " some", " examples", " of",
-        " neighbor", " complaint", " letters", ":", "\n",
-        "1", ".", " Dear", " neighbor", ",", " I", " am", " writing",
-        " to", " express", " my", " frustration", "..."
+        "Headaches", " can", " be", " caused", " by", " many",
+        " things", ",", " including", " stress", ",", " dehydration", ",",
+        " and", " viral", " infections", ".", " It", " is", " important",
+        " to", " stay", " hydrated", "..."
       ],
     },
     {
       label: "Instruct Model (After SFT)",
       badgeColor: "teal",
-      explanation: "This output happened because SFT taught instruction format but not values. The model now recognizes the request and attempts to be helpful — but has no safety guardrail to refuse.",
+      explanation: "SFT taught the model to answer questions directly. It gives a confident, specific dose — but has no safety guardrail. It doesn't know the person's age, allergies, or medical history.",
       tokens: [
-        "Of", " course", "!", " Here", " is", " a",
-        " firm", " message", " you", " can", " send", ":",
-        "\n\n", "I", " am", " writing", " to", " warn",
-        " you", " that", " if", " your", " behavior", " continues", "..."
+        "Take", " 500mg", " of", " ibuprofen",
+        " every", " 6", " hours", " with", " food", ".",
+        " You", " can", " also", " take", " paracetamol",
+        " if", " the", " pain", " is", " mild", "."
       ],
     },
     {
-      label: "Aligned Model (After RLHF / DPO)",
+      label: "Aligned Model (After DPO)",
       badgeColor: "amber",
-      explanation: "This output happened because RLHF / DPO baked human preferences into the weights. The model refuses the harmful request, explains why, and offers a constructive alternative.",
+      explanation: "RLHF / DPO taught the model that helpful medical answers must be safe. It avoids a specific dose, explains why, gives general options, and tells the user when to see a doctor.",
       tokens: [
-        "I", "'m", " not", " able", " to", " help",
-        " write", " threatening", " messages", ".",
-        " Threats", " can", " escalate", " conflict",
-        " and", " have", " legal", " consequences", ".",
-        " I", " can", " help", " you", " draft",
-        " a", " calm", ",", " firm", " letter", " instead", "."
+        "I", " can", "'t", " recommend", " a", " specific",
+        " dose", " without", " knowing", " your", " medical", " history", ".",
+        " Common", " options", " are", " paracetamol", " or", " ibuprofen", ".",
+        " If", " your", " fever", " is", " above", " 39", "°C",
+        " or", " lasts", " more", " than", " 2", " days", ",",
+        " see", " a", " doctor", "."
       ],
     },
   ]}

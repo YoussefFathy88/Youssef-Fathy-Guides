@@ -73,6 +73,7 @@ export { default as Gpt3DataSourcesExplorer } from "../session/Gpt3DataSourcesEx
 export type { Gpt3DataSource, Gpt3DataSourcesExplorerProps } from "../session/Gpt3DataSourcesExplorer";
 export { default as CommonCrawlPreparationFlow } from "../session/CommonCrawlPreparationFlow";
 export type { CommonCrawlStage, CommonCrawlPreparationFlowProps, StageWalkthrough } from "../session/CommonCrawlPreparationFlow";
+export { default as TrainingSamplesFlow } from "../session/TrainingSamplesFlow";
 export { default as PreTrainingLoopExplorer } from "../session/PreTrainingLoopExplorer";
 export type { PreTrainingStep, PreTrainingLoopExplorerProps } from "../session/PreTrainingLoopExplorer";
 export { default as SupervisedFineTuningExplorer } from "../session/SupervisedFineTuningExplorer";

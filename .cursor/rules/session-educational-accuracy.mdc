@@ -95,6 +95,44 @@ For **each** interactive step, tab, or diagram, answer these **before** marking 
 3. **Internal consistency** — token lists, loss values, gradient signs, and tab content must agree with each other and with the step summary.
 4. **No confident falsehoods** — verify paper numbers, API behavior, and algorithm details; use “illustrative” when demo values are not factual.
 
+## Data sequence consistency — mandatory for interactive components
+
+Any interactive that shows a value changing over time (training steps, iterations, rounds, epochs, scores, probabilities, loss) **must be checked for logical monotonicity before shipping**.
+
+### The rule
+
+If a sequence is supposed to improve over time, **every step must be strictly better than the previous one** — no reversals, no plateaus that contradict the narrative.
+
+| Sequence type | Must hold |
+|---|---|
+| Training improves | Chosen probability ↑ each step; rejected ↓ each step; gap widens |
+| Loss decreasing | Each loss value < the previous one (or labelled "plateau" with intent) |
+| Score increasing | Reward score, accuracy, or quality metric goes up monotonically |
+| Rank improving | Best rank stays best; worst rank stays worst across steps |
+
+### The check (run it before finishing)
+
+For every array of step data in an interactive component (`TRAINING_STEPS`, `PPO_ROUNDS`, `KL_SCENARIOS`, etc.):
+
+1. **Read each numeric field left-to-right** — does the direction match the narrative?
+2. **Check every adjacent pair** — does step N+1 beat step N in every metric claimed to improve?
+3. **Check the gap / delta** — if you show a "gap" or "delta" column, verify it equals `chosen − rejected` (or whatever the formula is) for every row.
+4. **Read the badge labels aloud** — "Mid training" must be strictly between "First win" and "Aligned ✅" in every number.
+
+**If any step goes the wrong direction, fix the data before touching anything else.** A step that gets worse mid-sequence teaches the wrong lesson even if the final state is correct.
+
+### Real example of this failure (do not repeat)
+
+```
+// BUG — step 1 was better than step 50, model appeared to get worse mid-training
+{ label: "Step 1",  chosen: 71, rejected: 24, gap: 47 },  // ← higher than step 50 ❌
+{ label: "Step 50", chosen: 67, rejected: 29, gap: 38 },  // ← should be better ❌
+
+// CORRECT — every step strictly better
+{ label: "Step 1",  chosen: 55, rejected: 35, gap: 20 },
+{ label: "Step 50", chosen: 72, rejected: 19, gap: 53 },
+```
+
 ## Training-loop accuracy (common PPT pitfalls)
 
 | Step | Correct abstraction | Wrong pattern (reject) |
@@ -109,6 +147,7 @@ When adding tabs, ask: **“Does this dimension actually vary in the real algori
 
 ## Common failure modes (reject on sight)
 
+- **Non-monotonic step sequences** — a "Step 50" value worse than "Step 1" in a component that claims improvement over time (see "Data sequence consistency" above). Read every numeric array left-to-right before shipping.
 - Training visual implying **one prediction per forward pass** on full-sequence pre-training.
 - **Prefix → single word** shown as batch loading instead of parallel position-wise prediction.
 - **Optimizer / weight-update** UI tied to token position when updates are batch-global.

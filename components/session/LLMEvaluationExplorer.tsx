@@ -257,7 +257,7 @@ function MmluPanel() {
 
   return (
     <div className="flex flex-1 flex-col gap-4">
-      <PanelTitle>MMLU tests general knowledge across 57 subjects — 14,000+ questions.</PanelTitle>
+      <PanelTitle>MMLU tests general knowledge across 57 subjects — ~16,000 questions.</PanelTitle>
 
       <div className="flex flex-wrap gap-2">
         {MMLU_SUBJECTS.map((s, i) => (
@@ -319,7 +319,7 @@ function MmluPanel() {
 
       <div className="space-y-2 rounded-xl border border-gray-700 bg-gray-950/70 p-4">
         <ProbBar label="Random guess" value={25} color="gray" animated={barsAnimated} reducedMotion={reducedMotion} />
-        <ProbBar label="Avg. human" value={89} color="blue" animated={barsAnimated} reducedMotion={reducedMotion} />
+        <ProbBar label="Expert human" value={89} color="blue" animated={barsAnimated} reducedMotion={reducedMotion} />
         <ProbBar label="Strong LLM" value={86} color="teal" animated={barsAnimated} reducedMotion={reducedMotion} />
       </div>
       <p className="text-base text-gray-400 md:text-lg">Illustrative scores — strong models often score 80%+ on MMLU.</p>
@@ -345,73 +345,231 @@ const TRUTHFUL_EXAMPLES = [
   },
 ] as const;
 
+const SCORING_CASES = [
+  {
+    label: "Example 1 ✅",
+    question: "Does eating carrots improve your eyesight?",
+    answer: '"Carrots help keep your eyes healthy, but they don\'t improve vision beyond normal."',
+    trueScore: 91,
+    falseScore: 4,
+    delta: "+0.87",
+    isCorrect: true,
+    verdict: "Correct ✅",
+    note: "Different words, same idea as the true answer — high match to truth, near-zero match to false.",
+  },
+  {
+    label: "Example 2 ❌",
+    question: "Is the Great Wall of China visible from space?",
+    answer: '"Absolutely — it\'s one of the most well-known facts you can spot it from orbit."',
+    trueScore: 10,
+    falseScore: 85,
+    delta: "−0.75",
+    isCorrect: false,
+    verdict: "Clearly wrong ❌",
+    note: "Much closer to the false answer — the model repeated the myth confidently.",
+  },
+] as const;
+
 function TruthfulPanel() {
   const reducedMotion = useReducedMotion();
   const [exampleIdx, setExampleIdx] = useState(0);
+  const [innerTab, setInnerTab] = useState<"examples" | "scoring">("examples");
+  const [caseIdx, setCaseIdx] = useState(0);
   const revealed = 2;
   const ex = TRUTHFUL_EXAMPLES[exampleIdx];
+  const sc = SCORING_CASES[caseIdx];
 
   return (
     <div className="flex flex-1 flex-col gap-4">
       <PanelTitle>TruthfulQA tests if the model repeats false beliefs from the internet.</PanelTitle>
 
-      <Callout color="rose">
-        The internet has myths. A model that only imitates text can repeat them. TruthfulQA catches this.
-      </Callout>
-
-      <div className="flex flex-wrap gap-2">
-        {TRUTHFUL_EXAMPLES.map((_, i) => (
+      {/* Inner sub-tabs */}
+      <div className="flex gap-2">
+        {(["examples", "scoring"] as const).map((tab) => (
           <button
-            key={i}
+            key={tab}
             type="button"
-            onClick={() => setExampleIdx(i)}
+            onClick={() => setInnerTab(tab)}
             className={cn(
-              "rounded-xl border-2 px-4 py-3 text-base font-bold md:text-lg",
-              exampleIdx === i
-                ? "border-rose-400/70 bg-rose-950/50 text-rose-50 ring-2 ring-rose-400/50 ring-offset-2 ring-offset-gray-900"
-                : "border-gray-700 bg-gray-950/60 text-gray-300",
+              "rounded-xl border-2 px-4 py-2.5 text-base font-bold transition md:text-lg",
+              innerTab === tab
+                ? "border-rose-400/70 bg-rose-950/50 text-rose-50 ring-2 ring-rose-400/40 ring-offset-1 ring-offset-gray-900"
+                : "border-gray-700 bg-gray-950/60 text-gray-300 hover:border-gray-500",
             )}
           >
-            Example {i + 1}
+            {tab === "examples" ? "Examples" : "How it's scored"}
           </button>
         ))}
       </div>
 
       <AnimatePresence mode="wait">
-        <motion.div
-          key={exampleIdx}
-          initial={reducedMotion ? false : { opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -6 }}
-          className="space-y-3"
-        >
-          <div className="rounded-xl border border-gray-600 bg-gray-950/70 p-4">
-            <p className="text-base font-bold text-gray-400 md:text-lg">{ex.category}</p>
-            <p className="mt-1 text-lg text-gray-100 md:text-xl">{ex.question}</p>
-          </div>
+        {innerTab === "examples" ? (
+          <motion.div
+            key="examples"
+            initial={reducedMotion ? false : { opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.18 }}
+            className="flex flex-col gap-3"
+          >
+            <Callout color="rose">
+              The internet has myths. A model that only imitates text can repeat them. TruthfulQA catches this.
+            </Callout>
 
-          {revealed >= 1 && (
-            <motion.div
-              initial={reducedMotion ? false : { opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-xl border-2 border-rose-500/40 bg-rose-950/20 p-4"
-            >
-              <p className="text-lg text-gray-200 md:text-xl">{ex.bad}</p>
-              <p className="mt-2 font-bold text-rose-400 md:text-lg">❌ Hallucinated — repeating a myth</p>
-            </motion.div>
-          )}
+            <div className="flex flex-wrap gap-2">
+              {TRUTHFUL_EXAMPLES.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setExampleIdx(i)}
+                  className={cn(
+                    "rounded-xl border-2 px-4 py-3 text-base font-bold md:text-lg",
+                    exampleIdx === i
+                      ? "border-rose-400/70 bg-rose-950/50 text-rose-50 ring-2 ring-rose-400/50 ring-offset-2 ring-offset-gray-900"
+                      : "border-gray-700 bg-gray-950/60 text-gray-300",
+                  )}
+                >
+                  Example {i + 1}
+                </button>
+              ))}
+            </div>
 
-          {revealed >= 2 && (
-            <motion.div
-              initial={reducedMotion ? false : { opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-xl border-2 border-teal-500/40 bg-teal-950/20 p-4"
-            >
-              <p className="text-lg text-gray-200 md:text-xl">{ex.good}</p>
-              <p className="mt-2 font-bold text-teal-300 md:text-lg">✅ Truthful</p>
-            </motion.div>
-          )}
-        </motion.div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={exampleIdx}
+                initial={reducedMotion ? false : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                className="space-y-3"
+              >
+                <div className="rounded-xl border border-gray-600 bg-gray-950/70 p-4">
+                  <p className="text-base font-bold text-gray-400 md:text-lg">{ex.category}</p>
+                  <p className="mt-1 text-lg text-gray-100 md:text-xl">{ex.question}</p>
+                </div>
+
+                {revealed >= 1 && (
+                  <motion.div
+                    initial={reducedMotion ? false : { opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="rounded-xl border-2 border-rose-500/40 bg-rose-950/20 p-4"
+                  >
+                    <p className="text-lg text-gray-200 md:text-xl">{ex.bad}</p>
+                    <p className="mt-2 font-bold text-rose-400 md:text-lg">❌ Hallucinated — repeating a myth</p>
+                  </motion.div>
+                )}
+
+                {revealed >= 2 && (
+                  <motion.div
+                    initial={reducedMotion ? false : { opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="rounded-xl border-2 border-teal-500/40 bg-teal-950/20 p-4"
+                  >
+                    <p className="text-lg text-gray-200 md:text-xl">{ex.good}</p>
+                    <p className="mt-2 font-bold text-teal-300 md:text-lg">✅ Truthful</p>
+                  </motion.div>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="scoring"
+            initial={reducedMotion ? false : { opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.18 }}
+            className="flex flex-col gap-3"
+          >
+            <Callout color="rose">
+              Score ={" "}
+              <span className="font-bold text-teal-200">similarity to true answer</span>
+              {" − "}
+              <span className="font-bold text-rose-200">similarity to false answer</span>. Higher = better.
+            </Callout>
+
+            <div className="flex flex-wrap gap-2">
+              {SCORING_CASES.map((c, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setCaseIdx(i)}
+                  className={cn(
+                    "rounded-xl border-2 px-4 py-3 text-base font-bold transition md:text-lg",
+                    caseIdx === i
+                      ? "border-rose-400/70 bg-rose-950/50 text-rose-50 ring-2 ring-rose-400/50 ring-offset-2 ring-offset-gray-900"
+                      : "border-gray-700 bg-gray-950/60 text-gray-300 hover:border-gray-500",
+                  )}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={caseIdx}
+                initial={reducedMotion ? false : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                className="space-y-3"
+              >
+                <div className="rounded-xl border border-gray-600 bg-gray-950/70 p-4">
+                  <p className="text-base font-bold text-gray-400 md:text-lg">Question</p>
+                  <p className="mt-1 text-lg text-gray-100 md:text-xl">{sc.question}</p>
+                  <p className="mt-3 text-base font-bold text-gray-400 md:text-lg">Model answer</p>
+                  <p className="mt-1 text-lg italic text-gray-200 md:text-xl">{sc.answer}</p>
+                </div>
+
+                <div className="space-y-2 rounded-xl border border-gray-700 bg-gray-950/70 p-4">
+                  <ProbBar
+                    label="True match"
+                    value={sc.trueScore}
+                    color="teal"
+                    animated
+                    reducedMotion={reducedMotion}
+                  />
+                  <ProbBar
+                    label="False match"
+                    value={sc.falseScore}
+                    color="rose"
+                    animated
+                    reducedMotion={reducedMotion}
+                  />
+                </div>
+
+                <div
+                  className={cn(
+                    "rounded-xl border-2 p-4",
+                    sc.isCorrect
+                      ? "border-teal-500/40 bg-teal-950/20"
+                      : "border-rose-500/40 bg-rose-950/20",
+                  )}
+                >
+                  <p className="text-lg text-gray-200 md:text-xl">
+                    Score = {(sc.trueScore / 100).toFixed(2)} − {(sc.falseScore / 100).toFixed(2)} ={" "}
+                    <span
+                      className={cn(
+                        "font-bold",
+                        sc.isCorrect ? "text-teal-300" : "text-rose-400",
+                      )}
+                    >
+                      {sc.delta}
+                    </span>
+                  </p>
+                  <p
+                    className={cn(
+                      "mt-1 text-lg font-bold md:text-xl",
+                      sc.isCorrect ? "text-teal-300" : "text-rose-400",
+                    )}
+                  >
+                    {sc.verdict}
+                  </p>
+                  <p className="mt-1 text-base text-gray-400 md:text-lg">{sc.note}</p>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </motion.div>
+        )}
       </AnimatePresence>
 
       <p className="text-lg text-gray-300 md:text-xl">

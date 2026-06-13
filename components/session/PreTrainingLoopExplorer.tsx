@@ -106,57 +106,62 @@ interface ForwardPosition {
 
 const FORWARD_POSITIONS: ForwardPosition[] = [
   {
+    // "The" → predicts "city" (❌ wrong) — model doesn't know the sentence yet
     targetToken: "capital",
     contextLength: 1,
     predictions: [
-      { token: "capital", prob: 31 },
-      { token: "city", prob: 18 },
-      { token: "best", prob: 12 },
-      { token: "new", prob: 9 },
+      { token: "city", prob: 32 },
+      { token: "capital", prob: 24 },
+      { token: "best", prob: 18 },
+      { token: "new", prob: 12 },
     ],
     correctToken: "capital",
   },
   {
+    // "The capital" → predicts "of" (✓ correct) — "capital of" is common phrasing
     targetToken: "of",
     contextLength: 2,
     predictions: [
-      { token: "of", prob: 44 },
-      { token: "city", prob: 21 },
-      { token: "is", prob: 10 },
-      { token: "and", prob: 7 },
+      { token: "of", prob: 41 },
+      { token: "city", prob: 22 },
+      { token: "is", prob: 13 },
+      { token: "and", prob: 9 },
     ],
     correctToken: "of",
   },
   {
+    // "The capital of" → predicts "the" (❌ wrong) — model doesn't know the country
     targetToken: "France",
     contextLength: 3,
     predictions: [
-      { token: "France", prob: 28 },
-      { token: "the", prob: 19 },
-      { token: "a", prob: 14 },
-      { token: "Europe", prob: 11 },
+      { token: "the", prob: 29 },
+      { token: "a", prob: 21 },
+      { token: "France", prob: 17 },
+      { token: "Europe", prob: 14 },
     ],
     correctToken: "France",
   },
   {
+    // "The capital of France" → predicts "is" (✓ correct) — "France is" is very common
     targetToken: "is",
     contextLength: 4,
     predictions: [
-      { token: "is", prob: 38 },
-      { token: "was", prob: 22 },
+      { token: "is", prob: 35 },
+      { token: "was", prob: 24 },
       { token: "has", prob: 14 },
       { token: ",", prob: 9 },
     ],
     correctToken: "is",
   },
   {
+    // "The capital of France is" → predicts "Lyon" (❌ wrong) — model hasn't learned this fact yet
     targetToken: "Paris",
     contextLength: 5,
     predictions: [
-      { token: "Paris", prob: 22 },
-      { token: "Lyon", prob: 14 },
-      { token: "a", prob: 12 },
-      { token: "the", prob: 11 },
+      { token: "Lyon", prob: 20 },
+      { token: "a", prob: 18 },
+      { token: "the", prob: 16 },
+      { token: "Paris", prob: 13 },
     ],
     correctToken: "Paris",
   },
@@ -164,63 +169,38 @@ const FORWARD_POSITIONS: ForwardPosition[] = [
 
 const PREDICTION_COLORS = ["#8b5cf6", "#14b8a6", "#f59e0b", "#3b82f6"];
 
-const INIT_POSITIONS: ForwardPosition[] = [
-  {
-    targetToken: "capital",
-    contextLength: 1,
-    predictions: [
-      { token: "city", prob: 19 },
-      { token: "capital", prob: 18 },
-      { token: "best", prob: 17 },
-      { token: "new", prob: 16 },
-    ],
-    correctToken: "capital",
-  },
-  {
-    targetToken: "of",
-    contextLength: 2,
-    predictions: [
-      { token: "city", prob: 20 },
-      { token: "is", prob: 18 },
-      { token: "of", prob: 17 },
-      { token: "and", prob: 15 },
-    ],
-    correctToken: "of",
-  },
-  {
-    targetToken: "France",
-    contextLength: 3,
-    predictions: [
-      { token: "the", prob: 21 },
-      { token: "a", prob: 19 },
-      { token: "France", prob: 17 },
-      { token: "Europe", prob: 16 },
-    ],
-    correctToken: "France",
-  },
-  {
-    targetToken: "is",
-    contextLength: 4,
-    predictions: [
-      { token: "was", prob: 22 },
-      { token: "is", prob: 19 },
-      { token: "has", prob: 17 },
-      { token: ",", prob: 15 },
-    ],
-    correctToken: "is",
-  },
-  {
-    targetToken: "Paris",
-    contextLength: 5,
-    predictions: [
-      { token: "Lyon", prob: 20 },
-      { token: "a", prob: 18 },
-      { token: "the", prob: 17 },
-      { token: "Paris", prob: 14 },
-    ],
-    correctToken: "Paris",
-  },
-];
+const INIT_VIEW_TABS = [
+  { id: "numbers", label: "Numbers" },
+  { id: "layers", label: "Layers" },
+  { id: "random", label: "Random start" },
+] as const;
+
+/** Illustrative 3×3 slice — real matrices are huge (pedagogical). */
+const INIT_MATRIX_CELLS = [
+  ["+0.12", "−0.08", "−0.03"],
+  ["−0.15", "+0.07", "+0.11"],
+  ["+0.02", "−0.19", "+0.05"],
+] as const;
+
+const RANDOM_MATRIX_FRAMES = [
+  INIT_MATRIX_CELLS,
+  [
+    ["−0.11", "+0.22", "+0.04"],
+    ["+0.09", "−0.14", "−0.06"],
+    ["+0.17", "+0.01", "−0.23"],
+  ],
+  [
+    ["+0.05", "−0.27", "+0.13"],
+    ["−0.08", "+0.16", "+0.02"],
+    ["−0.21", "+0.08", "−0.11"],
+  ],
+] as const;
+
+const INIT_WEIGHT_BLOCKS = [
+  { id: "embed", label: "Embed", badge: "W_embed", detail: "Turns each token into a vector" },
+  { id: "attn", label: "Attn", badge: "Q · K · V", detail: "Mixes context between tokens" },
+  { id: "ffn", label: "FFN", badge: "W1 · W2", detail: "Processes each token position" },
+] as const;
 
 function getCorrectTokenProb(position: ForwardPosition): number {
   const pred = position.predictions.find((p) => p.token === position.correctToken);
@@ -393,14 +373,56 @@ const LEARNING_RATE_SCENARIOS = [
   },
 ] as const;
 
-const TRAINED_POSITIONS: ForwardPosition[] = FORWARD_POSITIONS.map((pos) => ({
-  ...pos,
-  predictions: pos.predictions.map((p) =>
-    p.token === pos.correctToken
-      ? { ...p, prob: 91 }
-      : { ...p, prob: Math.max(2, Math.round(p.prob * 0.25)) },
-  ),
-}));
+interface DoneContextStep {
+  id: string;
+  tabLabel: string;
+  contextLength: number;
+  predictions: ForwardPrediction[];
+  /** Next token from the training sentence — omit when no single right answer. */
+  correctToken?: string;
+  note: string;
+}
+
+const DONE_CONTEXT_STEPS: DoneContextStep[] = [
+  {
+    id: "pos-1",
+    tabLabel: "Position 1",
+    contextLength: 1,
+    predictions: [
+      { token: "city", prob: 2 },
+      { token: "president", prob: 2 },
+      { token: "capital", prob: 1 },
+      { token: "reason", prob: 1 },
+    ],
+    note: "Too many valid continuations — model is nearly uniform",
+  },
+  {
+    id: "pos-2",
+    tabLabel: "Position 2",
+    contextLength: 3,
+    predictions: [
+      { token: "France", prob: 22 },
+      { token: "Germany", prob: 19 },
+      { token: "Italy", prob: 17 },
+      { token: "Spain", prob: 14 },
+    ],
+    correctToken: "France",
+    note: "Model knows a country name is coming — but which one?",
+  },
+  {
+    id: "pos-3",
+    tabLabel: "Position 3",
+    contextLength: 5,
+    predictions: [
+      { token: "Paris", prob: 94 },
+      { token: "Lyon", prob: 3 },
+      { token: "Nice", prob: 2 },
+      { token: "Marseille", prob: 1 },
+    ],
+    correctToken: "Paris",
+    note: "Context is now enough — model is highly confident",
+  },
+];
 
 const CHECKPOINT_SAVES = [
   { id: "10k", label: "10K steps", step: "10K", size: "14 GB" },
@@ -468,7 +490,7 @@ const DEFAULT_STEPS: PreTrainingStep[] = [
     label: "Initialize weights randomly",
     emoji: "🎲",
     color: "gray",
-    summary: "Every weight starts random — the model predicts garbage.",
+    summary: "Weights are numbers in matrices — billions of them, all random at start.",
   },
   {
     id: "batch",
@@ -648,12 +670,12 @@ function PredictionBarChart({
   correctToken,
 }: {
   predictions: ForwardPrediction[];
-  correctToken: string;
+  correctToken?: string;
 }) {
   return (
     <div className="space-y-2">
       {predictions.map((pred, i) => {
-        const isCorrect = pred.token === correctToken;
+        const isCorrect = correctToken !== undefined && pred.token === correctToken;
         const barColor = isCorrect ? "#14b8a6" : PREDICTION_COLORS[i % PREDICTION_COLORS.length];
         return (
           <div key={pred.token} className="flex items-center gap-3">
@@ -822,50 +844,241 @@ function usePositionTabs(positions: ForwardPosition[]) {
   return { activeIdx, setActiveIdx, tabs, position: positions[activeIdx] };
 }
 
+/** True when the model's top prediction was not the correct token. */
+function isWrongPrediction(position: ForwardPosition): boolean {
+  return position.predictions[0]?.token !== position.correctToken;
+}
+
+function WeightMatrixGrid({
+  cells,
+  highlight = false,
+}: {
+  cells: readonly (readonly string[])[];
+  highlight?: boolean;
+}) {
+  return (
+    <div className="mx-auto w-fit">
+      <div
+        className={cn(
+          "inline-grid gap-2 rounded-xl p-4 ring-1 md:gap-2.5 md:p-5",
+          highlight ? "bg-gray-900 ring-amber-500/40" : "bg-gray-900 ring-gray-700",
+        )}
+        style={{ gridTemplateColumns: `repeat(${cells[0]?.length ?? 3}, minmax(4.5rem, 1fr))` }}
+      >
+        {cells.flatMap((row, rowIdx) =>
+          row.map((value, colIdx) => (
+            <motion.div
+              key={`${rowIdx}-${colIdx}`}
+              layout
+              className={cn(
+                "flex items-center justify-center rounded-lg border-2 px-3 py-3 font-mono text-base font-bold md:px-4 md:py-3.5 md:text-lg",
+                highlight
+                  ? "border-amber-500/50 bg-amber-950/40 text-amber-100"
+                  : "border-gray-600 bg-gray-950/80 text-gray-100",
+              )}
+            >
+              {value}
+            </motion.div>
+          )),
+        )}
+      </div>
+      <p className="mt-3 text-center text-base text-gray-400 md:text-lg">
+        One weight matrix — … + millions more numbers
+      </p>
+    </div>
+  );
+}
+
+function InitNumbersView() {
+  return (
+    <motion.div
+      key="init-numbers"
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -4 }}
+      transition={{ duration: 0.2 }}
+      className="space-y-4"
+    >
+      <div className="rounded-xl bg-gray-900 p-5 ring-1 ring-gray-700 md:p-6">
+        <p className="text-lg leading-relaxed text-gray-100 md:text-xl">
+          A <span className="font-bold text-gray-200">weight</span> is just a number — stored in a big grid called a{" "}
+          <span className="font-bold text-gray-200">matrix</span>.
+        </p>
+        <p className="mt-4 text-lg leading-relaxed text-gray-100 md:text-xl">
+          Matrix math mixes inputs using these numbers — that is how the model transforms tokens.
+        </p>
+      </div>
+      <WeightMatrixGrid cells={INIT_MATRIX_CELLS} />
+    </motion.div>
+  );
+}
+
+function InitLayersView() {
+  return (
+    <motion.div
+      key="init-layers"
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -4 }}
+      transition={{ duration: 0.2 }}
+      className="space-y-4"
+    >
+      <div className="rounded-xl bg-gray-900 p-5 ring-1 ring-gray-700 md:p-6">
+        <p className="text-lg leading-relaxed text-gray-100 md:text-xl">
+          Every transformer layer has its own weight matrices — same pattern, different numbers.
+        </p>
+      </div>
+      <div className="overflow-x-auto pb-1">
+        <div className="inline-flex min-w-full flex-wrap items-center justify-center gap-2 md:gap-3">
+          {INIT_WEIGHT_BLOCKS.map((block, i) => (
+            <div key={block.id} className="flex items-center gap-2 md:gap-3">
+              <div className="rounded-xl border-2 border-violet-500/50 bg-violet-950/40 px-4 py-3 text-center ring-1 ring-violet-500/30 md:px-5 md:py-3.5">
+                <p className="text-base font-bold text-violet-100 md:text-lg">{block.label}</p>
+                <p className="mt-1 font-mono text-base font-bold text-violet-200 md:text-lg">{block.badge}</p>
+                <p className="mt-2 text-base text-gray-300 md:text-lg">{block.detail}</p>
+              </div>
+              {i < INIT_WEIGHT_BLOCKS.length - 1 ? (
+                <span className="text-2xl font-bold text-gray-500 md:text-3xl" aria-hidden>
+                  →
+                </span>
+              ) : null}
+            </div>
+          ))}
+          <span className="rounded-full bg-gray-800 px-4 py-2 text-base font-bold text-gray-300 ring-1 ring-gray-600 md:text-lg">
+            × 96 layers
+          </span>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function InitRandomView() {
+  const reducedMotion = useReducedMotion();
+  const [frameIdx, setFrameIdx] = useState(0);
+
+  useEffect(() => {
+    if (reducedMotion) return;
+    const id = setInterval(() => {
+      setFrameIdx((prev) => (prev + 1) % RANDOM_MATRIX_FRAMES.length);
+    }, 900);
+    return () => clearInterval(id);
+  }, [reducedMotion]);
+
+  const cells = RANDOM_MATRIX_FRAMES[frameIdx] ?? INIT_MATRIX_CELLS;
+
+  return (
+    <motion.div
+      key="init-random"
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -4 }}
+      transition={{ duration: 0.2 }}
+      className="space-y-4"
+    >
+      <div className="rounded-xl bg-amber-950/30 p-5 ring-1 ring-amber-500/35 md:p-6">
+        <p className="text-lg leading-relaxed text-gray-100 md:text-xl">
+          At start, every number is drawn at random — no language patterns stored yet.
+        </p>
+      </div>
+      <WeightMatrixGrid cells={cells} highlight />
+      <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
+        <div className="rounded-xl border-2 border-blue-500/50 bg-blue-950/40 px-4 py-3 md:px-5 md:py-3.5">
+          <p className="text-base font-bold text-blue-200 md:text-lg">Input token</p>
+          <p className="mt-1 font-mono text-xl font-bold text-white md:text-2xl">The</p>
+        </div>
+        <span className="text-2xl font-bold text-gray-500 md:text-3xl" aria-hidden>
+          →
+        </span>
+        <div className="rounded-xl border-2 border-dashed border-gray-600 bg-gray-900/60 px-4 py-3 md:px-5 md:py-3.5">
+          <p className="text-base font-bold text-gray-400 md:text-lg">Next token</p>
+          <p className="mt-1 font-mono text-xl font-bold text-gray-500 md:text-2xl">???</p>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 function InitPanel() {
-  const { activeIdx, setActiveIdx, tabs, position } = usePositionTabs(INIT_POSITIONS);
+  const [viewIdx, setViewIdx] = useState(0);
 
   return (
     <div className="space-y-4">
       <p className="text-base font-bold uppercase tracking-wide text-gray-300 md:text-lg">
-        Random weights — one tab per position
+        What weights are — not a forward pass yet
       </p>
-      <SubTabList tabs={tabs} activeIdx={activeIdx} onChange={setActiveIdx} accent="gray" ariaLabel="Init positions" />
+      <SubTabList
+        tabs={INIT_VIEW_TABS.map((t) => ({ id: t.id, label: t.label }))}
+        activeIdx={viewIdx}
+        onChange={setViewIdx}
+        accent="gray"
+        ariaLabel="Weight views"
+      />
       <AnimatePresence mode="wait">
-        <PositionTabContent position={position}>
-          <div>
-            <SectionLabel>Top predictions</SectionLabel>
-            <PredictionBarChart predictions={position.predictions} correctToken={position.correctToken} />
-          </div>
-        </PositionTabContent>
+        {viewIdx === 0 ? (
+          <InitNumbersView />
+        ) : viewIdx === 1 ? (
+          <InitLayersView />
+        ) : (
+          <InitRandomView />
+        )}
       </AnimatePresence>
       <PanelCaption>
-        Weights are random — predictions are nearly uniform. The model has no knowledge yet.
+        {viewIdx === 0
+          ? "GPT-3 has 175B weights like these — each one starts random (Brown et al. 2020)."
+          : viewIdx === 1
+            ? "Embed + attention + FFN blocks repeat 96 times — d_model 12,288 in GPT-3."
+            : "Training nudges these numbers — step 3 shows what the forward pass does with them."}
       </PanelCaption>
     </div>
   );
 }
 
-function ForwardPassPanel() {
-  const { activeIdx, setActiveIdx, tabs, position } = usePositionTabs(FORWARD_POSITIONS);
+function ForwardPassPanel({
+  positionIdx,
+  onPositionChange,
+}: {
+  positionIdx: number;
+  onPositionChange: (idx: number) => void;
+}) {
+  const tabs = FORWARD_POSITIONS.map((p) => ({ id: p.targetToken, label: p.targetToken }));
+  const position = FORWARD_POSITIONS[positionIdx] ?? FORWARD_POSITIONS[0];
+  const wrong = isWrongPrediction(position);
 
   return (
     <div className="space-y-4">
       <p className="text-base font-bold uppercase tracking-wide text-gray-300 md:text-lg">
         Predict next token — one tab per position
       </p>
-      <SubTabList tabs={tabs} activeIdx={activeIdx} onChange={setActiveIdx} accent="violet" ariaLabel="Forward pass positions" />
+      <SubTabList tabs={tabs} activeIdx={positionIdx} onChange={onPositionChange} accent="violet" ariaLabel="Forward pass positions" />
       <AnimatePresence mode="wait">
         <PositionTabContent position={position}>
           <div>
             <SectionLabel>Top predictions</SectionLabel>
             <PredictionBarChart predictions={position.predictions} correctToken={position.correctToken} />
           </div>
+          <div
+            className={cn(
+              "rounded-xl px-4 py-3 ring-1",
+              wrong
+                ? "bg-rose-950/30 ring-rose-500/35"
+                : "bg-teal-950/30 ring-teal-500/35",
+            )}
+          >
+            <p className={cn("text-base font-bold md:text-lg", wrong ? "text-rose-300" : "text-teal-300")}>
+              {wrong
+                ? `❌ Wrong — model picked "${position.predictions[0]?.token}", not "${position.correctToken}"`
+                : `✓ Correct — "${position.correctToken}" is the top prediction`}
+            </p>
+            <p className="mt-1 text-base text-gray-300 md:text-lg">
+              {wrong ? "High loss → backward pass will fix this." : "Low loss → small correction needed."}
+            </p>
+          </div>
         </PositionTabContent>
       </AnimatePresence>
       <PanelCaption>
-        Each tab is one position. In one forward pass all 5 run simultaneously — the causal mask
-        hides future tokens at each position.
+        Wrong top prediction = high loss at that position. Common words (of, is) come out right
+        early — specific facts like Paris are still wrong. That error is exactly what drives learning.
       </PanelCaption>
     </div>
   );
@@ -983,16 +1196,15 @@ function LossEquationView() {
 function LossExampleView({
   activeIdx,
   setActiveIdx,
-  tabs,
-  position,
 }: {
   activeIdx: number;
   setActiveIdx: (idx: number) => void;
-  tabs: { id: string; label: string }[];
-  position: ForwardPosition;
 }) {
+  const tabs = FORWARD_POSITIONS.map((p) => ({ id: p.targetToken, label: p.targetToken }));
+  const position = FORWARD_POSITIONS[activeIdx] ?? FORWARD_POSITIONS[0];
   const correctPct = Math.round(getCorrectTokenProb(position) * 100);
   const positionLoss = getCrossEntropyLoss(position);
+  const wrong = isWrongPrediction(position);
 
   return (
     <motion.div
@@ -1018,19 +1230,53 @@ function LossExampleView({
             <p className="text-base font-bold text-violet-200 md:text-lg">P(target)</p>
             <p className="mt-2 font-mono text-xl font-bold text-white md:text-2xl">{correctPct}%</p>
           </div>
-          <div className="rounded-xl bg-rose-950/30 p-4 ring-1 ring-rose-500/30">
+          <div
+            className={cn(
+              "rounded-xl p-4 ring-1",
+              wrong ? "bg-rose-950/50 ring-rose-500/60" : "bg-rose-950/30 ring-rose-500/30",
+            )}
+          >
             <p className="text-base font-bold text-rose-200 md:text-lg">L = −log P</p>
-            <p className="mt-2 font-mono text-xl font-bold text-white md:text-2xl">{positionLoss}</p>
+            <p
+              className={cn(
+                "mt-2 font-mono text-xl font-bold md:text-2xl",
+                wrong ? "text-rose-300" : "text-white",
+              )}
+            >
+              {positionLoss}
+            </p>
           </div>
+        </div>
+        <div
+          className={cn(
+            "rounded-xl px-4 py-3 ring-1",
+            wrong ? "bg-rose-950/30 ring-rose-500/35" : "bg-teal-950/30 ring-teal-500/35",
+          )}
+        >
+          <p className={cn("text-base font-bold md:text-lg", wrong ? "text-rose-300" : "text-teal-300")}>
+            {wrong
+              ? `❌ Model predicted "${position.predictions[0]?.token}" — target was "${position.correctToken}"`
+              : `✓ Model predicted "${position.correctToken}" correctly`}
+          </p>
+          <p className="mt-1 text-base text-gray-300 md:text-lg">
+            {wrong
+              ? `Low P(${position.correctToken}) = ${correctPct}% → loss ${positionLoss} — large gradient correction.`
+              : `High P(${position.correctToken}) = ${correctPct}% → loss ${positionLoss} — small correction.`}
+          </p>
         </div>
       </PositionTabContent>
     </motion.div>
   );
 }
 
-function LossPanel() {
-  const [viewIdx, setViewIdx] = useState(0);
-  const { activeIdx, setActiveIdx, tabs, position } = usePositionTabs(FORWARD_POSITIONS);
+function LossPanel({
+  positionIdx,
+  onPositionChange,
+}: {
+  positionIdx: number;
+  onPositionChange: (idx: number) => void;
+}) {
+  const [viewIdx, setViewIdx] = useState(2); // default to Example so sync is immediately visible
 
   return (
     <div className="space-y-4">
@@ -1051,10 +1297,8 @@ function LossPanel() {
           <LossEquationView />
         ) : (
           <LossExampleView
-            activeIdx={activeIdx}
-            setActiveIdx={setActiveIdx}
-            tabs={tabs}
-            position={position}
+            activeIdx={positionIdx}
+            setActiveIdx={onPositionChange}
           />
         )}
       </AnimatePresence>
@@ -1063,7 +1307,7 @@ function LossPanel() {
           ? "Loss is computed at every position, then averaged — one batch loss number drives the backward pass."
           : viewIdx === 1
             ? "Higher P(target) means the model was more correct at that position — loss falls toward zero as training improves."
-            : "All position losses in the batch average to batch loss — illustrative mean ≈ 2.41."}
+            : "Same position tabs as the Forward pass — switch between them to see wrong predictions become high loss."}
       </PanelCaption>
     </div>
   );
@@ -1806,22 +2050,73 @@ function CheckpointPanel() {
   );
 }
 
+function DoneSequenceRow({ contextLength }: { contextLength: number }) {
+  return (
+    <div className="flex flex-wrap items-center gap-2 md:gap-2.5">
+      {FORWARD_SEQUENCE.map((token, i) => {
+        const inContext = i < contextLength;
+        return (
+          <div key={`${token}-${i}`} className="flex items-center gap-2 md:gap-2.5">
+            {i > 0 ? (
+              <span className="text-lg font-bold text-gray-600 md:text-xl" aria-hidden>
+                |
+              </span>
+            ) : null}
+            <ContextChip
+              token={token}
+              state={inContext ? (i === contextLength - 1 ? "trigger" : "visible") : "masked"}
+            />
+          </div>
+        );
+      })}
+      <span className="text-2xl font-bold text-teal-400 md:text-3xl" aria-hidden>
+        →
+      </span>
+    </div>
+  );
+}
+
 function DonePanel() {
-  const { activeIdx, setActiveIdx, tabs, position } = usePositionTabs(TRAINED_POSITIONS);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const step = DONE_CONTEXT_STEPS[activeIdx] ?? DONE_CONTEXT_STEPS[0];
+  const tabs = DONE_CONTEXT_STEPS.map((s) => ({ id: s.id, label: s.tabLabel }));
 
   return (
     <div className="space-y-4">
       <p className="text-base font-bold uppercase tracking-wide text-gray-300 md:text-lg">
-        Trained base model — one tab per position
+        Trained model — confidence grows with context
       </p>
-      <SubTabList tabs={tabs} activeIdx={activeIdx} onChange={setActiveIdx} accent="teal" ariaLabel="Done positions" />
+      <SubTabList
+        tabs={tabs}
+        activeIdx={activeIdx}
+        onChange={setActiveIdx}
+        accent="teal"
+        ariaLabel="Context positions"
+      />
       <AnimatePresence mode="wait">
-        <PositionTabContent position={position}>
+        <motion.div
+          key={step.id}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -4 }}
+          transition={{ duration: 0.2 }}
+          className="space-y-4"
+        >
+          <p className="text-base font-bold text-teal-300 md:text-lg">
+            {step.tabLabel} of {DONE_CONTEXT_STEPS.length} → predict next token
+          </p>
+          <div>
+            <SectionLabel>Full sequence — context window highlighted</SectionLabel>
+            <DoneSequenceRow contextLength={step.contextLength} />
+          </div>
           <div>
             <SectionLabel>Top predictions</SectionLabel>
-            <PredictionBarChart predictions={position.predictions} correctToken={position.correctToken} />
+            <PredictionBarChart predictions={step.predictions} correctToken={step.correctToken} />
           </div>
-        </PositionTabContent>
+          <div className="rounded-xl bg-teal-950/30 px-4 py-3 ring-1 ring-teal-500/35 md:px-5 md:py-4">
+            <p className="text-lg text-gray-100 md:text-xl">{step.note}</p>
+          </div>
+        </motion.div>
       </AnimatePresence>
       <PanelCaption>
         Pre-training complete. The model completes documents — not yet how to follow instructions.
@@ -1871,15 +2166,17 @@ function StepPanel({
   onCheckpointChange,
   isPlaying,
   onTogglePlay,
+  positionIdx,
+  onPositionChange,
 }: {
   step: PreTrainingStep;
   checkpointIdx: number;
   onCheckpointChange: (idx: number) => void;
   isPlaying: boolean;
   onTogglePlay: () => void;
+  positionIdx: number;
+  onPositionChange: (idx: number) => void;
 }) {
-  const tone = ACCENT[step.color];
-
   return (
     <motion.div
       key={step.id}
@@ -1901,16 +2198,12 @@ function StepPanel({
         </div>
       </div>
 
-      <div className={cn("rounded-2xl border-2 p-5 ring-1 md:p-6", tone.ring, "border-gray-700 bg-gray-950/70")}>
-        <p className="text-lg leading-relaxed text-gray-100 md:text-xl">{step.summary}</p>
-      </div>
-
       {/* Step-specific visual */}
       <div className="flex min-h-[300px] flex-1 flex-col rounded-2xl border border-gray-700 bg-gray-950/80 p-5 md:min-h-[340px] md:p-8">
         {step.id === "init" && <InitPanel />}
         {step.id === "batch" && <BatchPairsPanel />}
-        {step.id === "forward" && <ForwardPassPanel />}
-        {step.id === "loss" && <LossPanel />}
+        {step.id === "forward" && <ForwardPassPanel positionIdx={positionIdx} onPositionChange={onPositionChange} />}
+        {step.id === "loss" && <LossPanel positionIdx={positionIdx} onPositionChange={onPositionChange} />}
         {step.id === "backward" && <BackwardPanel />}
         {step.id === "optimizer" && <OptimizerPanel />}
         {step.id === "repeat" && (
@@ -1939,6 +2232,7 @@ export default function PreTrainingLoopExplorer({
   const [activeIdx, setActiveIdx] = useState(0);
   const [checkpointIdx, setCheckpointIdx] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [forwardPositionIdx, setForwardPositionIdx] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const activeStep = steps[activeIdx];
@@ -1972,14 +2266,6 @@ export default function PreTrainingLoopExplorer({
     }
   }, [activeStep?.id, stopPlaying]);
 
-  function goPrev() {
-    setActiveIdx((i) => Math.max(0, i - 1));
-  }
-
-  function goNext() {
-    setActiveIdx((i) => Math.min(steps.length - 1, i + 1));
-  }
-
   function togglePlay() {
     if (isPlaying) stopPlaying();
     else startPlaying();
@@ -1990,7 +2276,7 @@ export default function PreTrainingLoopExplorer({
       initial={reducedMotion ? false : { opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="flex min-h-[520px] w-full flex-col rounded-2xl border border-gray-700 bg-gray-900 p-6 md:min-h-[580px] md:p-10"
+      className="flex min-h-0 w-full flex-col rounded-2xl border border-gray-700 bg-gray-900 p-6 md:p-10"
       data-local-navigation="true"
     >
       {title || caption ? (
@@ -2049,31 +2335,11 @@ export default function PreTrainingLoopExplorer({
               onCheckpointChange={setCheckpointIdx}
               isPlaying={isPlaying}
               onTogglePlay={togglePlay}
+              positionIdx={forwardPositionIdx}
+              onPositionChange={setForwardPositionIdx}
             />
           ) : null}
         </AnimatePresence>
-      </div>
-
-      <div className="mt-6 flex flex-wrap items-center gap-3 md:mt-8">
-        <button
-          type="button"
-          onClick={goPrev}
-          disabled={activeIdx === 0}
-          className="rounded-xl border-2 border-gray-700 bg-gray-950 px-5 py-3 text-base font-bold text-gray-200 transition hover:border-gray-600 disabled:opacity-40 md:text-lg"
-        >
-          ← Prev
-        </button>
-        <button
-          type="button"
-          onClick={goNext}
-          disabled={activeIdx === steps.length - 1}
-          className="rounded-xl border-2 border-violet-500/50 bg-violet-950/40 px-5 py-3 text-base font-bold text-violet-100 transition hover:border-violet-400 disabled:opacity-40 md:text-lg"
-        >
-          Next →
-        </button>
-        <span className="text-base text-gray-400 md:text-lg">
-          {activeIdx + 1} / {steps.length}
-        </span>
       </div>
     </motion.div>
   );
