@@ -106,8 +106,8 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | Tabbed pre-training loop — 10 steps (init → checkpoint → done), checkpoint scrubber shows Paris rising | `PreTrainingLoopExplorer` |
 | Tabbed SFT walkthrough — 6 steps (base model → pairs → format → loop → masked loss → result) | `SupervisedFineTuningExplorer` |
 | Tabbed RLHF walkthrough — 7 stages (SFT limits → generate → rank → reward model → PPO → reward hacking → KL penalty) | `RLHFExplorer` |
-| Tabbed DPO walkthrough — 6 stages (RLHF complexity → insight → chosen/rejected data → loss update → reference model → RLHF vs DPO) | `DPOExplorer` |
-| Tabbed LLM evaluation — 8 stages (why evaluate → two approaches → MMLU → TruthfulQA → HumanEval → GSM8K → Chatbot Arena → benchmark gaming) | `LLMEvaluationExplorer` |
+| Tabbed DPO walkthrough — 4 stages (SFT problem → pick winner → preference triples → weight update) | `DPOExplorer` |
+| Tabbed LLM evaluation — 5 stages (why evaluate → two approaches → MMLU → TruthfulQA → HumanEval) | `LLMEvaluationExplorer` |
 | SVG coordinate-plane step-through: y = mx + c, known points → derive weights → animate line | `LinearMappingGraph` |
 | Word embedding vectors as arrows from origin — cluster hulls, click-to-inspect raw numbers, staggered entrance animation | `EmbeddingVectorExplorer` |
 | Interactive angle → cosine score: two vector arrows, arc θ, dashed projection, sliders, preset word pairs | `CosineSimilarityExplorer` |
@@ -2053,7 +2053,7 @@ function RLHFExplorer(): JSX.Element;
 
 ### DPOExplorer
 
-**Description:** Tabbed interactive for Direct Preference Optimization (DPO). **No props** — MDX `##` heading is the slide title. Six top tabs with Prev/Next and `N / 6` counter; fade transitions. **Why RLHF?**: animated RLHF pipeline with problem badges + DPO skip callout. **Insight**: RLHF vs DPO two-column “implicit reward” story. **Data**: RLHF scores vs chosen/rejected triples (Triple 1 | 2 | 3 tabs). **Update**: animated chosen/rejected probability bars across training steps. **Reference**: frozen SFT reference model vs built-in drift control. **Compare**: RLHF vs DPO path tabs + comparison table + summary callout.
+**Description:** Tabbed interactive for Direct Preference Optimization (DPO). **No props** — MDX `##` heading is the slide title. Four top tabs with journey dots, Prev/Next, and fade transitions. **The Problem**: SFT blind spot — two responses, no way to compare. **Pick a Winner**: human annotator picks chosen vs rejected. **Training Data**: preference triples (Triple 1 | 2 | 3 tabs). **Push Weights**: animated chosen/rejected probability bars across training steps.
 
 ```ts
 // No props — zero MDX configuration required
@@ -2064,7 +2064,7 @@ function DPOExplorer(): JSX.Element;
 
 ### LLMEvaluationExplorer
 
-**Description:** Tabbed interactive for LLM evaluation after training. **No props** — MDX `##` heading is the slide title. Eight top tabs with Prev/Next and `N / 8` counter; fade transitions. **Why?**: animated training checklist + three question cards. **Two ways**: automated vs human evaluation pros/cons. **MMLU**: subject badge grid + interactive multiple-choice mitochondria question + score bars. **TruthfulQA**: misconception examples (Example 1 | 2 tabs). **HumanEval**: coding flow + Solution A/B pass/fail. **GSM8K**: step-by-step apple problem + reasoning score bars. **Arena**: blind Model A vs B vote with reveal. **Gaming ⚠️**: contamination + style-over-substance + best-practice callout.
+**Description:** Tabbed interactive for LLM evaluation after training. **No props** — MDX `##` heading is the slide title. Five top tabs with Prev/Next and fade transitions. **Why?**: animated training checklist + three question cards. **Two ways**: automated vs human evaluation pros/cons. **MMLU**: subject badge grid + interactive multiple-choice mitochondria question + score bars. **TruthfulQA**: misconception examples (Example 1 | 2 tabs). **HumanEval**: coding flow + Solution A/B pass/fail.
 
 ```ts
 // No props — zero MDX configuration required

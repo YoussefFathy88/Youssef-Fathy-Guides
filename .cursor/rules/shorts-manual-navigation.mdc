@@ -1,0 +1,57 @@
+---
+description: YouTube Shorts use manual step-through navigation for live presenting — no auto-advance by default.
+globs:
+  - components/shorts/**/*.tsx
+  - .cursor/skills/shorts-authoring/SKILL.md
+  - data/shorts.ts
+alwaysApply: false
+---
+
+# Shorts — manual navigation (presenter-first)
+
+Shorts are recorded **live on YouTube**. The presenter must control pacing — not a fast auto-play slideshow.
+
+## Default rule
+
+**Prefer manual navigation over automatic step advance** in every Short component.
+
+| Do | Don't |
+|---|---|
+| Start with auto-play **off** (`isPlaying` default `false`) | Auto-advance steps on a timer unless the user explicitly asks |
+| Advance only on **Prev / Next** (and dot jumps) | Rapid internal phase timers the presenter cannot pause |
+| Show footer hint: `Step X / N — tap Next` | Hide that the viewer must press to continue |
+| Pause auto-play before multi-phase walkthrough steps | Let a step race through 8+ phases on its own |
+
+Optional **Play** may exist for preview/rehearsal, but **shipping default is manual**.
+
+## Teaching examples — prompt → answer, token by token
+
+When a Short shows **how an LLM generates text**, use a **real chat shape**:
+
+1. **User prompt** — a plain question (e.g. `What's the capital of Egypt?`)
+2. **Model answer** — built **one token at a time** after the question (e.g. `The` → ` capital` → … → ` Cairo` → `.`)
+
+**Do not** use prefix-completion-only examples (e.g. `The capital of France is ___`) as the main story — viewers confuse that with “autocomplete the sentence” instead of “answer the question token by token.”
+
+Each loop round must show:
+
+- **Input to AI** — question + answer tokens generated so far (label both parts)
+- **Output shape** — illustrative probability bars for the **next** token
+- **Pick one** — the chosen token highlighted
+- **New input** — the picked token appended to the answer; that string feeds the next round
+
+Mark illustrative probabilities in copy (`Illustrative probabilities`).
+
+## Internal multi-phase steps
+
+If one slide needs several beats (input → scores → pick → concat → repeat):
+
+- Drive phases with **Next / Prev**, not `setTimeout` chains
+- Reset phase index when leaving the step
+- Progress bar reflects phase index, not a fake timer
+
+## Cross-rule dependencies
+
+- **Legibility** (`.cursor/rules/session-video-legibility.mdc`) — large type, short copy, fits 9:16 frame
+- **Simple English** (`.cursor/rules/session-simple-english.mdc`) — plain labels: “Input to AI”, “Pick one”, “New input”
+- **Authoring skill** (`.cursor/skills/shorts-authoring/SKILL.md`) — file wiring and step arc

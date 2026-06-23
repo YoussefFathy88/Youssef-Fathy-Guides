@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { AnatomySection } from "@/components/AnatomySection";
 import CourseLabSection from "@/components/CourseLabSection";
 import { SessionBadge } from "@/components/ui/session-badge";
+import { SHORTS } from "@/data/shorts";
 
 const COURSE_CARDS = [
   {
@@ -125,6 +127,68 @@ export function HomeCourseGateway() {
                 : "AI Engineering Lab is open. Browse the project sessions below."}
             </div>
           ) : null}
+        </div>
+      </section>
+
+      {/* ── Shorts section ──────────────────────────────────────────────────── */}
+      <section className="surface-card overflow-hidden px-6 py-8 sm:px-8 sm:py-10 lg:px-10">
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+          {/* Copy */}
+          <div className="max-w-xl space-y-4">
+            <SessionBadge tone="purple">AI Concepts</SessionBadge>
+            <div className="space-y-2">
+              <h2 className="text-3xl font-semibold text-white">Short Videos</h2>
+              <p className="text-base leading-7 text-slate-300">
+                Bite-sized animated AI concept videos — one idea per short,
+                designed for phone. Each Short walks through a concept with
+                step-by-step animations.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-2 pt-1">
+              {SHORTS.map((s) => (
+                <span
+                  key={s.slug}
+                  className="rounded-full border border-violet-400/20 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-300"
+                >
+                  {s.topic}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Phone preview + CTA */}
+          <div className="flex flex-col items-start gap-5 lg:items-end">
+            {/* Tiny phone-frame thumbnail */}
+            <div className="relative h-28 w-16 overflow-hidden rounded-2xl bg-gradient-to-b from-slate-800 to-slate-950 ring-1 ring-white/10 shadow-xl">
+              {/* decorative rings */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="h-16 w-16 rounded-full border border-white/8" />
+                <div className="absolute h-10 w-10 rounded-full border border-white/8" />
+              </div>
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
+                <div className="h-1 w-8 rounded-full bg-white/20" />
+                <div className="h-1 w-6 rounded-full bg-violet-400/60" />
+                <div className="h-3 w-3 rounded-full bg-white/70" />
+              </div>
+            </div>
+
+            <Link
+              href="/shorts"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-violet-400/25 bg-violet-500/15 px-5 py-3 text-sm font-semibold text-violet-50 shadow-[0_20px_45px_-24px_rgba(139,92,246,0.7)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-300/40 hover:bg-violet-500/22"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="translate-x-0.5"
+              >
+                <polygon points="5 3 19 12 5 21 5 3" />
+              </svg>
+              Browse Shorts
+            </Link>
+          </div>
         </div>
       </section>
 
