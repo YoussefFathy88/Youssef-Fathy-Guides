@@ -79,6 +79,17 @@ Visual guidelines:
 - Animate sequentially with `delay: i * 0.25–0.35` for list items
 - Keep total height well within the phone frame — no scroll
 
+**STRICT — low content per card, tabs over tall stacks:** The phone frame has a
+fixed height and the animation zone is `overflow-hidden`; content that doesn't
+fit is silently clipped, not scrolled. Each card/panel must stay low-content (a
+short label, a couple of data rows, one line of explanation). If a step needs
+more than one card's worth of content — e.g. "model asks" + "tool runs" +
+"result", or 2+ comparable examples — split it across a **second tab row**
+(or Prev/Next phases) so only one card is visible at a time. Never grow a
+single card to fit more; add a tab instead. Before shipping, mentally add up
+card heights against the phone frame height — if it's close, split into tabs.
+See `.cursor/rules/shorts-manual-navigation.mdc`.
+
 **Navigation (required):** Manual step-through by default — `isPlaying` starts
 `false`; no auto-advance timers unless the user explicitly requests autoplay.
 Multi-phase steps (input → scores → pick → concat) advance on **Next / Prev**,
@@ -201,6 +212,7 @@ Fix any errors before finishing.
 - [ ] All subtitles ≤ 10 words
 - [ ] No `text-xs` or `text-sm` for teaching copy
 - [ ] Each visual is fully contained in the phone frame (no overflow)
+- [ ] No step stacks 2+ full content cards vertically — used tabs/phase toggle instead
 - [ ] Accent colors vary across the 5 steps (not all the same)
 - [ ] Hard facts verified with `web_search` (claim table in response)
 - [ ] `SHORTS` entry added to `data/shorts.ts`

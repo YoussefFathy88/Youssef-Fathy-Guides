@@ -101,3 +101,5 @@ export { default as ArchitectureEvolutionAnimator } from "../session/Architectur
 export { default as CNNImageSuccessDemo } from "../session/CNNImageSuccessDemo";
 export { default as NNEquationDemo } from "../session/NNEquationDemo";
 export { default as RNNCellUnrolledDiagram } from "../session/RNNCellUnrolledDiagram";
+// System prompt session components
+export { default as SystemPromptRevealDemo } from "../session/SystemPromptRevealDemo";

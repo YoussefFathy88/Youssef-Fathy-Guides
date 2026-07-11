@@ -39,18 +39,11 @@ const STEPS: Step[] = [
     badgeColor: "bg-teal-500/20 text-teal-200 border-teal-500/30",
   },
   {
-    id: "different",
-    title: "Same prompt, different answers",
-    subtitle: "Greedy picks #1; sampling can vary",
-    accentColor: "text-blue-300",
-    badgeColor: "bg-blue-500/20 text-blue-200 border-blue-500/30",
-  },
-  {
-    id: "scale",
-    title: "A full reply is many steps",
-    subtitle: "Hundreds of picks build one answer",
-    accentColor: "text-rose-300",
-    badgeColor: "bg-rose-500/20 text-rose-200 border-rose-500/30",
+    id: "autocomplete",
+    title: "An LLM is super-autocomplete",
+    subtitle: "Next short → What are tokens?",
+    accentColor: "text-emerald-300",
+    badgeColor: "bg-emerald-500/20 text-emerald-200 border-emerald-500/30",
   },
 ];
 
@@ -117,9 +110,9 @@ const LOOP_ROUNDS: LoopRound[] = ANSWER_TOKENS.map((picked, i) => ({
   picked,
 }));
 
-type LoopPhase = "input" | "output" | "pick" | "concat";
+type LoopPhase = "input" | "pick" | "concat";
 
-const LOOP_PHASES: LoopPhase[] = ["input", "output", "pick", "concat"];
+const LOOP_PHASES: LoopPhase[] = ["input", "pick", "concat"];
 
 const TOTAL_LOOP_PHASES = LOOP_ROUNDS.length * LOOP_PHASES.length;
 
@@ -176,21 +169,6 @@ function PhaseLabel({ children }: { children: string }) {
     <p className="text-base font-bold uppercase tracking-wide text-slate-400">
       {children}
     </p>
-  );
-}
-
-function DownArrow({ reduced }: { reduced: boolean }) {
-  return (
-    <motion.div
-      initial={reduced ? false : { opacity: 0, y: -4 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="flex justify-center py-0.5"
-    >
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-teal-400/70">
-        <line x1="12" y1="5" x2="12" y2="19" strokeLinecap="round" />
-        <polyline points="19 12 12 19 5 12" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    </motion.div>
   );
 }
 
@@ -319,17 +297,9 @@ function ScoresVisual({ reduced }: { reduced: boolean }) {
         transition={{ duration: 0.35 }}
         className="space-y-2"
       >
-        <p className="text-base text-slate-400">Next answer token — scores</p>
+        <p className="text-base text-slate-400">Next token — scores (illustrative)</p>
         <ProbBars candidates={firstCandidates} reduced={reduced} />
       </motion.div>
-
-      <motion.p
-        initial={reduced ? false : { opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="text-center text-base text-slate-400"
-      >
-        Illustrative probabilities
-      </motion.p>
     </div>
   );
 }
@@ -349,11 +319,9 @@ function LoopVisual({
   const phaseLabel =
     phase === "input"
       ? "Input to AI"
-      : phase === "output"
-        ? "Output shape"
-        : phase === "pick"
-          ? "Pick one"
-          : "New input";
+      : phase === "pick"
+        ? "Pick one"
+        : "New input";
 
   return (
     <div className="flex flex-col gap-2 px-3 w-full max-w-[320px] mx-auto">
@@ -381,20 +349,6 @@ function LoopVisual({
                 LLM
               </span>
             </div>
-          </motion.div>
-        )}
-
-        {phase === "output" && (
-          <motion.div
-            key={`output-${roundIndex}`}
-            initial={reduced ? false : { opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={reduced ? {} : { opacity: 0, y: -8 }}
-            transition={{ duration: 0.25 }}
-            className="space-y-2"
-          >
-            <p className="text-base text-slate-400">Scores for every next token</p>
-            <ProbBars candidates={round.candidates} reduced />
           </motion.div>
         )}
 
@@ -431,17 +385,6 @@ function LoopVisual({
             transition={{ duration: 0.25 }}
             className="space-y-2"
           >
-            <div className="rounded-xl border border-blue-500/40 bg-blue-500/10 px-3 py-2.5 space-y-2">
-              <p className="text-base text-blue-200/80">Answer grows by one token</p>
-              <PromptAnswerPanel answerTokens={round.answerTokensSoFar} />
-              <div className="flex items-center gap-2">
-                <span className="text-base text-slate-400">+</span>
-                <span className="rounded-lg border border-teal-400/50 bg-teal-500/25 px-2 py-0.5 text-base font-bold text-teal-100">
-                  {round.picked}
-                </span>
-              </div>
-            </div>
-            <DownArrow reduced={reduced} />
             <div className="rounded-xl border border-teal-500/40 bg-teal-500/10 px-3 py-2.5">
               <p className="text-base text-teal-200/80 mb-1">Becomes the next input</p>
               <PromptAnswerPanel answerTokens={answerAfterPick} highlightLast={round.picked} />
@@ -485,106 +428,30 @@ function LoopVisual({
   );
 }
 
-function DifferentVisual({ reduced }: { reduced: boolean }) {
-  const contextTokens = ANSWER_TOKENS.slice(0, 5);
-  const cairoCandidates = TOKEN_CANDIDATES[5]!;
-
-  const panels = [
-    {
-      mode: "Greedy",
-      desc: "Always picks #1",
-      picked: " Cairo",
-      color: "border-blue-500/40 bg-blue-500/10",
-      labelColor: "text-blue-300",
-    },
-    {
-      mode: "Sampling",
-      desc: "Can pick lower ranks",
-      picked: " Alexandria",
-      color: "border-amber-500/40 bg-amber-500/10",
-      labelColor: "text-amber-300",
-    },
-  ];
+function AutocompleteVisual({ reduced }: { reduced: boolean }) {
+  const fullAnswer = ANSWER_TOKENS.join("");
 
   return (
-    <div className="flex flex-col gap-4 px-3 w-full max-w-[340px] mx-auto">
-      <PromptAnswerPanel answerTokens={contextTokens} />
+    <div className="flex flex-col items-center gap-4 px-4 w-full max-w-[320px] mx-auto">
+      <PromptAnswerPanel answerTokens={ANSWER_TOKENS} />
 
       <motion.div
         initial={reduced ? false : { opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="space-y-1"
+        transition={{ duration: 0.35 }}
+        className="w-full rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-center"
       >
-        <p className="text-base text-slate-400 text-center">Same prompt — next token scores</p>
-        <ProbBars candidates={cairoCandidates} reduced={reduced} />
+        <p className="text-lg font-semibold text-white leading-snug">{fullAnswer}</p>
       </motion.div>
 
-      <div className="grid grid-cols-2 gap-3">
-        {panels.map((panel, i) => (
-          <motion.div
-            key={panel.mode}
-            initial={reduced ? false : { opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: reduced ? 0 : i * 0.2, duration: 0.35 }}
-            className={cn("rounded-xl border p-3 space-y-2", panel.color)}
-          >
-            <p className={cn("text-base font-bold", panel.labelColor)}>{panel.mode}</p>
-            <p className="text-base text-slate-400">{panel.desc}</p>
-            <span
-              className={cn(
-                "inline-block rounded-lg border px-2 py-1 text-base font-semibold",
-                i === 0
-                  ? "border-blue-400/40 bg-blue-500/20 text-blue-100"
-                  : "border-amber-400/40 bg-amber-500/20 text-amber-100",
-              )}
-            >
-              {panel.picked}
-            </span>
-          </motion.div>
-        ))}
-      </div>
-
-      <motion.p
-        initial={reduced ? false : { opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="text-center text-base text-slate-400"
-      >
-        Illustrative — sampling is random
-      </motion.p>
-    </div>
-  );
-}
-
-function ScaleVisual({ reduced }: { reduced: boolean }) {
-  const fullAnswer = ANSWER_TOKENS.join("");
-
-  return (
-    <div className="flex flex-col items-center gap-5 px-4 w-full max-w-[320px] mx-auto">
       <motion.div
-        initial={reduced ? false : { opacity: 0, scale: 0.8 }}
+        initial={reduced ? false : { opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.4, type: "spring" }}
-        className="text-center"
+        transition={{ delay: reduced ? 0 : 0.15, duration: 0.35, type: "spring", bounce: 0.3 }}
+        className="w-full rounded-2xl border border-emerald-400/40 bg-emerald-500/15 px-4 py-3 text-center"
       >
-        <p className="text-5xl font-bold font-mono text-rose-300">{ANSWER_TOKENS.length}</p>
-        <p className="mt-1 text-base text-slate-400">tokens in this reply</p>
-      </motion.div>
-
-      <div className="w-full space-y-2">
-        <PromptAnswerPanel answerTokens={ANSWER_TOKENS} />
-        <div className="w-full rounded-xl border border-rose-500/20 bg-rose-500/10 px-3 py-2">
-          <p className="text-base text-rose-200/80 mb-1">Full answer</p>
-          <p className="text-base font-semibold text-white leading-snug">{fullAnswer}</p>
-        </div>
-      </div>
-
-      <motion.div
-        initial={reduced ? false : { opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="w-full rounded-xl border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-center"
-      >
-        <p className="text-base text-rose-200">
-          Longer chats — hundreds of picks
+        <p className="text-lg font-bold text-emerald-100 leading-snug">
+          Predict next token — again and again
         </p>
       </motion.div>
     </div>
@@ -634,10 +501,9 @@ export function LLMWorksShort() {
     switch (id) {
       case "notThinking": return <NotThinkingVisual reduced={reducedMotion} />;
       case "scores":      return <ScoresVisual      reduced={reducedMotion} />;
-      case "loop":        return <LoopVisual        reduced={reducedMotion} phaseIndex={loopPhaseIndex} />;
-      case "different":   return <DifferentVisual   reduced={reducedMotion} />;
-      case "scale":       return <ScaleVisual       reduced={reducedMotion} />;
-      default:            return null;
+      case "loop":         return <LoopVisual         reduced={reducedMotion} phaseIndex={loopPhaseIndex} />;
+      case "autocomplete": return <AutocompleteVisual reduced={reducedMotion} />;
+      default:             return null;
     }
   }
 

@@ -107,6 +107,7 @@ import {
   SchemaConstraintVisualizer,
   AiTaskflowOrchestrator,
   ToolLoopVisualizer,
+  SystemPromptRevealDemo,
 } from "@/components/shared";
 import FNNAutocompleteDemo from "@/components/demos/FNNAutocompleteDemo";
 import ArchitectureComparisonDemo from "@/components/demos/ArchitectureComparisonDemo";
@@ -219,6 +220,7 @@ function getMdxComponents(isPresentationMode: boolean, outline?: string[]) {
     SchemaConstraintVisualizer,
     AiTaskflowOrchestrator,
     ToolLoopVisualizer,
+    SystemPromptRevealDemo,
     // New interactive components
     TrainingLoopSimulator,
     AutoregressiveDemo,

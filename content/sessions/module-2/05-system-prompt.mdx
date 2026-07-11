@@ -1,0 +1,205 @@
+---
+title: "System Prompt — The Instructions You Never See"
+slug: "system-prompt"
+module: 2
+moduleName: "Giving the Brain Capabilities"
+sessionNumber: 5
+duration: "10 min"
+difficulty: "beginner"
+tags: ["system-prompt", "context", "prompt-engineering"]
+nextSession: "agent-memory-types"
+prevSession: "how-llms-are-trained"
+outline:
+  - "The Hidden Opening Act"
+  - "What a System Prompt Contains"
+  - "How It Shapes the AI"
+  - "Real-World Examples"
+outlineSectionMap:
+  big-picture: 0
+  core-concepts: 1
+  practical-example: 3
+  recap: 3
+---
+
+{/* SECTION 1 — GOAL */}
+
+<SessionSection id="goal" label="Goal">
+
+## What you never see is doing all the work
+
+Every time you open ChatGPT, Cursor, or any AI chat product, there is already text in the conversation — text that was put there by the developer before you arrived. It shapes the AI's name, personality, rules, and output style. You never see it, but it shapes every single answer. This session lifts the curtain.
+
+<SessionOutlineSlide />
+
+</SessionSection>
+
+
+{/* SECTION 2 — BIG PICTURE */}
+
+<SessionSection id="big-picture" label="Big Picture">
+
+## Every chat starts with a developer's note the user never reads
+
+Before you type your first message, a developer has already written the AI's instructions. Those instructions sit invisibly at the top of every conversation. Press "Peek Backstage" to see them.
+
+<SystemPromptRevealDemo
+  title="Every chat starts with a developer's note the user never reads"
+  caption="Press Next to peek backstage and reveal the system prompt hidden above every conversation."
+/>
+
+</SessionSection>
+
+
+{/* SECTION 3 — CORE CONCEPTS */}
+
+<SessionSection id="core-concepts" label="Core Concepts">
+
+## The four things a system prompt controls
+
+A system prompt is not one big block of text — it is four distinct jobs packed into one message. Each job shapes a different part of the AI's behaviour.
+
+<PromptAnatomyVisualizer
+  title="The four jobs packed into every system prompt"
+  caption="Click each section to expand it and see the token cost."
+  parts={[
+    {
+      id: "role",
+      role: "system",
+      label: "Role — who the AI is",
+      content: "You are Aria, a friendly personal stylist for StyleHub, an online fashion store.",
+      description: "Gives the model its name, job title, and employer. Without this section the model has no persona and will default to a generic 'helpful assistant'.",
+      tokenCount: 18,
+      color: "violet"
+    },
+    {
+      id: "task",
+      role: "system",
+      label: "Task — what it must do",
+      content: "Help users find clothing, accessories, and gifts. Ask clarifying questions to narrow down options before making suggestions.",
+      description: "Tells the model what problems to solve. A focused task stops the model from wandering into topics it should not cover.",
+      tokenCount: 26,
+      color: "teal"
+    },
+    {
+      id: "rules",
+      role: "system",
+      label: "Rules — what it cannot do",
+      content: "Keep responses friendly and brief. If asked about competitor stores, redirect the user to StyleHub's catalog instead.",
+      description: "Hard limits and soft guardrails. These override the model's default tendencies — even a helpful model will follow rules that restrict it.",
+      tokenCount: 30,
+      color: "amber"
+    },
+    {
+      id: "format",
+      role: "system",
+      label: "Format — how it writes",
+      content: "Use plain conversational text. Add one or two relevant emojis per reply. Never use markdown tables or bullet lists.",
+      description: "Controls tone, length, and structure. The same underlying model can sound like a formal doctor or a casual friend — just from this section.",
+      tokenCount: 24,
+      color: "blue"
+    }
+  ]}
+/>
+
+### The model sees the system prompt first — before your message
+
+When you send a message, what arrives at the model is not just your words. The model sees the system prompt at the very top, then the conversation history, then your new message — all in one context window. The system prompt was already there, waiting.
+
+<StepSequence
+  title="What the model actually receives when you press Send"
+  steps={[
+    {
+      id: "system",
+      label: "① System prompt",
+      description: "Developer-written. Arrives first. Sets the AI's role, task, rules, and format before anything else is read.",
+      highlight: "inside"
+    },
+    {
+      id: "history",
+      label: "② Conversation history",
+      description: "Every prior message — user and assistant turns — is included so the model remembers what was said.",
+      highlight: "shared"
+    },
+    {
+      id: "user",
+      label: "③ Your new message",
+      description: "The message you just typed. The model reads this last, after absorbing all the instructions and history above it.",
+      highlight: "outside"
+    },
+    {
+      id: "response",
+      label: "④ Model generates a reply",
+      description: "Having read the system prompt first, the model answers exactly as its instructions say — in the right persona, following the right rules, in the right format.",
+      highlight: "contrast"
+    }
+  ]}
+/>
+
+</SessionSection>
+
+
+{/* SECTION 4 — PRACTICAL EXAMPLE */}
+
+<SessionSection id="practical-example" label="Practical Example">
+
+## The same model, three different jobs — just from three different system prompts
+
+ChatGPT, Cursor, and a hospital chatbot all run on large language models. What makes them feel completely different is the system prompt written by each product's developers. The model's weights never change — only the instructions do.
+
+<ConceptCompare
+  title="Same model, different system prompt — completely different AI"
+  mode="side-by-side"
+  left={{
+    label: "Cursor AI — coding assistant",
+    color: "violet",
+    points: [
+      "Role: senior software engineer embedded in VS Code",
+      "Task: read the file the user has open, fix bugs, write tests",
+      "Rules: never suggest libraries not already in package.json; explain code changes inline",
+      "Format: reply in the editor as code comments or diff patches"
+    ]
+  }}
+  right={{
+    label: "Hospital chatbot — patient triage",
+    color: "teal",
+    points: [
+      "Role: HealthFirst patient intake assistant",
+      "Task: collect symptom information and direct patients to the right department",
+      "Rules: never give a diagnosis; always recommend calling 911 if the user describes chest pain",
+      "Format: short sentences, no jargon, reassuring tone"
+    ]
+  }}
+/>
+
+</SessionSection>
+
+
+{/* SECTION 5 — RECAP */}
+
+<SessionSection id="recap" label="Recap">
+
+## What we covered
+
+<RecapTable rows={[
+  { term: "System prompt", definition: "Developer-written text placed at the very top of every conversation, read by the AI before the user's first message" },
+  { term: "Role", definition: "The section of a system prompt that gives the AI its name, job title, and employer persona" },
+  { term: "Task", definition: "The section that tells the AI which problems it should solve and what to focus on" },
+  { term: "Rules", definition: "Hard limits and guardrails that override the model's default behaviour — no diagnosis, redirect competitors, stay brief" },
+  { term: "Format", definition: "Instructions that control how the AI writes — tone, length, emojis, and structure" }
+]} />
+
+</SessionSection>
+
+
+{/* SECTION 6 — NEXT SESSION */}
+
+<SessionSection id="next-session" label="Next Session">
+
+<NextSessionCard
+  title="Agent Memory Types"
+  slug="agent-memory-types"
+  teaser="The system prompt is one form of memory — procedural memory that defines how the agent behaves. Next session we map all four memory types an AI agent can have and when to use each one."
+  module={2}
+/>
+
+</SessionSection>

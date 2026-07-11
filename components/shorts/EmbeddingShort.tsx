@@ -41,15 +41,15 @@ const STEPS: Step[] = [
   },
   {
     id: "distance",
-    title: "Distance measures how related they are",
-    subtitle: "Closer = more similar meaning",
+    title: "Cosine similarity: the angle becomes a score",
+    subtitle: "1 = same meaning · 0 = unrelated",
     accentColor: "text-blue-300",
     badgeColor: "bg-blue-500/20 text-blue-200 border-blue-500/30",
   },
   {
-    id: "scale",
-    title: "OpenAI uses up to 3,072 numbers per word",
-    subtitle: "One point in 3,072-dimensional space",
+    id: "apps",
+    title: "Embeddings capture meaning",
+    subtitle: "One idea behind search, RAG, and more",
     accentColor: "text-rose-300",
     badgeColor: "bg-rose-500/20 text-rose-200 border-rose-500/30",
   },
@@ -130,86 +130,162 @@ function VectorVisual({ reduced }: { reduced: boolean }) {
   );
 }
 
+const VEC_ORIGIN = { x: 36, y: 172 };
+
+interface WordVector {
+  text: string;
+  tip: { x: number; y: number };
+  group: "royalty" | "animal";
+}
+
+// Royalty vectors point the same way (small angle); animals point elsewhere.
+const WORD_VECTORS: WordVector[] = [
+  { text: "queen",  tip: { x: 115, y: 45 },  group: "royalty" },
+  { text: "king",   tip: { x: 129, y: 61 },  group: "royalty" },
+  { text: "prince", tip: { x: 85,  y: 62 },  group: "royalty" },
+  { text: "cat",    tip: { x: 187, y: 105 }, group: "animal" },
+  { text: "dog",    tip: { x: 213, y: 141 }, group: "animal" },
+];
+
 function MeaningVisual({ reduced }: { reduced: boolean }) {
-  // Simplified 2D "space" showing clusters
-  const groups = [
-    {
-      label: "Royalty",
-      words: [
-        { text: "king",  x: 30, y: 28 },
-        { text: "queen", x: 50, y: 22 },
-        { text: "prince",x: 40, y: 45 },
-      ],
-      color: "bg-teal-500/25 text-teal-200 border-teal-400/40",
-    },
-    {
-      label: "Animals",
-      words: [
-        { text: "cat", x: 68, y: 30 },
-        { text: "dog", x: 80, y: 50 },
-      ],
-      color: "bg-amber-500/25 text-amber-200 border-amber-400/40",
-    },
-  ];
+  // Draw the line a touch short of the tip so the arrowhead clears the chip.
+  const drawEnd = (tip: { x: number; y: number }) => ({
+    x: VEC_ORIGIN.x + (tip.x - VEC_ORIGIN.x) * 0.86,
+    y: VEC_ORIGIN.y + (tip.y - VEC_ORIGIN.y) * 0.86,
+  });
 
   return (
     <div className="flex flex-col items-center gap-3 px-4 w-full">
-      <p className="text-base text-slate-400 text-center">Words plotted in vector space</p>
-      <div className="relative w-full max-w-[300px] h-[150px] rounded-xl border border-slate-700 bg-slate-900/60 overflow-hidden">
-        {groups.map(group =>
-          group.words.map((word, wi) => (
-            <motion.span
-              key={word.text}
-              initial={reduced ? false : { opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: reduced ? 0 : wi * 0.25 + groups.indexOf(group) * 0.5, duration: 0.35, type: "spring", bounce: 0.45 }}
-              style={{ left: `${word.x}%`, top: `${word.y}%` }}
-              className={cn(
-                "absolute -translate-x-1/2 -translate-y-1/2 rounded-lg border px-2.5 py-1 text-base font-semibold",
-                group.color,
-              )}
-            >
-              {word.text}
-            </motion.span>
-          ))
-        )}
-        {/* Group labels */}
-        <motion.p
-          initial={reduced ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: reduced ? 0 : 1.2 }}
-          className="absolute bottom-2 left-3 text-xs text-teal-400 font-semibold"
-        >
-          Royalty cluster
-        </motion.p>
-        <motion.p
-          initial={reduced ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: reduced ? 0 : 1.4 }}
-          className="absolute bottom-2 right-3 text-xs text-amber-400 font-semibold"
-        >
-          Animal cluster
-        </motion.p>
+      <p className="text-base text-slate-400 text-center">Each word is an arrow from the origin</p>
+
+      <div className="relative w-full max-w-[300px] h-[200px] rounded-xl border border-slate-700 bg-slate-900/60 overflow-hidden">
+        <svg viewBox="0 0 300 200" className="absolute inset-0 h-full w-full">
+          <defs>
+            <marker id="arw-teal" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="#2dd4bf" />
+            </marker>
+            <marker id="arw-amber" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="#fbbf24" />
+            </marker>
+          </defs>
+
+          {/* Faint axes */}
+          <line x1={VEC_ORIGIN.x} y1={VEC_ORIGIN.y} x2={290} y2={VEC_ORIGIN.y} stroke="#334155" strokeWidth={1.5} />
+          <line x1={VEC_ORIGIN.x} y1={VEC_ORIGIN.y} x2={VEC_ORIGIN.x} y2={18} stroke="#334155" strokeWidth={1.5} />
+
+          {/* Small-angle arc between king & queen */}
+          <motion.path
+            d="M69.4 132.2 A52 52 0 0 0 63.4 127.9"
+            fill="none"
+            stroke="#5eead4"
+            strokeWidth={2.5}
+            strokeLinecap="round"
+            initial={reduced ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: reduced ? 0 : 1.1 }}
+          />
+
+          {/* Vectors */}
+          {WORD_VECTORS.map((v, i) => {
+            const end = drawEnd(v.tip);
+            const isRoyalty = v.group === "royalty";
+            return (
+              <motion.line
+                key={v.text}
+                x1={VEC_ORIGIN.x}
+                y1={VEC_ORIGIN.y}
+                x2={end.x}
+                y2={end.y}
+                stroke={isRoyalty ? "#2dd4bf" : "#fbbf24"}
+                strokeWidth={3}
+                strokeLinecap="round"
+                markerEnd={isRoyalty ? "url(#arw-teal)" : "url(#arw-amber)"}
+                initial={reduced ? false : { pathLength: 0, opacity: 0 }}
+                animate={{ pathLength: 1, opacity: 1 }}
+                transition={{ delay: reduced ? 0 : i * 0.22, duration: 0.45, ease: "easeOut" }}
+              />
+            );
+          })}
+        </svg>
+
+        {/* Word chips at each arrow tip */}
+        {WORD_VECTORS.map((v, i) => (
+          <motion.span
+            key={v.text}
+            initial={reduced ? false : { opacity: 0, scale: 0.4 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: reduced ? 0 : i * 0.22 + 0.3, duration: 0.3, type: "spring", bounce: 0.45 }}
+            style={{ left: `${(v.tip.x / 300) * 100}%`, top: `${(v.tip.y / 200) * 100}%` }}
+            className={cn(
+              "absolute -translate-x-1/2 -translate-y-1/2 rounded-lg border px-2.5 py-1 text-base font-semibold",
+              v.group === "royalty"
+                ? "border-teal-400/50 bg-teal-500/25 text-teal-100"
+                : "border-amber-400/50 bg-amber-500/25 text-amber-100",
+            )}
+          >
+            {v.text}
+          </motion.span>
+        ))}
       </div>
+
+      <motion.p
+        initial={reduced ? false : { opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: reduced ? 0 : 1.2 }}
+        className="text-center text-base font-semibold text-teal-200"
+      >
+        Related words point the same way → small angle
+      </motion.p>
     </div>
   );
 }
 
 function DistanceVisual({ reduced }: { reduced: boolean }) {
   const pairs = [
-    { a: "dog", b: "cat",      dist: "Very close",  bar: 88, color: "bg-teal-500" },
-    { a: "dog", b: "car",      dist: "Far apart",   bar: 28, color: "bg-amber-500" },
-    { a: "dog", b: "asteroid", dist: "Very far",    bar: 8,  color: "bg-rose-500" },
+    { b: "cat",      label: "same direction", score: 0.91, color: "bg-teal-500" },
+    { b: "car",      label: "wide angle",     score: 0.30, color: "bg-amber-500" },
+    { b: "asteroid", label: "near 90°",       score: 0.08, color: "bg-rose-500" },
   ];
+
   return (
-    <div className="flex flex-col gap-4 px-4 w-full max-w-[320px] mx-auto">
-      <p className="text-base text-slate-400 text-center">Similarity between &ldquo;dog&rdquo; and…</p>
+    <div className="flex flex-col gap-3 px-4 w-full max-w-[320px] mx-auto">
+      {/* Angle → score concept diagram */}
+      <div className="relative w-full">
+        <svg viewBox="0 0 280 96" className="w-full h-[96px]">
+          <defs>
+            <marker id="cs-arw" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="#5eead4" />
+            </marker>
+          </defs>
+          {/* two vectors with a small angle */}
+          <motion.line
+            x1={24} y1={84} x2={150} y2={20}
+            stroke="#2dd4bf" strokeWidth={3} strokeLinecap="round" markerEnd="url(#cs-arw)"
+            initial={reduced ? false : { pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.5 }}
+          />
+          <motion.line
+            x1={24} y1={84} x2={168} y2={48}
+            stroke="#2dd4bf" strokeWidth={3} strokeLinecap="round" markerEnd="url(#cs-arw)"
+            initial={reduced ? false : { pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: reduced ? 0 : 0.2, duration: 0.5 }}
+          />
+          {/* angle arc */}
+          <motion.path
+            d="M64 68 A46 46 0 0 1 76 56" fill="none" stroke="#5eead4" strokeWidth={2.5} strokeLinecap="round"
+            initial={reduced ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: reduced ? 0 : 0.7 }}
+          />
+          <text x={84} y={66} fill="#99f6e4" fontSize={18} fontWeight={700}>θ</text>
+        </svg>
+        <p className="text-center text-base text-slate-300">
+          <span className="font-bold text-teal-200">cos(θ)</span> — smaller angle, higher score
+        </p>
+      </div>
+
       {pairs.map((pair, i) => (
         <motion.div
           key={pair.b}
           initial={reduced ? false : { opacity: 0, x: -16 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: reduced ? 0 : i * 0.35, duration: 0.4 }}
+          transition={{ delay: reduced ? 0 : 0.6 + i * 0.3, duration: 0.4 }}
           className="space-y-1.5"
         >
           <div className="flex justify-between text-base">
@@ -218,59 +294,56 @@ function DistanceVisual({ reduced }: { reduced: boolean }) {
               {" "}vs{" "}
               <span className="text-blue-300 font-semibold">{pair.b}</span>
             </span>
-            <span className="text-slate-400">{pair.dist}</span>
+            <span className="font-mono font-semibold text-teal-200">{pair.score.toFixed(2)}</span>
           </div>
           <div className="h-3 w-full overflow-hidden rounded-full bg-slate-800">
             <motion.div
               className={cn("h-full rounded-full", pair.color)}
               initial={{ width: "0%" }}
-              animate={{ width: `${pair.bar}%` }}
-              transition={{ delay: reduced ? 0 : i * 0.35 + 0.2, duration: 0.6, ease: "easeOut" }}
+              animate={{ width: `${pair.score * 100}%` }}
+              transition={{ delay: reduced ? 0 : 0.6 + i * 0.3 + 0.2, duration: 0.6, ease: "easeOut" }}
             />
           </div>
         </motion.div>
       ))}
+
+      <p className="text-center text-base text-slate-400">1 = same · 0 = unrelated · illustrative</p>
     </div>
   );
 }
 
-function ScaleVisual({ reduced }: { reduced: boolean }) {
-  const dims = [
-    { label: "text-embedding-3-small", dims: 1536, color: "from-rose-600 to-rose-400", bar: 50 },
-    { label: "text-embedding-3-large", dims: 3072, color: "from-rose-700 to-rose-500", bar: 100 },
+function AppsVisual({ reduced }: { reduced: boolean }) {
+  const apps = [
+    { name: "Semantic search", desc: "find by meaning" },
+    { name: "LLMs", desc: "understand text" },
   ];
+
   return (
-    <div className="flex flex-col items-center gap-6 px-4 w-full max-w-[320px] mx-auto">
+    <div className="flex flex-col items-center gap-4 px-4 w-full max-w-[320px] mx-auto">
       <motion.div
-        initial={reduced ? false : { opacity: 0, scale: 0.7 }}
+        initial={reduced ? false : { opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, type: "spring" }}
-        className="text-center"
+        transition={{ duration: 0.4, type: "spring", bounce: 0.3 }}
+        className="w-full rounded-2xl border border-rose-400/40 bg-rose-500/15 px-4 py-3 text-center"
       >
-        <p className="text-5xl font-bold font-mono text-rose-300">3,072</p>
-        <p className="mt-1 text-base text-slate-400">dimensions per word</p>
+        <p className="text-lg font-bold text-rose-100 leading-snug">
+          Similar meaning → similar vectors
+        </p>
       </motion.div>
-      <div className="w-full space-y-4">
-        {dims.map((d, i) => (
+
+      <p className="text-base text-slate-400 text-center">That one idea powers…</p>
+
+      <div className="grid grid-cols-2 gap-3 w-full">
+        {apps.map((app, i) => (
           <motion.div
-            key={d.label}
-            initial={reduced ? false : { opacity: 0, y: 8 }}
+            key={app.name}
+            initial={reduced ? false : { opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: reduced ? 0 : i * 0.4, duration: 0.35 }}
-            className="space-y-1.5"
+            transition={{ delay: reduced ? 0 : 0.3 + i * 0.15, duration: 0.35, type: "spring", bounce: 0.35 }}
+            className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2.5 text-center"
           >
-            <div className="flex justify-between text-sm">
-              <span className="text-slate-300 truncate pr-2">{d.label}</span>
-              <span className="font-mono text-rose-300 font-semibold shrink-0">{d.dims.toLocaleString()}d</span>
-            </div>
-            <div className="h-3 w-full overflow-hidden rounded-full bg-slate-800">
-              <motion.div
-                className={cn("h-full rounded-full bg-gradient-to-r", d.color)}
-                initial={{ width: "0%" }}
-                animate={{ width: `${d.bar}%` }}
-                transition={{ delay: reduced ? 0 : i * 0.4 + 0.2, duration: 0.7, ease: "easeOut" }}
-              />
-            </div>
+            <p className="text-base font-bold text-rose-100">{app.name}</p>
+            <p className="text-base text-slate-400 leading-snug">{app.desc}</p>
           </motion.div>
         ))}
       </div>
@@ -337,7 +410,7 @@ export function EmbeddingShort() {
       case "vector":   return <VectorVisual   reduced={reducedMotion} />;
       case "meaning":  return <MeaningVisual  reduced={reducedMotion} />;
       case "distance": return <DistanceVisual reduced={reducedMotion} />;
-      case "scale":    return <ScaleVisual    reduced={reducedMotion} />;
+      case "apps":     return <AppsVisual     reduced={reducedMotion} />;
       default:         return null;
     }
   }

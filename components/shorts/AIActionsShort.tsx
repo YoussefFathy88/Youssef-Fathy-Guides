@@ -20,38 +20,31 @@ interface Step {
 const STEPS: Step[] = [
   {
     id: "alone",
-    title: "AI can't do anything alone",
-    subtitle: "It only generates text — nothing more",
+    title: "Claude is just a model — it writes text",
+    subtitle: "On its own it can't touch your code",
     accentColor: "text-violet-300",
     badgeColor: "bg-violet-500/20 text-violet-200 border-violet-500/30",
   },
   {
     id: "tools",
-    title: "You give it a list of tools",
-    subtitle: "Search, send email, run code, call an API",
+    title: "Claude Code gives it coding tools",
+    subtitle: "Read, Edit, Bash, Grep — and more",
     accentColor: "text-amber-300",
     badgeColor: "bg-amber-500/20 text-amber-200 border-amber-500/30",
   },
   {
     id: "json",
-    title: "It outputs a tool call, not an answer",
-    subtitle: "A JSON saying which tool to run and how",
+    title: "It outputs a tool call, not a reply",
+    subtitle: "Structured JSON saying which tool to run",
     accentColor: "text-teal-300",
     badgeColor: "bg-teal-500/20 text-teal-200 border-teal-500/30",
   },
   {
-    id: "execute",
-    title: "Your app runs the tool, not the AI",
-    subtitle: "The result is sent back so AI can continue",
+    id: "loop",
+    title: "The agent loop: ask, run, decide, repeat",
+    subtitle: "Model and tool go back and forth until done",
     accentColor: "text-blue-300",
     badgeColor: "bg-blue-500/20 text-blue-200 border-blue-500/30",
-  },
-  {
-    id: "chain",
-    title: "Chain tools = autonomous agents",
-    subtitle: "Search → read → write → reply, automatically",
-    accentColor: "text-rose-300",
-    badgeColor: "bg-rose-500/20 text-rose-200 border-rose-500/30",
   },
 ];
 
@@ -72,7 +65,7 @@ function AloneVisual({ reduced }: { reduced: boolean }) {
         </svg>
       </motion.div>
       <div className="flex flex-col gap-3 w-full max-w-[280px]">
-        {["Browse the web", "Send an email", "Run code", "Read files"].map((action, i) => (
+        {["Read your files", "Edit your code", "Run the tests", "Search the codebase"].map((action, i) => (
           <motion.div
             key={action}
             initial={reduced ? false : { opacity: 0, x: 16 }}
@@ -91,49 +84,49 @@ function AloneVisual({ reduced }: { reduced: boolean }) {
 
 function ToolsVisual({ reduced }: { reduced: boolean }) {
   const tools = [
-    { icon: "🔍", name: "web_search",   desc: "Search the internet" },
-    { icon: "📧", name: "send_email",   desc: "Send an email" },
-    { icon: "💻", name: "run_code",     desc: "Execute Python" },
-    { icon: "📁", name: "read_file",    desc: "Read a document" },
+    { icon: "📄", name: "Read", desc: "Open a file" },
+    { icon: "✏️", name: "Edit", desc: "Change the code" },
+    { icon: "💻", name: "Bash", desc: "Run commands & tests" },
+    { icon: "🔍", name: "Grep", desc: "Search the codebase" },
   ];
   return (
-    <div className="flex flex-col gap-3 px-4 w-full max-w-[320px] mx-auto">
-      <p className="text-base text-slate-400 text-center">Tools you register for the AI</p>
-      {tools.map((tool, i) => (
-        <motion.div
-          key={tool.name}
-          initial={reduced ? false : { opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: reduced ? 0 : i * 0.2, duration: 0.35, type: "spring", bounce: 0.3 }}
-          className="flex items-center gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3"
-        >
-          <span className="text-2xl">{tool.icon}</span>
-          <div>
+    <div className="flex flex-col gap-3 px-4 w-full max-w-[330px] mx-auto">
+      <p className="text-base text-slate-400 text-center">Tools Claude Code gives the model</p>
+      <div className="grid grid-cols-2 gap-3">
+        {tools.map((tool, i) => (
+          <motion.div
+            key={tool.name}
+            initial={reduced ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: reduced ? 0 : i * 0.15, duration: 0.35, type: "spring", bounce: 0.3 }}
+            className="flex flex-col items-center gap-1 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-3 text-center"
+          >
+            <span className="text-2xl">{tool.icon}</span>
             <p className="font-mono text-base font-semibold text-amber-200">{tool.name}</p>
-            <p className="text-sm text-slate-400">{tool.desc}</p>
-          </div>
-        </motion.div>
-      ))}
+            <p className="text-base leading-snug text-slate-400">{tool.desc}</p>
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
 }
 
 function JsonVisual({ reduced }: { reduced: boolean }) {
   const lines = [
-    { text: "{",                              indent: 0 },
-    { text: '  "tool": "web_search",',        indent: 1 },
-    { text: '  "args": {',                    indent: 1 },
-    { text: '    "query": "AAPL stock price"', indent: 2 },
-    { text: "  }",                            indent: 1 },
-    { text: "}",                              indent: 0 },
+    { text: "{",                          indent: 0 },
+    { text: '  "tool": "Read",',          indent: 1 },
+    { text: '  "args": {',                indent: 1 },
+    { text: '    "path": "auth.ts"',      indent: 2 },
+    { text: "  }",                        indent: 1 },
+    { text: "}",                          indent: 0 },
   ];
   return (
     <div className="flex flex-col items-center gap-4 px-4 w-full">
       <div className="rounded-xl border border-teal-500/30 bg-teal-500/10 px-4 py-2.5 w-full max-w-[300px] text-center">
-        <p className="text-base text-slate-300">User: <span className="text-teal-200 font-semibold">&ldquo;What&apos;s Apple&apos;s stock price?&rdquo;</span></p>
+        <p className="text-base text-slate-300">You: <span className="text-teal-200 font-semibold">&ldquo;Fix the failing test in auth.ts&rdquo;</span></p>
       </div>
       <div className="w-full max-w-[300px] rounded-xl border border-slate-600 bg-slate-900 p-4 space-y-1">
-        <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">AI output (not an answer)</p>
+        <p className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-2">Claude&apos;s output (not a reply)</p>
         {lines.map((line, i) => (
           <motion.p
             key={i}
@@ -151,68 +144,114 @@ function JsonVisual({ reduced }: { reduced: boolean }) {
   );
 }
 
-function ExecuteVisual({ reduced }: { reduced: boolean }) {
-  const steps = [
-    { from: "AI",       arrow: "→", to: "App",     label: "Tool call JSON",      color: "text-teal-300" },
-    { from: "App",      arrow: "→", to: "API",     label: "Calls web_search()",  color: "text-amber-300" },
-    { from: "API",      arrow: "→", to: "App",     label: "$182.43",             color: "text-blue-300" },
-    { from: "App",      arrow: "→", to: "AI",      label: "Result injected",     color: "text-violet-300" },
-    { from: "AI",       arrow: "→", to: "User",    label: "\"Apple is $182.43\"", color: "text-rose-300" },
-  ];
-  return (
-    <div className="flex flex-col gap-2.5 px-4 w-full max-w-[320px] mx-auto">
-      {steps.map((s, i) => (
-        <motion.div
-          key={i}
-          initial={reduced ? false : { opacity: 0, x: -14 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: reduced ? 0 : i * 0.22, duration: 0.35 }}
-          className="flex items-center gap-2"
-        >
-          <span className="w-10 shrink-0 rounded-lg bg-slate-800 px-1.5 py-1 text-center text-sm font-bold text-slate-300">{s.from}</span>
-          <span className={cn("text-lg", s.color)}>{s.arrow}</span>
-          <span className="w-10 shrink-0 rounded-lg bg-slate-800 px-1.5 py-1 text-center text-sm font-bold text-slate-300">{s.to}</span>
-          <span className={cn("flex-1 text-base", s.color)}>{s.label}</span>
-        </motion.div>
-      ))}
-    </div>
-  );
-}
+type LoopPhase = "ask" | "run" | "result" | "decide";
 
-function ChainVisual({ reduced }: { reduced: boolean }) {
-  const chain = [
-    { step: "1", icon: "🔍", label: "Search for flights", color: "border-violet-500/40 bg-violet-500/15 text-violet-200" },
-    { step: "2", icon: "📅", label: "Check calendar",     color: "border-amber-500/40 bg-amber-500/15 text-amber-200" },
-    { step: "3", icon: "✈️", label: "Book the flight",    color: "border-teal-500/40 bg-teal-500/15 text-teal-200" },
-    { step: "4", icon: "📧", label: "Send confirmation",  color: "border-blue-500/40 bg-blue-500/15 text-blue-200" },
+function LoopVisual({ reduced }: { reduced: boolean }) {
+  const [phase, setPhase] = useState<LoopPhase>("ask");
+
+  const phases: { id: LoopPhase; label: string; icon: string; color: string }[] = [
+    { id: "ask",    label: "Ask",    icon: "🧠", color: "teal" },
+    { id: "run",    label: "Run",    icon: "⚙️", color: "amber" },
+    { id: "result", label: "Result", icon: "📦", color: "violet" },
+    { id: "decide", label: "Decide", icon: "🔁", color: "blue" },
   ];
+
   return (
-    <div className="flex flex-col gap-3 px-4 w-full max-w-[300px] mx-auto">
-      <p className="text-base text-slate-400 text-center">
-        &ldquo;Book me a flight to Paris next Friday&rdquo;
+    <div className="flex flex-col gap-3 px-4 w-full max-w-[330px] mx-auto">
+      <p className="text-base text-slate-400 text-center leading-snug">
+        &ldquo;Fix the failing test in auth.ts&rdquo;
       </p>
-      {chain.map((c, i) => (
-        <div key={c.step} className="flex flex-col items-center">
-          <motion.div
-            initial={reduced ? false : { opacity: 0, scale: 0.85 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: reduced ? 0 : i * 0.3, duration: 0.35, type: "spring", bounce: 0.35 }}
-            className={cn("flex items-center gap-3 w-full rounded-xl border px-4 py-2.5", c.color)}
+
+      {/* Phase tabs — one card visible at a time */}
+      <div className="grid grid-cols-4 gap-1.5">
+        {phases.map(p => (
+          <button
+            key={p.id}
+            type="button"
+            onClick={() => setPhase(p.id)}
+            className={cn(
+              "flex flex-col items-center gap-0.5 rounded-xl border py-2 px-1 text-sm font-bold transition",
+              phase === p.id
+                ? p.color === "teal"
+                  ? "border-teal-400/50 bg-teal-500/20 text-teal-100"
+                  : p.color === "amber"
+                    ? "border-amber-400/50 bg-amber-500/20 text-amber-100"
+                    : p.color === "violet"
+                      ? "border-violet-400/50 bg-violet-500/20 text-violet-100"
+                      : "border-blue-400/50 bg-blue-500/20 text-blue-100"
+                : "border-slate-600/60 bg-slate-800/50 text-slate-400 hover:text-slate-200",
+            )}
           >
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/10 text-sm font-bold text-white">{c.step}</span>
-            <span className="text-lg">{c.icon}</span>
-            <span className="text-base font-medium">{c.label}</span>
+            <span className="text-base">{p.icon}</span>
+            {p.label}
+          </button>
+        ))}
+      </div>
+
+      <AnimatePresence mode="wait">
+        {phase === "ask" && (
+          <motion.div
+            key="ask"
+            initial={reduced ? false : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reduced ? {} : { opacity: 0, y: -8 }}
+            transition={{ duration: 0.25 }}
+            className="rounded-xl border border-teal-400/30 bg-teal-500/10 p-4 space-y-2"
+          >
+            <p className="text-base font-bold text-teal-200">🧠 The model decides: call a tool</p>
+            <p className="font-mono text-base text-teal-100">Read( &ldquo;auth.ts&rdquo; )</p>
+            <p className="text-base text-slate-300 leading-snug">The model only sends this request — it never runs code itself.</p>
           </motion.div>
-          {i < chain.length - 1 && (
-            <motion.div
-              initial={reduced ? false : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: reduced ? 0 : i * 0.3 + 0.2 }}
-              className="h-3 w-px bg-white/20"
-            />
-          )}
-        </div>
-      ))}
+        )}
+        {phase === "run" && (
+          <motion.div
+            key="run"
+            initial={reduced ? false : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reduced ? {} : { opacity: 0, y: -8 }}
+            transition={{ duration: 0.25 }}
+            className="rounded-xl border border-amber-400/30 bg-amber-500/10 p-4 space-y-2"
+          >
+            <p className="text-base font-bold text-amber-200">⚙️ Claude Code executes it</p>
+            <p className="text-base text-slate-100 leading-snug">Opens auth.ts and reads the file on disk.</p>
+            <p className="text-base text-slate-300 leading-snug">This part is plain code — no model involved.</p>
+          </motion.div>
+        )}
+        {phase === "result" && (
+          <motion.div
+            key="result"
+            initial={reduced ? false : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reduced ? {} : { opacity: 0, y: -8 }}
+            transition={{ duration: 0.25 }}
+            className="rounded-xl border border-violet-400/30 bg-violet-500/10 p-4 space-y-2"
+          >
+            <p className="text-base font-bold text-violet-200">📦 Result goes back to the model</p>
+            <p className="text-base text-slate-100 leading-snug">File contents added to the conversation as text.</p>
+            <p className="text-base text-slate-300 leading-snug">The model reads this like a message, not a file.</p>
+          </motion.div>
+        )}
+        {phase === "decide" && (
+          <motion.div
+            key="decide"
+            initial={reduced ? false : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reduced ? {} : { opacity: 0, y: -8 }}
+            transition={{ duration: 0.25 }}
+            className="rounded-xl border border-blue-400/30 bg-blue-500/10 p-4 space-y-2"
+          >
+            <p className="text-base font-bold text-blue-200">🔁 The model decides what&apos;s next</p>
+            <div className="flex items-center gap-2 rounded-lg border border-slate-600/60 bg-slate-900/60 px-3 py-2">
+              <span className="text-lg">↩️</span>
+              <p className="text-base text-slate-200 leading-snug">Still broken → asks for another tool</p>
+            </div>
+            <div className="flex items-center gap-2 rounded-lg border border-slate-600/60 bg-slate-900/60 px-3 py-2">
+              <span className="text-lg">✅</span>
+              <p className="text-base text-slate-200 leading-snug">Fixed → writes the final reply to you</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -272,8 +311,7 @@ export function AIActionsShort() {
       case "alone":   return <AloneVisual   reduced={reducedMotion} />;
       case "tools":   return <ToolsVisual   reduced={reducedMotion} />;
       case "json":    return <JsonVisual    reduced={reducedMotion} />;
-      case "execute": return <ExecuteVisual reduced={reducedMotion} />;
-      case "chain":   return <ChainVisual   reduced={reducedMotion} />;
+      case "loop":    return <LoopVisual    reduced={reducedMotion} />;
       default:        return null;
     }
   }
@@ -283,7 +321,7 @@ export function AIActionsShort() {
       {/* Badge + dots */}
       <div className="flex items-center justify-between px-5 pt-5 pb-3">
         <span className={cn("inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-widest", step.badgeColor)}>
-          AI Actions
+          Claude Code
         </span>
         <div className="flex items-center gap-1.5">
           {STEPS.map((_, i) => (

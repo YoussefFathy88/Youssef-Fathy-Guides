@@ -50,6 +50,39 @@ If one slide needs several beats (input → scores → pick → concat → repea
 - Reset phase index when leaving the step
 - Progress bar reflects phase index, not a fake timer
 
+## STRICT: low content per card, tabs over tall stacks
+
+**This is a hard requirement for every Short, not a style preference.** The 9:16
+phone frame has a fixed height and the animation zone is `overflow-hidden` —
+content that doesn't fit is **silently clipped**, not scrolled. This is a shipped
+defect every time, not a rare edge case: it happens as soon as one step's cards
+(request card + divider + result card, or 2+ example panels) add up to more
+vertical space than the frame has room for.
+
+**Rule: each visible card/panel stays low-content — a short label, a couple of
+data rows, one line of explanation. If a step needs to show more than one card's
+worth of content, split it across tabs (or Prev/Next phases) so only one card
+renders at a time.** Never grow a single card to fit more; add a tab instead.
+
+**Do not stack multiple content cards vertically inside one step.** Instead, add a
+second tab row (or reuse Prev/Next as a phase toggle) so only **one card is visible
+at a time**:
+
+| Situation | Do | Don't |
+|---|---|---|
+| Step shows "model asks" + "tool runs" + "result" | Tab between **Request** / **Result** cards | Stack all three cards top-to-bottom in one view |
+| Step compares 2+ examples (tool cases, sequences, code files) | Tabs to swap the example, one panel on screen | Render every example as its own stacked block |
+| A single card's text/rows keep growing to fit more facts | Cut it down to one idea, move the rest behind a tab | Add more lines/rows until the card is tall |
+
+Before shipping any step, mentally add up its card heights (title + padding + rows)
+against the phone frame height. If it's close, split into tabs — don't shrink text
+or padding below the legibility floor to force a fit, and don't let a card grow
+tall instead of adding a tab.
+
+**Reject on sight:** a step with 2+ full content cards stacked vertically; a card
+whose row/line count keeps expanding instead of moving content behind a tab; any
+visual not verified against the phone frame height before shipping.
+
 ## Cross-rule dependencies
 
 - **Legibility** (`.cursor/rules/session-video-legibility.mdc`) — large type, short copy, fits 9:16 frame

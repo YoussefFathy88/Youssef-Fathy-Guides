@@ -68,6 +68,7 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | Function call stack push/pop (recursion) | `CallStackVisualizer` |
 | Feedforward neural network forward pass | `NeuralNetworkForwardPass` |
 | Loss landscape + gradient descent ball | `GradientDescentSimulator` |
+| Chat UI that reveals the hidden system prompt step-by-step with persona swap | `SystemPromptRevealDemo` |
 | Color-coded prompt sections with token counts | `PromptAnatomyVisualizer` |
 | HTTP request/response hop animation | `ApiLifecycleFlow` |
 | Animated LLM API call loop — input → model → unstructured text output, cycles examples | `LlmApiCallFlow` |
@@ -172,6 +173,7 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | `CallStackVisualizer` | Interactive | Push/pop frame animation with pseudo-code highlight. |
 | `NeuralNetworkForwardPass` | Diagram | SVG feedforward network with layer-by-layer pulse animation. |
 | `GradientDescentSimulator` | Interactive | 2D loss landscape contour + animated gradient descent ball. |
+| `SystemPromptRevealDemo` | Interactive | 7-step reveal: chat UI → backstage system prompt → per-section highlight (role/task/rules/format) → persona swap showing same model with different instructions. |
 | `PromptAnatomyVisualizer` | Interactive | Expandable prompt sections with token budget bar. |
 | `ApiLifecycleFlow` | Interactive | HTTP request hop animation (Client→DNS→TLS→Server→DB→Response). |
 | `LlmApiCallFlow` | Interactive | Animated LLM API call cycle: Input → model (with params) → text output. Auto-cycles examples, pause/play control, insight chip. |
@@ -1290,6 +1292,21 @@ interface GradientDescentSimulatorProps {
   defaultLearningRate?: number;  // one of 0.05 | 0.15 | 0.40 | 0.85
 }
 ```
+
+---
+
+### SystemPromptRevealDemo
+
+**Description:** 7-step interactive that teaches the system prompt concept through a "backstage reveal" metaphor. Step 0 shows a normal chat; steps 1–5 reveal and annotate the hidden system prompt (role, task, rules, format); step 6 swaps to a completely different persona showing how the same model changes with different instructions.
+
+```ts
+interface SystemPromptRevealDemoProps {
+  title?: string;   // default: "Every chat starts with a developer's note the user never reads"
+  caption?: string; // default: "Press Next to peek backstage…"
+}
+```
+
+Ships with two built-in scenarios (Aria the shopping assistant, MediBot the health assistant). No external props needed for the scenario data.
 
 ---
 
