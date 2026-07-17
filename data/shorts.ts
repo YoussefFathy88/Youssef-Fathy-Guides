@@ -22,11 +22,11 @@ export const SHORTS: ShortDef[] = [
   },
   {
     slug: "how-tokens-work",
-    title: "How AI Reads Text",
-    topic: "Tokenization",
+    title: "BPE: Training vs Runtime",
+    topic: "What Are Tokens?",
     topicColor: "violet",
     description:
-      "A token is a chunk of text, not necessarily a word. Watch the BPE algorithm count and merge characters step-by-step.",
+      "Follow one word, \"Egyptian\", through the exact merge rules BPE learns during training — then watch runtime replay those rules on a full prompt.",
     playlist: "ai",
   },
   {

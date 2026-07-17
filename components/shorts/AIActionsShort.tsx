@@ -42,7 +42,7 @@ const STEPS: Step[] = [
   {
     id: "loop",
     title: "The agent loop: ask, run, decide, repeat",
-    subtitle: "Model and tool go back and forth until done",
+    subtitle: "Read, then Edit, then Run tests — same loop each time",
     accentColor: "text-blue-300",
     badgeColor: "bg-blue-500/20 text-blue-200 border-blue-500/30",
   },
@@ -146,8 +146,111 @@ function JsonVisual({ reduced }: { reduced: boolean }) {
 
 type LoopPhase = "ask" | "run" | "result" | "decide";
 
+interface ToolIteration {
+  id: string;
+  tabLabel: string;
+  icon: string;
+  color: "sky" | "rose" | "emerald";
+  ask: { code: string[]; note: string };
+  run: { title: string; desc: string; note: string };
+  result: { title: string; desc: string; note: string };
+  decide: { title: string; outcome: { icon: string; text: string } };
+}
+
+const TOOL_ITERATIONS: ToolIteration[] = [
+  {
+    id: "read",
+    tabLabel: "1 · Read",
+    icon: "📄",
+    color: "sky",
+    ask: {
+      code: ['Read( "auth.ts" )'],
+      note: "The model only sends this request — it never runs code itself.",
+    },
+    run: {
+      title: "Claude Code executes it",
+      desc: "Opens auth.ts and reads the file on disk.",
+      note: "This part is plain code — no model involved.",
+    },
+    result: {
+      title: "Result goes back to the model",
+      desc: "File contents added to the conversation as text.",
+      note: "The model reads this like a message, not a file.",
+    },
+    decide: {
+      title: "The model decides what's next",
+      outcome: { icon: "🔎", text: "Sees the bug → needs to change the code" },
+    },
+  },
+  {
+    id: "edit",
+    tabLabel: "2 · Edit",
+    icon: "✏️",
+    color: "rose",
+    ask: {
+      code: [
+        '{',
+        '  "tool": "Edit",',
+        '  "args": {',
+        '    "file": "auth.ts",',
+        '    "old": "password = input",',
+        '    "new": "password === input"',
+        '  }',
+        '}',
+      ],
+      note: "The model writes the fix as a code change — a diff, not a run.",
+    },
+    run: {
+      title: "Claude Code applies the edit",
+      desc: "Replaces that one line inside auth.ts on disk.",
+      note: "Still just code — no model involved in applying it.",
+    },
+    result: {
+      title: "Result goes back to the model",
+      desc: "Edit confirmed: 1 line changed.",
+      note: "A short status message, not the whole file.",
+    },
+    decide: {
+      title: "The model decides what's next",
+      outcome: { icon: "🧪", text: "Fix looks right → time to check it worked" },
+    },
+  },
+  {
+    id: "bash",
+    tabLabel: "3 · Run tests",
+    icon: "💻",
+    color: "emerald",
+    ask: {
+      code: ['Bash( "npm test" )'],
+      note: "The model asks to run the test suite to verify the fix.",
+    },
+    run: {
+      title: "Claude Code runs the command",
+      desc: "Runs npm test in a real terminal process.",
+      note: "Real execution — plain code, not the model.",
+    },
+    result: {
+      title: "Result goes back to the model",
+      desc: "Test output: 3 passed, 0 failed.",
+      note: "Console output added back as text for the model to read.",
+    },
+    decide: {
+      title: "The model decides what's next",
+      outcome: { icon: "✅", text: "All tests pass → writes the final reply to you" },
+    },
+  },
+];
+
+const ITERATION_STYLES: Record<ToolIteration["color"], { active: string; text: string }> = {
+  sky: { active: "border-sky-400/50 bg-sky-500/20 text-sky-100", text: "text-sky-200" },
+  rose: { active: "border-rose-400/50 bg-rose-500/20 text-rose-100", text: "text-rose-200" },
+  emerald: { active: "border-emerald-400/50 bg-emerald-500/20 text-emerald-100", text: "text-emerald-200" },
+};
+
 function LoopVisual({ reduced }: { reduced: boolean }) {
+  const [iterationIndex, setIterationIndex] = useState(0);
   const [phase, setPhase] = useState<LoopPhase>("ask");
+  const iteration = TOOL_ITERATIONS[iterationIndex];
 
   const phases: { id: LoopPhase; label: string; icon: string; color: string }[] = [
     { id: "ask",    label: "Ask",    icon: "🧠", color: "teal" },
@@ -157,10 +260,26 @@ function LoopVisual({ reduced }: { reduced: boolean }) {
   ];
 
   return (
-    <div className="flex flex-col gap-3 px-4 w-full max-w-[330px] mx-auto">
-      <p className="text-base text-slate-400 text-center leading-snug">
-        &ldquo;Fix the failing test in auth.ts&rdquo;
-      </p>
+    <div className="flex flex-col gap-2.5 px-4 w-full max-w-[330px] mx-auto">
+      {/* Iteration tabs — which tool call in the loop */}
+      <div className="grid grid-cols-3 gap-1.5">
+        {TOOL_ITERATIONS.map((it, i) => (
+          <button
+            key={it.id}
+            type="button"
+            onClick={() => { setIterationIndex(i); setPhase("ask"); }}
+            className={cn(
+              "flex items-center justify-center gap-1 rounded-lg border py-1.5 px-1 text-sm font-bold transition",
+              i === iterationIndex
+                ? ITERATION_STYLES[it.color].active
+                : "border-slate-600/60 bg-slate-800/50 text-slate-400 hover:text-slate-200",
+            )}
+          >
+            <span>{it.icon}</span>
+            {it.tabLabel}
+          </button>
+        ))}
+      </div>
 
       {/* Phase tabs — one card visible at a time */}
       <div className="grid grid-cols-4 gap-1.5">
@@ -191,7 +310,7 @@ function LoopVisual({ reduced }: { reduced: boolean }) {
       <AnimatePresence mode="wait">
         {phase === "ask" && (
           <motion.div
-            key="ask"
+            key={`ask-${iteration.id}`}
             initial={reduced ? false : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={reduced ? {} : { opacity: 0, y: -8 }}
@@ -199,56 +318,61 @@ function LoopVisual({ reduced }: { reduced: boolean }) {
             className="rounded-xl border border-teal-400/30 bg-teal-500/10 p-4 space-y-2"
           >
             <p className="text-base font-bold text-teal-200">🧠 The model decides: call a tool</p>
-            <p className="font-mono text-base text-teal-100">Read( &ldquo;auth.ts&rdquo; )</p>
-            <p className="text-base text-slate-300 leading-snug">The model only sends this request — it never runs code itself.</p>
+            <div className="rounded-lg bg-slate-900/60 px-3 py-2 space-y-0.5">
+              {iteration.ask.code.map((line, i) => (
+                <p key={i} className="font-mono text-base text-teal-100 leading-snug">{line}</p>
+              ))}
+            </div>
+            <p className="text-base text-slate-300 leading-snug">{iteration.ask.note}</p>
           </motion.div>
         )}
         {phase === "run" && (
           <motion.div
-            key="run"
+            key={`run-${iteration.id}`}
             initial={reduced ? false : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={reduced ? {} : { opacity: 0, y: -8 }}
             transition={{ duration: 0.25 }}
             className="rounded-xl border border-amber-400/30 bg-amber-500/10 p-4 space-y-2"
           >
-            <p className="text-base font-bold text-amber-200">⚙️ Claude Code executes it</p>
-            <p className="text-base text-slate-100 leading-snug">Opens auth.ts and reads the file on disk.</p>
-            <p className="text-base text-slate-300 leading-snug">This part is plain code — no model involved.</p>
+            <p className="text-base font-bold text-amber-200">⚙️ {iteration.run.title}</p>
+            <p className="text-base text-slate-100 leading-snug">{iteration.run.desc}</p>
+            <p className="text-base text-slate-300 leading-snug">{iteration.run.note}</p>
           </motion.div>
         )}
         {phase === "result" && (
           <motion.div
-            key="result"
+            key={`result-${iteration.id}`}
             initial={reduced ? false : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={reduced ? {} : { opacity: 0, y: -8 }}
             transition={{ duration: 0.25 }}
             className="rounded-xl border border-violet-400/30 bg-violet-500/10 p-4 space-y-2"
           >
-            <p className="text-base font-bold text-violet-200">📦 Result goes back to the model</p>
-            <p className="text-base text-slate-100 leading-snug">File contents added to the conversation as text.</p>
-            <p className="text-base text-slate-300 leading-snug">The model reads this like a message, not a file.</p>
+            <p className="text-base font-bold text-violet-200">📦 {iteration.result.title}</p>
+            <p className="text-base text-slate-100 leading-snug">{iteration.result.desc}</p>
+            <p className="text-base text-slate-300 leading-snug">{iteration.result.note}</p>
           </motion.div>
         )}
         {phase === "decide" && (
           <motion.div
-            key="decide"
+            key={`decide-${iteration.id}`}
             initial={reduced ? false : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={reduced ? {} : { opacity: 0, y: -8 }}
             transition={{ duration: 0.25 }}
             className="rounded-xl border border-blue-400/30 bg-blue-500/10 p-4 space-y-2"
           >
-            <p className="text-base font-bold text-blue-200">🔁 The model decides what&apos;s next</p>
+            <p className="text-base font-bold text-blue-200">🔁 {iteration.decide.title}</p>
             <div className="flex items-center gap-2 rounded-lg border border-slate-600/60 bg-slate-900/60 px-3 py-2">
-              <span className="text-lg">↩️</span>
-              <p className="text-base text-slate-200 leading-snug">Still broken → asks for another tool</p>
+              <span className="text-lg">{iteration.decide.outcome.icon}</span>
+              <p className="text-base text-slate-200 leading-snug">{iteration.decide.outcome.text}</p>
             </div>
-            <div className="flex items-center gap-2 rounded-lg border border-slate-600/60 bg-slate-900/60 px-3 py-2">
-              <span className="text-lg">✅</span>
-              <p className="text-base text-slate-200 leading-snug">Fixed → writes the final reply to you</p>
-            </div>
+            {iterationIndex < TOOL_ITERATIONS.length - 1 && (
+              <p className={cn("text-base font-semibold text-center", ITERATION_STYLES[TOOL_ITERATIONS[iterationIndex + 1].color].text)}>
+                ➡️ Next: {TOOL_ITERATIONS[iterationIndex + 1].tabLabel}
+              </p>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

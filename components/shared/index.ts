@@ -90,6 +90,7 @@ export { default as EmbeddingVectorExplorer } from "../session/EmbeddingVectorEx
 export { default as CosineSimilarityExplorer } from "../session/CosineSimilarityExplorer";
 export { default as SearchQuerySimulator } from "../session/SearchQuerySimulator";
 // Tokenization session components
+export { default as TokenSplitExample } from "../session/TokenSplitExample";
 export { default as BytePairEncodingExplorer } from "../session/BytePairEncodingExplorer";
 // AI Taskflow Lab components
 export { default as LlmApiCallFlow } from "../session/LlmApiCallFlow";

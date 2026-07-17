@@ -95,6 +95,7 @@ import {
   CosineSimilarityExplorer,
   SearchQuerySimulator,
   MaskedAttentionSimulator,
+  TokenSplitExample,
   BytePairEncodingExplorer,
   ArchitectureEvolutionAnimator,
   CNNImageSuccessDemo,
@@ -281,6 +282,7 @@ function getMdxComponents(isPresentationMode: boolean, outline?: string[]) {
   CosineSimilarityExplorer,
   SearchQuerySimulator,
   // Tokenization session components
+  TokenSplitExample,
   BytePairEncodingExplorer,
   // Architecture evolution (why-transformer)
   ArchitectureEvolutionAnimator,

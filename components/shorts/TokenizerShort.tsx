@@ -6,6 +6,15 @@ import { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
 
 // ─── Step data ────────────────────────────────────────────────────────────────
+// Single running example: the word "Egyptian", from prompt
+// "Tell me fact about Egyptian people". Every piece — including "ian" — is
+// built from raw letters via its own explicit merge rule (#2 i+a, #4 E+g,
+// #7 ia+n, #19 y+p, #33 yp+t, #71 Eg+ypt), same as real BPE: no chunk is
+// ever assumed pre-merged. Ranks are an illustrative rule set for teaching
+// merge order, not real cl100k_base ranks — the vocabulary-size fact
+// (100,000) is the only hard number here. No rule ever merges
+// "Egypt" + "ian" together, so "Egyptian" ends up as 2 tokens, not 1 —
+// deliberately, to show that common words stay whole while rarer ones split.
 
 interface Step {
   id: string;
@@ -18,64 +27,64 @@ interface Step {
 const STEPS: Step[] = [
   {
     id: "hook",
-    title: "AI can't read text directly",
-    subtitle: "It breaks text into pieces called tokens",
+    title: "AI breaks Egyptian into letters",
+    subtitle: "Before reading anything, text splits into pieces called tokens",
     accentColor: "text-violet-300",
     badgeColor: "bg-violet-500/20 text-violet-200 border-violet-500/30",
   },
   {
-    id: "vocab",
-    title: "Training built a token vocabulary",
-    subtitle: "Common chunks got their own token — about 200,000 total",
-    accentColor: "text-amber-300",
-    badgeColor: "bg-amber-500/20 text-amber-200 border-amber-500/30",
-  },
-  {
-    id: "lookup",
-    title: "Now tokenize a brand-new prompt",
-    subtitle: "'the' matches a whole vocabulary token",
+    id: "rules",
+    title: "Training already learned numbered rules",
+    subtitle: "The most common pair merges first and becomes rule #1",
     accentColor: "text-teal-300",
     badgeColor: "bg-teal-500/20 text-teal-200 border-teal-500/30",
   },
   {
-    id: "ids",
-    title: "Tokens become numbers",
-    subtitle: "Each token maps to an ID the model reads",
+    id: "merge",
+    title: "Runtime replays the learned rules",
+    subtitle: "No new rules — just the ones training already learned",
     accentColor: "text-rose-300",
     badgeColor: "bg-rose-500/20 text-rose-200 border-rose-500/30",
   },
   {
-    id: "result",
-    title: "One prompt becomes four tokens",
-    subtitle: "Common words stay whole; rare ones split",
+    id: "recap",
+    title: "Some words split, some don't",
+    subtitle: "Watch the whole prompt turn into tokens",
     accentColor: "text-emerald-300",
     badgeColor: "bg-emerald-500/20 text-emerald-200 border-emerald-500/30",
   },
 ];
 
-const PROMPT_WORDS = ["the", "tokenizer", "helps"];
+const PROMPT_PREFIX = "Tell me fact about ";
+const PROMPT_SUFFIX = " people";
+const FOCUS_WORD = "Egyptian";
+const FOCUS_LETTERS = ["E", "g", "y", "p", "t", "i", "a", "n"];
 
-// ─── Step 1: Hook ──────────────────────────────────────────────────────────────
+// ─── Step 1: Hook — the split ───────────────────────────────────────────────
 
 function HookVisual({ reduced }: { reduced: boolean }) {
   return (
-    <div className="flex flex-col items-center gap-5 px-4 w-full max-w-[320px] mx-auto">
+    <div className="flex flex-col items-center gap-4 px-4 w-full max-w-[320px] mx-auto">
       <motion.div
         initial={reduced ? false : { opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4 }}
-        className="w-full rounded-2xl border border-violet-500/30 bg-violet-500/10 p-4 text-center"
+        className="w-full rounded-2xl border border-violet-500/30 bg-violet-500/10 p-3 text-center"
       >
         <p className="text-base font-bold text-violet-200 mb-1">Prompt</p>
-        <p className="text-lg font-semibold text-white">&quot;{PROMPT_WORDS.join(" ")}&quot;</p>
+        <p className="text-lg font-semibold text-white leading-snug">
+          &quot;{PROMPT_PREFIX}
+          <span className="rounded bg-violet-500/40 px-1">{FOCUS_WORD}</span>
+          {PROMPT_SUFFIX}&quot;
+        </p>
       </motion.div>
 
       <motion.svg
         initial={reduced ? false : { opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: reduced ? 0 : 0.3 }}
-        width="24"
-        height="24"
+        width="22"
+        height="22"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -86,150 +95,157 @@ function HookVisual({ reduced }: { reduced: boolean }) {
         <polyline points="19 12 12 19 5 12" strokeLinecap="round" strokeLinejoin="round" />
       </motion.svg>
 
-      <div className="flex gap-2.5">
-        {[0, 1, 2, 3].map((i) => (
+      <div className="flex flex-wrap justify-center gap-2">
+        {FOCUS_LETTERS.map((c, i) => (
           <motion.span
             key={i}
             initial={reduced ? false : { opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: reduced ? 0 : 0.5 + i * 0.15, duration: 0.3 }}
-            className="flex h-12 w-12 items-center justify-center rounded-xl border border-slate-600 bg-slate-800 text-xl font-bold text-slate-400"
+            transition={{ delay: reduced ? 0 : 0.4 + i * 0.1, duration: 0.3 }}
+            className="flex h-11 w-11 items-center justify-center rounded-xl border border-violet-400/40 bg-violet-500/20 text-lg font-bold font-mono text-violet-200"
           >
-            ?
+            {c}
           </motion.span>
         ))}
       </div>
 
       <p className="text-center text-base text-slate-400">
-        Something splits it into pieces first
+        Just the focus word, split into raw letters
       </p>
     </div>
   );
 }
 
-// ─── Step 2: Vocabulary (brief mention, not deep training) ─────────────────────
+// ─── Step 2: Training already learned the rules ─────────────────────────────
 
-const SAMPLE_VOCAB = ["the", "ing", "token", "izer", "un", "able", "er", "ly"];
+interface Rule {
+  rank: number;
+  left: string;
+  right: string;
+  result: string;
+}
 
-function VocabVisual({ reduced }: { reduced: boolean }) {
+const WORD_RULES: Rule[] = [
+  { rank: 2, left: "i", right: "a", result: "ia" },
+  { rank: 4, left: "E", right: "g", result: "Eg" },
+  { rank: 7, left: "ia", right: "n", result: "ian" },
+  { rank: 19, left: "y", right: "p", result: "yp" },
+  { rank: 33, left: "yp", right: "t", result: "ypt" },
+  { rank: 71, left: "Eg", right: "ypt", result: "Egypt" },
+];
+
+function RulesVisual({ reduced }: { reduced: boolean }) {
   return (
-    <div className="flex flex-col items-center gap-4 px-4 w-full max-w-[320px] mx-auto">
-      <div className="w-full rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4">
-        <p className="text-base font-bold text-amber-200 mb-2 text-center">
-          Sample of the trained vocabulary
-        </p>
-        <div className="flex flex-wrap justify-center gap-2">
-          {SAMPLE_VOCAB.map((v, i) => (
-            <motion.span
-              key={v}
-              initial={reduced ? false : { opacity: 0, scale: 0.7 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: reduced ? 0 : i * 0.08, duration: 0.25 }}
-              className="rounded-lg border border-amber-400/40 bg-amber-500/20 px-2.5 py-1 text-base font-bold font-mono text-amber-200"
-            >
-              {v}
-            </motion.span>
-          ))}
-        </div>
-      </div>
-
-      <motion.div
-        initial={reduced ? false : { opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: reduced ? 0 : 0.75, duration: 0.3 }}
-        className="text-4xl font-bold text-white"
-      >
-        ~200,000
-      </motion.div>
-      <p className="text-center text-base text-slate-400">
-        tokens learned once, from huge amounts of text
+    <div className="flex flex-col gap-1 px-4 w-full max-w-[320px] mx-auto">
+      {WORD_RULES.map((r, i) => (
+        <motion.div
+          key={r.rank}
+          initial={reduced ? false : { opacity: 0, x: -12 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: reduced ? 0 : i * 0.12, duration: 0.25 }}
+          className="flex items-center gap-2 rounded-lg border border-teal-400/30 bg-teal-500/10 px-2.5 py-1"
+        >
+          <span className="rounded-md border border-teal-400/40 bg-teal-500/20 px-1.5 py-0.5 text-base font-mono font-bold text-teal-200">
+            #{r.rank}
+          </span>
+          <span className="text-base font-mono font-bold text-white">
+            {r.left}+{r.right}
+          </span>
+          <span className="text-base text-slate-500">&rarr;</span>
+          <span className="text-base font-mono font-bold text-teal-200">{r.result}</span>
+        </motion.div>
+      ))}
+      <p className="text-center text-base text-slate-400 pt-1 leading-snug">
+        6 of Egyptian&apos;s rules &mdash; one of 100,000 total. No rule merges Egypt+ian.
       </p>
     </div>
   );
 }
 
-// ─── Step 3: Tokenize a new prompt (main focus, multi-phase) ───────────────────
+// ─── Step 3: Runtime — the actual merge, step by step ───────────────────────
 
-type PhaseKind = "whole" | "chars" | "partial" | "final";
-
-interface LookupPhase {
-  wordIndex: number;
-  kind: PhaseKind;
+interface MergePhase {
   chips: string[];
-  finalPieces?: string[];
+  mergedIndex: number | null;
+  ruleLabel: string | null;
   heading: string;
   note: string;
   subtitle: string;
 }
 
-const LOOKUP_PHASES: LookupPhase[] = [
+const MERGE_PHASES: MergePhase[] = [
   {
-    wordIndex: 0,
-    kind: "whole",
-    chips: ["the"],
-    finalPieces: ["the"],
-    heading: "Already a whole token",
-    note: "\"the\" is common enough to have its own token",
-    subtitle: "'the' matches a whole vocabulary token",
+    chips: ["E", "g", "y", "p", "t", "i", "a", "n"],
+    mergedIndex: null,
+    ruleLabel: null,
+    heading: "Start from raw letters",
+    note: "Check every adjacent pair before merging anything",
+    subtitle: "Runtime starts from the same 8 letters training saw",
   },
   {
-    wordIndex: 1,
-    kind: "chars",
-    chips: ["t", "o", "k", "e", "n", "i", "z", "e", "r"],
-    heading: "Not a whole token — start from characters",
-    note: "\"tokenizer\" isn't in the vocabulary as one piece",
-    subtitle: "Not a whole token — BPE starts from its characters",
+    chips: ["E", "g", "y", "p", "t", "ia", "n"],
+    mergedIndex: 5,
+    ruleLabel: "Rule #2 — best-ranked pair",
+    heading: "(i, a) wins — merge it",
+    note: "Highest-ranked pair anywhere in the sequence, not first-in-line",
+    subtitle: "Rule #2 fires: i and a merge into ia",
   },
   {
-    wordIndex: 1,
-    kind: "partial",
-    chips: ["tok", "en", "iz", "er"],
-    heading: "Merge learned pairs, step by step",
-    note: "Each merge combines two pieces the training already learned",
-    subtitle: "It repeats the merges it learned during training",
+    chips: ["Eg", "y", "p", "t", "ia", "n"],
+    mergedIndex: 0,
+    ruleLabel: "Rule #4 — next best pair",
+    heading: "(E, g) wins — merge it",
+    note: "ia isn't touched again — only the next-best pair merges",
+    subtitle: "Rule #4 fires: E and g merge into Eg",
   },
   {
-    wordIndex: 1,
-    kind: "final",
-    chips: ["token", "izer"],
-    finalPieces: ["token", "izer"],
-    heading: "Stop once pieces match the vocabulary",
-    note: "\"token\" and \"izer\" are both known tokens — done",
-    subtitle: "Merging stops once the pieces match the vocabulary",
+    chips: ["Eg", "y", "p", "t", "ian"],
+    mergedIndex: 4,
+    ruleLabel: "Rule #7",
+    heading: "(ia, n) wins — merge it",
+    note: "ian only exists because ia was already merged",
+    subtitle: "Rule #7 fires: ia and n merge into ian",
   },
   {
-    wordIndex: 2,
-    kind: "whole",
-    chips: ["helps"],
-    finalPieces: ["helps"],
-    heading: "Already a whole token",
-    note: "\"helps\" is common enough to have its own token",
-    subtitle: "'helps' matches a whole vocabulary token",
+    chips: ["Eg", "yp", "t", "ian"],
+    mergedIndex: 1,
+    ruleLabel: "Rule #19",
+    heading: "(y, p) wins — merge it",
+    note: "Same rule that would fire for any y-p pair, anywhere",
+    subtitle: "Rule #19 fires: y and p merge into yp",
+  },
+  {
+    chips: ["Eg", "ypt", "ian"],
+    mergedIndex: 1,
+    ruleLabel: "Rule #33",
+    heading: "(yp, t) wins — merge it",
+    note: "ypt only exists because yp was already merged",
+    subtitle: "Rule #33 fires: yp and t merge into ypt",
+  },
+  {
+    chips: ["Egypt", "ian"],
+    mergedIndex: 0,
+    ruleLabel: "Rule #71 — rare, learned late",
+    heading: "(Eg, ypt) wins — merge it",
+    note: "The country name forms from rules learned in training",
+    subtitle: "Rule #71 fires: Eg and ypt merge into Egypt",
+  },
+  {
+    chips: ["Egypt", "ian"],
+    mergedIndex: null,
+    ruleLabel: null,
+    heading: "No rule matches — merging stops",
+    note: "There's no rule for Egypt+ian, so it stays 2 tokens",
+    subtitle: "Merging stops here — Egyptian ends up as 2 tokens",
   },
 ];
 
-function LookupVisual({ phaseIndex, reduced }: { phaseIndex: number; reduced: boolean }) {
-  const phase = LOOKUP_PHASES[phaseIndex]!;
-  const tally = LOOKUP_PHASES.slice(0, phaseIndex + 1).flatMap((p) => p.finalPieces ?? []);
-  const isFinalChip = phase.kind === "whole" || phase.kind === "final";
+function MergeVisual({ phaseIndex, reduced }: { phaseIndex: number; reduced: boolean }) {
+  const phase = MERGE_PHASES[phaseIndex]!;
+  const isFinal = phaseIndex === MERGE_PHASES.length - 1;
 
   return (
     <div className="flex flex-col gap-3 px-4 w-full max-w-[320px] mx-auto">
-      <div className="rounded-xl border border-teal-500/30 bg-teal-500/10 px-3 py-2 text-center">
-        <p className="text-base font-bold text-teal-200 mb-1">Prompt</p>
-        <p className="text-lg font-semibold text-white">
-          {PROMPT_WORDS.map((w, i) => (
-            <span
-              key={i}
-              className={cn(i === phase.wordIndex && "rounded bg-teal-500/40 px-1")}
-            >
-              {w}
-              {i < PROMPT_WORDS.length - 1 ? " " : ""}
-            </span>
-          ))}
-        </p>
-      </div>
-
       <AnimatePresence mode="wait">
         <motion.div
           key={phaseIndex}
@@ -239,14 +255,8 @@ function LookupVisual({ phaseIndex, reduced }: { phaseIndex: number; reduced: bo
           transition={{ duration: 0.25 }}
           className="rounded-xl border border-slate-700 bg-slate-800/40 p-3 text-center"
         >
-          <p
-            className={cn(
-              "text-base font-bold",
-              isFinalChip ? "text-teal-300" : "text-amber-300"
-            )}
-          >
-            {phase.heading}
-          </p>
+          <p className="text-base font-bold text-rose-300">{phase.heading}</p>
+
           <div className="mt-2 flex flex-wrap justify-center gap-1.5">
             {phase.chips.map((c, i) => (
               <motion.span
@@ -254,76 +264,53 @@ function LookupVisual({ phaseIndex, reduced }: { phaseIndex: number; reduced: bo
                 layout
                 initial={reduced ? false : { opacity: 0, scale: 0.7 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: reduced ? 0 : i * 0.05, duration: 0.25 }}
+                transition={{ delay: reduced ? 0 : i * 0.06, duration: 0.25 }}
                 className={cn(
                   "rounded-lg border px-2.5 py-1 text-base font-bold font-mono",
-                  isFinalChip
-                    ? "border-teal-400/40 bg-teal-500/20 text-teal-200"
-                    : "border-amber-400/40 bg-amber-500/20 text-amber-200"
+                  phase.mergedIndex === i
+                    ? "border-rose-400/60 bg-rose-500/30 text-rose-100 ring-2 ring-rose-400/50"
+                    : isFinal
+                      ? "border-emerald-400/50 bg-emerald-500/20 text-emerald-200"
+                      : "border-slate-600 bg-slate-800 text-slate-300"
                 )}
               >
                 {c}
               </motion.span>
             ))}
           </div>
-          <p className="text-base text-slate-400 mt-2">{phase.note}</p>
+
+          {phase.ruleLabel && (
+            <p className="mt-2 text-base font-mono font-semibold text-rose-300">
+              {phase.ruleLabel}
+            </p>
+          )}
+          <p className="text-base text-slate-400 mt-1">{phase.note}</p>
         </motion.div>
       </AnimatePresence>
 
-      <div className="rounded-xl border border-slate-700/40 bg-slate-900/40 px-3 py-2">
-        <p className="text-base text-slate-400 mb-1">Tokens so far</p>
-        <div className="flex flex-wrap gap-1.5">
-          {tally.map((t, i) => (
-            <span
-              key={`${t}-${i}`}
-              className="rounded-md border border-slate-600 bg-slate-800 px-2 py-0.5 text-base font-mono text-slate-300"
-            >
-              {t}
-            </span>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Step 4: Tokens become IDs ──────────────────────────────────────────────────
-
-const FINAL_TOKENS = [
-  { token: "the", id: 1820 },
-  { token: "token", id: 11241 },
-  { token: "izer", id: 1634 },
-  { token: "helps", id: 8395 },
-];
-
-function IdsVisual({ reduced }: { reduced: boolean }) {
-  return (
-    <div className="flex flex-col gap-2.5 px-4 w-full max-w-[320px] mx-auto">
-      {FINAL_TOKENS.map((t, i) => (
+      {isFinal && (
         <motion.div
-          key={t.token}
-          initial={reduced ? false : { opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: reduced ? 0 : i * 0.15, duration: 0.3 }}
-          className="flex items-center justify-between rounded-lg border border-rose-400/30 bg-rose-500/10 px-3 py-2"
+          initial={reduced ? false : { opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: reduced ? 0 : 0.3, duration: 0.3 }}
+          className="rounded-xl border border-emerald-400/40 bg-emerald-500/10 px-3 py-2 text-center"
         >
-          <span className="rounded-md border border-rose-400/40 bg-rose-500/20 px-2.5 py-1 text-base font-bold font-mono text-rose-200">
-            {t.token}
-          </span>
-          <span className="text-base text-slate-500">→</span>
-          <span className="text-base font-mono font-bold text-white">{t.id}</span>
+          <p className="text-base text-white font-medium">
+            &quot;Egyptian&quot; &rarr; 2 tokens, not 1
+          </p>
         </motion.div>
-      ))}
-      <p className="text-center text-base text-slate-500 italic pt-1">
-        Illustrative IDs — not real GPT token numbers
-      </p>
+      )}
     </div>
   );
 }
 
-// ─── Step 5: Result ─────────────────────────────────────────────────────────────
+// ─── Step 4: Recap — the whole prompt, tokenized ────────────────────────────
 
-function ResultVisual({ reduced }: { reduced: boolean }) {
+const PROMPT_WORD_COUNT = 6;
+const FULL_PROMPT_TOKENS = ["Tell", "me", "fact", "about", "Egypt", "ian", "people"];
+const SPLIT_TOKENS = new Set(["Egypt", "ian"]);
+
+function RecapVisual({ reduced }: { reduced: boolean }) {
   return (
     <div className="flex flex-col items-center gap-4 px-4 w-full max-w-[320px] mx-auto">
       <motion.div
@@ -332,9 +319,11 @@ function ResultVisual({ reduced }: { reduced: boolean }) {
         transition={{ duration: 0.4, type: "spring", bounce: 0.35 }}
         className="text-5xl font-bold text-emerald-300"
       >
-        4
+        {FULL_PROMPT_TOKENS.length}
       </motion.div>
-      <p className="text-lg font-semibold text-white text-center">tokens from 3 words</p>
+      <p className="text-lg font-semibold text-white text-center">
+        tokens from {PROMPT_WORD_COUNT} words
+      </p>
 
       <motion.div
         initial={reduced ? false : { opacity: 0, y: 10 }}
@@ -343,19 +332,27 @@ function ResultVisual({ reduced }: { reduced: boolean }) {
         className="w-full rounded-xl border border-emerald-400/40 bg-emerald-500/10 px-4 py-3"
       >
         <div className="flex flex-wrap justify-center gap-1.5">
-          {FINAL_TOKENS.map((t) => (
-            <span
-              key={t.token}
-              className="rounded-md border border-emerald-400/40 bg-emerald-500/20 px-2.5 py-1 text-base font-bold font-mono text-emerald-200"
+          {FULL_PROMPT_TOKENS.map((t, i) => (
+            <motion.span
+              key={`${t}-${i}`}
+              initial={reduced ? false : { opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: reduced ? 0 : 0.35 + i * 0.08, duration: 0.25 }}
+              className={cn(
+                "rounded-md border px-2.5 py-1 text-base font-bold font-mono",
+                SPLIT_TOKENS.has(t)
+                  ? "border-rose-400/50 bg-rose-500/25 text-rose-200"
+                  : "border-emerald-400/40 bg-emerald-500/20 text-emerald-200"
+              )}
             >
-              {t.token}
-            </span>
+              {t}
+            </motion.span>
           ))}
         </div>
       </motion.div>
 
       <p className="text-center text-base text-slate-400">
-        Common words stay whole — rare ones split into pieces
+        &quot;Egyptian&quot; splits into Egypt + ian &mdash; every other word stayed whole
       </p>
     </div>
   );
@@ -366,53 +363,51 @@ function ResultVisual({ reduced }: { reduced: boolean }) {
 export function TokenizerShort() {
   const reducedMotion = useReducedMotion() ?? false;
   const [stepIndex, setStepIndex] = useState(0);
-  const [lookupPhaseIndex, setLookupPhaseIndex] = useState(0);
+  const [mergePhaseIndex, setMergePhaseIndex] = useState(0);
 
   const step = STEPS[stepIndex]!;
-  const isLookupStep = step.id === "lookup";
-  const totalLookupPhases = LOOKUP_PHASES.length;
+  const isMergeStep = step.id === "merge";
+  const totalMergePhases = MERGE_PHASES.length;
 
   const goToStep = useCallback((idx: number) => {
     setStepIndex(idx);
-    setLookupPhaseIndex(0);
+    setMergePhaseIndex(0);
   }, []);
 
   const goNext = useCallback(() => {
-    if (STEPS[stepIndex]?.id === "lookup" && lookupPhaseIndex < totalLookupPhases - 1) {
-      setLookupPhaseIndex((prev) => prev + 1);
+    if (STEPS[stepIndex]?.id === "merge" && mergePhaseIndex < totalMergePhases - 1) {
+      setMergePhaseIndex((prev) => prev + 1);
       return;
     }
-    setLookupPhaseIndex(0);
+    setMergePhaseIndex(0);
     setStepIndex((prev) => (prev + 1) % STEPS.length);
-  }, [stepIndex, lookupPhaseIndex, totalLookupPhases]);
+  }, [stepIndex, mergePhaseIndex, totalMergePhases]);
 
   const goPrev = useCallback(() => {
-    if (STEPS[stepIndex]?.id === "lookup" && lookupPhaseIndex > 0) {
-      setLookupPhaseIndex((prev) => prev - 1);
+    if (STEPS[stepIndex]?.id === "merge" && mergePhaseIndex > 0) {
+      setMergePhaseIndex((prev) => prev - 1);
       return;
     }
-    setLookupPhaseIndex(0);
+    setMergePhaseIndex(0);
     setStepIndex((prev) => (prev - 1 + STEPS.length) % STEPS.length);
-  }, [stepIndex, lookupPhaseIndex]);
+  }, [stepIndex, mergePhaseIndex]);
 
-  const progress = isLookupStep
-    ? ((lookupPhaseIndex + 1) / totalLookupPhases) * 100
+  const progress = isMergeStep
+    ? ((mergePhaseIndex + 1) / totalMergePhases) * 100
     : ((stepIndex + 1) / STEPS.length) * 100;
 
-  const subtitle = isLookupStep ? LOOKUP_PHASES[lookupPhaseIndex]!.subtitle : step.subtitle;
+  const subtitle = isMergeStep ? MERGE_PHASES[mergePhaseIndex]!.subtitle : step.subtitle;
 
   function renderVisual(id: string) {
     switch (id) {
       case "hook":
         return <HookVisual reduced={reducedMotion} />;
-      case "vocab":
-        return <VocabVisual reduced={reducedMotion} />;
-      case "lookup":
-        return <LookupVisual phaseIndex={lookupPhaseIndex} reduced={reducedMotion} />;
-      case "ids":
-        return <IdsVisual reduced={reducedMotion} />;
-      case "result":
-        return <ResultVisual reduced={reducedMotion} />;
+      case "rules":
+        return <RulesVisual reduced={reducedMotion} />;
+      case "merge":
+        return <MergeVisual phaseIndex={mergePhaseIndex} reduced={reducedMotion} />;
+      case "recap":
+        return <RecapVisual reduced={reducedMotion} />;
       default:
         return null;
     }
@@ -427,7 +422,7 @@ export function TokenizerShort() {
             step.badgeColor
           )}
         >
-          Tokenization
+          BPE: Training vs Runtime
         </span>
 
         <div className="flex items-center gap-1.5">
@@ -464,7 +459,7 @@ export function TokenizerShort() {
       <div className="flex flex-1 items-center justify-center overflow-hidden px-2">
         <AnimatePresence mode="wait">
           <motion.div
-            key={`visual-${step.id}-${isLookupStep ? lookupPhaseIndex : ""}`}
+            key={`visual-${step.id}-${isMergeStep ? mergePhaseIndex : ""}`}
             initial={reducedMotion ? false : { opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={reducedMotion ? {} : { opacity: 0, scale: 1.02 }}
@@ -479,7 +474,7 @@ export function TokenizerShort() {
       <div className="px-5 pt-3 pb-2">
         <AnimatePresence mode="wait">
           <motion.div
-            key={`subtitle-${step.id}-${isLookupStep ? lookupPhaseIndex : ""}`}
+            key={`subtitle-${step.id}-${isMergeStep ? mergePhaseIndex : ""}`}
             initial={reducedMotion ? false : { opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={reducedMotion ? {} : { opacity: 0, y: -8 }}
@@ -523,8 +518,8 @@ export function TokenizerShort() {
         </div>
 
         <p className="text-center text-base font-medium uppercase tracking-widest text-white/50">
-          {isLookupStep
-            ? `Phase ${lookupPhaseIndex + 1} / ${totalLookupPhases} — tap Next`
+          {isMergeStep
+            ? `Merge ${mergePhaseIndex + 1} / ${totalMergePhases} — tap Next`
             : `Step ${stepIndex + 1} / ${STEPS.length} — tap Next`}
         </p>
       </div>

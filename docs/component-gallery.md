@@ -113,7 +113,8 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | Word embedding vectors as arrows from origin — cluster hulls, click-to-inspect raw numbers, staggered entrance animation | `EmbeddingVectorExplorer` |
 | Interactive angle → cosine score: two vector arrows, arc θ, dashed projection, sliders, preset word pairs | `CosineSimilarityExplorer` |
 | Side-by-side keyword vs semantic search on a shared corpus — live input, score bars, animated results | `SearchQuerySimulator` |
-| Word-level vs BPE tokenization — live text input, staggered token pills, step-by-step merge breakdown, three "Why BPE Wins" cards | `BytePairEncodingExplorer` |
+| One fixed prompt, word-by-word: whole-word vs split-into-pieces token chips | `TokenSplitExample` |
+| Type a new word → characters → learned-merge steps → final token chips (encode-time BPE, not training) | `BytePairEncodingExplorer` |
 | Six-panel animated walkthrough: Egypt sentence → CNN failure → RNN failure → Transformer success; `panel={N}` locks to one slide | `ArchitectureEvolutionAnimator` |
 | Animated 6×5 pixel grid with sliding 3×3 amber filter; activates green when filter covers a vertical-edge pattern; shows kernel + output feature map | `CNNImageSuccessDemo` |
 | Unrolled RNN SVG: h₀ → three cells “A” with 2×3-node mini-layers, xₜ/yₜ, amber state arrows + pulse | `RNNCellUnrolledDiagram` |
@@ -207,7 +208,8 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | `EmbeddingVectorExplorer` | Interactive | SVG arrows from origin per word; cluster hulls toggle; click arrow → inspect mock vector; staggered entrance animation; dark-mode safe. |
 | `CosineSimilarityExplorer` | Interactive | Two vector arrows (A/B), arc θ, dashed B→A projection; angle sliders; preset word pairs; cosine score coloured green/amber/gray. |
 | `SearchQuerySimulator` | Interactive | Text input + preset buttons; side-by-side keyword vs semantic results; animated score bars; per-column insights. |
-| `BytePairEncodingExplorer` | Interactive | Word-level vs BPE side-by-side; live text input; staggered token pills; step-by-step merge breakdown; three "Why BPE Wins" comparison cards. |
+| `TokenSplitExample` | Shell | One fixed prompt, word by word: whole-word vs split-into-pieces token chips. Hook slide for "what are tokens?". |
+| `BytePairEncodingExplorer` | Interactive | Type a word → characters → learned-merge steps → final token chips (encode-time BPE on a new word, not training/frequency-counting). Closing line cites real vocab size from `data/facts/tokenization.ts`. |
 | `ArchitectureEvolutionAnimator` | Interactive | Self-contained 6-panel animated story: problem → CNN idea → CNN failure → RNN idea → RNN failure → Transformer success. No props required. |
 | `CNNImageSuccessDemo` | Interactive | Animated 6×5 pixel grid; 3×3 filter slides over two vertical-edge patterns; turns green on match; output feature map updates in sync. No props. |
 | `RNNCellUnrolledDiagram` | Interactive | SVG unrolled RNN: initial h₀, three identical cells with two hidden layers × three nodes, inputs x₀–x₂ and outputs y₀–y₂; amber recurrent arrows with subtle pulse animation. No props. |
@@ -2224,15 +2226,28 @@ interface SearchQuerySimulatorProps {
  
 ---
 
-### BytePairEncodingExplorer
+### TokenSplitExample
 
-**Description:** Fully self-contained interactive that teaches Byte Pair Encoding by comparing it against naive Word-Level tokenization. A text input at the top drives both panels in real time. **Left panel (Word-Level):** shows the word as a single token pill; if the word is not in the hardcoded known-vocabulary list (
-un, 
-unning, walk, walking, play, playing, cat, dog, hello), shows a red "? Unknown Word" badge instead. **Right panel (BPE):** splits the word using a hardcoded BPE merge table (common base words + suffixes `ing`, `ed`, `er`, `ly`, `est`, `un`, `re`); each sub-token renders as a staggered, color-coded pill (120 ms delay between pills); a numbered step-by-step breakdown is shown below the pills. **Bottom:** three side-by-side comparison cards - Vocabulary Size, Unknown Words, Shared Meaning - with red/green color coding. No props required.
+**Description:** Static-with-entrance-animation panel for one fixed teaching prompt ("the tokenizer helps"), shown word by word: `"the"` and `"helps"` render as single teal "whole word" chips, `"tokenizer"` renders as two rose chips (`token` + `izer`), each row labeled with its token count. Pairs with `BytePairEncodingExplorer` as the first of two slides teaching tokenization — this one is the hook ("some words split, some don't"); the mechanism (why) comes next.
 
 ```ts
-// No props - fully self-contained
-interface BytePairEncodingExplorerProps {}
+interface TokenSplitExampleProps {
+  title?: string;    // default: "One prompt, three words — two different outcomes"
+  caption?: string;
+}
+```
+
+---
+
+### BytePairEncodingExplorer
+
+**Description:** Encode-time BPE demo — teaches how a *trained* tokenizer splits a *new* word, not how training builds the vocabulary. A text input (plus word presets) drives three stacked panels: **characters** (the typed word split into individual letter chips), **merges applied** (a numbered list of learned-merge steps using a hardcoded prefix/base/suffix rule table — prefixes `un`/`re`, common bases, suffixes `ing`/`ed`/`er`/`ly`/`est` — explicitly labeled "simplified merge rules for teaching"), and **final tokens** (the resulting color-coded token pills with a token count). A closing line cites real tokenizer vocabulary size (`TOKENIZER_VOCAB_EXAMPLES` from `data/facts/tokenization.ts` — GPT-4o's o200k_base, ~200,000 tokens) to keep the "vocabulary was built once during training" point brief without demonstrating frequency-counting.
+
+```ts
+interface BytePairEncodingExplorerProps {
+  title?: string;    // default: "Watch BPE tokenize a brand-new word"
+  caption?: string;
+}
 ```
 
 ---

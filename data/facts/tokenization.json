@@ -1,0 +1,26 @@
+{
+  "topic": "tokenization",
+  "facts": [
+    {
+      "id": "bpe-mechanism",
+      "claim": "Byte-Pair Encoding starts from individual characters (or bytes) and repeatedly merges the most frequent adjacent pair, learned once during training. At inference, a new prompt is encoded by applying those same learned merges to its characters until no more apply.",
+      "tier": "hard",
+      "source": "Sennrich, Haddow & Birch, \"Neural Machine Translation of Rare Words with Subword Units\" (2015), https://arxiv.org/abs/1508.07909; Hugging Face LLM Course, \"Byte-Pair Encoding tokenization\", https://huggingface.co/learn/llm-course/chapter6/5",
+      "verifiedDate": "2026-07-11"
+    },
+    {
+      "id": "gpt2-byte-level",
+      "claim": "GPT-2 introduced byte-level BPE — the base vocabulary is built from raw bytes (256 symbols), not Unicode characters, so any text can be tokenized without an unknown-token fallback. Every major LLM tokenizer since descends from this approach.",
+      "tier": "hard",
+      "source": "Learn Code Camp, \"Byte Pair Encoding (BPE): the tokenizer that made GPTs practical\", https://learncodecamp.net/bpe/",
+      "verifiedDate": "2026-07-11"
+    },
+    {
+      "id": "vocab-sizes",
+      "claim": "OpenAI's GPT-4 tokenizer (cl100k_base) has roughly 100,000 tokens; GPT-4o's tokenizer (o200k_base) doubled that to about 200,000 tokens, both built once via BPE merges over huge training corpora.",
+      "tier": "hard",
+      "source": "Grokipedia, \"O200k_base tokenizer\"; Modal Blog, \"What is o200k Harmony?\", https://modal.com/blog/what-is-o200k-harmony",
+      "verifiedDate": "2026-07-11"
+    }
+  ]
+}

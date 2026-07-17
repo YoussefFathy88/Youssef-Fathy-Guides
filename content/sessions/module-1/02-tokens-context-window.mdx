@@ -61,12 +61,16 @@ Every LLM API call you make is secretly a tokenization problem. This session sho
 
 
 {/* ═══════════════════════════════════════════════════════════════
-    SECTION 2b — BYTE PAIR ENCODING
+    SECTION 2b — WHAT ARE TOKENS?
     ═══════════════════════════════════════════════════════════════ */}
 
-<SessionSection id="byte-pair-encoding" label="Byte Pair Encoding">
+<SessionSection id="what-are-tokens" label="What Are Tokens?">
 
-## Why BPE? The problem with treating whole words as tokens
+## What are tokens? Some words stay whole, others split
+
+<TokenSplitExample />
+
+## How BPE decides where to cut a new prompt
 
 <BytePairEncodingExplorer />
 

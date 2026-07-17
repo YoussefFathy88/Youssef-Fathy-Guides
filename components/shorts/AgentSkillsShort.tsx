@@ -17,126 +17,129 @@ interface Step {
 
 const STEPS: Step[] = [
   {
-    id: "folder",
-    title: "A skill is just a folder",
-    subtitle: "One SKILL.md file, plus optional scripts",
+    id: "folders",
+    title: "Claude can have many skill folders",
+    subtitle: "Scripts, frontend, and study — each one specialized",
     accentColor: "text-amber-300",
     badgeColor: "bg-amber-500/20 text-amber-200 border-amber-500/30",
   },
   {
-    id: "metadata",
-    title: "Claude reads only the name first",
-    subtitle: "Just name + description at startup — tiny",
-    accentColor: "text-violet-300",
-    badgeColor: "bg-violet-500/20 text-violet-200 border-violet-500/30",
-  },
-  {
-    id: "trigger",
-    title: "Full guide loads when it fits the task",
-    subtitle: "Matching task → Claude opens the whole file",
-    accentColor: "text-teal-300",
-    badgeColor: "bg-teal-500/20 text-teal-200 border-teal-500/30",
-  },
-  {
-    id: "tiers",
-    title: "Load only what the task needs",
-    subtitle: "Progressive disclosure — three levels of detail",
+    id: "task",
+    title: "You ask a tricky question",
+    subtitle: "Claude checks each skill's short description",
     accentColor: "text-blue-300",
     badgeColor: "bg-blue-500/20 text-blue-200 border-blue-500/30",
   },
   {
-    id: "scale",
-    title: "A generalist becomes a specialist",
-    subtitle: "Add hundreds of skills, keep context small",
+    id: "opens",
+    title: "The study skill matches — it opens",
+    subtitle: "Now its full instructions guide the answer",
+    accentColor: "text-teal-300",
+    badgeColor: "bg-teal-500/20 text-teal-200 border-teal-500/30",
+  },
+  {
+    id: "contrast",
+    title: "Guessing versus checking",
+    subtitle: "The skill's rule changes the final answer",
     accentColor: "text-rose-300",
     badgeColor: "bg-rose-500/20 text-rose-200 border-rose-500/30",
+  },
+  {
+    id: "scale",
+    title: "Only the matching skill ever fully loads",
+    subtitle: "Add hundreds of skills, context stays small",
+    accentColor: "text-violet-300",
+    badgeColor: "bg-violet-500/20 text-violet-200 border-violet-500/30",
   },
 ];
 
 // ─── Per-step visuals ─────────────────────────────────────────────────────────
 
-function FolderVisual({ reduced }: { reduced: boolean }) {
-  const files = [
-    { name: "SKILL.md", desc: "Instructions + metadata", icon: "📄", main: true },
-    { name: "reference.md", desc: "Extra detail, loaded later", icon: "📑", main: false },
-    { name: "fill_form.py", desc: "A script Claude can run", icon: "🐍", main: false },
-  ];
-  return (
-    <div className="flex flex-col gap-3 px-4 w-full max-w-[320px] mx-auto">
-      <motion.div
-        initial={reduced ? false : { opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35 }}
-        className="flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-2.5"
-      >
-        <span className="text-2xl">📁</span>
-        <span className="font-mono text-lg font-bold text-amber-200">pdf-skill/</span>
-      </motion.div>
+const SKILL_FOLDERS = [
+  {
+    key: "scripts",
+    tab: "Scripts",
+    name: "youtube-scripts/",
+    desc: "Write and format video scripts",
+    color: "blue",
+  },
+  {
+    key: "frontend",
+    tab: "Frontend",
+    name: "frontend/",
+    desc: "Build and style React components",
+    color: "violet",
+  },
+  {
+    key: "study",
+    tab: "Study",
+    name: "study/",
+    desc: "Verify facts before writing any claim",
+    color: "amber",
+  },
+] as const;
 
-      {files.map((f, i) => (
-        <motion.div
-          key={f.name}
-          initial={reduced ? false : { opacity: 0, x: 16 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: reduced ? 0 : 0.25 + i * 0.25, duration: 0.35 }}
-          className={cn(
-            "ml-5 flex items-center gap-3 rounded-xl border px-4 py-2.5",
-            f.main
-              ? "border-amber-400/50 bg-amber-500/15"
-              : "border-slate-600/50 bg-slate-800/50",
-          )}
-        >
-          <span className="text-xl">{f.icon}</span>
-          <div>
-            <p className={cn("font-mono text-base font-semibold", f.main ? "text-amber-100" : "text-slate-200")}>
-              {f.name}
-            </p>
-            <p className="text-base text-slate-400">{f.desc}</p>
-          </div>
-        </motion.div>
-      ))}
-    </div>
-  );
-}
+const TAB_COLOR: Record<string, string> = {
+  blue: "border-blue-400/50 bg-blue-500/15 text-blue-100",
+  violet: "border-violet-400/50 bg-violet-500/15 text-violet-100",
+  amber: "border-amber-400/50 bg-amber-500/15 text-amber-100",
+};
 
-function MetadataVisual({ reduced }: { reduced: boolean }) {
+function FoldersVisual({ reduced }: { reduced: boolean }) {
+  const [active, setActive] = useState<string>("study");
+  const folder = SKILL_FOLDERS.find(f => f.key === active)!;
+
   return (
     <div className="flex flex-col gap-4 px-4 w-full max-w-[320px] mx-auto">
-      <motion.div
-        initial={reduced ? false : { opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35 }}
-        className="rounded-xl border border-slate-600 bg-slate-900 p-4 space-y-1"
-      >
-        <p className="text-base font-bold uppercase tracking-widest text-slate-500 mb-2">
-          SKILL.md — top of file
-        </p>
-        <p className="font-mono text-base text-slate-500">---</p>
-        <p className="font-mono text-base text-violet-200">
-          name: <span className="text-violet-50">pdf-skill</span>
-        </p>
-        <p className="font-mono text-base text-violet-200">
-          description: <span className="text-violet-50">fill PDF forms…</span>
-        </p>
-        <p className="font-mono text-base text-slate-500">---</p>
-        <p className="font-mono text-base text-slate-600 line-through">…the rest stays closed…</p>
-      </motion.div>
+      <div className="flex justify-center gap-2">
+        {SKILL_FOLDERS.map(f => (
+          <button
+            key={f.key}
+            type="button"
+            onClick={() => setActive(f.key)}
+            className={cn(
+              "rounded-full border px-3 py-1.5 text-base font-semibold transition",
+              active === f.key
+                ? TAB_COLOR[f.color]
+                : "border-slate-600/50 bg-slate-800/40 text-slate-400",
+            )}
+          >
+            {f.tab}
+          </button>
+        ))}
+      </div>
 
       <motion.div
-        initial={reduced ? false : { opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: reduced ? 0 : 0.4, type: "spring", bounce: 0.4 }}
-        className="self-center rounded-full border border-violet-400/40 bg-violet-500/15 px-4 py-1.5 text-base font-bold text-violet-100"
+        key={folder.key}
+        initial={reduced ? false : { opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="flex flex-col gap-3"
       >
-        Only ~50 tokens loaded at startup
+        <div className="flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-2.5">
+          <span className="text-2xl">📁</span>
+          <span className="font-mono text-lg font-bold text-amber-200">{folder.name}</span>
+        </div>
+        <div className="ml-5 flex items-center gap-3 rounded-xl border border-slate-600/50 bg-slate-800/50 px-4 py-2.5">
+          <span className="text-xl">📄</span>
+          <div>
+            <p className="font-mono text-base font-semibold text-slate-200">SKILL.md</p>
+            <p className="text-base text-slate-400">{folder.desc}</p>
+          </div>
+        </div>
       </motion.div>
     </div>
   );
 }
 
-function TriggerVisual({ reduced }: { reduced: boolean }) {
+function TaskVisual({ reduced }: { reduced: boolean }) {
+  const matches = [
+    { name: "Scripts", match: false },
+    { name: "Frontend", match: false },
+    { name: "Study", match: true },
+  ];
   return (
-    <div className="flex flex-col items-center gap-3 px-4 w-full max-w-[320px] mx-auto">
+    <div className="flex flex-col items-center gap-4 px-4 w-full max-w-[320px] mx-auto">
       <motion.div
         initial={reduced ? false : { opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -144,68 +147,102 @@ function TriggerVisual({ reduced }: { reduced: boolean }) {
         className="w-full rounded-xl border border-slate-600/50 bg-slate-800/50 px-4 py-2.5 text-center"
       >
         <p className="text-base text-slate-400">You ask</p>
-        <p className="text-lg font-semibold text-white">&ldquo;Fill out this PDF form&rdquo;</p>
+        <p className="text-lg font-semibold text-white">
+          &ldquo;How many parameters does GPT-4 have?&rdquo;
+        </p>
       </motion.div>
 
-      <motion.div
-        initial={reduced ? false : { opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: reduced ? 0 : 0.35 }}
-        className="text-2xl text-teal-300"
-      >
-        ↓ matches the description
-      </motion.div>
-
-      <motion.div
-        initial={reduced ? false : { opacity: 0, scale: 0.92 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: reduced ? 0 : 0.6, type: "spring", bounce: 0.35 }}
-        className="w-full rounded-xl border border-teal-400/50 bg-teal-500/15 px-4 py-3 text-center"
-      >
-        <p className="text-lg font-bold text-teal-100">Claude opens the full SKILL.md</p>
-        <p className="text-base text-teal-200/80 mt-1">~500 tokens — now in context</p>
-      </motion.div>
+      <div className="flex w-full flex-col gap-2">
+        {matches.map((m, i) => (
+          <motion.div
+            key={m.name}
+            initial={reduced ? false : { opacity: 0, x: 16 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: reduced ? 0 : 0.3 + i * 0.25, duration: 0.3 }}
+            className={cn(
+              "flex items-center justify-between rounded-xl border px-4 py-2.5",
+              m.match
+                ? "border-blue-400/50 bg-blue-500/15"
+                : "border-slate-600/50 bg-slate-800/40",
+            )}
+          >
+            <span className={cn("text-lg font-semibold", m.match ? "text-blue-100" : "text-slate-400")}>
+              {m.name}
+            </span>
+            <span className={cn("text-xl", m.match ? "text-blue-200" : "text-slate-500")}>
+              {m.match ? "✓ matches" : "✗"}
+            </span>
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
 }
 
-function TiersVisual({ reduced }: { reduced: boolean }) {
-  const tiers = [
-    { label: "Name + description", when: "Always", tokens: "~50", width: 14, color: "bg-violet-500" },
-    { label: "Full SKILL.md", when: "When task matches", tokens: "~500", width: 45, color: "bg-teal-500" },
-    { label: "Scripts & references", when: "Only if needed", tokens: "2,000+", width: 92, color: "bg-blue-500" },
+function OpensVisual({ reduced }: { reduced: boolean }) {
+  const rules = [
+    "Search a primary source before any claim",
+    "Never answer from memory alone",
+    "Soften or remove what can't be confirmed",
   ];
   return (
-    <div className="flex flex-col gap-3.5 px-4 w-full max-w-[330px] mx-auto">
-      {tiers.map((t, i) => (
+    <div className="flex flex-col gap-3 px-4 w-full max-w-[320px] mx-auto">
+      <motion.div
+        initial={reduced ? false : { opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+        className="rounded-xl border border-teal-400/50 bg-teal-500/10 px-4 py-2.5"
+      >
+        <p className="font-mono text-base font-bold text-teal-200">study/SKILL.md — now open</p>
+      </motion.div>
+
+      {rules.map((r, i) => (
         <motion.div
-          key={t.label}
-          initial={reduced ? false : { opacity: 0, x: -14 }}
+          key={r}
+          initial={reduced ? false : { opacity: 0, x: 16 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: reduced ? 0 : i * 0.3, duration: 0.35 }}
-          className="space-y-1.5"
+          transition={{ delay: reduced ? 0 : 0.3 + i * 0.25, duration: 0.3 }}
+          className="rounded-xl border border-slate-600/50 bg-slate-800/50 px-4 py-2.5"
         >
-          <div className="flex items-baseline justify-between">
-            <span className="text-base font-semibold text-white">{t.label}</span>
-            <span className="font-mono text-base text-blue-200">{t.tokens}</span>
-          </div>
-          <div className="h-3 w-full overflow-hidden rounded-full bg-slate-800">
-            <motion.div
-              className={cn("h-full rounded-full", t.color)}
-              initial={{ width: "0%" }}
-              animate={{ width: `${t.width}%` }}
-              transition={{ delay: reduced ? 0 : i * 0.3 + 0.15, duration: 0.5, ease: "easeOut" }}
-            />
-          </div>
-          <p className="text-base text-slate-400">{t.when}</p>
+          <p className="text-base font-medium text-slate-100">{r}</p>
         </motion.div>
       ))}
     </div>
   );
 }
 
+function ContrastVisual({ reduced }: { reduced: boolean }) {
+  return (
+    <div className="flex flex-col gap-3 px-4 w-full max-w-[320px] mx-auto">
+      <motion.div
+        initial={reduced ? false : { opacity: 0, x: -16 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.35 }}
+        className="rounded-xl border border-rose-400/40 bg-rose-500/10 px-4 py-3"
+      >
+        <p className="text-base font-bold uppercase tracking-widest text-rose-300 mb-1">
+          Without the skill
+        </p>
+        <p className="text-base text-rose-100">Guesses a specific number from memory</p>
+      </motion.div>
+
+      <motion.div
+        initial={reduced ? false : { opacity: 0, x: 16 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: reduced ? 0 : 0.3, duration: 0.35 }}
+        className="rounded-xl border border-teal-400/50 bg-teal-500/15 px-4 py-3"
+      >
+        <p className="text-base font-bold uppercase tracking-widest text-teal-300 mb-1">
+          With the skill
+        </p>
+        <p className="text-base text-teal-100">Says it&rsquo;s not publicly disclosed by OpenAI</p>
+      </motion.div>
+    </div>
+  );
+}
+
 function ScaleVisual({ reduced }: { reduced: boolean }) {
-  const skills = ["PDF forms", "Brand decks", "Excel", "SQL", "Testing", "+ 100s more"];
+  const skills = ["Scripts", "Frontend", "Study ✓", "Excel", "SQL", "+ 100s more"];
   return (
     <div className="flex flex-col items-center gap-4 px-4 w-full max-w-[320px] mx-auto">
       <div className="flex flex-wrap justify-center gap-2">
@@ -215,7 +252,12 @@ function ScaleVisual({ reduced }: { reduced: boolean }) {
             initial={reduced ? false : { opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: reduced ? 0 : i * 0.12, duration: 0.3, type: "spring", bounce: 0.4 }}
-            className="rounded-lg border border-rose-400/40 bg-rose-500/15 px-3 py-1.5 text-base font-semibold text-rose-100"
+            className={cn(
+              "rounded-lg border px-3 py-1.5 text-base font-semibold",
+              s === "Study ✓"
+                ? "border-violet-400/60 bg-violet-500/25 text-violet-100"
+                : "border-violet-400/40 bg-violet-500/15 text-violet-100",
+            )}
           >
             {s}
           </motion.span>
@@ -226,12 +268,12 @@ function ScaleVisual({ reduced }: { reduced: boolean }) {
         initial={reduced ? false : { opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: reduced ? 0 : 0.8, duration: 0.4 }}
-        className="w-full rounded-2xl border border-rose-400/40 bg-rose-500/10 px-4 py-3 text-center"
+        className="w-full rounded-2xl border border-violet-400/40 bg-violet-500/10 px-4 py-3 text-center"
       >
-        <p className="text-lg font-bold text-rose-100 leading-snug">
-          Each loads only when relevant
+        <p className="text-lg font-bold text-violet-100 leading-snug">
+          Only Study opened in full
         </p>
-        <p className="text-base text-rose-200/80 mt-1">
+        <p className="text-base text-violet-200/80 mt-1">
           So the context window stays small
         </p>
       </motion.div>
@@ -255,10 +297,10 @@ export function AgentSkillsShort() {
 
   function renderVisual(id: string) {
     switch (id) {
-      case "folder":   return <FolderVisual   reduced={reducedMotion} />;
-      case "metadata": return <MetadataVisual reduced={reducedMotion} />;
-      case "trigger":  return <TriggerVisual  reduced={reducedMotion} />;
-      case "tiers":    return <TiersVisual    reduced={reducedMotion} />;
+      case "folders":  return <FoldersVisual  reduced={reducedMotion} />;
+      case "task":     return <TaskVisual     reduced={reducedMotion} />;
+      case "opens":    return <OpensVisual    reduced={reducedMotion} />;
+      case "contrast": return <ContrastVisual reduced={reducedMotion} />;
       case "scale":    return <ScaleVisual    reduced={reducedMotion} />;
       default:         return null;
     }
