@@ -118,6 +118,16 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | Six-panel animated walkthrough: Egypt sentence → CNN failure → RNN failure → Transformer success; `panel={N}` locks to one slide | `ArchitectureEvolutionAnimator` |
 | Animated 6×5 pixel grid with sliding 3×3 amber filter; activates green when filter covers a vertical-edge pattern; shows kernel + output feature map | `CNNImageSuccessDemo` |
 | Unrolled RNN SVG: h₀ → three cells “A” with 2×3-node mini-layers, xₜ/yₜ, amber state arrows + pulse | `RNNCellUnrolledDiagram` |
+| Tabbed benchmarks/pricing/speed-vs-quality/honest-sources explorer for picking a model | `ModelEvaluationExplorer` |
+| Tabbed "expensive loop" story: bad loop animation, three costs, root-cause contractor analogy | `ExpensiveLoopExplorer` |
+| Tabbed AI planning walkthrough: load context, discuss & refine chat, layered good-plan-output | `PlanningWithAIExplorer` |
+| Tabbed subtask breakdown: good-subtask criteria, AI decomposition prompt, SpecAI example list | `SubtaskBreakdownExplorer` |
+| Tabbed implementation discipline: one task at a time, review checklist, git commit per task | `ImplementationDisciplineExplorer` |
+| Tabbed SpecAI build walkthrough: search service, API endpoint, frontend UI (each with review checklist) | `SpecAIBuildExplorer` |
+| Tabbed project-rules intro: why AI ignores standards, four rule types, where rules live (file tree) | `ProjectRulesExplorer` |
+| Tabbed rule-writing guide: rule anatomy, five real rules, three anti-patterns with fixes | `WritingRulesExplorer` |
+| Tabbed AI skills intro: skill vs rule compare, skill file anatomy, when to create a skill | `AiSkillsExplorer` |
+| Tabbed skill library: universal skills, project-specific skills, time-saved before/after | `SkillLibraryExplorer` |
 
 **Flow diagrams:** prefer **`NodeFlowDiagram`** for free-form grouped graphs, or **`DualLanePipelineDiagram`** for side-by-side vertical pipelines with readable connectors between compact blocks. `PipelineTrack`, `LayerStack`, and `DataFlowDiagram` remain in the MDX registry for older sessions but are **not** previewed on `/component-gallery`.
 
@@ -213,6 +223,16 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | `ArchitectureEvolutionAnimator` | Interactive | Self-contained 6-panel animated story: problem → CNN idea → CNN failure → RNN idea → RNN failure → Transformer success. No props required. |
 | `CNNImageSuccessDemo` | Interactive | Animated 6×5 pixel grid; 3×3 filter slides over two vertical-edge patterns; turns green on match; output feature map updates in sync. No props. |
 | `RNNCellUnrolledDiagram` | Interactive | SVG unrolled RNN: initial h₀, three identical cells with two hidden layers × three nodes, inputs x₀–x₂ and outputs y₀–y₂; amber recurrent arrows with subtle pulse animation. No props. |
+| `ModelEvaluationExplorer` | Interactive | Self-contained 4-tab explorer: flip-card coding benchmarks (measures vs. misses), illustrative input/output pricing table, speed-vs-quality dial, honest community-source icons. No props. |
+| `ExpensiveLoopExplorer` | Interactive | Self-contained 3-tab explorer: step-through bad-loop diagram, three cost cards, "what you said vs. what AI understood" compare. No props. |
+| `PlanningWithAIExplorer` | Interactive | Self-contained 3-tab explorer: context-loading checklist, simplified back-and-forth chat, layered good-plan-output build-up. No props. |
+| `SubtaskBreakdownExplorer` | Interactive | Self-contained 3-tab explorer: atomic/scoped/verifiable criteria + bad-vs-good example, AI decomposition prompt pattern, SpecAI subtask list. No props. |
+| `ImplementationDisciplineExplorer` | Interactive | Self-contained 3-tab explorer: skip-ahead vs. one-task-at-a-time compare, review checklist, git-commit-per-task log. No props. |
+| `SpecAIBuildExplorer` | Interactive | Self-contained 3-tab explorer: search-service code reveal, endpoint wiring animation, frontend UI step-through — each tab ends with a review checklist. No props. |
+| `ProjectRulesExplorer` | Interactive | Self-contained 3-tab explorer: no-rules vs. with-rules code compare, four rule-type cards, clickable rules-file tree. No props. |
+| `WritingRulesExplorer` | Interactive | Self-contained 3-tab explorer: vague-vs-specific rule anatomy build-up, five real rules typed in, three anti-patterns with click-to-reveal fixes. No props. |
+| `AiSkillsExplorer` | Interactive | Self-contained 3-tab explorer: rule-vs-skill comparison table, skill-file anatomy build-up, "repeat 3×" prompt counter. No props. |
+| `SkillLibraryExplorer` | Interactive | Self-contained 3-tab explorer: five universal skills, three SpecAI-specific skills, before/after prompt-length compare. No props. |
 
 ---
 

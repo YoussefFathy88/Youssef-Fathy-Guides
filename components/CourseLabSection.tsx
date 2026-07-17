@@ -37,6 +37,15 @@ const LAB_PROJECTS: LabProject[] = [
       "Build a minimal coding agent that reads files, writes code, and runs terminal commands.",
     status: "Coming soon",
   },
+  {
+    number: "04",
+    title: "Use AI Efficiently in Coding",
+    tags: ["Planning", "Project Rules", "Skills"],
+    description:
+      "A practical guide to model selection, AI-powered planning, disciplined implementation, and reusable rules and skills.",
+    href: "/sessions/use-ai-efficiently-in-coding" as Route,
+    status: "Start lab",
+  },
 ] as const;
 
 export default function CourseLabSection() {

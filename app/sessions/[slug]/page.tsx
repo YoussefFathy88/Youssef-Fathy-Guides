@@ -109,6 +109,16 @@ import {
   AiTaskflowOrchestrator,
   ToolLoopVisualizer,
   SystemPromptRevealDemo,
+  ModelEvaluationExplorer,
+  ExpensiveLoopExplorer,
+  PlanningWithAIExplorer,
+  SubtaskBreakdownExplorer,
+  ImplementationDisciplineExplorer,
+  SpecAIBuildExplorer,
+  ProjectRulesExplorer,
+  WritingRulesExplorer,
+  AiSkillsExplorer,
+  SkillLibraryExplorer,
 } from "@/components/shared";
 import FNNAutocompleteDemo from "@/components/demos/FNNAutocompleteDemo";
 import ArchitectureComparisonDemo from "@/components/demos/ArchitectureComparisonDemo";
@@ -180,6 +190,16 @@ const sessionSectionOverrides: Record<string, SessionSection[]> = {
     { id: "recap", label: "Recap" },
     { id: "next-session", label: "Next Session" },
   ],
+  "use-ai-efficiently-in-coding": [
+    { id: "goal", label: "Goal" },
+    { id: "model-selection", label: "Model Selection" },
+    { id: "planning", label: "Planning" },
+    { id: "implementation", label: "Implementation" },
+    { id: "project-rules", label: "Project Rules" },
+    { id: "skills", label: "Skills" },
+    { id: "recap", label: "Recap" },
+    { id: "next-session", label: "Next Session" },
+  ],
 };
 
 function getMdxComponents(isPresentationMode: boolean, outline?: string[]) {
@@ -222,6 +242,17 @@ function getMdxComponents(isPresentationMode: boolean, outline?: string[]) {
     AiTaskflowOrchestrator,
     ToolLoopVisualizer,
     SystemPromptRevealDemo,
+    // Use AI Efficiently in Coding session components
+    ModelEvaluationExplorer,
+    ExpensiveLoopExplorer,
+    PlanningWithAIExplorer,
+    SubtaskBreakdownExplorer,
+    ImplementationDisciplineExplorer,
+    SpecAIBuildExplorer,
+    ProjectRulesExplorer,
+    WritingRulesExplorer,
+    AiSkillsExplorer,
+    SkillLibraryExplorer,
     // New interactive components
     TrainingLoopSimulator,
     AutoregressiveDemo,

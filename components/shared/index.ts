@@ -104,3 +104,14 @@ export { default as NNEquationDemo } from "../session/NNEquationDemo";
 export { default as RNNCellUnrolledDiagram } from "../session/RNNCellUnrolledDiagram";
 // System prompt session components
 export { default as SystemPromptRevealDemo } from "../session/SystemPromptRevealDemo";
+// Use AI Efficiently in Coding session components
+export { default as ModelEvaluationExplorer } from "../session/ModelEvaluationExplorer";
+export { default as ExpensiveLoopExplorer } from "../session/ExpensiveLoopExplorer";
+export { default as PlanningWithAIExplorer } from "../session/PlanningWithAIExplorer";
+export { default as SubtaskBreakdownExplorer } from "../session/SubtaskBreakdownExplorer";
+export { default as ImplementationDisciplineExplorer } from "../session/ImplementationDisciplineExplorer";
+export { default as SpecAIBuildExplorer } from "../session/SpecAIBuildExplorer";
+export { default as ProjectRulesExplorer } from "../session/ProjectRulesExplorer";
+export { default as WritingRulesExplorer } from "../session/WritingRulesExplorer";
+export { default as AiSkillsExplorer } from "../session/AiSkillsExplorer";
+export { default as SkillLibraryExplorer } from "../session/SkillLibraryExplorer";
