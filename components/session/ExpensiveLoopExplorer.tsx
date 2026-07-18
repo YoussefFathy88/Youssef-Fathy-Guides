@@ -11,7 +11,6 @@ import { Callout, PanelTitle, TabExplorerShell, type ExplorerTab } from "@/compo
 const TABS: readonly ExplorerTab[] = [
   { id: "loop", short: "The Bad Loop", color: "rose" },
   { id: "cost", short: "Why It's Expensive", color: "amber" },
-  { id: "root-cause", short: "Root Cause", color: "violet" },
 ] as const;
 
 // ─── Tab 1 — The bad loop (animated) ───────────────────────────────────────────
@@ -107,34 +106,9 @@ function CostPanel() {
   );
 }
 
-// ─── Tab 3 — Root cause ────────────────────────────────────────────────────────
-
-function RootCausePanel() {
-  return (
-    <div className="flex flex-1 flex-col gap-4">
-      <PanelTitle>AI builds without shared understanding — like a contractor with tools but no blueprint.</PanelTitle>
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-xl border-2 border-gray-700 bg-gray-950/60 p-5">
-          <p className="text-base font-bold uppercase tracking-wide text-gray-400 md:text-lg">What you said</p>
-          <p className="mt-2 text-lg text-gray-100 md:text-xl">&ldquo;Add a way for users to get back into their account.&rdquo;</p>
-          <p className="mt-3 text-lg font-bold text-teal-300 md:text-xl">🚪 You meant: a password-reset flow</p>
-        </div>
-        <div className="rounded-xl border-2 border-rose-500/40 bg-rose-950/20 p-5">
-          <p className="text-base font-bold uppercase tracking-wide text-gray-400 md:text-lg">What AI understood</p>
-          <p className="mt-2 text-lg text-gray-100 md:text-xl">Built a full re-registration form instead.</p>
-          <p className="mt-3 text-lg font-bold text-rose-300 md:text-xl">🧱 AI built: a wall, not a door</p>
-        </div>
-      </div>
-      <Callout color="violet">
-        Same words, two different mental models. The gap only closes when you plan together before implementation starts.
-      </Callout>
-    </div>
-  );
-}
-
 // ─── Main component ───────────────────────────────────────────────────────────
 
-const PANELS = [LoopPanel, CostPanel, RootCausePanel] as const;
+const PANELS = [LoopPanel, CostPanel] as const;
 
 export default function ExpensiveLoopExplorer() {
   return <TabExplorerShell tabs={TABS} panels={PANELS} ariaLabel="The expensive loop problem" />;
