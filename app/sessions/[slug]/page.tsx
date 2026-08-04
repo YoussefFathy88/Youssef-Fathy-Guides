@@ -190,11 +190,21 @@ const sessionSectionOverrides: Record<string, SessionSection[]> = {
     { id: "recap", label: "Recap" },
     { id: "next-session", label: "Next Session" },
   ],
-  "use-ai-efficiently-in-coding": [
+  "plan-before-you-code": [
     { id: "goal", label: "Goal" },
     { id: "model-selection", label: "Model Selection" },
     { id: "planning", label: "Planning" },
+    { id: "recap", label: "Recap" },
+    { id: "next-session", label: "Next Session" },
+  ],
+  "disciplined-ai-implementation": [
+    { id: "goal", label: "Goal" },
     { id: "implementation", label: "Implementation" },
+    { id: "recap", label: "Recap" },
+    { id: "next-session", label: "Next Session" },
+  ],
+  "ai-project-rules-and-skills": [
+    { id: "goal", label: "Goal" },
     { id: "project-rules", label: "Project Rules" },
     { id: "skills", label: "Skills" },
     { id: "recap", label: "Recap" },

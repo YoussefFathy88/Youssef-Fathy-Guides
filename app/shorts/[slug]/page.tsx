@@ -5,11 +5,14 @@ import { ShortsRecordingView } from "@/components/shorts/ShortsRecordingView";
 import { LLMWorksShort } from "@/components/shorts/LLMWorksShort";
 import { TokenizerShort } from "@/components/shorts/TokenizerShort";
 import { EmbeddingShort } from "@/components/shorts/EmbeddingShort";
+import { TemperatureShort } from "@/components/shorts/TemperatureShort";
 import { AIActionsShort } from "@/components/shorts/AIActionsShort";
 import { AgentSkillsShort } from "@/components/shorts/AgentSkillsShort";
 import { AIModelsShort } from "@/components/shorts/AIModelsShort";
+import { ClaudeCodeVsCursorShort } from "@/components/shorts/ClaudeCodeVsCursorShort";
 import { AuthenticationShort } from "@/components/shorts/AuthenticationShort";
 import { SOLIDShort } from "@/components/shorts/SOLIDShort";
+import { VibeCodingShort } from "@/components/shorts/VibeCodingShort";
 import { GridBackground } from "@/components/ui/grid-background";
 import { SHORTS } from "@/data/shorts";
 
@@ -40,17 +43,23 @@ function ShortContent({ slug }: { slug: string }) {
       return <TokenizerShort />;
     case "how-embeddings-work":
       return <EmbeddingShort />;
+    case "how-temperature-works":
+      return <TemperatureShort />;
     case "how-claude-code-works":
       return <AIActionsShort />;
     case "how-agent-skills-work":
       return <AgentSkillsShort />;
     case "what-are-ai-models":
       return <AIModelsShort />;
+    case "claude-code-vs-cursor":
+      return <ClaudeCodeVsCursorShort />;
     // ── Software Engineering ──────────────────────────────────────────────
     case "how-auth-works":
       return <AuthenticationShort />;
     case "solid-principles":
       return <SOLIDShort />;
+    case "vibe-coding-vs-ai-engineering":
+      return <VibeCodingShort />;
     default:
       return null;
   }

@@ -24,6 +24,29 @@ Shorts are recorded **live on YouTube**. The presenter must control pacing — n
 
 Optional **Play** may exist for preview/rehearsal, but **shipping default is manual**.
 
+## Animation must keep running for the whole time a step is on screen
+
+Shorts are motion-first — prefer an animated/moving visual over a static one on
+every step. Manual navigation (no auto-*advance*) does **not** mean the motion
+inside a step is allowed to play once on mount and then sit still. A one-shot
+`initial` → `animate` entrance that settles and stops reads as broken/frozen to
+a viewer who lingers on that step (which they will — this is presenter-paced,
+not a timed slideshow).
+
+| Do | Don't |
+|---|---|
+| Entrance settles into a **looping idle animation** (`repeat: Infinity`, gentle pulse/breathe/cycle) that keeps running for as long as the step is visible | Entrance plays once (`scale: [0, 1.1, 1]`, no `repeat`) and the element goes fully static afterward |
+| Typing/reveal effects **retype on a loop** (e.g. cycle a `key` on an interval to replay the entrance) if the step has no other continuous motion | A typed block appears once and then just sits there for the rest of the time the step is on screen |
+| Multi-node or multi-line visuals cycle which item is "active" (`setInterval` + `useReducedMotion`-gated) | Every node/line settles to the same static opacity forever |
+
+`useReducedMotion` still gates all of this to a single static frame — looping
+animation is for the default (non-reduced) case only.
+
+This is a per-step requirement, not a whole-Short requirement — check every
+step's Visual sub-component individually before shipping, since it's common
+for only the first step or two to have been built with a loop and the rest to
+have been copy-pasted with one-shot entrances.
+
 ## Teaching examples — prompt → answer, token by token
 
 When a Short shows **how an LLM generates text**, use a **real chat shape**:
@@ -50,38 +73,52 @@ If one slide needs several beats (input → scores → pick → concat → repea
 - Reset phase index when leaving the step
 - Progress bar reflects phase index, not a fake timer
 
-## STRICT: low content per card, tabs over tall stacks
+## STRICT: content must fit the frame — both axes, tabs over stacks or side-by-side
 
 **This is a hard requirement for every Short, not a style preference.** The 9:16
-phone frame has a fixed height and the animation zone is `overflow-hidden` —
-content that doesn't fit is **silently clipped**, not scrolled. This is a shipped
-defect every time, not a rare edge case: it happens as soon as one step's cards
-(request card + divider + result card, or 2+ example panels) add up to more
-vertical space than the frame has room for.
+phone frame has a **fixed width (~390px) and fixed height**, and the animation
+zone is `overflow-hidden` — content that doesn't fit is **silently clipped**, not
+scrolled or wrapped into view. This is a shipped defect every time, not a rare
+edge case, and it happens on **both axes**:
+
+- **Vertically**: one step's cards (request card + divider + result card, or 2+
+  stacked panels) add up to more height than the frame has room for.
+- **Horizontally**: two comparison panels placed side by side (`flex` row with
+  `flex-1` children) each need more width than half the frame once they carry a
+  header + badge + a line of body text — flex items don't shrink below their
+  content's intrinsic width by default, so the row silently overflows and the
+  frame's `overflow-hidden` clips the second panel. This is exactly as fatal as
+  the vertical case and is easy to miss because it looks fine with short
+  placeholder text and only breaks once real copy goes in.
 
 **Rule: each visible card/panel stays low-content — a short label, a couple of
 data rows, one line of explanation. If a step needs to show more than one card's
-worth of content, split it across tabs (or Prev/Next phases) so only one card
-renders at a time.** Never grow a single card to fit more; add a tab instead.
+worth of content — whether that content would naturally stack top-to-bottom or
+sit side by side — split it across tabs (or Prev/Next phases) so only one card
+renders at a time.** Never grow a single card to fit more, and never place two
+non-trivial content panels in the same row to "save a tab"; add a tab instead.
 
-**Do not stack multiple content cards vertically inside one step.** Instead, add a
-second tab row (or reuse Prev/Next as a phase toggle) so only **one card is visible
-at a time**:
+**Do not stack multiple content cards vertically, and do not place two content
+panels side by side, inside one step.** Instead, add a small tab toggle (two
+buttons, one active at a time) or reuse Prev/Next as a phase toggle so only
+**one card is visible at a time**:
 
 | Situation | Do | Don't |
 |---|---|---|
 | Step shows "model asks" + "tool runs" + "result" | Tab between **Request** / **Result** cards | Stack all three cards top-to-bottom in one view |
-| Step compares 2+ examples (tool cases, sequences, code files) | Tabs to swap the example, one panel on screen | Render every example as its own stacked block |
+| Step compares 2+ examples, tools, or sides (tool cases, sequences, code files, "Tool A vs Tool B") | Tabs to swap the example, one full-width panel on screen | Render every example as its own stacked block, or place both side by side in a `flex` row |
 | A single card's text/rows keep growing to fit more facts | Cut it down to one idea, move the rest behind a tab | Add more lines/rows until the card is tall |
 
 Before shipping any step, mentally add up its card heights (title + padding + rows)
-against the phone frame height. If it's close, split into tabs — don't shrink text
-or padding below the legibility floor to force a fit, and don't let a card grow
-tall instead of adding a tab.
+against the phone frame height, **and** check whether any row places 2+ non-trivial
+panels side by side — if either is close, split into tabs. Don't shrink text or
+padding below the legibility floor to force a fit, and don't let a card grow tall
+or a row grow wide instead of adding a tab.
 
-**Reject on sight:** a step with 2+ full content cards stacked vertically; a card
-whose row/line count keeps expanding instead of moving content behind a tab; any
-visual not verified against the phone frame height before shipping.
+**Reject on sight:** a step with 2+ full content cards stacked vertically; a step
+with 2+ full content cards placed side by side in a flex row; a card whose
+row/line count keeps expanding instead of moving content behind a tab; any visual
+not verified against the phone frame's width **and** height before shipping.
 
 ## Cross-rule dependencies
 

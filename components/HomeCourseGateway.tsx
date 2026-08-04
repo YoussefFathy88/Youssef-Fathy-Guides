@@ -27,6 +27,15 @@ const COURSE_CARDS = [
     meta: "Project lab",
     status: "available",
   },
+  {
+    id: "efficient-coding-with-ai",
+    title: "Efficient Coding with AI",
+    badge: "Available now",
+    description:
+      "A practical playlist on choosing models, planning, and building AI-assisted software with discipline.",
+    meta: "Tool playlist",
+    status: "available",
+  },
 ] as const;
 
 type CourseId = (typeof COURSE_CARDS)[number]["id"];
@@ -41,6 +50,10 @@ export function HomeCourseGateway() {
 
     if (window.location.hash === "#ai-engineering-lab") {
       setOpenCourseId("ai-engineering-lab");
+    }
+
+    if (window.location.hash === "#efficient-coding-with-ai") {
+      setOpenCourseId("efficient-coding-with-ai");
     }
   }, []);
 
@@ -70,7 +83,7 @@ export function HomeCourseGateway() {
             </div>
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid gap-4 lg:grid-cols-3">
             {COURSE_CARDS.map((course) => {
               const isAvailable = course.status === "available";
               const isOpen = openCourseId === course.id;
@@ -124,7 +137,9 @@ export function HomeCourseGateway() {
             <div className="rounded-3xl border border-sky-400/20 bg-sky-500/10 p-4 text-sm text-sky-100">
               {openCourseId === "ai-agent-story"
                 ? "AI Agent Story is open. Use the robot below to choose a body part and enter the available sessions."
-                : "AI Engineering Lab is open. Browse the project sessions below."}
+                : openCourseId === "ai-engineering-lab"
+                  ? "AI Engineering Lab is open. Browse the project sessions below."
+                  : "Efficient Coding with AI is open. Browse the playlist sessions below."}
             </div>
           ) : null}
         </div>
@@ -200,7 +215,13 @@ export function HomeCourseGateway() {
 
       {openCourseId === "ai-engineering-lab" ? (
         <div id="ai-engineering-lab" className="scroll-mt-24">
-          <CourseLabSection />
+          <CourseLabSection playlistId="ai-engineering-lab" />
+        </div>
+      ) : null}
+
+      {openCourseId === "efficient-coding-with-ai" ? (
+        <div id="efficient-coding-with-ai" className="scroll-mt-24">
+          <CourseLabSection playlistId="efficient-coding-with-ai" />
         </div>
       ) : null}
     </>

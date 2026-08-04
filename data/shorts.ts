@@ -62,7 +62,16 @@ export const SHORTS: ShortDef[] = [
     topic: "AI Models",
     topicColor: "violet",
     description:
-      "Start with y = mx + b, scale it up to billions of weights, and you have an AI model — trained on examples, ready for any new input.",
+      "Weights are numbers, training tunes them, inference uses them — the whole trick behind every AI model, from a house-price formula to an LLM.",
+    playlist: "ai",
+  },
+  {
+    slug: "claude-code-vs-cursor",
+    title: "Claude Code vs Cursor",
+    topic: "Coding Agents",
+    topicColor: "rose",
+    description:
+      "Both tools can run on the same Claude model — different rule files, agent loops, and trust systems build a completely different experience around it.",
     playlist: "ai",
   },
 
@@ -85,6 +94,15 @@ export const SHORTS: ShortDef[] = [
     topicColor: "emerald",
     description:
       "Five rules that make code easy to change — one class, one job, and never break what works.",
+    playlist: "software-design",
+  },
+  {
+    slug: "vibe-coding-vs-ai-engineering",
+    title: "Vibe Coding vs AI Engineering",
+    topic: "Vibe Coding",
+    topicColor: "teal",
+    description:
+      "Same prompt, two developers — one skips review, one checks every step. Here's when each approach actually wins.",
     playlist: "software-design",
   },
 ];
