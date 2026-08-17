@@ -115,3 +115,7 @@ export { default as ProjectRulesExplorer } from "../session/ProjectRulesExplorer
 export { default as WritingRulesExplorer } from "../session/WritingRulesExplorer";
 export { default as AiSkillsExplorer } from "../session/AiSkillsExplorer";
 export { default as SkillLibraryExplorer } from "../session/SkillLibraryExplorer";
+// Requirements-to-Jira-Tickets agent lab components
+export { default as LlmPipelineTabsExplorer } from "../session/LlmPipelineTabsExplorer";
+export { default as RagBeforeAfterExplorer } from "../session/RagBeforeAfterExplorer";
+export { default as ToolActionsExplorer } from "../session/ToolActionsExplorer";

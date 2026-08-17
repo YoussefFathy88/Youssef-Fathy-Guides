@@ -499,7 +499,7 @@ export default function AutoregressiveDemo({
                   initial={reducedMotion ? false : { opacity: 0, y: -6, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ duration: 0.18, ease: "easeOut" }}
-                  className={cn("font-mono text-2xl font-semibold", accentClass)}
+                  className={cn("whitespace-pre font-mono text-2xl font-semibold", accentClass)}
                 >
                   {token}
                 </motion.span>

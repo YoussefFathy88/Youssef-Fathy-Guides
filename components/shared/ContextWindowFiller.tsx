@@ -21,6 +21,8 @@ export interface ContextWindowFillerProps {
   windowSize: number;
   costPer1kTokens?: number;
   blocks: ContextBlock[];
+  /** "lg" scales up padding, bar height, and type for full-slide use. Defaults to "md". */
+  size?: "md" | "lg";
 }
 
 const colorTokens = {
@@ -79,8 +81,10 @@ export default function ContextWindowFiller({
   windowSize,
   costPer1kTokens = 0.003,
   blocks,
+  size = "md",
 }: ContextWindowFillerProps) {
   const reducedMotion = useReducedMotion();
+  const lg = size === "lg";
 
   const [enabled, setEnabled] = useState<Set<string>>(
     () => new Set(blocks.filter((b) => b.defaultOn).map((b) => b.id)),
@@ -106,17 +110,28 @@ export default function ContextWindowFiller({
       initial={reducedMotion ? false : { opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800"
+      className={cn(
+        "w-full rounded-2xl border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800",
+        lg ? "p-8 md:p-10" : "p-6",
+      )}
     >
       {(title || caption) && (
-        <div className="mb-5 space-y-1">
-          {title && <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</p>}
-          {caption && <p className="text-sm leading-6 text-gray-500 dark:text-gray-400">{caption}</p>}
+        <div className={cn("space-y-1", lg ? "mb-7" : "mb-5")}>
+          {title && (
+            <p className={cn("font-semibold text-gray-900 dark:text-gray-100", lg ? "text-xl md:text-2xl" : "text-lg")}>
+              {title}
+            </p>
+          )}
+          {caption && (
+            <p className={cn("leading-6 text-gray-500 dark:text-gray-400", lg ? "text-lg md:text-xl" : "text-sm")}>
+              {caption}
+            </p>
+          )}
         </div>
       )}
 
       {/* Toggle chips */}
-      <div className="mb-5 flex flex-wrap gap-2">
+      <div className={cn("flex flex-wrap gap-2", lg ? "mb-7 gap-3" : "mb-5")}>
         {blocks.map((block) => {
           const on = enabled.has(block.id);
           const tone = colorTokens[block.color];
@@ -127,23 +142,25 @@ export default function ContextWindowFiller({
               onClick={() => toggle(block.id)}
               aria-pressed={on}
               className={cn(
-                "flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-left transition-all duration-150 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400",
+                "flex cursor-pointer items-center gap-2 rounded-xl border text-left transition-all duration-150 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400",
+                lg ? "gap-3 px-5 py-4" : "px-3 py-2",
                 on ? tone.chipOn : tone.chipOff,
                 !on && "opacity-50 hover:opacity-70",
               )}
             >
               {block.icon && (
-                <span className="shrink-0 text-lg leading-none">{block.icon}</span>
+                <span className={cn("shrink-0 leading-none", lg ? "text-2xl" : "text-lg")}>{block.icon}</span>
               )}
               <div className="min-w-0">
-                <p className="text-sm font-semibold leading-none">{block.label}</p>
-                <p className={cn("mt-1 text-xs font-semibold leading-none", tone.count)}>
+                <p className={cn("font-semibold leading-none", lg ? "text-lg md:text-xl" : "text-sm")}>{block.label}</p>
+                <p className={cn("mt-1 font-semibold leading-none", lg ? "text-base md:text-lg" : "text-xs", tone.count)}>
                   {formatTokens(block.tokens)} tokens
                 </p>
               </div>
               <span
                 className={cn(
-                  "ml-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
+                  "ml-1 flex shrink-0 items-center justify-center rounded-full font-bold",
+                  lg ? "h-7 w-7 text-sm" : "h-5 w-5 text-[10px]",
                   on
                     ? "bg-gray-800 text-white dark:bg-gray-200 dark:text-gray-900"
                     : "bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-500",
@@ -159,7 +176,8 @@ export default function ContextWindowFiller({
       {/* Fill bar track */}
       <div
         className={cn(
-          "relative mb-2 h-10 w-full overflow-hidden rounded-xl transition-colors duration-300",
+          "relative w-full overflow-hidden rounded-xl transition-colors duration-300",
+          lg ? "mb-3 h-16" : "mb-2 h-10",
           overLimit
             ? "bg-rose-100 dark:bg-rose-500/10"
             : nearLimit
@@ -194,18 +212,19 @@ export default function ContextWindowFiller({
 
         {/* Live token label inside bar */}
         {totalTokens > 0 && (
-          <div className="pointer-events-none absolute inset-0 flex items-center px-3">
-            <span className="text-sm font-bold text-white drop-shadow-sm">
+          <div className={cn("pointer-events-none absolute inset-0 flex items-center", lg ? "px-5" : "px-3")}>
+            <span className={cn("font-bold text-white drop-shadow-sm", lg ? "text-xl md:text-2xl" : "text-sm")}>
               {totalTokens.toLocaleString()} tokens
             </span>
           </div>
         )}
 
         {/* Right label */}
-        <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+        <div className={cn("pointer-events-none absolute inset-y-0 flex items-center", lg ? "right-5" : "right-3")}>
           <span
             className={cn(
-              "text-xs font-semibold",
+              "font-semibold",
+              lg ? "text-base md:text-lg" : "text-xs",
               overLimit
                 ? "text-rose-500 dark:text-rose-400"
                 : nearLimit
@@ -223,45 +242,52 @@ export default function ContextWindowFiller({
       </div>
 
       {/* Zone legend */}
-      <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1">
+      <div className={cn("flex flex-wrap items-center gap-x-4 gap-y-1", lg ? "mb-6" : "mb-4")}>
         <div className="flex items-center gap-1.5">
-          <div className="h-2 w-3 rounded-sm bg-teal-400" />
-          <span className="text-xs text-gray-400">0–75% safe</span>
+          <div className={cn("rounded-sm bg-teal-400", lg ? "h-3 w-4" : "h-2 w-3")} />
+          <span className={cn("text-gray-400", lg ? "text-base md:text-lg" : "text-xs")}>0–75% safe</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="h-2 w-3 rounded-sm bg-amber-400" />
-          <span className="text-xs text-gray-400">75–100% getting full</span>
+          <div className={cn("rounded-sm bg-amber-400", lg ? "h-3 w-4" : "h-2 w-3")} />
+          <span className={cn("text-gray-400", lg ? "text-base md:text-lg" : "text-xs")}>75–100% getting full</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="h-2 w-3 rounded-sm bg-rose-400" />
-          <span className="text-xs text-gray-400">over limit — truncated</span>
+          <div className={cn("rounded-sm bg-rose-400", lg ? "h-3 w-4" : "h-2 w-3")} />
+          <span className={cn("text-gray-400", lg ? "text-base md:text-lg" : "text-xs")}>over limit — truncated</span>
         </div>
       </div>
 
       {/* Stats row */}
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-900/60">
+      <div
+        className={cn(
+          "flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900/60",
+          lg ? "px-6 py-5" : "px-4 py-3",
+        )}
+      >
         <div>
-          <p className="text-xs uppercase tracking-wide text-gray-400">tokens used</p>
+          <p className={cn("uppercase tracking-wide text-gray-400", lg ? "text-sm md:text-base" : "text-xs")}>tokens used</p>
           <p
             className={cn(
-              "text-2xl font-bold tabular-nums leading-tight",
+              "font-bold tabular-nums leading-tight",
+              lg ? "text-3xl md:text-4xl" : "text-2xl",
               overLimit
                 ? "text-rose-600 dark:text-rose-400"
                 : "text-gray-900 dark:text-gray-100",
             )}
           >
             {totalTokens.toLocaleString()}
-            <span className="ml-1 text-sm font-normal text-gray-400">
+            <span className={cn("ml-1 font-normal text-gray-400", lg ? "text-lg md:text-xl" : "text-sm")}>
               / {windowSize.toLocaleString()}
             </span>
           </p>
         </div>
 
         <div>
-          <p className="text-xs uppercase tracking-wide text-gray-400">window fill</p>
+          <p className={cn("uppercase tracking-wide text-gray-400", lg ? "text-sm md:text-base" : "text-xs")}>window fill</p>
           <p
             className={cn(
-              "text-2xl font-bold tabular-nums leading-tight",
+              "font-bold tabular-nums leading-tight",
+              lg ? "text-3xl md:text-4xl" : "text-2xl",
               overLimit
                 ? "text-rose-600 dark:text-rose-400"
                 : nearLimit
@@ -274,14 +300,14 @@ export default function ContextWindowFiller({
         </div>
 
         <div>
-          <p className="text-xs uppercase tracking-wide text-gray-400">est. input cost</p>
-          <p className="text-2xl font-bold tabular-nums leading-tight text-gray-900 dark:text-gray-100">
+          <p className={cn("uppercase tracking-wide text-gray-400", lg ? "text-sm md:text-base" : "text-xs")}>est. input cost</p>
+          <p className={cn("font-bold tabular-nums leading-tight text-gray-900 dark:text-gray-100", lg ? "text-3xl md:text-4xl" : "text-2xl")}>
             {totalTokens > 0 ? formatCost(totalTokens, costPer1kTokens) : "—"}
           </p>
         </div>
 
         {totalTokens === 0 && (
-          <p className="text-sm italic text-gray-400">Toggle blocks above to fill the window</p>
+          <p className={cn("italic text-gray-400", lg ? "text-lg" : "text-sm")}>Toggle blocks above to fill the window</p>
         )}
       </div>
 

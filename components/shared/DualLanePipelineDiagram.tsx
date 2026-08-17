@@ -174,7 +174,7 @@ function buildEdgePath(
     };
   }
 
-  if (metaFrom.lane === metaTo.lane && metaTo.index > metaFrom.index + 1) {
+  if (metaFrom.lane === metaTo.lane && Math.abs(metaTo.index - metaFrom.index) > 1) {
     const outward = metaFrom.lane === 0 ? -1 : 1;
     const x0 = outward === 1 ? from.right : from.left;
     const x3 = outward === 1 ? to.right : to.left;

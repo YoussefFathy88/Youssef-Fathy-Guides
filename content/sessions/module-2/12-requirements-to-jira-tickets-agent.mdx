@@ -1,0 +1,266 @@
+---
+title: "AI Lab 04: From Requirements to Jira Tickets — AI Agent (Part 1)"
+slug: "requirements-to-jira-tickets-agent"
+module: 2
+moduleName: "Giving the Brain Capabilities"
+sessionNumber: 8.9
+duration: "28 min"
+difficulty: "beginner"
+tags: ["ai-lab", "rag", "tools"]
+prevSession: "introduction-to-ai-taskflow-lab"
+outline:
+  - "What Is an AI Model"
+  - "LLM Black Box"
+  - "The Full Pipeline"
+  - "RAG"
+  - "Tools & Actions"
+outlineSectionMap:
+  ai-model: 0
+  llm-black-box: 1
+  llm-pipeline: 2
+  rag: 3
+  tools: 4
+---
+
+{/* SECTION 1 - GOAL */}
+
+<SessionSection id="goal" label="Goal">
+
+## What we'll cover
+
+<SessionOutlineSlide />
+
+</SessionSection>
+
+
+{/* SECTION 2 - WHAT IS AN AI MODEL */}
+
+<SessionSection id="ai-model" label="What Is an AI Model">
+
+<SessionSlide topic="What Is an AI Model">
+
+## Every model is a mapping function
+
+<LinearMappingGraph
+  title="y = mx + c — the simplest mapping function"
+  m={2}
+  c={0}
+  knownPoints={[
+    { x: 0, y: 0, label: "x=0, y=0" },
+    { x: 1, y: 2, label: "x=1, y=2" },
+  ]}
+  xMin={-0.5}
+  xMax={5}
+  yMin={-0.5}
+  yMax={10}
+/>
+
+</SessionSlide>
+
+<SessionSlide topic="What Is an AI Model">
+
+## Any AI model is the same idea — at massive scale
+
+<NodeFlowDiagram
+  title="LLM: mapping a requirement to the next word"
+  height={400}
+  hideStepNarrative
+  groups={[
+    { id: "input", label: "Input", nodeIds: ["sentence"], color: "teal" },
+    { id: "model", label: "Mapping Function", nodeIds: ["transformer"], color: "violet" },
+    { id: "output", label: "Output", nodeIds: ["word"], color: "amber" },
+  ]}
+  nodes={[
+    { id: "sentence", label: "Text", sublabel: "\"The refund policy requires\"", x: 12, y: 50, color: "teal", shape: "rect", emoji: "💬" },
+    { id: "transformer", label: "Neural network", sublabel: "Mapping function — millions of m's and c's", x: 50, y: 50, color: "violet", shape: "hex", size: "lg", emoji: "🧠" },
+    { id: "word", label: "approval", sublabel: "Predicted next word", x: 88, y: 50, color: "amber", shape: "rect", emoji: "✨" },
+  ]}
+  edges={[
+    { from: "sentence", to: "transformer", animated: true, label: "input" },
+    { from: "transformer", to: "word", animated: true, label: "output" },
+  ]}
+  steps={[
+    { id: "s1", label: "Input", description: "Text is the input — just like x is the input to y = mx + c.", highlightNodes: ["sentence"], highlightEdges: [] },
+    { id: "s2", label: "Inside the network", description: "A neural network is the same mapping idea, scaled up. Instead of one m and one c, it has millions of learned weights.", highlightNodes: ["transformer"], highlightEdges: ["sentence→transformer"] },
+    { id: "s3", label: "Output", description: "The model outputs the most likely next word given the input and everything it learned during training.", highlightNodes: ["word"], highlightEdges: ["transformer→word"] },
+    { id: "s4", label: "The full picture", description: "Any AI model is a mapping function with learned weights: input in, output out, driven by parameters learned from data. LLMs are this same idea applied to language.", highlightNodes: ["sentence", "transformer", "word"], highlightEdges: ["sentence→transformer", "transformer→word"] },
+  ]}
+/>
+
+</SessionSlide>
+
+</SessionSection>
+
+
+{/* SECTION 3 - LLM BLACK BOX */}
+
+<SessionSection id="llm-black-box" label="LLM Black Box">
+
+<SessionSlide topic="LLM Black Box">
+
+## Zoom out: one prompt goes in, one word comes out
+
+<NodeFlowDiagram
+  title="The LLM — black box view"
+  height={320}
+  hideStepNarrative
+  nodes={[
+    { id: "prompt", label: "Input Prompt", sublabel: "Your text", x: 15, y: 50, color: "teal", shape: "rect", size: "lg", emoji: "💬" },
+    { id: "box", label: "LLM", sublabel: "?", x: 50, y: 50, color: "gray", shape: "hex", size: "lg", emoji: "⬛" },
+    { id: "token", label: "Next Token", sublabel: "One predicted word", x: 85, y: 50, color: "amber", shape: "rect", size: "lg", emoji: "✨" },
+  ]}
+  edges={[
+    { from: "prompt", to: "box", animated: true },
+    { from: "box", to: "token", animated: true },
+  ]}
+/>
+
+This is deliberately minimal — no internals. But one prompt in, one token out is not the whole story.
+
+</SessionSlide>
+
+<SessionSlide topic="LLM Black Box">
+
+## The box runs in a loop — that's how you get a full answer
+
+<AutoregressiveDemo
+  title="Inference: a full Q&A generated token by token"
+  question="What is the capital of France?"
+  contextPrefix="The capital of France is"
+  tokens={["Paris", ",", " which", " is", " also", " France", "'s", " largest", " city", "."]}
+  topCandidates={[
+    { step: 0, candidates: [{ token: "Paris", prob: 0.91 }, { token: "Lyon", prob: 0.04 }, { token: "a", prob: 0.02 }] },
+    { step: 1, candidates: [{ token: ",", prob: 0.65 }, { token: ".", prob: 0.20 }, { token: " and", prob: 0.08 }] },
+    { step: 2, candidates: [{ token: " which", prob: 0.48 }, { token: " a", prob: 0.22 }, { token: " the", prob: 0.15 }] },
+  ]}
+/>
+
+Every word you see is one more trip through the box: the prompt so far goes in, one token comes out, that token gets appended, and the box runs again. To go from a single next-token prediction to this full loop, we need to look inside the box. Let's call this the **LLM Pipeline**.
+
+</SessionSlide>
+
+</SessionSection>
+
+
+{/* SECTION 4 - THE FULL PIPELINE */}
+
+<SessionSection id="llm-pipeline" label="The Full Pipeline">
+
+<SessionSlide topic="The Full Pipeline">
+
+## Opening the box: tokenize → embed → attend → predict
+
+<LlmPipelineTabsExplorer />
+
+</SessionSlide>
+
+</SessionSection>
+
+
+{/* SECTION 5 - RAG */}
+
+<SessionSection id="rag" label="RAG">
+
+<SessionSlide topic="RAG">
+
+## RAG: grounding the model in your own documents
+
+<RagBeforeAfterExplorer />
+
+</SessionSlide>
+
+</SessionSection>
+
+
+{/* SECTION 6 - TOOLS & ACTIONS */}
+
+<SessionSection id="tools" label="Tools & Actions">
+
+<SessionSlide topic="Tools & Actions">
+
+## Tools: how the agent takes real actions
+
+<ToolActionsExplorer />
+
+</SessionSlide>
+
+</SessionSection>
+
+
+{/* SECTION 7 - PRACTICAL EXAMPLE */}
+
+<SessionSection id="practical-example" label="Practical Example">
+
+## Live build: requirements doc → Jira tickets, end to end
+
+<DualLanePipelineDiagram
+  title="From Requirements to Jira Tickets — RAG + Tools combined"
+  presentation
+  minHeight={620}
+  hideStepNarrative
+  lanes={[
+    {
+      id: "index",
+      label: "Index once — spec + past tickets",
+      color: "violet",
+      blocks: [
+        { id: "docs",    label: "Requirements doc + spec history", emoji: "📄" },
+        { id: "chunk",   label: "Chunk",                           emoji: "✂️" },
+        { id: "embed-i", label: "Embed",                           emoji: "🔢" },
+        { id: "store",   label: "Vector store",                    emoji: "🗄️" },
+      ],
+    },
+    {
+      id: "loop",
+      label: "Per requirement — the agent loop",
+      color: "teal",
+      blocks: [
+        { id: "newreq",  label: "New requirement",       emoji: "📝" },
+        { id: "retrieve",label: "Retrieve context",       emoji: "🔍" },
+        { id: "llm",     label: "LLM decides",            emoji: "🤖", accent: "blue" },
+        { id: "toolcall",label: "create_jira_ticket",     emoji: "🔧", accent: "amber" },
+        { id: "jira",    label: "Jira ticket created",    emoji: "✅", accent: "rose" },
+      ],
+    },
+  ]}
+  edges={[
+    { from: "docs",     to: "chunk",    animated: false },
+    { from: "chunk",    to: "embed-i",  animated: false },
+    { from: "embed-i",  to: "store",    animated: true },
+    { from: "store",    to: "retrieve", animated: true, label: "similarity search" },
+    { from: "newreq",   to: "retrieve", animated: true },
+    { from: "retrieve", to: "llm",      animated: true },
+    { from: "llm",      to: "toolcall", animated: true },
+    { from: "toolcall", to: "jira",     animated: true },
+    { from: "jira",     to: "newreq",   animated: true, dashed: true, label: "ticket ID back → next requirement" },
+  ]}
+  steps={[
+    { id: "s1", label: "Index the spec history once", description: "Existing requirement docs and past Jira tickets are chunked, embedded, and stored — this runs once, not per requirement.", highlightNodes: ["docs", "chunk", "embed-i", "store"], highlightEdges: ["docs→chunk", "chunk→embed-i", "embed-i→store"] },
+    { id: "s2", label: "A new requirement arrives", description: "The next line from the requirements doc is picked up.", highlightNodes: ["newreq"], highlightEdges: [] },
+    { id: "s3", label: "RAG retrieves relevant context", description: "The requirement is embedded and compared against the indexed specs and tickets — top matches come back.", highlightNodes: ["newreq", "retrieve", "store"], highlightEdges: ["newreq→retrieve", "store→retrieve"] },
+    { id: "s4", label: "The LLM reasons and picks a tool", description: "With the requirement and retrieved context in hand, the model checks for conflicts and decides to call create_jira_ticket, filling every argument.", highlightNodes: ["retrieve", "llm"], highlightEdges: ["retrieve→llm"] },
+    { id: "s5", label: "Your code executes the tool", description: "The tool call runs against the real Jira API and a ticket is created.", highlightNodes: ["llm", "toolcall", "jira"], highlightEdges: ["llm→toolcall", "toolcall→jira"] },
+    { id: "s6", label: "The loop continues", description: "The ticket ID comes back to the model, and it moves to the next requirement — repeating until the whole doc is processed.", highlightNodes: ["jira", "newreq"], highlightEdges: ["jira→newreq"] },
+  ]}
+/>
+
+</SessionSection>
+
+
+{/* SECTION 8 - RECAP */}
+
+<SessionSection id="recap" label="Recap">
+
+## What we covered
+
+<RecapTable
+  rows={[
+    { term: "Mapping function", definition: "Any AI model, from y = mx + c to an LLM, maps an input to an output using learned parameters." },
+    { term: "Autoregressive loop", definition: "The model generates one token at a time, feeding each new token back in to predict the next — tokenize, embed, attend, predict, repeat." },
+    { term: "RAG (Retrieval-Augmented Generation)", definition: "Grounding a frozen model in your own documents by retrieving the most relevant chunks at query time instead of guessing or stuffing the whole doc into the prompt." },
+    { term: "Tool schema", definition: "A structured definition (name, description, input_schema) that tells the model exactly what a function does and what arguments it needs." },
+    { term: "Agent loop", definition: "The repeating cycle of reason → pick tool → execute → return result that lets an agent process many requirements, not just answer one question." },
+  ]}
+/>
+
+</SessionSection>

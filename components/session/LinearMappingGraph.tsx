@@ -70,7 +70,7 @@ export default function LinearMappingGraph({
   caption,
   m,
   c,
-  knownPoints,
+  knownPoints = [],
   xMin = -0.5,
   xMax = 5,
   yMin = -0.5,

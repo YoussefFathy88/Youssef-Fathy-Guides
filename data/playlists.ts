@@ -48,6 +48,15 @@ export const PLAYLISTS: Playlist[] = [
           "Build a minimal coding agent that reads files, writes code, and runs terminal commands.",
         status: "Coming soon",
       },
+      {
+        number: "04",
+        title: "From Requirements to Jira Tickets — AI Agent",
+        tags: ["RAG", "Tool Use", "Agents"],
+        description:
+          "Combine retrieval and tool use to build an agent that reads a requirements doc and files Jira tickets for each item, grounded in your existing specs.",
+        href: "/sessions/requirements-to-jira-tickets-agent" as Route,
+        status: "Start lab",
+      },
     ],
   },
   {

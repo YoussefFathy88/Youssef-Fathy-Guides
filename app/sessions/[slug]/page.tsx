@@ -119,6 +119,9 @@ import {
   WritingRulesExplorer,
   AiSkillsExplorer,
   SkillLibraryExplorer,
+  LlmPipelineTabsExplorer,
+  RagBeforeAfterExplorer,
+  ToolActionsExplorer,
 } from "@/components/shared";
 import FNNAutocompleteDemo from "@/components/demos/FNNAutocompleteDemo";
 import ArchitectureComparisonDemo from "@/components/demos/ArchitectureComparisonDemo";
@@ -210,6 +213,17 @@ const sessionSectionOverrides: Record<string, SessionSection[]> = {
     { id: "recap", label: "Recap" },
     { id: "next-session", label: "Next Session" },
   ],
+  "requirements-to-jira-tickets-agent": [
+    { id: "goal", label: "Goal" },
+    { id: "ai-model", label: "What Is an AI Model" },
+    { id: "llm-black-box", label: "LLM Black Box" },
+    { id: "llm-pipeline", label: "The Full Pipeline" },
+    { id: "rag", label: "RAG" },
+    { id: "tools", label: "Tools & Actions" },
+    { id: "practical-example", label: "Practical Example" },
+    { id: "recap", label: "Recap" },
+    { id: "next-session", label: "Next Session" },
+  ],
 };
 
 function getMdxComponents(isPresentationMode: boolean, outline?: string[]) {
@@ -263,6 +277,10 @@ function getMdxComponents(isPresentationMode: boolean, outline?: string[]) {
     WritingRulesExplorer,
     AiSkillsExplorer,
     SkillLibraryExplorer,
+    // Requirements-to-Jira-Tickets agent lab components
+    LlmPipelineTabsExplorer,
+    RagBeforeAfterExplorer,
+    ToolActionsExplorer,
     // New interactive components
     TrainingLoopSimulator,
     AutoregressiveDemo,
@@ -522,7 +540,11 @@ export default async function SessionPage({ params, searchParams }: SessionPageP
               outline={frontmatter.outline}
               outlineSectionMap={frontmatter.outlineSectionMap}
             >
-              <MDXRemote source={content} components={mdxComponents} />
+              <MDXRemote
+                source={content}
+                components={mdxComponents}
+                options={{ blockJS: false, blockDangerousJS: false }}
+              />
             </PresentationShell>
           </OutlineTopicsProvider>
         </main>
@@ -563,7 +585,11 @@ export default async function SessionPage({ params, searchParams }: SessionPageP
               <SessionProgressNav sections={activeSections} activeSection="goal" />
 
               <article className="w-full max-w-none rounded-[28px] border border-gray-200/80 bg-white/85 px-7 py-9 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-950/60 sm:px-10 sm:py-11 lg:px-12">
-                <MDXRemote source={content} components={mdxComponents} />
+                <MDXRemote
+                source={content}
+                components={mdxComponents}
+                options={{ blockJS: false, blockDangerousJS: false }}
+              />
               </article>
             </div>
           </div>

@@ -128,6 +128,9 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | Tabbed rule-writing guide: rule anatomy, five real rules, three anti-patterns with fixes | `WritingRulesExplorer` |
 | Tabbed AI skills intro: skill vs rule compare, skill file anatomy, when to create a skill | `AiSkillsExplorer` |
 | Tabbed skill library: universal skills, project-specific skills, time-saved before/after | `SkillLibraryExplorer` |
+| Tabbed LLM pipeline: tokenize, embed, transformer attention, next-token + autoregressive loop note | `LlmPipelineTabsExplorer` |
+| Tabbed RAG: problem before RAG (ballooning tokens/hallucination), then one dual-lane index + retrieve pipeline diagram | `RagBeforeAfterExplorer` |
+| Tabbed tool use: JSON tool schema, animated agent decision loop | `ToolActionsExplorer` |
 
 **Flow diagrams:** prefer **`NodeFlowDiagram`** for free-form grouped graphs, or **`DualLanePipelineDiagram`** for side-by-side vertical pipelines with readable connectors between compact blocks. `PipelineTrack`, `LayerStack`, and `DataFlowDiagram` remain in the MDX registry for older sessions but are **not** previewed on `/component-gallery`.
 
@@ -233,6 +236,9 @@ Whenever you **add, remove, rename, or change props** on any component exposed t
 | `WritingRulesExplorer` | Interactive | Self-contained 3-tab explorer: vague-vs-specific rule anatomy build-up, five real rules typed in, three anti-patterns with click-to-reveal fixes. No props. |
 | `AiSkillsExplorer` | Interactive | Self-contained 3-tab explorer: rule-vs-skill comparison table, skill-file anatomy build-up, "repeat 3×" prompt counter. No props. |
 | `SkillLibraryExplorer` | Interactive | Self-contained 3-tab explorer: five universal skills, three SpecAI-specific skills, before/after prompt-length compare. No props. |
+| `LlmPipelineTabsExplorer` | Interactive | Self-contained 4-tab explorer composing existing components: `LiveTokenizer`, `EmbeddingVectorExplorer`, `SelfAttentionScoreExplorer`, `TokenProbDist` — one LLM pipeline stage per tab, closing with an autoregressive-loop note. No props. |
+| `RagBeforeAfterExplorer` | Interactive | Self-contained 2-tab explorer composing `ContextWindowFiller` and `DualLanePipelineDiagram`: the problem before RAG (hallucination + ballooning tokens), then a single dual-lane diagram showing indexing (chunk → embed → store) side-by-side with retrieval (embed question → retrieve → LLM). No props. |
+| `ToolActionsExplorer` | Interactive | Self-contained 2-tab explorer composing `AnnotatedCode` and `AgentLoopStepper`: a `create_jira_ticket` tool schema, then the reason → pick tool → execute → return decision loop. No props. |
 
 ---
 

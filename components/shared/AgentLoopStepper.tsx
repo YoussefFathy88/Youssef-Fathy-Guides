@@ -10,6 +10,10 @@ export interface LoopStep {
   actor: "user" | "model" | "your-code";
   label: string;
   bubble: string;
+  /** "message" = plain chat-style line (like a real chat turn). "code" (default) = monospace block, e.g. a tool call. */
+  bubbleKind?: "message" | "code";
+  /** Small caps header shown above a "code" bubble, e.g. "Tool call". */
+  bubbleLabel?: string;
   detail: string;
 }
 
@@ -178,15 +182,31 @@ export default function AgentLoopStepper({ title, caption, steps }: AgentLoopSte
               </span>
             </div>
 
-            {/* Bubble — looks like API output */}
-            <div className={cn(
-              "mb-5 rounded-lg border p-4 md:p-5",
-              tone.bubbleBg,
-            )}>
-              <p className="font-mono text-base md:text-lg leading-relaxed whitespace-pre-wrap text-gray-800 dark:text-gray-100">
-                {step.bubble}
-              </p>
-            </div>
+            {/* Bubble — a plain chat line, or a code/tool-call block */}
+            {step.bubbleKind === "message" ? (
+              <div className={cn(
+                "mb-5 flex justify-center rounded-full border px-5 py-3 text-center md:px-6",
+                tone.bubbleBg,
+              )}>
+                <p className="text-lg md:text-xl leading-relaxed text-gray-800 dark:text-gray-100">
+                  {step.bubble}
+                </p>
+              </div>
+            ) : (
+              <div className={cn(
+                "mb-5 rounded-lg border p-4 md:p-5",
+                tone.bubbleBg,
+              )}>
+                {step.bubbleLabel && (
+                  <p className="mb-2 text-sm md:text-base font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                    {step.bubbleLabel}
+                  </p>
+                )}
+                <p className="font-mono text-base md:text-lg leading-relaxed whitespace-pre-wrap text-gray-800 dark:text-gray-100">
+                  {step.bubble}
+                </p>
+              </div>
+            )}
 
             {/* Detail */}
             <p className="text-lg md:text-xl leading-relaxed text-gray-700 dark:text-gray-300">
