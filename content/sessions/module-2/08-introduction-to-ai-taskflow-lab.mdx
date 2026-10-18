@@ -8,22 +8,32 @@ duration: "11 min"
 difficulty: "intermediate"
 tags: ["ai-lab", "tools", "function-calling", "structured-output", "task-management"]
 prevSession: "introduction-to-rag-lab"
+outline:
+  - "Plain API call"
+  - "Prompt & schema"
+  - "Tool-use loop"
+  - "The orchestrator"
+outlineSectionMap:
+  api-call: 0
+  schema: 1
+  tools: 2
+  orchestrator: 3
 ---
 
 {/* SECTION 1 - GOAL */}
 
 <SessionSection id="goal" label="Goal">
 
-## From raw API calls to an agent that manages tasks
+## What we'll cover
 
-The RAG lab gave the model memory. This lab gives it hands. You will build an AI task manager where the model can create, update, prioritise, and complete tasks — using real function calls backed by a database. Before writing code, this session walks the three conceptual steps that make it possible: the bare API call, schema-constrained output, and tool-augmented action.
+<SessionOutlineSlide />
 
 </SessionSection>
 
 
-{/* SECTION 2 - BIG PICTURE */}
+{/* SECTION 2 - PLAIN API CALL */}
 
-<SessionSection id="big-picture" label="Big Picture">
+<SessionSection id="api-call" label="API Call">
 
 ## Step 1 — The traditional API call returns unstructured text
 
@@ -39,15 +49,22 @@ The RAG lab gave the model memory. This lab gives it hands. You will build an AI
 </SessionSection>
 
 
-{/* SECTION 3 - CORE CONCEPTS */}
+{/* SECTION 3 - SCHEMA */}
 
-<SessionSection id="core-concepts" label="Core Concepts">
+<SessionSection id="schema" label="Schema">
 
 ## Step 2 — System Prompt & Schema
 
 <SchemaConstraintVisualizer />
 
-### Step 3 — Tools let the model take real actions in the world
+</SessionSection>
+
+
+{/* SECTION 4 - TOOLS */}
+
+<SessionSection id="tools" label="Tools">
+
+## Step 3 — Tools let the model take real actions in the world
 
 <ToolLoopVisualizer
   title="The tool-use loop — the model requests, your code executes, state changes"
@@ -57,9 +74,9 @@ The RAG lab gave the model memory. This lab gives it hands. You will build an AI
 </SessionSection>
 
 
-{/* SECTION 4 - PRACTICAL EXAMPLE */}
+{/* SECTION 5 - ORCHESTRATOR */}
 
-<SessionSection id="practical-example" label="Practical Example">
+<SessionSection id="orchestrator" label="Orchestrator">
 
 ## User question → orchestrator → AiDecision → database
 
@@ -68,7 +85,7 @@ The RAG lab gave the model memory. This lab gives it hands. You will build an AI
 </SessionSection>
 
 
-{/* SECTION 5 - NEXT SESSION */}
+{/* SECTION 6 - NEXT SESSION */}
 
 <SessionSection id="next-session" label="Next Session">
 

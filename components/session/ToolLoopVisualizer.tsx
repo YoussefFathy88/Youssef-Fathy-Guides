@@ -112,7 +112,7 @@ function UserBubble({ message }: { message: string }) {
       className="flex items-start gap-3"
     >
       <span className="text-2xl md:text-3xl shrink-0 mt-0.5">👤</span>
-      <div className="rounded-2xl rounded-tl-sm border border-gray-600 bg-gray-800/80 px-5 py-4 max-w-sm">
+      <div className="rounded-2xl rounded-tl-sm border border-gray-600 bg-gray-800/80 px-5 py-3 max-w-xl">
         <p className="text-lg md:text-xl text-gray-100 leading-snug">{message}</p>
       </div>
     </motion.div>
@@ -127,7 +127,7 @@ function ModelBubble({ content }: { content: string }) {
       transition={{ duration: 0.4, delay: 0.2 }}
       className="flex items-start gap-3 justify-end"
     >
-      <div className="rounded-2xl rounded-tr-sm border border-violet-500/40 bg-violet-500/10 px-5 py-4 max-w-sm">
+      <div className="rounded-2xl rounded-tr-sm border border-violet-500/40 bg-violet-500/10 px-5 py-3 max-w-2xl">
         <p className="text-lg md:text-xl text-violet-100 leading-snug">{content}</p>
       </div>
       <span className="text-2xl md:text-3xl shrink-0 mt-0.5">🤖</span>
@@ -165,26 +165,23 @@ function FlowArrow({
 
 function VisualRegister({ message }: { message: string }) {
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <UserBubble message={message} />
-      <FlowArrow label="You send your message + tools" color="text-teal-400" />
-      <div className="space-y-3">
+      <FlowArrow label="You send your message + 3 tools" color="text-teal-400" />
+      <div className="grid gap-3 md:grid-cols-3">
         {TOOLS.map((t, i) => (
           <ToolCard key={t.id} tool={t} active={false} faded={false} delay={i * 0.12} />
         ))}
       </div>
-      <p className="text-center text-base md:text-lg text-gray-400 italic">
-        3 tools available in this session
-      </p>
     </div>
   );
 }
 
 function VisualDecide({ message }: { message: string }) {
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <UserBubble message={message} />
-      <div className="flex items-center justify-center gap-3 py-2">
+      <div className="flex items-center justify-center gap-3">
         <span className="text-3xl md:text-4xl">🤖</span>
         <motion.div
           animate={{ opacity: [0.5, 1, 0.5] }}
@@ -194,7 +191,7 @@ function VisualDecide({ message }: { message: string }) {
           Model picks the right tool…
         </motion.div>
       </div>
-      <div className="space-y-3">
+      <div className="grid gap-3 md:grid-cols-3">
         {TOOLS.map((t) => (
           <ToolCard
             key={t.id}
@@ -210,26 +207,29 @@ function VisualDecide({ message }: { message: string }) {
 
 function VisualExecute() {
   return (
-    <div className="space-y-4">
+    <div className="grid items-center gap-3 md:grid-cols-[1fr_auto_1fr_auto_1fr]">
       <ToolCard tool={TOOLS[0]} active={true} faded={false} />
-      <FlowArrow label="Your code runs it" color="text-amber-400" />
+      <FlowArrow label="your code runs it" dir="right" color="text-amber-400" />
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.35, delay: 0.2 }}
-        className="rounded-2xl border-2 border-amber-500/40 bg-amber-500/10 px-5 py-4 space-y-3"
+        className="rounded-2xl border-2 border-amber-500/40 bg-amber-500/10 px-5 py-4 flex items-center gap-3"
       >
-        <div className="flex items-center gap-3">
-          <span className="text-3xl md:text-4xl">⚙️</span>
-          <p className="text-lg md:text-xl font-bold text-amber-200">Your Application</p>
-        </div>
-        <FlowArrow label="writes to" color="text-gray-400" />
-        <div className="flex items-center gap-3">
-          <span className="text-3xl md:text-4xl">🗄️</span>
-          <div>
-            <p className="text-lg md:text-xl font-bold text-gray-100">Database</p>
-            <p className="text-base md:text-lg text-gray-400">Model never touches this directly</p>
-          </div>
+        <span className="text-3xl md:text-4xl">⚙️</span>
+        <p className="text-lg md:text-xl font-bold text-amber-200">Your app</p>
+      </motion.div>
+      <FlowArrow label="writes to" dir="right" color="text-gray-400" />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.35, delay: 0.35 }}
+        className="rounded-2xl border-2 border-gray-600 bg-gray-900/80 px-5 py-4 flex items-center gap-3"
+      >
+        <span className="text-3xl md:text-4xl">🗄️</span>
+        <div>
+          <p className="text-lg md:text-xl font-bold text-gray-100">Database</p>
+          <p className="text-base md:text-lg text-gray-400">Model never touches it</p>
         </div>
       </motion.div>
     </div>
@@ -243,18 +243,18 @@ function VisualReturn() {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.35 }}
-        className="rounded-2xl border-2 border-emerald-500/40 bg-emerald-500/10 px-5 py-5 space-y-3"
+        className="rounded-2xl border-2 border-emerald-500/40 bg-emerald-500/10 px-5 py-4 space-y-3"
       >
         <div className="flex items-center gap-3">
           <span className="text-3xl md:text-4xl">✅</span>
           <p className="text-lg md:text-xl font-bold text-emerald-200">Task saved to database</p>
         </div>
-        <div className="grid grid-cols-2 gap-3 pt-1">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-1">
           {[
             { label: "title", value: "Review PRs before Friday" },
             { label: "priority", value: "high" },
             { label: "status", value: "todo" },
-            { label: "due", value: "24 May 2026" },
+            { label: "due", value: "Fri 22 May 2026" },
           ].map((row) => (
             <div key={row.label} className="rounded-xl border border-emerald-700/40 bg-gray-900/60 px-4 py-3">
               <p className="text-base font-semibold text-gray-400 uppercase tracking-wide">{row.label}</p>
@@ -274,8 +274,8 @@ function VisualReturn() {
 
 function VisualAnswer() {
   return (
-    <div className="space-y-5">
-      <ModelBubble content='Done! I created "Review PRs before Friday" — high priority, due 24 May. Want me to assign it or add subtasks?' />
+    <div className="space-y-4">
+      <ModelBubble content='Done! I created "Review PRs before Friday" — high priority, due Friday 22 May. Want me to assign it or add subtasks?' />
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -452,14 +452,14 @@ export default function ToolLoopVisualizer({
       initial={reduced ? false : { opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className="w-full rounded-2xl border border-white/10 bg-gray-950/70 p-8 md:p-10 space-y-8"
+      className="w-full rounded-2xl border border-white/10 bg-gray-950/70 p-6 md:p-8 space-y-5"
     >
       {title && (
-        <h2 className="text-xl md:text-2xl font-semibold text-gray-100 leading-snug">{title}</h2>
+        <h3 className="text-xl md:text-2xl font-semibold text-gray-100 leading-snug">{title}</h3>
       )}
 
-      {/* Step dots + counter */}
-      <div className="flex items-center gap-2">
+      {/* Step dots + counter + controls */}
+      <div className="flex flex-wrap items-center gap-2">
         {steps.map((s, i) => {
           const dot = DOT_COLOR[s.actor];
           const isCurrent = i === current;
@@ -478,50 +478,10 @@ export default function ToolLoopVisualizer({
             />
           );
         })}
-        <span className="ml-auto font-mono text-base md:text-lg font-semibold text-gray-500">
+        <span className="ml-2 font-mono text-base md:text-lg font-semibold text-gray-400">
           {current + 1} / {steps.length}
         </span>
-      </div>
-
-      {/* Actor badge + step label */}
-      <div className="flex flex-wrap items-center gap-3">
-        <span
-          className={cn(
-            "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-base md:text-lg font-bold uppercase tracking-wider",
-            actor.badge,
-          )}
-        >
-          <span className="text-xl md:text-2xl leading-none">{actor.icon}</span>
-          {actor.label}
-        </span>
-        <span className="text-xl md:text-2xl font-semibold text-gray-100 leading-snug">
-          {step.label}
-        </span>
-      </div>
-
-      {/* Visual panel */}
-      <div className="relative overflow-hidden rounded-2xl border border-white/8 bg-gray-900/60">
-        <AnimatePresence mode="wait" custom={direction}>
-          <motion.div
-            key={step.id}
-            custom={direction}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ duration: 0.28, ease: "easeOut" }}
-            className="p-6 md:p-8"
-          >
-            {renderVisual(step.visual)}
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      {/* Detail */}
-      <p className="text-lg md:text-xl text-gray-200 leading-relaxed">{step.detail}</p>
-
-      {/* Controls */}
-      <div className="flex flex-wrap items-center gap-3">
+        <div className="ml-auto flex flex-wrap items-center gap-3">
         <button
           type="button"
           disabled={current === 0}
@@ -560,12 +520,46 @@ export default function ToolLoopVisualizer({
           {playing ? "⏸ Pause" : isLast ? "↩ Replay" : "▶ Play"}
         </button>
 
-        {isLast && (
-          <span className="ml-auto text-base md:text-lg font-medium text-gray-500">
-            ↩ loop repeats for multi-step agents
-          </span>
-        )}
+        </div>
       </div>
+
+      {/* Actor badge + step label */}
+      <div className="flex flex-wrap items-center gap-3">
+        <span
+          className={cn(
+            "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-base md:text-lg font-bold uppercase tracking-wider",
+            actor.badge,
+          )}
+        >
+          <span className="text-xl md:text-2xl leading-none">{actor.icon}</span>
+          {actor.label}
+        </span>
+        <span className="text-xl md:text-2xl font-semibold text-gray-100 leading-snug">
+          {step.label}
+        </span>
+      </div>
+
+      {/* Visual panel */}
+      <div className="relative overflow-hidden rounded-2xl border border-white/8 bg-gray-900/60">
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.div
+            key={step.id}
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.28, ease: "easeOut" }}
+            className="p-5 md:p-6"
+          >
+            {renderVisual(step.visual)}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Detail */}
+      <p className="text-lg md:text-xl text-gray-200 leading-relaxed">{step.detail}</p>
+
     </motion.div>
   );
 }
