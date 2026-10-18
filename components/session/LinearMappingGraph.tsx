@@ -104,13 +104,13 @@ export default function LinearMappingGraph({
   const p2 = knownPoints[1];
 
   return (
-    <div className="my-6 overflow-hidden rounded-2xl border border-gray-800 bg-gray-950/80 shadow-xl">
+    <div className="overflow-hidden rounded-2xl border border-gray-800 bg-gray-950/80 shadow-xl">
       {/* ── Title ─────────────────────────────────────────────────────────── */}
       <div className="border-b border-gray-800/60 px-6 py-4">
-        <p className="text-balance text-base font-semibold text-white">{title}</p>
+        <p className="text-balance text-xl md:text-2xl font-semibold text-white">{title}</p>
       </div>
 
-      {/* ── Phase tabs ────────────────────────────────────────────────────── */}
+      {/* ── Phase tabs + Prev/Next ──────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center gap-2 px-5 pt-4">
         {PHASES.map((ph, i) => (
           <button
@@ -118,7 +118,7 @@ export default function LinearMappingGraph({
             type="button"
             onClick={() => setPhase(i)}
             className={cn(
-              "flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition",
+              "flex items-center gap-2 rounded-full border px-4 py-2 text-base md:text-lg font-semibold transition",
               i === phase
                 ? "border-violet-400/40 bg-violet-500/20 text-violet-200"
                 : i < phase
@@ -128,7 +128,7 @@ export default function LinearMappingGraph({
           >
             <span
               className={cn(
-                "flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-bold",
+                "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-base font-bold",
                 i === phase
                   ? "bg-violet-500 text-white"
                   : i < phase
@@ -141,11 +141,45 @@ export default function LinearMappingGraph({
             <span className="hidden sm:inline">{ph.label}</span>
           </button>
         ))}
+
+        <div className="ml-auto flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setPhase((p) => Math.max(0, p - 1))}
+            disabled={phase === 0}
+            className={cn(
+              "rounded-full border px-5 py-2 text-base md:text-lg font-semibold transition",
+              phase === 0
+                ? "cursor-not-allowed border-gray-800 text-gray-600"
+                : "border-gray-700 text-gray-200 hover:border-violet-500 hover:text-white",
+            )}
+          >
+            ← Prev
+          </button>
+          <button
+            type="button"
+            onClick={() => setPhase((p) => Math.min(PHASES.length - 1, p + 1))}
+            disabled={phase === PHASES.length - 1}
+            className={cn(
+              "rounded-full border px-5 py-2 text-base md:text-lg font-semibold transition",
+              phase === PHASES.length - 1
+                ? "cursor-not-allowed border-gray-800 text-gray-600"
+                : "border-violet-500/50 bg-violet-950/40 text-violet-100 hover:border-violet-400",
+            )}
+          >
+            Next →
+          </button>
+        </div>
       </div>
 
       {/* ── Phase hint ────────────────────────────────────────────────────── */}
-      <div className="min-h-[2.4rem] px-5 pt-2 pb-1">
-        <p className="text-sm leading-relaxed text-gray-400">{PHASES[phase]?.hint}</p>
+      <div className="min-h-[2.4rem] px-5 pt-3 pb-1">
+        <p className="text-lg md:text-xl leading-relaxed text-gray-300">{PHASES[phase]?.hint}</p>
+        {phase === PHASES.length - 1 && (
+          <p className="mt-2 text-lg md:text-xl font-semibold text-violet-200">
+            m &amp; c are the weights — they define the mapping
+          </p>
+        )}
       </div>
 
       {/* ── SVG chart ─────────────────────────────────────────────────────── */}
@@ -153,7 +187,7 @@ export default function LinearMappingGraph({
         <svg
           viewBox={`0 0 ${VW} ${VH}`}
           className="w-full"
-          style={{ height: "auto", maxHeight: 540 }}
+          style={{ height: "auto", maxHeight: 460 }}
           aria-label="Coordinate plane showing the mapping function y = mx + c"
         >
           {/* Grid lines */}
@@ -437,64 +471,8 @@ export default function LinearMappingGraph({
         </svg>
       </div>
 
-      {/* ── Navigation ──────────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between border-t border-gray-800/60 px-5 py-3">
-        <button
-          type="button"
-          onClick={() => setPhase((p) => Math.max(0, p - 1))}
-          disabled={phase === 0}
-          className={cn(
-            "rounded-full border px-4 py-1.5 text-sm font-medium transition",
-            phase === 0
-              ? "cursor-not-allowed border-gray-800 text-gray-700"
-              : "border-gray-700 text-gray-300 hover:border-violet-500 hover:text-white",
-          )}
-        >
-          ← Prev
-        </button>
-
-        {/* Centre callout when done */}
-        {phase === PHASES.length - 1 ? (
-          <div className="flex items-center gap-2 rounded-full border border-violet-400/25 bg-violet-500/15 px-4 py-1.5">
-            <span className="h-2 w-2 rounded-full bg-violet-400" />
-            <span className="text-xs font-medium text-violet-200">
-              m &amp; c are the weights — they define the mapping
-            </span>
-          </div>
-        ) : (
-          <div className="flex gap-1.5">
-            {PHASES.map((_, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => setPhase(i)}
-                aria-label={`Go to step ${i + 1}`}
-                className={cn(
-                  "h-2 w-2 rounded-full transition",
-                  i === phase ? "bg-violet-400" : "bg-gray-700 hover:bg-gray-500",
-                )}
-              />
-            ))}
-          </div>
-        )}
-
-        <button
-          type="button"
-          onClick={() => setPhase((p) => Math.min(PHASES.length - 1, p + 1))}
-          disabled={phase === PHASES.length - 1}
-          className={cn(
-            "rounded-full border px-4 py-1.5 text-sm font-medium transition",
-            phase === PHASES.length - 1
-              ? "cursor-not-allowed border-gray-800 text-gray-700"
-              : "border-gray-700 text-gray-300 hover:border-violet-500 hover:text-white",
-          )}
-        >
-          Next →
-        </button>
-      </div>
-
       {/* ── Caption ─────────────────────────────────────────────────────────── */}
-      {caption && <p className="px-6 pb-4 text-sm text-gray-500">{caption}</p>}
+      {caption && <p className="px-6 pb-4 text-lg text-gray-400">{caption}</p>}
     </div>
   );
 }

@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* The site is dark-only: drive `dark:` from the class on <html>, not the viewer's OS setting.
+   Otherwise light-mode OS users get white cards on the dark shell. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   /* System stacks only — no remote @font-face (works in offline / air-gapped Docker). */
   --font-body: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,

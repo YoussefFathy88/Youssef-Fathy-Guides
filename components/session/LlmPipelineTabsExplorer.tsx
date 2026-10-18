@@ -10,10 +10,10 @@ import SelfAttentionScoreExplorer from "@/components/session/SelfAttentionScoreE
 // One box, four tabs: the same "LLM box" from the black-box slide, opened up.
 
 const TABS: readonly ExplorerTab[] = [
-  { id: "tokenize", short: "1. Tokenize", color: "teal" },
-  { id: "embed", short: "2. Embed", color: "blue" },
-  { id: "attend", short: "3. Transformer", color: "violet" },
-  { id: "next", short: "4. Next Token", color: "amber" },
+  { id: "tokenize", short: "Tokenize", color: "teal" },
+  { id: "embed", short: "Embed", color: "blue" },
+  { id: "attend", short: "Transformer", color: "violet" },
+  { id: "next", short: "Next Token", color: "amber" },
 ] as const;
 
 // ─── Tab 1 — Tokenization ──────────────────────────────────────────────────────

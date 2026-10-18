@@ -160,7 +160,7 @@ function buildEdgePath(
   metaFrom: BlockMeta,
   metaTo: BlockMeta,
   presentation: boolean,
-): { d: string; mid: Point } {
+): { d: string; mid: Point; anchor: "start" | "middle" | "end" } {
   const bumpMag = presentation ? 48 : 38;
 
   if (metaFrom.lane === metaTo.lane && metaTo.index === metaFrom.index + 1) {
@@ -171,6 +171,7 @@ function buildEdgePath(
     return {
       d: `M ${x1} ${y1} L ${x2} ${y2}`,
       mid: { x: (x1 + x2) / 2, y: (y1 + y2) / 2 },
+      anchor: "middle",
     };
   }
 
@@ -188,6 +189,8 @@ function buildEdgePath(
     return {
       d: `M ${x0} ${y0} C ${p1.x} ${p1.y}, ${p2.x} ${p2.y}, ${x3} ${y3}`,
       mid: cubicPointAt(0.48, p0, p1, p2, p3),
+      // Loop-back bulges outward: grow the label away from the blocks, not across them.
+      anchor: outward === 1 ? "start" : "end",
     };
   }
 
@@ -205,6 +208,7 @@ function buildEdgePath(
     return {
       d: `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`,
       mid: cubicPointAt(0.5, p0, p1, p2, p3),
+      anchor: "middle",
     };
   }
 
@@ -215,6 +219,7 @@ function buildEdgePath(
   return {
     d: `M ${x1} ${y1} L ${x2} ${y2}`,
     mid: { x: (x1 + x2) / 2, y: (y1 + y2) / 2 },
+    anchor: "middle",
   };
 }
 
@@ -462,7 +467,7 @@ export default function DualLanePipelineDiagram({
         const mb = blockMeta.get(edge.to);
         if (!a || !b || ma === undefined || mb === undefined) return null;
 
-        const { d, mid } = buildEdgePath(a, b, ma, mb, presentation);
+        const { d, mid, anchor } = buildEdgePath(a, b, ma, mb, presentation);
         const key = edgeKey(edge.from, edge.to);
         const fromLane = lanes[ma.lane].color;
         const strokeCol = PALETTE[edge.color ?? fromLane].edge;
@@ -473,6 +478,7 @@ export default function DualLanePipelineDiagram({
           ...edge,
           d,
           mid,
+          anchor,
           key,
           index,
           strokeCol,
@@ -520,7 +526,7 @@ export default function DualLanePipelineDiagram({
           className={cn(
             "relative z-[1] grid grid-cols-1 md:grid-cols-2",
             presentation
-              ? "gap-10 p-7 md:gap-14 lg:gap-16 lg:p-9"
+              ? "gap-10 p-6 md:gap-14 lg:gap-16 lg:p-7"
               : "gap-8 p-6 md:gap-10 lg:gap-12",
           )}
         >
@@ -531,7 +537,7 @@ export default function DualLanePipelineDiagram({
                 key={lane.id}
                 className={cn(
                   "rounded-2xl border border-dashed",
-                  presentation ? "px-5 pb-7 pt-4 md:px-7" : "px-4 pb-5 pt-3 md:px-5",
+                  presentation ? "px-5 pb-5 pt-4 md:px-7" : "px-4 pb-5 pt-3 md:px-5",
                 )}
                 style={{
                   borderColor: lp.ring,
@@ -541,7 +547,7 @@ export default function DualLanePipelineDiagram({
                 <p
                   className={cn(
                     "font-bold uppercase tracking-[0.14em]",
-                    presentation ? "text-[12px] tracking-[0.16em]" : "text-[11px]",
+                    presentation ? "text-base tracking-[0.16em]" : "text-base",
                   )}
                   style={{ color: lp.label }}
                 >
@@ -550,7 +556,7 @@ export default function DualLanePipelineDiagram({
                 <div
                   className={cn(
                     "mt-5 flex flex-col items-center",
-                    presentation ? "gap-y-14" : "gap-y-10",
+                    presentation ? "gap-y-9" : "gap-y-10",
                   )}
                 >
                   {lane.blocks.map((b) => {
@@ -643,11 +649,11 @@ export default function DualLanePipelineDiagram({
                   />
                   {edge.label ? (
                     <text
-                      x={edge.mid.x}
-                      y={edge.mid.y - (edge.dashed ? (presentation ? 14 : 10) : presentation ? 11 : 8)}
-                      textAnchor="middle"
+                      x={edge.mid.x + (edge.anchor === "start" ? 10 : edge.anchor === "end" ? -10 : 0)}
+                      y={edge.anchor === "middle" ? edge.mid.y - (edge.dashed ? (presentation ? 14 : 10) : presentation ? 11 : 8) : edge.mid.y + 5}
+                      textAnchor={edge.anchor}
                       fill="rgba(226,232,240,0.96)"
-                      fontSize={presentation ? 12 : 10}
+                      fontSize={presentation ? 15 : 14}
                       fontWeight={600}
                       stroke="rgba(15,23,42,0.9)"
                       strokeWidth={presentation ? 4 : 3}
