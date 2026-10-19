@@ -69,19 +69,13 @@ export const DEMO_EXISTING_TASKS_JSON = `[
 ]`;
 
 export const DEMO_DECISION_JSON = `{
-  "assistant_message": "I'll add a high-priority task to review PRs before Friday.",
+  "assistant_message": "Added: Review PRs before Friday.",
   "action": "create_task",
   "create_task": {
     "title": "Review PRs before Friday",
-    "description": "From user request",
     "status": "todo",
     "priority": 1
   }
 }`;
 
-export const DEMO_DB_RESULT_JSON = `{
-  "id": 4,
-  "title": "Review PRs before Friday",
-  "status": "todo",
-  "priority": 1
-}`;
+export const DEMO_DB_RESULT_JSON = `{ "id": 4, "title": "Review PRs before Friday", "status": "todo", "priority": 1 }`;

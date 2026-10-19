@@ -6,7 +6,7 @@ import { useId, useState, type ComponentType } from "react";
 import { cn } from "@/lib/utils";
 
 // ─── Shared accent system for all "Slide" tab explorers ──────────────────────
-// One shell (TabExplorerShell) renders the chrome (dots, tab bar, prev/next);
+// One shell (TabExplorerShell) renders the chrome (tab bar + prev/next on one row);
 // each session-specific "*Explorer" component only supplies TABS + 3 panels.
 
 export type AccentColor = "amber" | "teal" | "rose" | "violet" | "blue" | "gray";
@@ -141,90 +141,66 @@ export function TabExplorerShell({ tabs, panels, ariaLabel }: TabExplorerShellPr
       className="flex w-full flex-col rounded-2xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-5 md:p-8"
       data-local-navigation="true"
     >
-      {/* Journey dots */}
-      <div className="mb-4 flex flex-wrap items-center gap-2 md:gap-3">
-        {tabs.map((tab, idx) => {
-          const done = idx < activeIdx;
-          const current = idx === activeIdx;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveIdx(idx)}
-              aria-label={`Go to ${tab.short}`}
-              className={cn(
-                "flex h-10 w-10 items-center justify-center rounded-full border-2 text-base font-bold transition md:h-11 md:w-11 md:text-lg",
-                current
-                  ? cn("ring-2 ring-offset-2 ring-offset-gray-900", ACCENT[tab.color].tab)
-                  : done
-                    ? "border-teal-500/60 bg-teal-950/40 text-teal-800 dark:text-teal-200"
-                    : "border-gray-300 dark:border-gray-700 bg-white/60 dark:bg-gray-950/60 text-gray-600 dark:text-gray-400 hover:border-gray-500",
-              )}
-            >
-              {done ? "✓" : idx + 1}
-            </button>
-          );
-        })}
-        <span className="text-base text-gray-700 dark:text-gray-300 md:text-lg">Tab {activeIdx + 1} of {tabs.length}</span>
-      </div>
+      {/* Tab bar (numbered, ✓ when done) + Prev/Next on one row */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap gap-2 px-1 py-1 md:gap-2.5" role="tablist" aria-label={ariaLabel}>
+          {tabs.map((tab, idx) => {
+            const isActive = activeIdx === idx;
+            const done = idx < activeIdx;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                id={`${baseId}-tab-${tab.id}`}
+                onClick={() => setActiveIdx(idx)}
+                className={cn(
+                  "shrink-0 rounded-xl border-2 px-3 py-2.5 text-base font-bold transition",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900",
+                  "md:px-4 md:py-3 md:text-lg",
+                  isActive
+                    ? cn("ring-2 ring-offset-2 ring-offset-gray-900", ACCENT[tab.color].tab)
+                    : "border-gray-300 dark:border-gray-700 bg-white/60 dark:bg-gray-950/60 text-gray-700 dark:text-gray-300 hover:border-gray-500 hover:text-gray-950 dark:hover:text-white",
+                )}
+              >
+                <span className={cn("mr-1.5", done ? "text-teal-700 dark:text-teal-300" : isActive ? "text-gray-900 dark:text-gray-200" : "text-gray-600 dark:text-gray-400")} aria-hidden>
+                  {done ? "✓" : `${idx + 1}.`}
+                </span>
+                {tab.short}
+              </button>
+            );
+          })}
+        </div>
 
-      {/* Main tab bar */}
-      <div className="flex gap-2 overflow-x-auto px-1 py-1 md:gap-2.5" role="tablist" aria-label={ariaLabel}>
-        {tabs.map((tab, idx) => {
-          const isActive = activeIdx === idx;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              id={`${baseId}-tab-${tab.id}`}
-              onClick={() => setActiveIdx(idx)}
-              className={cn(
-                "shrink-0 rounded-xl border-2 px-3 py-2.5 text-base font-bold transition",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900",
-                "md:px-4 md:py-3 md:text-lg",
-                isActive
-                  ? cn("ring-2 ring-offset-2 ring-offset-gray-900", ACCENT[tab.color].tab)
-                  : "border-gray-300 dark:border-gray-700 bg-white/60 dark:bg-gray-950/60 text-gray-700 dark:text-gray-300 hover:border-gray-500 hover:text-gray-950 dark:hover:text-white",
-              )}
-            >
-              <span className={cn("mr-1.5", isActive ? "text-gray-900 dark:text-gray-200" : "text-gray-600 dark:text-gray-400")} aria-hidden>
-                {idx + 1}.
-              </span>
-              {tab.short}
-            </button>
-          );
-        })}
+        <div className="ml-auto flex items-center gap-3">
+          <span className="text-base text-gray-600 dark:text-gray-400 md:text-lg">{activeIdx + 1} / {tabs.length}</span>
+          <button
+            type="button"
+            onClick={() => setActiveIdx((i) => Math.max(0, i - 1))}
+            disabled={activeIdx === 0}
+            className="rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 px-5 py-3 text-base font-bold text-gray-900 dark:text-gray-200 transition hover:border-gray-300 dark:hover:border-gray-600 disabled:opacity-40 md:text-lg"
+          >
+            ← Prev
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveIdx((i) => Math.min(tabs.length - 1, i + 1))}
+            disabled={activeIdx === tabs.length - 1}
+            className="rounded-xl border-2 border-violet-500/50 bg-violet-950/40 px-5 py-3 text-base font-bold text-violet-800 dark:text-violet-100 transition hover:border-violet-400 disabled:opacity-40 md:text-lg"
+          >
+            Next →
+          </button>
+        </div>
       </div>
 
       {/* Active panel */}
-      <div role="tabpanel" aria-labelledby={`${baseId}-tab-${activeTab.id}`} className="mt-5 flex flex-1 flex-col md:mt-6">
+      <div role="tabpanel" aria-labelledby={`${baseId}-tab-${activeTab.id}`} className="mt-4 flex flex-1 flex-col md:mt-5">
         <FadeSwap id={activeTab.id}>
           <ActivePanel />
         </FadeSwap>
       </div>
 
-      {/* Navigation */}
-      <div className="mt-5 flex flex-wrap items-center gap-3 md:mt-6">
-        <button
-          type="button"
-          onClick={() => setActiveIdx((i) => Math.max(0, i - 1))}
-          disabled={activeIdx === 0}
-          className="rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 px-5 py-3 text-base font-bold text-gray-900 dark:text-gray-200 transition hover:border-gray-300 dark:hover:border-gray-600 disabled:opacity-40 md:text-lg"
-        >
-          ← Prev
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveIdx((i) => Math.min(tabs.length - 1, i + 1))}
-          disabled={activeIdx === tabs.length - 1}
-          className="rounded-xl border-2 border-violet-500/50 bg-violet-950/40 px-5 py-3 text-base font-bold text-violet-800 dark:text-violet-100 transition hover:border-violet-400 disabled:opacity-40 md:text-lg"
-        >
-          Next →
-        </button>
-        <span className="text-base text-gray-600 dark:text-gray-400 md:text-lg">{activeIdx + 1} / {tabs.length}</span>
-      </div>
     </motion.div>
   );
 }

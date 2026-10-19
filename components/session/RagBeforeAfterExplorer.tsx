@@ -7,8 +7,8 @@ import DualLanePipelineDiagram from "@/components/shared/DualLanePipelineDiagram
 // ─── Tabs ─────────────────────────────────────────────────────────────────────
 
 const TABS: readonly ExplorerTab[] = [
-  { id: "problem", short: "1. The Problem", color: "rose" },
-  { id: "pipeline", short: "2. Indexing + Retrieval", color: "teal" },
+  { id: "problem", short: "The Problem", color: "rose" },
+  { id: "pipeline", short: "Indexing + Retrieval", color: "teal" },
 ] as const;
 
 // ─── Tab 1 — The problem before RAG ────────────────────────────────────────────

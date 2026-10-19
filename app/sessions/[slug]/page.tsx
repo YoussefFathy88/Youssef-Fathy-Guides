@@ -178,9 +178,10 @@ const sessionSectionOverrides: Record<string, SessionSection[]> = {
   ],
   "introduction-to-ai-taskflow-lab": [
     { id: "goal", label: "Goal" },
-    { id: "big-picture", label: "Big Picture" },
-    { id: "core-concepts", label: "Core Concepts" },
-    { id: "practical-example", label: "Practical Example" },
+    { id: "api-call", label: "API Call" },
+    { id: "schema", label: "Schema" },
+    { id: "tools", label: "Tools" },
+    { id: "orchestrator", label: "Orchestrator" },
     { id: "next-session", label: "Next Session" },
   ],
   "how-llms-work": [

@@ -148,9 +148,45 @@ Every word you see is one more trip through the box: the prompt so far goes in, 
 
 <SessionSlide topic="The Full Pipeline">
 
-## Opening the box: tokenize → embed → attend → predict
+## Opening the box, step 1: text is split into tokens
 
-<LlmPipelineTabsExplorer />
+<LiveTokenizer title="Type a requirement and watch it split into tokens" />
+
+</SessionSlide>
+
+<SessionSlide topic="The Full Pipeline">
+
+## Step 2: each token becomes a vector
+
+<EmbeddingVectorExplorer title="Words as vectors in 2D space" />
+
+</SessionSlide>
+
+<SessionSlide topic="The Full Pipeline">
+
+## Step 3: attention — every token looks at the others
+
+<SelfAttentionScoreExplorer title="Click a token to see what it attends to" />
+
+</SessionSlide>
+
+<SessionSlide topic="The Full Pipeline">
+
+## Step 4: score every word, then pick the next one
+
+<TokenProbDist
+  title="Next-token distribution after '...ticket priority should be'"
+  showTemperature
+  defaultTemperature={0.7}
+  highlightTop={1}
+  candidates={[
+    { token: "High", rawProb: 0.52 },
+    { token: "Medium", rawProb: 0.28 },
+    { token: "Low", rawProb: 0.11 },
+    { token: "Urgent", rawProb: 0.06 },
+    { token: "TBD", rawProb: 0.03 },
+  ]}
+/>
 
 </SessionSlide>
 
@@ -163,9 +199,74 @@ Every word you see is one more trip through the box: the prompt so far goes in, 
 
 <SessionSlide topic="RAG">
 
-## RAG: grounding the model in your own documents
+## The problem: pasting the whole doc blows the context budget
 
-<RagBeforeAfterExplorer />
+<ContextWindowFiller
+  title="Paste the whole doc into every prompt — it blows the context budget"
+  size="lg"
+  windowSize={8000}
+  costPer1kTokens={0.015}
+  blocks={[
+    { id: "system", label: "System prompt", tokens: 300, color: "gray", defaultOn: true },
+    { id: "fulldoc", label: "Full requirements doc (40 pages)", tokens: 42000, color: "rose", defaultOn: true },
+    { id: "question", label: "Your question", tokens: 40, color: "blue", defaultOn: true },
+  ]}
+/>
+
+</SessionSlide>
+
+<SessionSlide topic="RAG">
+
+## RAG: index the doc once, retrieve only what each question needs
+
+<DualLanePipelineDiagram
+  presentation
+  minHeight={480}
+  hideStepNarrative
+  lanes={[
+    {
+      id: "prep",
+      label: "Index once",
+      color: "violet",
+      blocks: [
+        { id: "docs", label: "Requirements doc", emoji: "📄" },
+        { id: "chunk", label: "Chunk", emoji: "✂️" },
+        { id: "embed-i", label: "Embed", emoji: "🔢" },
+        { id: "store", label: "Vector store", emoji: "🗄️" },
+      ],
+    },
+    {
+      id: "run",
+      label: "Per question",
+      color: "teal",
+      blocks: [
+        { id: "q", label: "New requirement", emoji: "❓" },
+        { id: "embed-q", label: "Embed", emoji: "🔢" },
+        { id: "retrieve", label: "Retrieve", emoji: "🔍" },
+        { id: "gen", label: "LLM", emoji: "🤖", accent: "blue" },
+      ],
+    },
+  ]}
+  edges={[
+    { from: "docs", to: "chunk", animated: false },
+    { from: "chunk", to: "embed-i", animated: false },
+    { from: "embed-i", to: "store", animated: true },
+    { from: "q", to: "embed-q", animated: true },
+    { from: "embed-q", to: "retrieve", animated: true },
+    { from: "store", to: "retrieve", animated: true },
+    { from: "retrieve", to: "gen", animated: true },
+    { from: "q", to: "gen", animated: true, dashed: true, label: "+ question (prompt)" },
+  ]}
+  steps={[
+    { id: "s1", label: "1", description: ".", highlightNodes: ["docs"], highlightEdges: [] },
+    { id: "s2", label: "2", description: ".", highlightNodes: ["docs", "chunk"], highlightEdges: ["docs→chunk"] },
+    { id: "s3", label: "3", description: ".", highlightNodes: ["chunk", "embed-i", "store"], highlightEdges: ["chunk→embed-i", "embed-i→store"] },
+    { id: "s4", label: "4", description: ".", highlightNodes: ["q"], highlightEdges: [] },
+    { id: "s5", label: "5", description: ".", highlightNodes: ["q", "embed-q"], highlightEdges: ["q→embed-q"] },
+    { id: "s6", label: "6", description: ".", highlightNodes: ["embed-q", "retrieve", "store"], highlightEdges: ["embed-q→retrieve", "store→retrieve"] },
+    { id: "s7", label: "7", description: ".", highlightNodes: ["retrieve", "q", "gen"], highlightEdges: ["retrieve→gen", "q→gen"] },
+  ]}
+/>
 
 </SessionSlide>
 
@@ -178,9 +279,81 @@ Every word you see is one more trip through the box: the prompt so far goes in, 
 
 <SessionSlide topic="Tools & Actions">
 
-## Tools: how the agent takes real actions
+## A tool is a schema the model can read
 
-<ToolActionsExplorer />
+<AnnotatedCode
+  title="create_jira_ticket — the tool definition the model sees"
+  code={`tools = [
+  {
+    "name": "create_jira_ticket",
+    "description": (
+      "Create a new Jira ticket from one parsed requirement. "
+      "Use this once per distinct requirement after checking "
+      "existing specs for conflicts or duplicates."
+    ),
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "project": { "type": "string", "description": "Project key, e.g. CHK" },
+        "summary": { "type": "string", "description": "Short ticket title" },
+        "description": { "type": "string", "description": "Full requirement text" },
+        "priority": { "type": "string", "enum": ["Low", "Medium", "High", "Urgent"] }
+      },
+      "required": ["project", "summary", "description", "priority"]
+    }
+  }
+]`}
+  annotations={[
+    { line: 3, label: "Tool name", description: "What your code calls this function.", color: "violet" },
+    { line: 4, label: "Description", description: "What the model reads to decide when to call this tool — be specific.", color: "teal" },
+    { line: 9, label: "Input schema", description: "JSON Schema for the arguments the model must generate.", color: "amber" },
+    { line: 13, label: "Enum constraint", description: "Restricts priority to exactly these four values — no free text.", color: "blue" },
+    { line: 15, label: "Required fields", description: "The model must supply all of these before the call is valid.", color: "violet" },
+  ]}
+/>
+
+</SessionSlide>
+
+<SessionSlide topic="Tools & Actions">
+
+## The agent loop: decide, act, get the result, repeat
+
+<AgentLoopStepper
+  title="One requirement, end to end — step through the loop"
+  steps={[
+    {
+      id: "context",
+      actor: "user",
+      label: "One requirement arrives",
+      bubble: "“Notify the user when their refund is approved.”",
+      bubbleKind: "message",
+      detail: "This one line from the requirements doc is placed in the model's context, alongside the tool schema from the previous slide.",
+    },
+    {
+      id: "decide",
+      actor: "model",
+      label: "The model outputs a tool call — not a reply",
+      bubble: "{\n  \"tool\": \"create_jira_ticket\",\n  \"args\": { \"project\": \"NOTIF\", \"priority\": \"Medium\" }\n}",
+      bubbleLabel: "Model's output (structured JSON, not text)",
+      detail: "The model doesn't write a ticket — it writes JSON saying which tool to run and what arguments to pass.",
+    },
+    {
+      id: "execute",
+      actor: "your-code",
+      label: "Your code runs the real Jira API call",
+      bubble: "jira.create_issue(project=\"NOTIF\", priority=\"Medium\")\n→ ticket NOTIF-118 created",
+      detail: "The model never touches Jira. Your application reads the JSON and makes the actual API call.",
+    },
+    {
+      id: "next",
+      actor: "model",
+      label: "The result comes back — model moves on",
+      bubble: "“Filed NOTIF-118. Next requirement: add a retry button for failed payments.”",
+      bubbleKind: "message",
+      detail: "The ticket ID is added back to the conversation. The model loops back to step 1 with the next requirement.",
+    },
+  ]}
+/>
 
 </SessionSlide>
 
@@ -194,9 +367,8 @@ Every word you see is one more trip through the box: the prompt so far goes in, 
 ## Live build: requirements doc → Jira tickets, end to end
 
 <DualLanePipelineDiagram
-  title="From Requirements to Jira Tickets — RAG + Tools combined"
   presentation
-  minHeight={620}
+  minHeight={540}
   hideStepNarrative
   lanes={[
     {
@@ -232,7 +404,7 @@ Every word you see is one more trip through the box: the prompt so far goes in, 
     { from: "retrieve", to: "llm",      animated: true },
     { from: "llm",      to: "toolcall", animated: true },
     { from: "toolcall", to: "jira",     animated: true },
-    { from: "jira",     to: "newreq",   animated: true, dashed: true, label: "ticket ID back → next requirement" },
+    { from: "jira",     to: "newreq",   animated: true, dashed: true, label: "next requirement" },
   ]}
   steps={[
     { id: "s1", label: "Index the spec history once", description: "Existing requirement docs and past Jira tickets are chunked, embedded, and stored — this runs once, not per requirement.", highlightNodes: ["docs", "chunk", "embed-i", "store"], highlightEdges: ["docs→chunk", "chunk→embed-i", "embed-i→store"] },

@@ -303,23 +303,23 @@ export default function SelfAttentionScoreExplorer({
   }, [qkv, tokens]);
 
   const qkvCardClass = cn(
-    "grid gap-4 sm:grid-cols-3 md:gap-5",
+    "grid gap-3",
     qkvPhase === "exit" && "pointer-events-none opacity-0 -translate-y-1.5 transition-[opacity,transform] duration-150 ease-out",
     qkvPhase === "enter" && "opacity-0 -translate-y-1.5",
     qkvPhase === "idle" && "opacity-100 translate-y-0 transition-[opacity,transform] duration-200 ease-out",
   );
 
   const outputBoxClass = cn(
-    "mt-8 rounded-xl border-2 border-gray-200 bg-white/90 p-6 dark:border-gray-600 dark:bg-gray-800/90 md:p-8",
+    "mt-5 rounded-xl border-2 border-gray-200 bg-white/90 p-4 dark:border-gray-600 dark:bg-gray-800/90 md:p-5",
     qkvPhase === "exit" && "pointer-events-none opacity-0 -translate-y-1.5 transition-[opacity,transform] duration-150 ease-out",
     qkvPhase === "enter" && "opacity-0 -translate-y-1.5",
     qkvPhase === "idle" && "opacity-100 translate-y-0 transition-[opacity,transform] duration-200 ease-out",
   );
 
   return (
-    <div className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-8 md:p-10 dark:border-gray-700 dark:bg-gray-900/40">
+    <div className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-6 md:p-7 dark:border-gray-700 dark:bg-gray-900/40">
       {(title || caption) && (
-        <div className="mb-6 space-y-2">
+        <div className="mb-4 space-y-2">
           {title && (
             <h2 className="text-lg font-semibold tracking-tight text-gray-900 md:text-xl dark:text-gray-100">
               {title}
@@ -356,58 +356,60 @@ export default function SelfAttentionScoreExplorer({
 
       {qkv ? (
         <>
-          <div className={cn("mt-8", qkvCardClass)}>
-            <div className="rounded-xl border-2 border-blue-400/70 bg-blue-500/10 p-6 dark:border-blue-500/50 dark:bg-blue-500/15 md:p-8 flex flex-col gap-4 min-h-[160px]">
+          {/* Q/K/V for the selected token (left) next to its attention weights (right) */}
+          <div className="mt-5 grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+          <div className={qkvCardClass}>
+            <div className="rounded-xl border-2 border-blue-400/70 bg-blue-500/10 p-4 dark:border-blue-500/50 dark:bg-blue-500/15 md:p-5 flex flex-col gap-2">
               <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-lg font-black text-white dark:bg-blue-500 shadow-lg">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-lg font-black text-white dark:bg-blue-500 shadow-lg">
                   Q
                 </span>
                 <span className="text-base font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">Query</span>
               </div>
-              <p className="text-xl font-bold leading-tight text-gray-900 dark:text-white md:text-2xl">
+              <p className="text-lg font-bold leading-snug text-gray-900 dark:text-white md:text-xl">
                 {qkv.q}
               </p>
             </div>
 
-            <div className="rounded-xl border-2 border-emerald-500/60 bg-emerald-500/10 p-6 dark:border-emerald-400/50 dark:bg-emerald-500/15 md:p-8 flex flex-col gap-4 min-h-[160px]">
+            <div className="rounded-xl border-2 border-emerald-500/60 bg-emerald-500/10 p-4 dark:border-emerald-400/50 dark:bg-emerald-500/15 md:p-5 flex flex-col gap-2">
               <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-600 text-lg font-black text-white dark:bg-emerald-500 shadow-lg">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 text-lg font-black text-white dark:bg-emerald-500 shadow-lg">
                   K
                 </span>
                 <span className="text-base font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Key</span>
               </div>
-              <p className="text-xl font-bold leading-tight text-gray-900 dark:text-white md:text-2xl">
+              <p className="text-lg font-bold leading-snug text-gray-900 dark:text-white md:text-xl">
                 {qkv.k}
               </p>
             </div>
 
-            <div className="rounded-xl border-2 border-amber-500/70 bg-amber-400/15 p-6 dark:border-amber-400/55 dark:bg-amber-500/15 md:p-8 flex flex-col gap-4 min-h-[160px]">
+            <div className="rounded-xl border-2 border-amber-500/70 bg-amber-400/15 p-4 dark:border-amber-400/55 dark:bg-amber-500/15 md:p-5 flex flex-col gap-2">
               <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-600 text-lg font-black text-white dark:bg-amber-500 shadow-lg">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-600 text-lg font-black text-white dark:bg-amber-500 shadow-lg">
                   V
                 </span>
                 <span className="text-base font-black uppercase tracking-widest text-amber-600 dark:text-amber-400">Value</span>
               </div>
-              <p className="text-xl font-bold leading-tight text-gray-900 dark:text-white md:text-2xl">
+              <p className="text-lg font-bold leading-snug text-gray-900 dark:text-white md:text-xl">
                 {qkv.v}
               </p>
             </div>
           </div>
 
-          <div className="mt-12">
-            <h3 className="mb-6 text-balance text-xl font-black text-gray-900 dark:text-gray-100 md:text-2xl uppercase tracking-tight">
+          <div>
+            <h3 className="mb-3 text-balance text-xl font-black text-gray-900 dark:text-gray-100 md:text-2xl uppercase tracking-tight">
               Q·K scores → softmax → attention weights
             </h3>
-            <div className="space-y-6">
+            <div className="space-y-2.5">
               {tokens.map((token, j) => {
                 const pct = barPct[j] ?? 0;
                 const tag = strengthLabel(pct);
                 return (
-                  <div key={`${token}-bar-${j}`} className="flex items-center gap-4 sm:gap-6">
-                    <span className="w-28 shrink-0 text-right text-xl font-black text-gray-900 dark:text-gray-100 sm:w-32 md:text-2xl">
+                  <div key={`${token}-bar-${j}`} className="flex items-center gap-3 sm:gap-4">
+                    <span className="w-24 shrink-0 text-right text-lg font-black text-gray-900 dark:text-gray-100 md:text-xl">
                       {token}
                     </span>
-                    <div className="relative h-9 min-w-0 flex-1 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700 md:h-10">
+                    <div className="relative h-7 min-w-0 flex-1 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700 md:h-8">
                       <div
                         className={cn("h-full rounded-full", barClassForPct(pct))}
                         style={{
@@ -416,10 +418,10 @@ export default function SelfAttentionScoreExplorer({
                         }}
                       />
                     </div>
-                    <span className={cn("w-20 shrink-0 text-right text-xl font-black tabular-nums md:text-2xl", textClassForPct(pct))}>
+                    <span className={cn("w-16 shrink-0 text-right text-lg font-black tabular-nums md:text-xl", textClassForPct(pct))}>
                       {pct}%
                     </span>
-                    <span className="w-24 shrink-0 text-lg font-black text-gray-700 md:w-32 md:text-xl dark:text-gray-300 uppercase">
+                    <span className="w-24 shrink-0 text-base font-black text-gray-700 md:w-28 md:text-lg dark:text-gray-300 uppercase">
                       {tag}
                     </span>
                   </div>
@@ -428,11 +430,13 @@ export default function SelfAttentionScoreExplorer({
             </div>
           </div>
 
+          </div>
+
           <div className={outputBoxClass}>
             <p className="text-base font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">
               Attention Output
             </p>
-            <p className="rounded-xl bg-gray-100 px-6 py-6 font-mono text-lg leading-relaxed text-gray-900 dark:bg-gray-900 dark:text-gray-100 md:text-2xl shadow-inner border border-gray-200 dark:border-gray-700">
+            <p className="rounded-xl bg-gray-100 px-5 py-4 font-mono text-lg leading-relaxed text-gray-900 dark:bg-gray-900 dark:text-gray-100 md:text-xl shadow-inner border border-gray-200 dark:border-gray-700">
               {`z_${selectedToken} = ${attentionEquation}`}
             </p>
           </div>

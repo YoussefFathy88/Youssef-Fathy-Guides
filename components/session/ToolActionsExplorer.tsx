@@ -7,8 +7,8 @@ import AgentLoopStepper from "@/components/shared/AgentLoopStepper";
 // ─── Tabs ─────────────────────────────────────────────────────────────────────
 
 const TABS: readonly ExplorerTab[] = [
-  { id: "schema", short: "1. The Schema", color: "violet" },
-  { id: "loop", short: "2. The Decision Loop", color: "amber" },
+  { id: "schema", short: "The Schema", color: "violet" },
+  { id: "loop", short: "The Decision Loop", color: "amber" },
 ] as const;
 
 // ─── Tab 1 — The tool schema ────────────────────────────────────────────────────
