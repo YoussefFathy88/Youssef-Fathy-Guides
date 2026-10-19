@@ -20,7 +20,21 @@ export function SiteHeader() {
             </p>
           </div>
         </div>
-        <ThemeToggle />
+        <nav className="flex items-center gap-2 sm:gap-4">
+          <Link
+            href="/guides"
+            className="rounded-full px-4 py-2 text-base font-semibold text-foreground transition hover:bg-brand-soft hover:text-brand-text md:text-lg"
+          >
+            Guides
+          </Link>
+          <Link
+            href="/shorts"
+            className="rounded-full px-4 py-2 text-base font-semibold text-foreground transition hover:bg-brand-soft hover:text-brand-text md:text-lg"
+          >
+            Shorts
+          </Link>
+          <ThemeToggle />
+        </nav>
       </Container>
     </header>
   );

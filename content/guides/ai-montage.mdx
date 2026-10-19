@@ -1,0 +1,77 @@
+---
+title: AI Montage Guide for Reels & Shorts
+slug: ai-montage
+order: 1
+status: published
+date: 2026-10-19
+author: Youssef Mohamed Fathy
+summary: Let the AI do the captions and motion graphics, keep the quick cuts and B-roll for yourself in CapCut, and turn every good result into a reusable skill so the next video is faster.
+tags: [Montage, Claude Code, Remotion, CapCut]
+---
+
+## 1. Choose your style first
+
+Decide how the video should look before any editing starts.
+
+- Browse Instagram Reels (or any source you like) and get inspired first.
+- Take screenshots and write down everything you want. Turn it into one document with ChatGPT, Claude, or any AI. Have your own style document **before** you start the montage.
+
+## 2. Give the AI full context before it starts
+
+The AI should know your direction before it touches the video. Share everything you have: style board, screenshots, examples, and notes on your audience and language.
+
+- Tell it what it must **not** change. For me: my footage stays exactly as filmed, no zooms or crops.
+- Ask it to send all its questions in one message before editing. Then agree on a plan for each moment of the video (a beat sheet).
+
+## 3. Write your rules once in CLAUDE.md
+
+CLAUDE.md is a file in your project folder that Claude Code reads at the start of every session. Put your permanent rules there so you never repeat them.
+
+- **Real logos only.** When a product is mentioned (Claude, ChatGPT, Cursor…), show its official logo, never a lookalike. Prefer SVG so every logo can be shown at the same size.
+- **Save every logo in a folder.** Download each logo once into a `logos` folder with a list of names and sources, so the next video reuses it instead of searching again.
+- **Your non-negotiables.** For example: footage untouched, no music (I use only light natural sound effects), caption language, and how every video ends.
+
+## 4. Split the work: you in CapCut, the AI on graphics
+
+The AI can do the whole edit, but a few jobs are faster by hand. Do those first in CapCut (or Edits, or Premiere), export, then hand the video to the AI.
+
+<GuideTable
+  columns={["Task", "Who", "Why"]}
+  rows={[
+    ["Cut silences and repeated takes", "You, in CapCut", "Takes a minute, and you know which take is best"],
+    ["Screen recordings", "You, in CapCut", "You know exactly where they go; give the AI their timecodes"],
+    ["B-roll at specific moments", "You, in CapCut", "Faster to place by eye"],
+    ["Captions with key-word highlights", "AI", "Transcribes, times and styles every phrase"],
+    ["Motion graphics, logos, explainer pages", "AI", "Builds them from your style rules"],
+    ["Ending / follow call-to-action", "AI", "Same fixed ending on every video"],
+  ]}
+/>
+
+## 5. Iterate, then turn the result into a skill
+
+The first version is never the final one. Give specific feedback with screenshots ("this card repeats the caption", "this ends too fast") until it looks right.
+
+1. After every round, ask the AI to save the lesson as a rule, so the same mistake never comes back.
+2. Once a video looks good, ask it to turn the whole process into a **skill**: a saved set of instructions it follows next time.
+3. Ask it to add automatic checks for your rules where possible, so problems are caught before rendering.
+4. At the end of each video, ask what would make the next one faster.
+
+## 6. Always improve
+
+My montages were taking a very long time, so I asked the AI where the bottleneck was. It told me the slow part was transcription (turning my speech into timed captions) with a Whisper model running on my machine. I asked it to switch to ElevenLabs' online speech-to-text instead, and the montage became much faster.
+
+The lesson: always ask the AI how the process can improve, and keep trying new tools. Something new comes out every month, so don't lock yourself into one setup.
+
+## 7. My current setup (as of 18 Oct 2026)
+
+<GuideTable
+  columns={["Part", "What I use"]}
+  rows={[
+    ["AI", "Claude Code with Claude Opus 5.5, medium effort: works great for me"],
+    ["Manual edits", "CapCut (silence cuts, screen recordings, B-roll)"],
+    ["Graphics engine", "Remotion (animations written as code), set up by Claude"],
+    ["Final render", "ffmpeg lays the graphics over the original footage, untouched"],
+  ]}
+/>
+
+Models change fast, so check which one works best for you when you start.

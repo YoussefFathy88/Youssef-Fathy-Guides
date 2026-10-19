@@ -145,6 +145,28 @@ export function HomeCourseGateway() {
         </div>
       </section>
 
+      {/* ── Guides section ──────────────────────────────────────────────────── */}
+      <section className="surface-card overflow-hidden px-6 py-8 sm:px-8 sm:py-10 lg:px-10">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="max-w-xl space-y-4">
+            <SessionBadge tone="green">Tips</SessionBadge>
+            <div className="space-y-2">
+              <h2 className="text-3xl font-semibold">Guides</h2>
+              <p className="text-lg leading-8">
+                Practical tips that go with my videos: AI montage, building apps with AI,
+                and planning your work.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/guides"
+            className="inline-flex w-fit items-center justify-center rounded-full bg-brand px-5 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-brand-hover md:text-lg"
+          >
+            Read the guides
+          </Link>
+        </div>
+      </section>
+
       {/* ── Shorts section ──────────────────────────────────────────────────── */}
       <section className="surface-card overflow-hidden px-6 py-8 sm:px-8 sm:py-10 lg:px-10">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
