@@ -37,8 +37,8 @@ function UniversalPanel() {
             transition={{ duration: 0.3, delay: reducedMotion ? 0 : i * 0.1 }}
             className="rounded-xl border-2 border-teal-400/40 bg-teal-950/15 p-4"
           >
-            <p className="text-lg font-bold text-teal-200 md:text-xl">{s.name}</p>
-            <p className="mt-1 font-mono text-base text-gray-400 md:text-lg">{s.trigger}</p>
+            <p className="text-lg font-bold text-teal-800 dark:text-teal-200 md:text-xl">{s.name}</p>
+            <p className="mt-1 font-mono text-base text-gray-600 dark:text-gray-400 md:text-lg">{s.trigger}</p>
           </motion.div>
         ))}
       </div>
@@ -68,10 +68,10 @@ function SpecAiPanel() {
             transition={{ duration: 0.3, delay: reducedMotion ? 0 : i * 0.15 }}
             className="flex items-center gap-3 rounded-xl border-2 border-violet-400/40 bg-violet-950/20 p-4"
           >
-            <span className="rounded-full border border-violet-400/50 bg-violet-950/50 px-3 py-1 text-base font-bold text-violet-200 md:text-lg">
+            <span className="rounded-full border border-violet-400/50 bg-violet-950/50 px-3 py-1 text-base font-bold text-violet-800 dark:text-violet-200 md:text-lg">
               SpecAI
             </span>
-            <p className="text-lg text-gray-100 md:text-xl">{s}</p>
+            <p className="text-lg text-gray-900 dark:text-gray-100 md:text-xl">{s}</p>
           </motion.div>
         ))}
       </div>
@@ -90,23 +90,23 @@ function TimeSavedPanel() {
     <div className="flex flex-1 flex-col gap-4">
       <PanelTitle>Without a skill you re-explain context every time. With one, you invoke it in one line.</PanelTitle>
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-xl border-2 border-gray-700 bg-gray-950/60 p-5">
-          <p className="text-base font-bold uppercase tracking-wide text-gray-400 md:text-lg">Without skill</p>
-          <p className="mt-2 text-lg text-gray-200 md:text-xl">
+        <div className="rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-white/60 dark:bg-gray-950/60 p-5">
+          <p className="text-base font-bold uppercase tracking-wide text-gray-600 dark:text-gray-400 md:text-lg">Without skill</p>
+          <p className="mt-2 text-lg text-gray-900 dark:text-gray-200 md:text-xl">
             &ldquo;Create a POST /recommendations endpoint. It should live in /routes, call a service in /services, validate
             input with zod, return {"{"}data, error, meta{"}"}, handle empty results, and use async/await throughout…&rdquo;
           </p>
         </div>
         <div className="flex flex-col justify-center rounded-xl border-2 border-teal-400/50 bg-teal-950/25 p-5">
-          <p className="text-base font-bold uppercase tracking-wide text-gray-400 md:text-lg">With skill</p>
-          <p className="mt-2 text-lg font-bold text-teal-200 md:text-xl">&ldquo;Use the endpoint skill for /recommendations.&rdquo;</p>
+          <p className="text-base font-bold uppercase tracking-wide text-gray-600 dark:text-gray-400 md:text-lg">With skill</p>
+          <p className="mt-2 text-lg font-bold text-teal-800 dark:text-teal-200 md:text-xl">&ldquo;Use the endpoint skill for /recommendations.&rdquo;</p>
         </div>
       </div>
       {!revealed ? (
         <button
           type="button"
           onClick={() => setRevealed(true)}
-          className="w-fit rounded-xl border-2 border-amber-400/70 bg-amber-950/40 px-5 py-3 text-base font-bold text-amber-100 transition hover:border-amber-300 md:text-lg"
+          className="w-fit rounded-xl border-2 border-amber-400/70 bg-amber-950/40 px-5 py-3 text-base font-bold text-amber-800 dark:text-amber-100 transition hover:border-amber-300 md:text-lg"
         >
           Compare output quality →
         </button>

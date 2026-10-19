@@ -112,15 +112,15 @@ export default function TransformerPipelineWalkthrough({
     <div className="surface-panel w-full p-8 md:p-10">
       {(title || caption) && (
         <div className="mb-6 space-y-2 md:mb-8">
-          {title && <h2 className="text-lg font-semibold text-white md:text-xl">{title}</h2>}
-          {caption && <p className="text-base font-medium text-slate-300 md:text-lg">{caption}</p>}
+          {title && <h2 className="text-lg font-semibold text-gray-950 dark:text-white md:text-xl">{title}</h2>}
+          {caption && <p className="text-base font-medium text-slate-700 dark:text-slate-300 md:text-lg">{caption}</p>}
         </div>
       )}
 
       {/* Macro strip — six phases vs Big Picture */}
       <div className="mb-8">
         {!hideStepNarrative ? (
-          <p className="mb-3 text-base font-bold uppercase tracking-[0.12em] text-slate-300 md:text-lg">
+          <p className="mb-3 text-base font-bold uppercase tracking-[0.12em] text-slate-700 dark:text-slate-300 md:text-lg">
             Pipeline phases (same six as Big Picture)
           </p>
         ) : null}
@@ -136,18 +136,18 @@ export default function TransformerPipelineWalkthrough({
                   done && "border-[color:var(--success)]/35 bg-[color:var(--success)]/10",
                   active &&
                     "border-[color:var(--primary)]/50 bg-[color:var(--primary)]/15 ring-2 ring-[color:var(--primary)]/30",
-                  !done && !active && "border-white/10 bg-white/[0.03]",
+                  !done && !active && "border-gray-200 dark:border-white/10 bg-gray-900/[0.04] dark:bg-white/[0.03]",
                 )}
               >
                 <span
                   className={cn(
                     "text-sm font-bold leading-tight md:text-base",
-                    active ? "text-[color:var(--primary)]" : done ? "text-[color:var(--success)]" : "text-slate-400",
+                    active ? "text-[color:var(--primary)]" : done ? "text-[color:var(--success)]" : "text-slate-600 dark:text-slate-400",
                   )}
                 >
                   {phase.short}
                 </span>
-                <span className="mt-1 hidden text-sm font-medium text-slate-300 sm:block md:text-base">{phase.sub}</span>
+                <span className="mt-1 hidden text-sm font-medium text-slate-700 dark:text-slate-300 sm:block md:text-base">{phase.sub}</span>
               </div>
             );
           })}
@@ -156,7 +156,7 @@ export default function TransformerPipelineWalkthrough({
 
       {/* Token chip strip */}
       <div className="mb-8 flex flex-wrap items-center gap-3 md:gap-4">
-        <span className="text-base font-bold uppercase tracking-wide text-slate-300 md:text-lg">Input</span>
+        <span className="text-base font-bold uppercase tracking-wide text-slate-700 dark:text-slate-300 md:text-lg">Input</span>
         {inputTokens.map((token, i) => (
           <span
             key={token + i}
@@ -164,14 +164,14 @@ export default function TransformerPipelineWalkthrough({
               "rounded-full px-4 py-2 text-base font-bold transition-all duration-300 md:px-5 md:py-2.5 md:text-lg",
               tokensLit
                 ? "border-2 border-[color:var(--success)]/60 bg-[color:var(--success)]/15 text-[color:var(--success)]"
-                : "border border-white/20 text-slate-400",
+                : "border border-gray-300 dark:border-white/20 text-slate-600 dark:text-slate-400",
             )}
           >
             {token}
           </span>
         ))}
 
-        <svg width="22" height="22" viewBox="0 0 16 16" fill="none" className="shrink-0 text-slate-400" aria-hidden>
+        <svg width="22" height="22" viewBox="0 0 16 16" fill="none" className="shrink-0 text-slate-600 dark:text-slate-400" aria-hidden>
           <path
             d="M3 8h10M9 4l4 4-4 4"
             stroke="currentColor"
@@ -228,7 +228,7 @@ export default function TransformerPipelineWalkthrough({
                     >
                       {stage.label}
                     </div>
-                    <div className="mt-1.5 text-base font-medium text-slate-300 md:text-lg">{stage.sublabel}</div>
+                    <div className="mt-1.5 text-base font-medium text-slate-700 dark:text-slate-300 md:text-lg">{stage.sublabel}</div>
                   </button>
 
                   <div
@@ -250,7 +250,7 @@ export default function TransformerPipelineWalkthrough({
                                 "cursor-default rounded-lg border px-3 py-2 text-base font-semibold transition-all md:text-lg",
                                 isChipActive
                                   ? "border-opacity-60"
-                                  : "border-white/10 bg-white/[0.04] text-slate-500",
+                                  : "border-gray-200 dark:border-white/10 bg-gray-900/[0.04] dark:bg-white/[0.04] text-slate-600 dark:text-slate-500",
                               )}
                               style={
                                 isChipActive
@@ -273,7 +273,7 @@ export default function TransformerPipelineWalkthrough({
 
                 {si < stages.length - 1 && (
                   <div className="mx-0.5 mt-4 flex shrink-0 items-center md:mx-1 md:mt-5">
-                    <svg width="24" height="16" viewBox="0 0 22 16" fill="none" className="text-slate-500" aria-hidden>
+                    <svg width="24" height="16" viewBox="0 0 22 16" fill="none" className="text-slate-600 dark:text-slate-500" aria-hidden>
                       <path
                         d="M1 8h16M12 3l5 5-5 5"
                         stroke="currentColor"
@@ -292,12 +292,12 @@ export default function TransformerPipelineWalkthrough({
 
       {/* Step panel */}
       {!hideStepNarrative ? (
-        <div className="mt-6 rounded-xl border border-white/10 bg-white/[0.04] px-5 py-5 md:px-6 md:py-6">
-          <p className="mb-2 text-base font-bold uppercase tracking-wide text-slate-300 md:text-lg">
+        <div className="mt-6 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-900/[0.04] dark:bg-white/[0.04] px-5 py-5 md:px-6 md:py-6">
+          <p className="mb-2 text-base font-bold uppercase tracking-wide text-slate-700 dark:text-slate-300 md:text-lg">
             Step {currentStep + 1} of {totalSteps}
           </p>
-          <p className="text-base font-bold text-white md:text-lg">{step?.label}</p>
-          <p className="mt-3 text-base font-medium leading-relaxed text-slate-200 md:text-lg">{step?.description}</p>
+          <p className="text-base font-bold text-gray-950 dark:text-white md:text-lg">{step?.label}</p>
+          <p className="mt-3 text-base font-medium leading-relaxed text-slate-900 dark:text-slate-200 md:text-lg">{step?.description}</p>
         </div>
       ) : null}
 
@@ -307,7 +307,7 @@ export default function TransformerPipelineWalkthrough({
           type="button"
           onClick={() => setCurrentStep((s) => Math.max(0, s - 1))}
           disabled={currentStep === 0}
-          className="rounded-xl border-2 border-white/15 bg-white/[0.04] px-5 py-3 text-base font-bold text-slate-200 transition hover:border-white/25 hover:bg-white/[0.07] disabled:cursor-not-allowed disabled:opacity-35 md:px-6 md:py-3.5 md:text-lg"
+          className="rounded-xl border-2 border-gray-200 dark:border-white/15 bg-gray-900/[0.04] dark:bg-white/[0.04] px-5 py-3 text-base font-bold text-slate-900 dark:text-slate-200 transition hover:border-gray-300 dark:hover:border-white/25 hover:bg-gray-900/[0.07] dark:hover:bg-white/[0.07] disabled:cursor-not-allowed disabled:opacity-35 md:px-6 md:py-3.5 md:text-lg"
         >
           Prev
         </button>
@@ -332,7 +332,7 @@ export default function TransformerPipelineWalkthrough({
                 "rounded-full transition-all",
                 i === currentStep
                   ? "h-2.5 w-2.5 bg-[color:var(--primary)] ring-2 ring-[color:var(--primary)]/40"
-                  : "h-2 w-2 border-2 border-white/25 bg-transparent hover:border-white/40",
+                  : "h-2 w-2 border-2 border-gray-300 dark:border-white/25 bg-transparent hover:border-gray-300 dark:hover:border-white/40",
               )}
             />
           ))}

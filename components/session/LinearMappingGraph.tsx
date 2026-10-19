@@ -104,10 +104,10 @@ export default function LinearMappingGraph({
   const p2 = knownPoints[1];
 
   return (
-    <div className="my-6 overflow-hidden rounded-2xl border border-gray-800 bg-gray-950/80 shadow-xl">
+    <div className="my-6 overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 shadow-xl">
       {/* ── Title ─────────────────────────────────────────────────────────── */}
-      <div className="border-b border-gray-800/60 px-6 py-4">
-        <p className="text-balance text-base font-semibold text-white">{title}</p>
+      <div className="border-b border-gray-200/60 dark:border-gray-800/60 px-6 py-4">
+        <p className="text-balance text-base font-semibold text-gray-950 dark:text-white">{title}</p>
       </div>
 
       {/* ── Phase tabs ────────────────────────────────────────────────────── */}
@@ -120,10 +120,10 @@ export default function LinearMappingGraph({
             className={cn(
               "flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition",
               i === phase
-                ? "border-violet-400/40 bg-violet-500/20 text-violet-200"
+                ? "border-violet-400/40 bg-violet-500/20 text-violet-800 dark:text-violet-200"
                 : i < phase
-                  ? "border-gray-700/50 bg-gray-800/60 text-gray-300 hover:bg-gray-700/60"
-                  : "border-gray-800/50 bg-gray-900/40 text-gray-500 hover:bg-gray-800/40",
+                  ? "border-gray-300/50 dark:border-gray-700/50 bg-gray-100/60 dark:bg-gray-800/60 text-gray-700 dark:text-gray-300 hover:bg-gray-200/60 dark:hover:bg-gray-700/60"
+                  : "border-gray-200/50 dark:border-gray-800/50 bg-gray-50/40 dark:bg-gray-900/40 text-gray-600 dark:text-gray-500 hover:bg-gray-100/40 dark:hover:bg-gray-800/40",
             )}
           >
             <span
@@ -132,8 +132,8 @@ export default function LinearMappingGraph({
                 i === phase
                   ? "bg-violet-500 text-white"
                   : i < phase
-                    ? "bg-gray-600 text-gray-300"
-                    : "bg-gray-800 text-gray-600",
+                    ? "bg-gray-600 text-gray-700 dark:text-gray-300"
+                    : "bg-gray-100 dark:bg-gray-800 text-gray-600",
               )}
             >
               {i + 1}
@@ -145,7 +145,7 @@ export default function LinearMappingGraph({
 
       {/* ── Phase hint ────────────────────────────────────────────────────── */}
       <div className="min-h-[2.4rem] px-5 pt-2 pb-1">
-        <p className="text-sm leading-relaxed text-gray-400">{PHASES[phase]?.hint}</p>
+        <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">{PHASES[phase]?.hint}</p>
       </div>
 
       {/* ── SVG chart ─────────────────────────────────────────────────────── */}
@@ -438,7 +438,7 @@ export default function LinearMappingGraph({
       </div>
 
       {/* ── Navigation ──────────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between border-t border-gray-800/60 px-5 py-3">
+      <div className="flex items-center justify-between border-t border-gray-200/60 dark:border-gray-800/60 px-5 py-3">
         <button
           type="button"
           onClick={() => setPhase((p) => Math.max(0, p - 1))}
@@ -446,8 +446,8 @@ export default function LinearMappingGraph({
           className={cn(
             "rounded-full border px-4 py-1.5 text-sm font-medium transition",
             phase === 0
-              ? "cursor-not-allowed border-gray-800 text-gray-700"
-              : "border-gray-700 text-gray-300 hover:border-violet-500 hover:text-white",
+              ? "cursor-not-allowed border-gray-200 dark:border-gray-800 text-gray-700"
+              : "border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-violet-500 hover:text-gray-950 dark:hover:text-white",
           )}
         >
           ← Prev
@@ -457,7 +457,7 @@ export default function LinearMappingGraph({
         {phase === PHASES.length - 1 ? (
           <div className="flex items-center gap-2 rounded-full border border-violet-400/25 bg-violet-500/15 px-4 py-1.5">
             <span className="h-2 w-2 rounded-full bg-violet-400" />
-            <span className="text-xs font-medium text-violet-200">
+            <span className="text-xs font-medium text-violet-800 dark:text-violet-200">
               m &amp; c are the weights — they define the mapping
             </span>
           </div>
@@ -471,7 +471,7 @@ export default function LinearMappingGraph({
                 aria-label={`Go to step ${i + 1}`}
                 className={cn(
                   "h-2 w-2 rounded-full transition",
-                  i === phase ? "bg-violet-400" : "bg-gray-700 hover:bg-gray-500",
+                  i === phase ? "bg-violet-400" : "bg-gray-200 dark:bg-gray-700 hover:bg-gray-500",
                 )}
               />
             ))}
@@ -485,8 +485,8 @@ export default function LinearMappingGraph({
           className={cn(
             "rounded-full border px-4 py-1.5 text-sm font-medium transition",
             phase === PHASES.length - 1
-              ? "cursor-not-allowed border-gray-800 text-gray-700"
-              : "border-gray-700 text-gray-300 hover:border-violet-500 hover:text-white",
+              ? "cursor-not-allowed border-gray-200 dark:border-gray-800 text-gray-700"
+              : "border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-violet-500 hover:text-gray-950 dark:hover:text-white",
           )}
         >
           Next →
@@ -494,7 +494,7 @@ export default function LinearMappingGraph({
       </div>
 
       {/* ── Caption ─────────────────────────────────────────────────────────── */}
-      {caption && <p className="px-6 pb-4 text-sm text-gray-500">{caption}</p>}
+      {caption && <p className="px-6 pb-4 text-sm text-gray-600 dark:text-gray-500">{caption}</p>}
     </div>
   );
 }

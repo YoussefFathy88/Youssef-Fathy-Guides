@@ -363,7 +363,7 @@ function getMdxComponents(isPresentationMode: boolean, outline?: string[]) {
         data-session-slide-marker="h2"
         className={[
           isPresentationMode
-            ? "mb-0 text-balance text-4xl font-semibold leading-tight tracking-tight text-white sm:text-5xl"
+            ? "mb-0 text-balance text-4xl font-semibold leading-tight tracking-tight text-gray-950 dark:text-white sm:text-5xl"
             : "mb-10 text-balance text-[2.4rem] font-semibold leading-tight tracking-tight text-gray-950 dark:text-gray-50 sm:mb-14 sm:text-5xl",
           className,
         ]
@@ -376,7 +376,7 @@ function getMdxComponents(isPresentationMode: boolean, outline?: string[]) {
         {...props}
         className={[
           isPresentationMode
-            ? "mt-8 mb-3 text-2xl font-semibold text-gray-100 sm:mb-4 sm:text-3xl"
+            ? "mt-8 mb-3 text-2xl font-semibold text-gray-900 dark:text-gray-100 sm:mb-4 sm:text-3xl"
             : "mt-10 mb-2 text-[1.8rem] font-semibold leading-tight text-gray-950 dark:text-gray-100 sm:mb-3 sm:text-[2rem]",
           className,
         ]
@@ -389,7 +389,7 @@ function getMdxComponents(isPresentationMode: boolean, outline?: string[]) {
         {...props}
         className={[
           isPresentationMode
-            ? "mt-5 text-lg leading-9 text-gray-200 sm:text-xl sm:leading-10"
+            ? "mt-5 text-lg leading-9 text-gray-900 dark:text-gray-200 sm:text-xl sm:leading-10"
             : "mt-5 text-[1.14rem] leading-9 text-gray-700 dark:text-gray-300 sm:text-[1.22rem] sm:leading-10",
           className,
         ]
@@ -402,7 +402,7 @@ function getMdxComponents(isPresentationMode: boolean, outline?: string[]) {
         {...props}
         className={[
           isPresentationMode
-            ? "font-medium text-violet-300 underline decoration-violet-500/60 underline-offset-4 hover:text-violet-200"
+            ? "font-medium text-violet-700 dark:text-violet-300 underline decoration-violet-500/60 underline-offset-4 hover:text-violet-800 dark:hover:text-violet-200"
             : "font-medium text-violet-600 underline decoration-violet-300 underline-offset-4 hover:text-violet-700 dark:text-violet-400 dark:decoration-violet-700 dark:hover:text-violet-300",
           className,
         ]
@@ -415,7 +415,7 @@ function getMdxComponents(isPresentationMode: boolean, outline?: string[]) {
         {...props}
         className={[
           isPresentationMode
-            ? "mt-5 list-disc space-y-3 pl-6 text-lg leading-8 text-gray-200 sm:text-xl sm:leading-9"
+            ? "mt-5 list-disc space-y-3 pl-6 text-lg leading-8 text-gray-900 dark:text-gray-200 sm:text-xl sm:leading-9"
             : "mt-5 list-disc space-y-3 pl-7 text-[1.12rem] leading-9 text-gray-700 dark:text-gray-300 sm:text-[1.2rem] sm:leading-10",
           className,
         ]
@@ -428,7 +428,7 @@ function getMdxComponents(isPresentationMode: boolean, outline?: string[]) {
         {...props}
         className={[
           isPresentationMode
-            ? "mt-5 list-decimal space-y-3 pl-6 text-lg leading-8 text-gray-200 sm:text-xl sm:leading-9"
+            ? "mt-5 list-decimal space-y-3 pl-6 text-lg leading-8 text-gray-900 dark:text-gray-200 sm:text-xl sm:leading-9"
             : "mt-5 list-decimal space-y-3 pl-7 text-[1.12rem] leading-9 text-gray-700 dark:text-gray-300 sm:text-[1.2rem] sm:leading-10",
           className,
         ]
@@ -444,7 +444,7 @@ function getMdxComponents(isPresentationMode: boolean, outline?: string[]) {
         {...props}
         className={[
           isPresentationMode
-            ? "font-semibold text-white"
+            ? "font-semibold text-gray-950 dark:text-white"
             : "font-semibold text-gray-950 dark:text-gray-100",
           className,
         ]
@@ -457,7 +457,7 @@ function getMdxComponents(isPresentationMode: boolean, outline?: string[]) {
         {...props}
         className={[
           isPresentationMode
-            ? "rounded-md bg-violet-500/12 px-1.5 py-0.5 font-mono text-[0.92em] text-violet-200"
+            ? "rounded-md bg-violet-500/12 px-1.5 py-0.5 font-mono text-[0.92em] text-violet-800 dark:text-violet-200"
             : "rounded-md bg-gray-100 px-1.5 py-0.5 font-mono text-[0.92em] text-violet-700 dark:bg-gray-800 dark:text-violet-300",
           className,
         ]
@@ -472,7 +472,7 @@ function getMdxComponents(isPresentationMode: boolean, outline?: string[]) {
         className={cn(
           "mx-auto block h-auto w-full max-w-5xl rounded-2xl border object-contain shadow-md",
           isPresentationMode
-            ? "border-gray-700 bg-gray-950/50"
+            ? "border-gray-300 dark:border-gray-700 bg-white/50 dark:bg-gray-950/50"
             : "border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-950/80",
           className,
         )}
@@ -531,7 +531,7 @@ export default async function SessionPage({ params, searchParams }: SessionPageP
 
     if (isPresentationMode) {
       return (
-        <main className="relative h-[100dvh] overflow-hidden bg-[#060914]">
+        <main className="relative h-[100dvh] overflow-hidden bg-white dark:bg-[#060914]">
           <OutlineTopicsProvider topics={frontmatter.outline ?? []}>
             <PresentationShell
               slug={slug}

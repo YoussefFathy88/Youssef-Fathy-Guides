@@ -220,7 +220,7 @@ function AnalogyText({ text }: { text: string }) {
       {parts.map((part, i) => {
         if (part.startsWith("**") && part.endsWith("**")) {
           return (
-            <strong key={i} className="font-semibold text-slate-200">
+            <strong key={i} className="font-semibold text-slate-900 dark:text-slate-200">
               {part.slice(2, -2)}
             </strong>
           );
@@ -264,11 +264,11 @@ function stackBlockClass(
       : "border border-[color:var(--primary)] shadow-[0_0_15px_rgba(139,92,246,0.2)]";
   
   return cn(
-    "w-full rounded-xl bg-[color:var(--surface-strong)] text-left font-semibold text-slate-100 transition-all",
+    "w-full rounded-xl bg-[color:var(--surface-strong)] text-left font-semibold text-slate-900 dark:text-slate-100 transition-all",
     "border-l-4", // Thicker left accent for clearer visualization
     stackToneAccentClass(tone),
     large ? "px-5 py-4 text-lg md:text-xl" : "px-4 py-3 text-base md:px-5 md:py-3.5",
-    active ? activeBorder : "border border-white/10 opacity-[0.93] hover:border-white/20 hover:opacity-100",
+    active ? activeBorder : "border border-gray-200 dark:border-white/10 opacity-[0.93] hover:border-gray-300 dark:hover:border-white/20 hover:opacity-100",
   );
 }
 
@@ -308,14 +308,14 @@ function FocusedBlockHero({
         <div className="min-w-0 flex-1 space-y-5 px-5 py-6 md:px-7 md:py-7">
           {!hideText ? (
             <div>
-              <h3 className="text-lg font-bold tracking-tight text-white md:text-xl">{title}</h3>
-              <p className="mt-2 text-base font-medium leading-relaxed text-slate-200 md:text-lg">{sub}</p>
+              <h3 className="text-lg font-bold tracking-tight text-gray-950 dark:text-white md:text-xl">{title}</h3>
+              <p className="mt-2 text-base font-medium leading-relaxed text-slate-900 dark:text-slate-200 md:text-lg">{sub}</p>
               {body.trim() !== sub.trim() ? (
-                <p className="mt-3 text-base font-medium leading-relaxed text-slate-200 md:text-lg">{body}</p>
+                <p className="mt-3 text-base font-medium leading-relaxed text-slate-900 dark:text-slate-200 md:text-lg">{body}</p>
               ) : null}
             </div>
           ) : null}
-          <div className="min-h-[280px] rounded-xl border border-white/10 bg-white/[0.04] px-4 py-6 md:min-h-[340px] md:px-6 md:py-8">
+          <div className="min-h-[280px] rounded-xl border border-gray-200 dark:border-white/10 bg-gray-900/[0.04] dark:bg-white/[0.04] px-4 py-6 md:min-h-[340px] md:px-6 md:py-8">
             {children}
           </div>
           {!hideText ? tip : null}
@@ -392,22 +392,22 @@ export default function TransformerSubstackExplorer({
 
   const encoderTip =
     encFocus !== "overview" && ENCODER_ANALOGY[encFocus] ? (
-      <p className="border-t border-white/10 pt-5 text-base font-medium leading-relaxed text-slate-300 md:text-lg">
-        <span className="font-bold text-slate-200">Real-world analogy. </span>
+      <p className="border-t border-gray-200 dark:border-white/10 pt-5 text-base font-medium leading-relaxed text-slate-700 dark:text-slate-300 md:text-lg">
+        <span className="font-bold text-slate-900 dark:text-slate-200">Real-world analogy. </span>
         <AnalogyText text={ENCODER_ANALOGY[encFocus]} />
       </p>
     ) : null;
 
   const decoderTip =
     decFocus !== "overview" && DECODER_ANALOGY[decFocus] ? (
-      <p className="border-t border-white/10 pt-5 text-base font-medium leading-relaxed text-slate-300 md:text-lg">
-        <span className="font-bold text-slate-200">Real-world analogy. </span>
+      <p className="border-t border-gray-200 dark:border-white/10 pt-5 text-base font-medium leading-relaxed text-slate-700 dark:text-slate-300 md:text-lg">
+        <span className="font-bold text-slate-900 dark:text-slate-200">Real-world analogy. </span>
         <AnalogyText text={DECODER_ANALOGY[decFocus]} />
       </p>
     ) : null;
 
   const pillIdle =
-    "bg-white/[0.05] text-slate-300 ring-1 ring-white/10 hover:bg-white/[0.08] hover:ring-white/15";
+    "bg-gray-900/[0.04] dark:bg-white/[0.05] text-slate-700 dark:text-slate-300 ring-1 ring-gray-200 dark:ring-white/10 hover:bg-gray-900/[0.07] dark:hover:bg-white/[0.08] hover:ring-gray-200 dark:hover:ring-white/15";
   const pillActiveEncoder =
     "bg-[color:var(--purple)]/14 text-[color:var(--purple)] ring-1 ring-[color:var(--purple)]/30";
   const pillActiveDecoder =
@@ -417,8 +417,8 @@ export default function TransformerSubstackExplorer({
     <div className="surface-panel w-full p-8 md:p-10">
       {!minimal ? (
         <div className="mb-6 space-y-2">
-          <h2 className="text-lg font-semibold text-white md:text-xl">{title ?? defaultTitle}</h2>
-          <p className="text-base font-medium text-slate-300 md:text-lg">{caption ?? defaultCaption}</p>
+          <h2 className="text-lg font-semibold text-gray-950 dark:text-white md:text-xl">{title ?? defaultTitle}</h2>
+          <p className="text-base font-medium text-slate-700 dark:text-slate-300 md:text-lg">{caption ?? defaultCaption}</p>
         </div>
       ) : null}
 
@@ -716,10 +716,10 @@ function DecoderStack({
           "rounded-2xl border-2 border-[color:var(--purple)]/45 bg-[color:var(--purple)]/12 p-4 ring-2 ring-[color:var(--purple)]/20 md:p-6",
         )}
       >
-        <p className="mb-4 text-center text-base font-bold uppercase tracking-wide text-violet-200 md:text-lg">
+        <p className="mb-4 text-center text-base font-bold uppercase tracking-wide text-violet-800 dark:text-violet-200 md:text-lg">
           Transformer backbone
         </p>
-        <p className="mb-4 text-center font-mono text-lg font-bold text-white md:text-xl">
+        <p className="mb-4 text-center font-mono text-lg font-bold text-gray-950 dark:text-white md:text-xl">
           × {layerCount} layers
         </p>
         <div className="flex flex-col">

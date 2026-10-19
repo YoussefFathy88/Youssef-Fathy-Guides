@@ -59,18 +59,18 @@ function BenchmarkCard({ card, index }: { card: (typeof BENCHMARK_CARDS)[number]
     >
       {!flipped ? (
         <>
-          <span className="inline-flex w-fit rounded-full border border-violet-400/40 bg-violet-950/40 px-3 py-1 text-base font-bold text-violet-200 md:text-lg">
+          <span className="inline-flex w-fit rounded-full border border-violet-400/40 bg-violet-950/40 px-3 py-1 text-base font-bold text-violet-800 dark:text-violet-200 md:text-lg">
             {card.category}
           </span>
-          <p className="mt-4 text-2xl font-bold text-white md:text-3xl">{card.name}</p>
-          <p className="mt-3 text-lg text-gray-300 md:text-xl">Click to see what it measures vs. what it misses</p>
+          <p className="mt-4 text-2xl font-bold text-gray-950 dark:text-white md:text-3xl">{card.name}</p>
+          <p className="mt-3 text-lg text-gray-700 dark:text-gray-300 md:text-xl">Click to see what it measures vs. what it misses</p>
         </>
       ) : (
         <>
-          <p className="text-lg font-bold text-teal-300 md:text-xl">✅ Measures</p>
-          <p className="mt-1 text-lg text-gray-100 md:text-xl">{card.measures}</p>
-          <p className="mt-4 text-lg font-bold text-rose-300 md:text-xl">🚫 Misses</p>
-          <p className="mt-1 text-lg text-gray-100 md:text-xl">{card.misses}</p>
+          <p className="text-lg font-bold text-teal-700 dark:text-teal-300 md:text-xl">✅ Measures</p>
+          <p className="mt-1 text-lg text-gray-900 dark:text-gray-100 md:text-xl">{card.measures}</p>
+          <p className="mt-4 text-lg font-bold text-rose-700 dark:text-rose-300 md:text-xl">🚫 Misses</p>
+          <p className="mt-1 text-lg text-gray-900 dark:text-gray-100 md:text-xl">{card.misses}</p>
         </>
       )}
     </motion.button>
@@ -106,14 +106,14 @@ function PricingPanel() {
   return (
     <div className="flex flex-1 flex-col gap-4">
       <PanelTitle>Output tokens always cost more than input tokens — generating text costs more compute than reading it.</PanelTitle>
-      <div className="overflow-x-auto rounded-xl border border-gray-700">
+      <div className="overflow-x-auto rounded-xl border border-gray-300 dark:border-gray-700">
         <table className="w-full min-w-[560px] border-collapse text-lg md:text-xl">
           <thead>
-            <tr className="border-b border-gray-700 bg-gray-950/60 text-left">
-              <th className="p-3 font-bold text-gray-300">Model tier</th>
-              <th className="p-3 font-bold text-gray-300">Input $/1M</th>
-              <th className="p-3 font-bold text-gray-300">Output $/1M</th>
-              <th className="p-3 font-bold text-gray-300">Best for</th>
+            <tr className="border-b border-gray-300 dark:border-gray-700 bg-white/60 dark:bg-gray-950/60 text-left">
+              <th className="p-3 font-bold text-gray-700 dark:text-gray-300">Model tier</th>
+              <th className="p-3 font-bold text-gray-700 dark:text-gray-300">Input $/1M</th>
+              <th className="p-3 font-bold text-gray-700 dark:text-gray-300">Output $/1M</th>
+              <th className="p-3 font-bold text-gray-700 dark:text-gray-300">Best for</th>
             </tr>
           </thead>
           <tbody>
@@ -123,17 +123,17 @@ function PricingPanel() {
                 initial={reducedMotion ? false : { opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3, delay: reducedMotion ? 0 : i * 0.25 }}
-                className="border-b border-gray-800 last:border-0"
+                className="border-b border-gray-200 dark:border-gray-800 last:border-0"
               >
-                <td className="p-3 font-bold text-white">{row.name}</td>
-                <td className="p-3 text-gray-200">{row.input}</td>
-                <td className="p-3 text-gray-200">{row.output}</td>
+                <td className="p-3 font-bold text-gray-950 dark:text-white">{row.name}</td>
+                <td className="p-3 text-gray-900 dark:text-gray-200">{row.input}</td>
+                <td className="p-3 text-gray-900 dark:text-gray-200">{row.output}</td>
                 <td className="p-3">
                   <motion.span
                     initial={reducedMotion ? false : { opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.3, delay: reducedMotion ? 0 : i * 0.25 + 0.35 }}
-                    className="rounded-full border border-teal-400/50 bg-teal-950/40 px-3 py-1 font-bold text-teal-200"
+                    className="rounded-full border border-teal-400/50 bg-teal-950/40 px-3 py-1 font-bold text-teal-800 dark:text-teal-200"
                   >
                     {row.best}
                   </motion.span>
@@ -143,7 +143,7 @@ function PricingPanel() {
           </tbody>
         </table>
       </div>
-      <p className="text-lg text-gray-400 md:text-xl">
+      <p className="text-lg text-gray-600 dark:text-gray-400 md:text-xl">
         Illustrative shape, not live rates — always check your provider&apos;s pricing page for current numbers.
       </p>
     </div>
@@ -167,15 +167,15 @@ function SpeedQualityPanel() {
     <div className="flex flex-1 flex-col gap-5">
       <PanelTitle>Match the model tier to the task — not every task needs your most expensive model.</PanelTitle>
 
-      <div className="relative h-3 rounded-full bg-gray-800">
+      <div className="relative h-3 rounded-full bg-gray-100 dark:bg-gray-800">
         <div className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-teal-500 via-amber-500 to-rose-500" style={{ width: "100%" }} />
         <motion.div
           animate={{ left: `${stop.pos}%` }}
           transition={{ duration: reducedMotion ? 0 : 0.35, ease: "easeOut" }}
-          className="absolute top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-white bg-gray-900 shadow-lg"
+          className="absolute top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-white bg-gray-50 dark:bg-gray-900 shadow-lg"
         />
       </div>
-      <div className="flex justify-between text-base font-bold text-gray-400 md:text-lg">
+      <div className="flex justify-between text-base font-bold text-gray-600 dark:text-gray-400 md:text-lg">
         <span>Speed</span>
         <span>Quality</span>
       </div>
@@ -189,8 +189,8 @@ function SpeedQualityPanel() {
             className={cn(
               "rounded-xl border-2 px-4 py-3 text-base font-bold transition md:text-lg",
               idx === i
-                ? "border-amber-400/80 bg-amber-950/50 text-amber-50 ring-2 ring-amber-400/50 ring-offset-2 ring-offset-gray-900"
-                : "border-gray-700 bg-gray-950/60 text-gray-300 hover:border-gray-500",
+                ? "border-amber-400/80 bg-amber-950/50 text-amber-800 dark:text-amber-50 ring-2 ring-amber-400/50 ring-offset-2 ring-offset-gray-900"
+                : "border-gray-300 dark:border-gray-700 bg-white/60 dark:bg-gray-950/60 text-gray-700 dark:text-gray-300 hover:border-gray-500",
             )}
           >
             {s.label}
@@ -226,8 +226,8 @@ function SourcesPanel() {
             className="flex flex-col gap-3 rounded-xl border-2 border-rose-400/40 bg-rose-950/20 p-4 md:p-5"
           >
             <span className="text-3xl" aria-hidden>{s.icon}</span>
-            <p className="text-lg font-bold text-rose-200 md:text-xl">{s.label}</p>
-            <p className="rounded-lg border border-gray-700 bg-gray-950/60 p-3 text-base italic text-gray-400 md:text-lg">
+            <p className="text-lg font-bold text-rose-800 dark:text-rose-200 md:text-xl">{s.label}</p>
+            <p className="rounded-lg border border-gray-300 dark:border-gray-700 bg-white/60 dark:bg-gray-950/60 p-3 text-base italic text-gray-600 dark:text-gray-400 md:text-lg">
               {s.sample}
             </p>
           </motion.div>

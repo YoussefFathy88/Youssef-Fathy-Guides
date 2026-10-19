@@ -38,38 +38,38 @@ const ACCENT: Record<
   { tab: string; bar: string; ring: string; badge: string; diagram: string }
 > = {
   amber: {
-    tab: "border-amber-500/70 bg-amber-950/40 text-amber-100 ring-amber-500/30",
+    tab: "border-amber-500/70 bg-amber-950/40 text-amber-800 dark:text-amber-100 ring-amber-500/30",
     bar: "bg-gradient-to-r from-amber-500 to-amber-400",
     ring: "ring-amber-500/40",
-    badge: "bg-amber-500/20 text-amber-200",
+    badge: "bg-amber-500/20 text-amber-800 dark:text-amber-200",
     diagram: "#f59e0b",
   },
   rose: {
-    tab: "border-rose-500/70 bg-rose-950/40 text-rose-100 ring-rose-500/30",
+    tab: "border-rose-500/70 bg-rose-950/40 text-rose-800 dark:text-rose-100 ring-rose-500/30",
     bar: "bg-gradient-to-r from-rose-500 to-rose-400",
     ring: "ring-rose-500/40",
-    badge: "bg-rose-500/20 text-rose-200",
+    badge: "bg-rose-500/20 text-rose-800 dark:text-rose-200",
     diagram: "#f43f5e",
   },
   violet: {
-    tab: "border-violet-500/70 bg-violet-950/40 text-violet-100 ring-violet-500/30",
+    tab: "border-violet-500/70 bg-violet-950/40 text-violet-800 dark:text-violet-100 ring-violet-500/30",
     bar: "bg-gradient-to-r from-violet-500 to-violet-400",
     ring: "ring-violet-500/40",
-    badge: "bg-violet-500/20 text-violet-200",
+    badge: "bg-violet-500/20 text-violet-800 dark:text-violet-200",
     diagram: "#8b5cf6",
   },
   blue: {
-    tab: "border-blue-500/70 bg-blue-950/40 text-blue-100 ring-blue-500/30",
+    tab: "border-blue-500/70 bg-blue-950/40 text-blue-800 dark:text-blue-100 ring-blue-500/30",
     bar: "bg-gradient-to-r from-blue-500 to-blue-400",
     ring: "ring-blue-500/40",
-    badge: "bg-blue-500/20 text-blue-200",
+    badge: "bg-blue-500/20 text-blue-800 dark:text-blue-200",
     diagram: "#3b82f6",
   },
   teal: {
-    tab: "border-teal-500/70 bg-teal-950/40 text-teal-100 ring-teal-500/30",
+    tab: "border-teal-500/70 bg-teal-950/40 text-teal-800 dark:text-teal-100 ring-teal-500/30",
     bar: "bg-gradient-to-r from-teal-500 to-teal-400",
     ring: "ring-teal-500/40",
-    badge: "bg-teal-500/20 text-teal-200",
+    badge: "bg-teal-500/20 text-teal-800 dark:text-teal-200",
     diagram: "#14b8a6",
   },
 };
@@ -209,10 +209,10 @@ function MetricBar({
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <span className="text-base font-bold uppercase tracking-wide text-gray-300 md:text-lg">{label}</span>
-        <span className="text-xl font-bold text-white md:text-2xl">{valueLabel}</span>
+        <span className="text-base font-bold uppercase tracking-wide text-gray-700 dark:text-gray-300 md:text-lg">{label}</span>
+        <span className="text-xl font-bold text-gray-950 dark:text-white md:text-2xl">{valueLabel}</span>
       </div>
-      <div className="h-5 overflow-hidden rounded-full bg-gray-800 ring-1 ring-gray-700 md:h-6">
+      <div className="h-5 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800 ring-1 ring-gray-300 dark:ring-gray-700 md:h-6">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${width}%` }}
@@ -242,25 +242,25 @@ function SourcePanel({ source }: { source: Gpt3DataSource }) {
           {source.emoji}
         </span>
         <div>
-          <h3 className="text-2xl font-bold text-white md:text-3xl">{source.label}</h3>
+          <h3 className="text-2xl font-bold text-gray-950 dark:text-white md:text-3xl">{source.label}</h3>
           {source.note ? (
-            <p className="mt-1 text-lg text-amber-200 md:text-xl">{source.note}</p>
+            <p className="mt-1 text-lg text-amber-800 dark:text-amber-200 md:text-xl">{source.note}</p>
           ) : null}
         </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 md:gap-5">
-        <div className={cn("rounded-2xl border-2 p-5 ring-1 md:p-6", tone.ring, "border-gray-700 bg-gray-900/70")}>
-          <p className="text-base font-bold uppercase tracking-wide text-gray-300 md:text-lg">What</p>
-          <p className="mt-3 text-lg leading-relaxed text-gray-100 md:text-xl">{source.what}</p>
+        <div className={cn("rounded-2xl border-2 p-5 ring-1 md:p-6", tone.ring, "border-gray-300 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-900/70")}>
+          <p className="text-base font-bold uppercase tracking-wide text-gray-700 dark:text-gray-300 md:text-lg">What</p>
+          <p className="mt-3 text-lg leading-relaxed text-gray-900 dark:text-gray-100 md:text-xl">{source.what}</p>
         </div>
-        <div className={cn("rounded-2xl border-2 p-5 ring-1 md:p-6", tone.ring, "border-gray-700 bg-gray-900/70")}>
-          <p className="text-base font-bold uppercase tracking-wide text-gray-300 md:text-lg">How filtered</p>
+        <div className={cn("rounded-2xl border-2 p-5 ring-1 md:p-6", tone.ring, "border-gray-300 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-900/70")}>
+          <p className="text-base font-bold uppercase tracking-wide text-gray-700 dark:text-gray-300 md:text-lg">How filtered</p>
           {source.filterSteps && source.filterSteps.length > 0 ? (
-            <ul className="mt-3 space-y-2 text-lg leading-relaxed text-gray-100 md:text-xl">
+            <ul className="mt-3 space-y-2 text-lg leading-relaxed text-gray-900 dark:text-gray-100 md:text-xl">
               {source.filterSteps.map((step) => (
                 <li key={step} className="flex gap-3">
-                  <span className="font-bold text-gray-400" aria-hidden>
+                  <span className="font-bold text-gray-600 dark:text-gray-400" aria-hidden>
                     •
                   </span>
                   <span>{step}</span>
@@ -268,12 +268,12 @@ function SourcePanel({ source }: { source: Gpt3DataSource }) {
               ))}
             </ul>
           ) : (
-            <p className="mt-3 text-lg leading-relaxed text-gray-100 md:text-xl">{source.filter}</p>
+            <p className="mt-3 text-lg leading-relaxed text-gray-900 dark:text-gray-100 md:text-xl">{source.filter}</p>
           )}
         </div>
       </div>
 
-      <div className="rounded-2xl border border-gray-700 bg-gray-950/80 p-4 md:p-5">
+      <div className="rounded-2xl border border-gray-300 dark:border-gray-700 bg-white/80 dark:bg-gray-950/80 p-4 md:p-5">
         <div className="h-[180px] md:h-[200px]">
           <SourceDiagram sourceId={source.id} accent={source.color} />
         </div>
@@ -312,27 +312,27 @@ function ComparePanel() {
       className="space-y-6"
     >
       <div>
-        <h3 className="text-2xl font-bold text-white md:text-3xl">Raw size vs training weight</h3>
-        <p className="mt-2 text-lg text-gray-200 md:text-xl">
+        <h3 className="text-2xl font-bold text-gray-950 dark:text-white md:text-3xl">Raw size vs training weight</h3>
+        <p className="mt-2 text-lg text-gray-900 dark:text-gray-200 md:text-xl">
           Training picks from five sources by quality — not by raw size alone.
         </p>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-gray-700">
-        <div className="grid grid-cols-[1.2fr_1fr_1fr] gap-3 border-b border-gray-700 bg-gray-900/90 px-4 py-3 md:px-6 md:py-4">
-          <span className="text-base font-bold text-gray-300 md:text-lg">Source</span>
-          <span className="text-base font-bold text-gray-300 md:text-lg">Raw size</span>
-          <span className="text-base font-bold text-gray-300 md:text-lg">Training weight</span>
+      <div className="overflow-hidden rounded-2xl border border-gray-300 dark:border-gray-700">
+        <div className="grid grid-cols-[1.2fr_1fr_1fr] gap-3 border-b border-gray-300 dark:border-gray-700 bg-gray-50/90 dark:bg-gray-900/90 px-4 py-3 md:px-6 md:py-4">
+          <span className="text-base font-bold text-gray-700 dark:text-gray-300 md:text-lg">Source</span>
+          <span className="text-base font-bold text-gray-700 dark:text-gray-300 md:text-lg">Raw size</span>
+          <span className="text-base font-bold text-gray-700 dark:text-gray-300 md:text-lg">Training weight</span>
         </div>
         {COMPARE_ROWS.map((row) => (
           <div
             key={row.label}
-            className="grid grid-cols-[1.2fr_1fr_1fr] items-center gap-3 border-b border-gray-800 px-4 py-4 last:border-b-0 md:px-6 md:py-5"
+            className="grid grid-cols-[1.2fr_1fr_1fr] items-center gap-3 border-b border-gray-200 dark:border-gray-800 px-4 py-4 last:border-b-0 md:px-6 md:py-5"
           >
-            <span className="text-lg font-semibold text-white md:text-xl">{row.label}</span>
+            <span className="text-lg font-semibold text-gray-950 dark:text-white md:text-xl">{row.label}</span>
             <div className="space-y-1">
-              <span className="block text-lg font-bold text-white md:text-xl">{row.raw}B</span>
-              <div className="h-3 overflow-hidden rounded-full bg-gray-800 md:h-4">
+              <span className="block text-lg font-bold text-gray-950 dark:text-white md:text-xl">{row.raw}B</span>
+              <div className="h-3 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800 md:h-4">
                 <div
                   className={cn("h-full rounded-full", ACCENT[row.color].bar)}
                   style={{ width: `${Math.max(4, (row.raw / maxRaw) * 100)}%` }}
@@ -340,8 +340,8 @@ function ComparePanel() {
               </div>
             </div>
             <div className="space-y-1">
-              <span className="block text-lg font-bold text-white md:text-xl">{row.weight}%</span>
-              <div className="h-3 overflow-hidden rounded-full bg-gray-800 md:h-4">
+              <span className="block text-lg font-bold text-gray-950 dark:text-white md:text-xl">{row.weight}%</span>
+              <div className="h-3 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800 md:h-4">
                 <div
                   className={cn("h-full rounded-full", ACCENT[row.color].bar)}
                   style={{ width: `${Math.max(4, (row.weight / maxWeight) * 100)}%` }}
@@ -371,12 +371,12 @@ export default function Gpt3DataSourcesExplorer({
       initial={reducedMotion ? false : { opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="w-full rounded-2xl border border-gray-700 bg-gray-900 p-6 md:p-10"
+      className="w-full rounded-2xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-6 md:p-10"
       data-local-navigation="true"
     >
       <div className="space-y-2">
-        <h2 className="text-xl font-semibold text-gray-100 md:text-2xl">{title}</h2>
-        {caption ? <p className="text-lg text-gray-300 md:text-xl">{caption}</p> : null}
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 md:text-2xl">{title}</h2>
+        {caption ? <p className="text-lg text-gray-700 dark:text-gray-300 md:text-xl">{caption}</p> : null}
       </div>
 
       <div
@@ -399,7 +399,7 @@ export default function Gpt3DataSourcesExplorer({
                 "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400",
                 isActive
                   ? cn("ring-2", ACCENT[source.color].tab)
-                  : "border-gray-700 bg-gray-950/60 text-gray-300 hover:border-gray-600 hover:text-white",
+                  : "border-gray-300 dark:border-gray-700 bg-white/60 dark:bg-gray-950/60 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-950 dark:hover:text-white",
               )}
             >
               <span className="mr-2" aria-hidden>
@@ -419,8 +419,8 @@ export default function Gpt3DataSourcesExplorer({
             "rounded-xl border-2 px-4 py-3 text-base font-bold transition md:px-5 md:py-3.5 md:text-lg",
             "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400",
             isCompare
-              ? "border-violet-500/70 bg-violet-950/40 text-violet-100 ring-2 ring-violet-500/30"
-              : "border-gray-700 bg-gray-950/60 text-gray-300 hover:border-gray-600 hover:text-white",
+              ? "border-violet-500/70 bg-violet-950/40 text-violet-800 dark:text-violet-100 ring-2 ring-violet-500/30"
+              : "border-gray-300 dark:border-gray-700 bg-white/60 dark:bg-gray-950/60 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-950 dark:hover:text-white",
           )}
         >
           Compare

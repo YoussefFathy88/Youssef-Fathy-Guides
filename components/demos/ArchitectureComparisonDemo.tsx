@@ -26,7 +26,7 @@ const PANEL_META: Record<
 > = {
   fnn: {
     title: "🧱 Feedforward Network",
-    badgeClass: "border border-amber-500/70 bg-amber-950 text-amber-300",
+    badgeClass: "border border-amber-500/70 bg-amber-950 text-amber-700 dark:text-amber-300",
     activeClass: "border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.15)]",
     explanation:
       "FNN can only see the last 3 words. 'Egypt' is far outside the fixed window, so the model guesses a generic city word.",
@@ -36,7 +36,7 @@ const PANEL_META: Record<
   },
   rnn: {
     title: "🔄 Recurrent Network",
-    badgeClass: "border border-teal-500/70 bg-teal-950 text-teal-300",
+    badgeClass: "border border-teal-500/70 bg-teal-950 text-teal-700 dark:text-teal-300",
     activeClass: "border-teal-500 shadow-[0_0_20px_rgba(45,212,191,0.15)]",
     explanation:
       "RNN processed every word in order, but the hidden state overwrites itself at each step. By the time we reach 'is', Egypt's signal is only 8% of what it was — too faint to influence the prediction.",
@@ -46,7 +46,7 @@ const PANEL_META: Record<
   },
   transformer: {
     title: "⚡ Transformer",
-    badgeClass: "border border-violet-500/70 bg-violet-950 text-violet-300",
+    badgeClass: "border border-violet-500/70 bg-violet-950 text-violet-700 dark:text-violet-300",
     activeClass: "border-violet-500 shadow-[0_0_20px_rgba(139,92,246,0.15)]",
     explanation:
       "The Transformer looks at all words simultaneously and learns which ones matter for each prediction. 'Egypt' attends directly to the blank with full strength — no decay, no distance limit.",
@@ -121,7 +121,7 @@ export function ArchitectureComparisonDemo() {
   }, [arcPoints]);
 
   return (
-    <section className="w-full rounded-2xl border border-zinc-800 bg-zinc-950 p-4 font-sans text-zinc-100 sm:p-6">
+    <section className="w-full rounded-2xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-4 font-sans text-zinc-900 dark:text-zinc-100 sm:p-6">
       <div className="mb-5 overflow-x-auto">
         <div className="mx-auto inline-flex min-w-max flex-col items-center gap-2">
           <div className="flex flex-wrap items-center justify-center gap-2">
@@ -129,7 +129,7 @@ export function ArchitectureComparisonDemo() {
               <span
                 key={`shared-${word}-${idx}`}
                 className={[
-                  "rounded-md bg-zinc-800 px-2 py-1 text-sm font-mono text-zinc-200 transition-all duration-300",
+                  "rounded-md bg-gray-100 dark:bg-zinc-800 px-2 py-1 text-sm font-mono text-zinc-900 dark:text-zinc-200 transition-all duration-300",
                   idx === EGYPT_INDEX ? "shadow-[0_0_10px_rgba(251,191,36,0.35)]" : "",
                   idx === TARGET_INDEX
                     ? "border border-violet-400 animate-pulse shadow-[0_0_10px_rgba(167,139,250,0.35)]"
@@ -140,8 +140,8 @@ export function ArchitectureComparisonDemo() {
               </span>
             ))}
           </div>
-          <div className="font-sans text-xs text-zinc-400">
-            <span className="text-violet-300">↓</span> Predict this word
+          <div className="font-sans text-xs text-zinc-600 dark:text-zinc-400">
+            <span className="text-violet-700 dark:text-violet-300">↓</span> Predict this word
           </div>
         </div>
       </div>
@@ -150,8 +150,8 @@ export function ArchitectureComparisonDemo() {
         <article
           onClick={() => setActivePanel("fnn")}
           className={[
-            "cursor-pointer rounded-xl border bg-zinc-900 p-4 transition-all duration-300",
-            "border-zinc-700",
+            "cursor-pointer rounded-xl border bg-gray-50 dark:bg-zinc-900 p-4 transition-all duration-300",
+            "border-gray-300 dark:border-zinc-700",
             activePanel === "fnn" ? `scale-[1.02] opacity-100 ${PANEL_META.fnn.activeClass}` : "opacity-70",
           ].join(" ")}
         >
@@ -171,32 +171,32 @@ export function ArchitectureComparisonDemo() {
                     className={[
                       "rounded-md px-2 py-1 text-sm font-mono transition-all duration-300",
                       inWindow
-                        ? "border border-amber-500 bg-amber-950 text-amber-200"
-                        : "bg-zinc-800 text-zinc-300 grayscale opacity-30",
-                      isEgypt ? "line-through text-zinc-500 opacity-40" : "",
+                        ? "border border-amber-500 bg-amber-950 text-amber-800 dark:text-amber-200"
+                        : "bg-gray-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 grayscale opacity-30",
+                      isEgypt ? "line-through text-zinc-600 dark:text-zinc-500 opacity-40" : "",
                     ].join(" ")}
                   >
                     {word}
                   </span>
                   {isEgypt ? (
-                    <span className="absolute -top-2 -right-2 text-[10px] text-rose-400">❌</span>
+                    <span className="absolute -top-2 -right-2 text-[10px] text-rose-700 dark:text-rose-400">❌</span>
                   ) : null}
                 </div>
               );
             })}
           </div>
 
-          <div className="mb-3 text-xs text-amber-300">Window = last 3 words</div>
-          <div className="mb-4 text-xs text-rose-300">❌ Outside window</div>
+          <div className="mb-3 text-xs text-amber-700 dark:text-amber-300">Window = last 3 words</div>
+          <div className="mb-4 text-xs text-rose-700 dark:text-rose-300">❌ Outside window</div>
 
-          <p className="mb-2 text-xs text-zinc-400">How it sees the input</p>
-          <div className="mb-2 text-center text-zinc-500">↓</div>
+          <p className="mb-2 text-xs text-zinc-600 dark:text-zinc-400">How it sees the input</p>
+          <div className="mb-2 text-center text-zinc-600 dark:text-zinc-500">↓</div>
 
-          <p className="mb-2 text-xs text-zinc-400">Prediction</p>
-          <div className="rounded-lg border border-rose-500 bg-rose-950 p-3 text-center text-lg font-bold text-rose-400">
+          <p className="mb-2 text-xs text-zinc-600 dark:text-zinc-400">Prediction</p>
+          <div className="rounded-lg border border-rose-500 bg-rose-950 p-3 text-center text-lg font-bold text-rose-700 dark:text-rose-400">
             🏙️ Paris
           </div>
-          <p className="mt-2 text-center text-xs text-rose-300">Generic guess — no context about Egypt facts</p>
+          <p className="mt-2 text-center text-xs text-rose-700 dark:text-rose-300">Generic guess — no context about Egypt facts</p>
 
           <button
             type="button"
@@ -204,7 +204,7 @@ export function ArchitectureComparisonDemo() {
               event.stopPropagation();
               setWhyOpen((prev) => ({ ...prev, fnn: !prev.fnn }));
             }}
-            className="mt-3 rounded-md border border-zinc-700 bg-zinc-950 px-2 py-1 text-xs text-zinc-300 transition-all duration-300 hover:border-amber-500/60"
+            className="mt-3 rounded-md border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-2 py-1 text-xs text-zinc-700 dark:text-zinc-300 transition-all duration-300 hover:border-amber-500/60"
           >
             Why?
           </button>
@@ -214,7 +214,7 @@ export function ArchitectureComparisonDemo() {
               whyOpen.fnn ? "mt-2 max-h-40" : "max-h-0",
             ].join(" ")}
           >
-            <div className="rounded-md border border-zinc-700 bg-zinc-950 p-2 text-xs text-zinc-300">
+            <div className="rounded-md border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 p-2 text-xs text-zinc-700 dark:text-zinc-300">
               {PANEL_META.fnn.whyText}
             </div>
           </div>
@@ -223,8 +223,8 @@ export function ArchitectureComparisonDemo() {
         <article
           onClick={() => setActivePanel("rnn")}
           className={[
-            "cursor-pointer rounded-xl border bg-zinc-900 p-4 transition-all duration-300",
-            "border-zinc-700",
+            "cursor-pointer rounded-xl border bg-gray-50 dark:bg-zinc-900 p-4 transition-all duration-300",
+            "border-gray-300 dark:border-zinc-700",
             activePanel === "rnn" ? `scale-[1.02] opacity-100 ${PANEL_META.rnn.activeClass}` : "opacity-70",
           ].join(" ")}
         >
@@ -241,38 +241,38 @@ export function ArchitectureComparisonDemo() {
                 <div key={`rnn-${word}-${idx}`} className="flex flex-col items-center gap-0.5">
                   <span
                     className={[
-                      "rounded-md bg-zinc-800 px-2 py-1 text-sm font-mono text-zinc-200 transition-all duration-300",
+                      "rounded-md bg-gray-100 dark:bg-zinc-800 px-2 py-1 text-sm font-mono text-zinc-900 dark:text-zinc-200 transition-all duration-300",
                       isEgypt ? "bg-amber-950 text-amber-600 opacity-50" : "",
                     ].join(" ")}
                   >
                     {word}
                   </span>
-                  <span className="text-[10px] text-zinc-500">{idx < 10 ? `h${idx + 1}` : ""}</span>
+                  <span className="text-[10px] text-zinc-600 dark:text-zinc-500">{idx < 10 ? `h${idx + 1}` : ""}</span>
                 </div>
               );
             })}
           </div>
-          <div className="mb-3 text-xs text-amber-300">⚠️ Fading</div>
+          <div className="mb-3 text-xs text-amber-700 dark:text-amber-300">⚠️ Fading</div>
 
           <div className="mb-4">
             <div className="relative h-3 w-full rounded-full bg-gradient-to-r from-zinc-700 to-teal-400">
               <span className="absolute -top-2 left-[15%] h-6 w-[2px] bg-amber-300" />
             </div>
-            <div className="mt-1 flex items-center justify-between text-[10px] text-zinc-500">
+            <div className="mt-1 flex items-center justify-between text-[10px] text-zinc-600 dark:text-zinc-500">
               <span>Older</span>
-              <span className="text-amber-300">Egypt: 8% retained</span>
+              <span className="text-amber-700 dark:text-amber-300">Egypt: 8% retained</span>
               <span>Recent</span>
             </div>
           </div>
 
-          <p className="mb-2 text-xs text-zinc-400">How it sees the input</p>
-          <div className="mb-2 text-center text-zinc-500">↓</div>
+          <p className="mb-2 text-xs text-zinc-600 dark:text-zinc-400">How it sees the input</p>
+          <div className="mb-2 text-center text-zinc-600 dark:text-zinc-500">↓</div>
 
-          <p className="mb-2 text-xs text-zinc-400">Prediction</p>
-          <div className="rounded-lg border border-rose-500 bg-rose-950 p-3 text-center text-lg font-bold text-rose-400">
+          <p className="mb-2 text-xs text-zinc-600 dark:text-zinc-400">Prediction</p>
+          <div className="rounded-lg border border-rose-500 bg-rose-950 p-3 text-center text-lg font-bold text-rose-700 dark:text-rose-400">
             🏙️ Paris
           </div>
-          <p className="mt-2 text-center text-xs text-rose-300">Egypt processed but nearly forgotten</p>
+          <p className="mt-2 text-center text-xs text-rose-700 dark:text-rose-300">Egypt processed but nearly forgotten</p>
 
           <button
             type="button"
@@ -280,7 +280,7 @@ export function ArchitectureComparisonDemo() {
               event.stopPropagation();
               setWhyOpen((prev) => ({ ...prev, rnn: !prev.rnn }));
             }}
-            className="mt-3 rounded-md border border-zinc-700 bg-zinc-950 px-2 py-1 text-xs text-zinc-300 transition-all duration-300 hover:border-teal-500/60"
+            className="mt-3 rounded-md border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-2 py-1 text-xs text-zinc-700 dark:text-zinc-300 transition-all duration-300 hover:border-teal-500/60"
           >
             Why?
           </button>
@@ -290,7 +290,7 @@ export function ArchitectureComparisonDemo() {
               whyOpen.rnn ? "mt-2 max-h-40" : "max-h-0",
             ].join(" ")}
           >
-            <div className="rounded-md border border-zinc-700 bg-zinc-950 p-2 text-xs text-zinc-300">
+            <div className="rounded-md border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 p-2 text-xs text-zinc-700 dark:text-zinc-300">
               {PANEL_META.rnn.whyText}
             </div>
           </div>
@@ -299,8 +299,8 @@ export function ArchitectureComparisonDemo() {
         <article
           onClick={() => setActivePanel("transformer")}
           className={[
-            "cursor-pointer rounded-xl border bg-zinc-900 p-4 transition-all duration-300",
-            "border-zinc-700",
+            "cursor-pointer rounded-xl border bg-gray-50 dark:bg-zinc-900 p-4 transition-all duration-300",
+            "border-gray-300 dark:border-zinc-700",
             activePanel === "transformer"
               ? `scale-[1.02] opacity-100 ${PANEL_META.transformer.activeClass}`
               : "opacity-70",
@@ -326,9 +326,9 @@ export function ArchitectureComparisonDemo() {
                       transformerChipRefs.current[idx] = el;
                     }}
                     className={[
-                      "rounded-md bg-zinc-800 px-2 py-1 text-sm font-mono text-zinc-200 transition-all duration-300",
-                      isEgypt ? "bg-amber-900 text-amber-300 shadow-[0_0_10px_rgba(251,191,36,0.5)]" : "",
-                      isTarget ? "bg-violet-900 text-violet-200 shadow-[0_0_10px_rgba(167,139,250,0.45)]" : "",
+                      "rounded-md bg-gray-100 dark:bg-zinc-800 px-2 py-1 text-sm font-mono text-zinc-900 dark:text-zinc-200 transition-all duration-300",
+                      isEgypt ? "bg-amber-900 text-amber-700 dark:text-amber-300 shadow-[0_0_10px_rgba(251,191,36,0.5)]" : "",
+                      isTarget ? "bg-violet-900 text-violet-800 dark:text-violet-200 shadow-[0_0_10px_rgba(167,139,250,0.45)]" : "",
                     ].join(" ")}
                   >
                     {word}
@@ -380,18 +380,18 @@ export function ArchitectureComparisonDemo() {
                 </svg>
               ) : null}
             </div>
-            <p className="text-xs text-violet-300 md:hidden">→ Direct Attention</p>
+            <p className="text-xs text-violet-700 dark:text-violet-300 md:hidden">→ Direct Attention</p>
           </div>
 
-          <p className="mb-2 text-xs text-zinc-400">How it sees the input</p>
-          <div className="mb-2 text-center text-zinc-500">↓</div>
+          <p className="mb-2 text-xs text-zinc-600 dark:text-zinc-400">How it sees the input</p>
+          <div className="mb-2 text-center text-zinc-600 dark:text-zinc-500">↓</div>
 
-          <p className="mb-2 text-xs text-zinc-400">Prediction</p>
-          <div className="relative rounded-lg border border-violet-500 bg-violet-950 p-3 text-center text-lg font-bold text-violet-300">
-            <span className="absolute top-1 right-2 text-xs text-emerald-300">✅</span>
+          <p className="mb-2 text-xs text-zinc-600 dark:text-zinc-400">Prediction</p>
+          <div className="relative rounded-lg border border-violet-500 bg-violet-950 p-3 text-center text-lg font-bold text-violet-700 dark:text-violet-300">
+            <span className="absolute top-1 right-2 text-xs text-emerald-700 dark:text-emerald-300">✅</span>
             🏙️ Cairo
           </div>
-          <p className="mt-2 text-center text-xs text-violet-300">
+          <p className="mt-2 text-center text-xs text-violet-700 dark:text-violet-300">
             Egypt attended directly — full context preserved
           </p>
 
@@ -401,7 +401,7 @@ export function ArchitectureComparisonDemo() {
               event.stopPropagation();
               setWhyOpen((prev) => ({ ...prev, transformer: !prev.transformer }));
             }}
-            className="mt-3 rounded-md border border-zinc-700 bg-zinc-950 px-2 py-1 text-xs text-zinc-300 transition-all duration-300 hover:border-violet-500/60"
+            className="mt-3 rounded-md border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-2 py-1 text-xs text-zinc-700 dark:text-zinc-300 transition-all duration-300 hover:border-violet-500/60"
           >
             Why?
           </button>
@@ -411,17 +411,17 @@ export function ArchitectureComparisonDemo() {
               whyOpen.transformer ? "mt-2 max-h-40" : "max-h-0",
             ].join(" ")}
           >
-            <div className="rounded-md border border-zinc-700 bg-zinc-950 p-2 text-xs text-zinc-300">
+            <div className="rounded-md border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 p-2 text-xs text-zinc-700 dark:text-zinc-300">
               {PANEL_META.transformer.whyText}
             </div>
           </div>
         </article>
       </div>
 
-      <div className="mt-6 rounded-xl border border-zinc-700 bg-zinc-900 p-4">
+      <div className="mt-6 rounded-xl border border-gray-300 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-900 p-4">
         <div className="flex items-start gap-3">
           <span className={`mt-0.5 h-10 w-1 rounded ${PANEL_META[activePanel].leftBarClass}`} />
-          <p className="text-sm leading-relaxed text-zinc-300">{PANEL_META[activePanel].explanation}</p>
+          <p className="text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">{PANEL_META[activePanel].explanation}</p>
         </div>
       </div>
     </section>

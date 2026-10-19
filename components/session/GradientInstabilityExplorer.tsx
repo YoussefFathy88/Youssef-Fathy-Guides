@@ -26,10 +26,10 @@ export default function GradientInstabilityExplorer({
     <div className="surface-panel w-full p-8 md:p-10">
       {!minimal ? (
         <div className="mb-6 space-y-2">
-          <h2 className="text-lg font-semibold text-white md:text-xl">
+          <h2 className="text-lg font-semibold text-gray-950 dark:text-white md:text-xl">
             {title ?? "Deep stacks: exploding & vanishing gradients"}
           </h2>
-          <p className="text-base font-medium text-slate-300 md:text-lg">
+          <p className="text-base font-medium text-slate-700 dark:text-slate-300 md:text-lg">
             {caption ??
               "After attention, values can blow up or fade away — LayerNorm fixes this in the next step."}
           </p>

@@ -109,39 +109,39 @@ const ACCENT: Record<
   { pill: string; ring: string; bar: string; diagram: string; badge: string }
 > = {
   amber: {
-    pill: "border-amber-500/70 bg-amber-950/50 text-amber-100",
+    pill: "border-amber-500/70 bg-amber-950/50 text-amber-800 dark:text-amber-100",
     ring: "ring-amber-500/35",
     bar: "bg-amber-500",
     diagram: "#f59e0b",
-    badge: "bg-amber-500/20 text-amber-200",
+    badge: "bg-amber-500/20 text-amber-800 dark:text-amber-200",
   },
   teal: {
-    pill: "border-teal-500/70 bg-teal-950/50 text-teal-100",
+    pill: "border-teal-500/70 bg-teal-950/50 text-teal-800 dark:text-teal-100",
     ring: "ring-teal-500/35",
     bar: "bg-teal-500",
     diagram: "#14b8a6",
-    badge: "bg-teal-500/20 text-teal-200",
+    badge: "bg-teal-500/20 text-teal-800 dark:text-teal-200",
   },
   rose: {
-    pill: "border-rose-500/70 bg-rose-950/50 text-rose-100",
+    pill: "border-rose-500/70 bg-rose-950/50 text-rose-800 dark:text-rose-100",
     ring: "ring-rose-500/35",
     bar: "bg-rose-500",
     diagram: "#f43f5e",
-    badge: "bg-rose-500/20 text-rose-200",
+    badge: "bg-rose-500/20 text-rose-800 dark:text-rose-200",
   },
   violet: {
-    pill: "border-violet-500/70 bg-violet-950/50 text-violet-100",
+    pill: "border-violet-500/70 bg-violet-950/50 text-violet-800 dark:text-violet-100",
     ring: "ring-violet-500/35",
     bar: "bg-violet-500",
     diagram: "#8b5cf6",
-    badge: "bg-violet-500/20 text-violet-200",
+    badge: "bg-violet-500/20 text-violet-800 dark:text-violet-200",
   },
   blue: {
-    pill: "border-blue-500/70 bg-blue-950/50 text-blue-100",
+    pill: "border-blue-500/70 bg-blue-950/50 text-blue-800 dark:text-blue-100",
     ring: "ring-blue-500/35",
     bar: "bg-blue-500",
     diagram: "#3b82f6",
-    badge: "bg-blue-500/20 text-blue-200",
+    badge: "bg-blue-500/20 text-blue-800 dark:text-blue-200",
   },
 };
 
@@ -357,7 +357,7 @@ function TokenGrid({
       {label ? (
         <p
           className={cn(
-            "font-bold text-gray-200",
+            "font-bold text-gray-900 dark:text-gray-200",
             isHero ? "text-lg md:text-xl" : "text-base md:text-lg",
           )}
         >
@@ -378,12 +378,12 @@ function TokenGrid({
                     : "min-w-[5rem] px-2.5 py-3 md:min-w-[5.75rem] md:px-3 md:py-4",
                   highlighted
                     ? cn("border-amber-400 bg-amber-950/40 ring-2 ring-amber-500/40")
-                    : "border-gray-600 bg-gray-900/80",
+                    : "border-gray-300 dark:border-gray-600 bg-gray-50/80 dark:bg-gray-900/80",
                 )}
               >
                 <span
                   className={cn(
-                    "text-center font-semibold leading-tight text-white",
+                    "text-center font-semibold leading-tight text-gray-950 dark:text-white",
                     isHero ? "text-xl md:text-2xl" : "text-lg md:text-xl",
                   )}
                 >
@@ -394,12 +394,12 @@ function TokenGrid({
                     "mt-2 font-mono font-bold",
                     isHero ? "text-lg md:text-xl" : "text-base md:text-lg",
                     highlighted
-                      ? "text-amber-300"
+                      ? "text-amber-700 dark:text-amber-300"
                       : accent === "blue"
-                        ? "text-blue-300"
+                        ? "text-blue-700 dark:text-blue-300"
                         : accent === "teal"
-                          ? "text-teal-300"
-                          : "text-violet-300",
+                          ? "text-teal-700 dark:text-teal-300"
+                          : "text-violet-700 dark:text-violet-300",
                   )}
                 >
                   {ids[i] ?? "—"}
@@ -426,12 +426,12 @@ function BeforeAfterPanel({
 }) {
   return (
     <div className="grid gap-6 md:grid-cols-2 md:gap-8">
-      <div className="rounded-2xl border-2 border-rose-500/35 bg-gray-950/90 p-6 md:p-8">
-        <p className="text-lg font-bold uppercase tracking-wide text-rose-200 md:text-xl">{beforeLabel}</p>
+      <div className="rounded-2xl border-2 border-rose-500/35 bg-white/90 dark:bg-gray-950/90 p-6 md:p-8">
+        <p className="text-lg font-bold uppercase tracking-wide text-rose-800 dark:text-rose-200 md:text-xl">{beforeLabel}</p>
         <div className="mt-5">{before}</div>
       </div>
-      <div className="rounded-2xl border-2 border-teal-500/35 bg-gray-950/90 p-6 md:p-8">
-        <p className="text-lg font-bold uppercase tracking-wide text-teal-200 md:text-xl">{afterLabel}</p>
+      <div className="rounded-2xl border-2 border-teal-500/35 bg-white/90 dark:bg-gray-950/90 p-6 md:p-8">
+        <p className="text-lg font-bold uppercase tracking-wide text-teal-800 dark:text-teal-200 md:text-xl">{afterLabel}</p>
         <div className="mt-5">{after}</div>
       </div>
     </div>
@@ -439,7 +439,7 @@ function BeforeAfterPanel({
 }
 
 function WalkthroughPanel({ walkthrough }: { walkthrough: StageWalkthrough }) {
-  const textBody = "whitespace-pre-wrap break-words text-xl leading-relaxed text-gray-100 md:text-2xl";
+  const textBody = "whitespace-pre-wrap break-words text-xl leading-relaxed text-gray-900 dark:text-gray-100 md:text-2xl";
   const monoBody = cn(textBody, "font-mono text-lg md:text-xl");
 
   if (walkthrough.mode === "text") {
@@ -478,7 +478,7 @@ function WalkthroughPanel({ walkthrough }: { walkthrough: StageWalkthrough }) {
                 accent="violet"
                 size="hero"
               />
-              <p className="mt-4 text-lg font-semibold text-gray-300 md:text-xl">… trillions more tokens …</p>
+              <p className="mt-4 text-lg font-semibold text-gray-700 dark:text-gray-300 md:text-xl">… trillions more tokens …</p>
             </div>
           </>
         }
@@ -495,7 +495,7 @@ function WalkthroughPanel({ walkthrough }: { walkthrough: StageWalkthrough }) {
                 accent="violet"
                 size="hero"
               />
-              <p className="mt-4 text-lg font-semibold text-violet-200 md:text-xl">
+              <p className="mt-4 text-lg font-semibold text-violet-800 dark:text-violet-200 md:text-xl">
                 … + {(walkthrough.chunkSize - previewLen).toLocaleString()} more in this chunk
               </p>
             </div>
@@ -525,13 +525,13 @@ function WalkthroughPanel({ walkthrough }: { walkthrough: StageWalkthrough }) {
               accent="teal"
               size="hero"
             />
-            <p className="mt-5 text-lg leading-relaxed text-gray-200 md:text-xl">
+            <p className="mt-5 text-lg leading-relaxed text-gray-900 dark:text-gray-200 md:text-xl">
               After{" "}
-              <span className="font-semibold text-white">
+              <span className="font-semibold text-gray-950 dark:text-white">
                 {walkthrough.inputTokens.slice(0, hi + 1).join(" ")}
               </span>
               , the model predicts{" "}
-              <span className="font-bold text-teal-300">
+              <span className="font-bold text-teal-700 dark:text-teal-300">
                 {walkthrough.targetTokens[hi]}
               </span>
             </p>
@@ -548,11 +548,11 @@ function WalkthroughPanel({ walkthrough }: { walkthrough: StageWalkthrough }) {
         before={<p className={textBody}>{walkthrough.document}</p>}
         after={
           <>
-            <p className="text-4xl font-bold text-white md:text-5xl">{walkthrough.score.toFixed(2)}</p>
-            <p className="mt-3 text-xl text-gray-200 md:text-2xl">
+            <p className="text-4xl font-bold text-gray-950 dark:text-white md:text-5xl">{walkthrough.score.toFixed(2)}</p>
+            <p className="mt-3 text-xl text-gray-900 dark:text-gray-200 md:text-2xl">
               Cutoff {walkthrough.threshold} → {pass ? "✅ kept" : "❌ dropped"}
             </p>
-            <p className="mt-3 text-lg text-gray-300 md:text-xl">
+            <p className="mt-3 text-lg text-gray-700 dark:text-gray-300 md:text-xl">
               Scored against good pages from WebText, books, and Wikipedia.
             </p>
           </>
@@ -567,8 +567,8 @@ function WalkthroughPanel({ walkthrough }: { walkthrough: StageWalkthrough }) {
         before={<p className={textBody}>{walkthrough.document}</p>}
         after={
           <>
-            <p className="text-3xl font-bold text-white md:text-4xl">{walkthrough.detected}</p>
-            <p className="mt-3 text-xl text-teal-300 md:text-2xl">✅ English — page kept</p>
+            <p className="text-3xl font-bold text-gray-950 dark:text-white md:text-4xl">{walkthrough.detected}</p>
+            <p className="mt-3 text-xl text-teal-700 dark:text-teal-300 md:text-2xl">✅ English — page kept</p>
           </>
         }
       />
@@ -581,7 +581,7 @@ function WalkthroughPanel({ walkthrough }: { walkthrough: StageWalkthrough }) {
         before={
           <>
             <p className={textBody}>{walkthrough.document}</p>
-            <p className="mt-4 font-mono text-lg text-gray-300 md:text-xl">{walkthrough.hash}</p>
+            <p className="mt-4 font-mono text-lg text-gray-700 dark:text-gray-300 md:text-xl">{walkthrough.hash}</p>
           </>
         }
         after={
@@ -614,7 +614,7 @@ function WalkthroughPanel({ walkthrough }: { walkthrough: StageWalkthrough }) {
               accent="teal"
               size="hero"
             />
-            <p className="mt-5 text-lg text-gray-200 md:text-xl">
+            <p className="mt-5 text-lg text-gray-900 dark:text-gray-200 md:text-xl">
               {walkthrough.batchSize} examples per batch — predict, check error, update weights
             </p>
           </>
@@ -674,12 +674,12 @@ export default function CommonCrawlPreparationFlow({
       initial={reducedMotion ? false : { opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="w-full rounded-2xl border border-gray-700 bg-gray-900 p-6 md:p-10"
+      className="w-full rounded-2xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-6 md:p-10"
       data-local-navigation="true"
     >
       <div className="space-y-2">
-        <h2 className="text-xl font-semibold text-gray-100 md:text-2xl">{title}</h2>
-        {caption ? <p className="text-lg text-gray-300 md:text-xl">{caption}</p> : null}
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 md:text-2xl">{title}</h2>
+        {caption ? <p className="text-lg text-gray-700 dark:text-gray-300 md:text-xl">{caption}</p> : null}
       </div>
 
       {/* Progress strip */}
@@ -702,8 +702,8 @@ export default function CommonCrawlPreparationFlow({
                   isActive
                     ? cn("ring-2", ACCENT[s.color].pill, ACCENT[s.color].ring)
                     : isPast
-                      ? "border-teal-600/50 bg-teal-950/30 text-teal-200"
-                      : "border-gray-700 bg-gray-950/50 text-gray-400 hover:border-gray-600",
+                      ? "border-teal-600/50 bg-teal-950/30 text-teal-800 dark:text-teal-200"
+                      : "border-gray-300 dark:border-gray-700 bg-white/50 dark:bg-gray-950/50 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600",
                 )}
                 aria-label={`Stage ${s.number}: ${s.label}`}
                 aria-current={isActive ? "step" : undefined}
@@ -716,7 +716,7 @@ export default function CommonCrawlPreparationFlow({
             );
           })}
         </div>
-        <div className="mt-3 h-2 overflow-hidden rounded-full bg-gray-800">
+        <div className="mt-3 h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
           <motion.div
             className={cn("h-full rounded-full", tone.bar)}
             animate={{ width: `${((current + 1) / stages.length) * 100}%` }}
@@ -745,23 +745,23 @@ export default function CommonCrawlPreparationFlow({
                   Stage {stage.number} · {stage.phase}
                 </span>
                 {stage.verdict === "pass" ? (
-                  <span className="text-xl font-bold text-emerald-400 md:text-2xl">✅ Pass</span>
+                  <span className="text-xl font-bold text-emerald-700 dark:text-emerald-400 md:text-2xl">✅ Pass</span>
                 ) : null}
                 {stage.verdict === "discard" ? (
-                  <span className="text-xl font-bold text-rose-400 md:text-2xl">❌ Discard</span>
+                  <span className="text-xl font-bold text-rose-700 dark:text-rose-400 md:text-2xl">❌ Discard</span>
                 ) : null}
               </div>
-              <h3 className="mt-2 text-2xl font-bold text-white md:text-3xl">{stage.label}</h3>
+              <h3 className="mt-2 text-2xl font-bold text-gray-950 dark:text-white md:text-3xl">{stage.label}</h3>
             </div>
           </div>
 
           {stage.walkthrough ? <WalkthroughPanel walkthrough={stage.walkthrough} /> : null}
 
           <div className="rounded-2xl border-2 border-violet-500/40 bg-violet-950/25 p-6 md:p-8">
-            <p className="text-lg font-bold uppercase tracking-wide text-violet-200 md:text-xl">
+            <p className="text-lg font-bold uppercase tracking-wide text-violet-800 dark:text-violet-200 md:text-xl">
               What you have now
             </p>
-            <p className="mt-3 text-2xl font-semibold text-white md:text-3xl">{stage.transform}</p>
+            <p className="mt-3 text-2xl font-semibold text-gray-950 dark:text-white md:text-3xl">{stage.transform}</p>
           </div>
         </motion.div>
       </AnimatePresence>
@@ -775,7 +775,7 @@ export default function CommonCrawlPreparationFlow({
             setPlaying(false);
             go(current - 1);
           }}
-          className="flex min-h-11 items-center gap-2 rounded-xl border-2 border-gray-600 bg-gray-950 px-5 py-3 text-base font-bold text-gray-100 transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-30 md:min-h-12 md:px-6 md:text-lg"
+          className="flex min-h-11 items-center gap-2 rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-950 px-5 py-3 text-base font-bold text-gray-900 dark:text-gray-100 transition hover:bg-gray-100 dark:hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-30 md:min-h-12 md:px-6 md:text-lg"
         >
           ← Prev
         </button>
@@ -793,7 +793,7 @@ export default function CommonCrawlPreparationFlow({
           className={cn(
             "flex min-h-11 items-center gap-2 rounded-xl px-5 py-3 text-base font-bold transition md:min-h-12 md:px-6 md:text-lg",
             playing
-              ? "bg-gray-700 text-gray-100 hover:bg-gray-600"
+              ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-600"
               : "bg-violet-600 text-white hover:bg-violet-500",
           )}
         >
@@ -807,12 +807,12 @@ export default function CommonCrawlPreparationFlow({
             setPlaying(false);
             stepForward();
           }}
-          className="flex min-h-11 items-center gap-2 rounded-xl border-2 border-gray-600 bg-gray-950 px-5 py-3 text-base font-bold text-gray-100 transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-30 md:min-h-12 md:px-6 md:text-lg"
+          className="flex min-h-11 items-center gap-2 rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-950 px-5 py-3 text-base font-bold text-gray-900 dark:text-gray-100 transition hover:bg-gray-100 dark:hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-30 md:min-h-12 md:px-6 md:text-lg"
         >
           Next →
         </button>
 
-        <span className="ml-auto text-base font-semibold text-gray-300 md:text-lg">
+        <span className="ml-auto text-base font-semibold text-gray-700 dark:text-gray-300 md:text-lg">
           Step {current + 1} of {stages.length}
         </span>
       </div>

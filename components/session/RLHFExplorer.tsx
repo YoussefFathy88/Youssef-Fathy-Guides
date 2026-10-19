@@ -23,39 +23,39 @@ const ACCENT: Record<
   { tab: string; bg: string; text: string; border: string }
 > = {
   gray: {
-    tab: "border-slate-300/80 bg-slate-800/60 text-white ring-slate-300/50",
+    tab: "border-slate-300/80 bg-gray-100/60 dark:bg-slate-800/60 text-gray-950 dark:text-white ring-slate-300/50",
     bg: "bg-slate-500/15",
-    text: "text-gray-100",
+    text: "text-gray-900 dark:text-gray-100",
     border: "border-slate-300/70",
   },
   teal: {
-    tab: "border-teal-400/80 bg-teal-950/50 text-teal-50 ring-teal-400/50",
+    tab: "border-teal-400/80 bg-teal-950/50 text-teal-800 dark:text-teal-50 ring-teal-400/50",
     bg: "bg-teal-500/15",
-    text: "text-teal-100",
+    text: "text-teal-800 dark:text-teal-100",
     border: "border-teal-400/70",
   },
   blue: {
-    tab: "border-blue-400/80 bg-blue-950/50 text-blue-50 ring-blue-400/50",
+    tab: "border-blue-400/80 bg-blue-950/50 text-blue-800 dark:text-blue-50 ring-blue-400/50",
     bg: "bg-blue-500/15",
-    text: "text-blue-100",
+    text: "text-blue-800 dark:text-blue-100",
     border: "border-blue-400/70",
   },
   violet: {
-    tab: "border-violet-400/80 bg-violet-950/50 text-violet-50 ring-violet-400/50",
+    tab: "border-violet-400/80 bg-violet-950/50 text-violet-800 dark:text-violet-50 ring-violet-400/50",
     bg: "bg-violet-500/15",
-    text: "text-violet-100",
+    text: "text-violet-800 dark:text-violet-100",
     border: "border-violet-400/70",
   },
   rose: {
-    tab: "border-rose-400/80 bg-rose-950/50 text-rose-50 ring-rose-400/50",
+    tab: "border-rose-400/80 bg-rose-950/50 text-rose-800 dark:text-rose-50 ring-rose-400/50",
     bg: "bg-rose-500/15",
-    text: "text-rose-100",
+    text: "text-rose-800 dark:text-rose-100",
     border: "border-rose-400/70",
   },
   amber: {
-    tab: "border-amber-400/80 bg-amber-950/50 text-amber-50 ring-amber-400/50",
+    tab: "border-amber-400/80 bg-amber-950/50 text-amber-800 dark:text-amber-50 ring-amber-400/50",
     bg: "bg-amber-500/15",
-    text: "text-amber-100",
+    text: "text-amber-800 dark:text-amber-100",
     border: "border-amber-400/70",
   },
 };
@@ -77,33 +77,33 @@ const TABS = [
 function WhySftPanel() {
   return (
     <div className="flex flex-1 flex-col gap-5">
-      <p className="text-lg font-semibold text-gray-300 md:text-xl">
+      <p className="text-lg font-semibold text-gray-700 dark:text-gray-300 md:text-xl">
         SFT taught the model to copy training answers. But copying has limits.
       </p>
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="rounded-xl border-2 border-teal-500/50 bg-teal-950/30 p-4 md:p-5">
-          <p className="text-base font-bold uppercase tracking-wide text-teal-300 md:text-lg">Response A</p>
-          <p className="mt-2 text-lg text-gray-100 md:text-xl">
+          <p className="text-base font-bold uppercase tracking-wide text-teal-700 dark:text-teal-300 md:text-lg">Response A</p>
+          <p className="mt-2 text-lg text-gray-900 dark:text-gray-100 md:text-xl">
             "An API is a way for two applications to talk to each other. For example, when a weather app shows today's temperature, it's using an API to fetch that data from a remote server."
           </p>
-          <p className="mt-3 text-lg font-bold text-teal-300 md:text-xl">✅ Clear, accurate, helpful</p>
+          <p className="mt-3 text-lg font-bold text-teal-700 dark:text-teal-300 md:text-xl">✅ Clear, accurate, helpful</p>
         </div>
 
         <div className="rounded-xl border-2 border-rose-500/40 bg-rose-950/25 p-4 md:p-5">
-          <p className="text-base font-bold uppercase tracking-wide text-rose-300 md:text-lg">Response C</p>
-          <p className="mt-2 text-lg text-gray-100 md:text-xl">
+          <p className="text-base font-bold uppercase tracking-wide text-rose-700 dark:text-rose-300 md:text-lg">Response C</p>
+          <p className="mt-2 text-lg text-gray-900 dark:text-gray-100 md:text-xl">
             "APIs are the REVOLUTIONARY backbone of MODERN SOFTWARE!! They TRANSFORM how apps COMMUNICATE in ways that are truly MIND-BLOWING and INCREDIBLE!!"
           </p>
-          <p className="mt-3 text-lg font-bold text-rose-400 md:text-xl">❌ Overhyped, not helpful</p>
+          <p className="mt-3 text-lg font-bold text-rose-700 dark:text-rose-400 md:text-xl">❌ Overhyped, not helpful</p>
         </div>
       </div>
 
-      <div className="rounded-xl border border-gray-600 bg-gray-900/70 p-4 md:p-5">
-        <p className="text-lg text-gray-200 md:text-xl">
+      <div className="rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50/70 dark:bg-gray-900/70 p-4 md:p-5">
+        <p className="text-lg text-gray-900 dark:text-gray-200 md:text-xl">
           SFT cannot tell them apart — it only learned to copy example answers.
           It has no way to know which answer people actually like better.
-          <span className="mt-2 block font-bold text-violet-300">
+          <span className="mt-2 block font-bold text-violet-700 dark:text-violet-300">
             RLHF solves this by adding human preferences into training.
           </span>
         </p>
@@ -126,9 +126,9 @@ function GeneratePanel() {
 
   return (
     <div className="flex flex-1 flex-col gap-4">
-      <div className="rounded-xl border-2 border-gray-600 bg-gray-900/80 px-4 py-3 md:px-5">
-        <span className="text-base font-bold uppercase tracking-wide text-gray-400 md:text-lg">Prompt</span>
-        <p className="mt-1 text-lg text-gray-100 md:text-xl">"What is an API?"</p>
+      <div className="rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-gray-50/80 dark:bg-gray-900/80 px-4 py-3 md:px-5">
+        <span className="text-base font-bold uppercase tracking-wide text-gray-600 dark:text-gray-400 md:text-lg">Prompt</span>
+        <p className="mt-1 text-lg text-gray-900 dark:text-gray-100 md:text-xl">"What is an API?"</p>
       </div>
 
       <div className="grid gap-3 md:grid-cols-3">
@@ -146,16 +146,16 @@ function GeneratePanel() {
                 )}
               >
                 <span className={cn("text-base font-bold md:text-lg", ACCENT[r.color].text)}>{r.badge}</span>
-                <p className="mt-2 text-lg text-gray-100 md:text-xl">{r.text}</p>
+                <p className="mt-2 text-lg text-gray-900 dark:text-gray-100 md:text-xl">{r.text}</p>
               </motion.div>
             )}
           </AnimatePresence>
         ))}
       </div>
 
-      <p className="text-lg text-gray-300 md:text-xl">
+      <p className="text-lg text-gray-700 dark:text-gray-300 md:text-xl">
         These all came from the same model.
-        <span className="font-bold text-amber-300"> Now we need a way to judge which is best.</span>
+        <span className="font-bold text-amber-700 dark:text-amber-300"> Now we need a way to judge which is best.</span>
       </p>
     </div>
   );
@@ -175,7 +175,7 @@ function RankPanel() {
 
   return (
     <div className="flex flex-1 flex-col gap-5">
-      <p className="text-lg font-semibold text-gray-300 md:text-xl">
+      <p className="text-lg font-semibold text-gray-700 dark:text-gray-300 md:text-xl">
         Human annotators rank which response they prefer.
       </p>
 
@@ -207,10 +207,10 @@ function RankPanel() {
         ))}
       </div>
 
-      <div className="rounded-xl border border-gray-600 bg-gray-900/70 p-4 md:p-5">
-        <p className="text-lg text-gray-200 md:text-xl">
+      <div className="rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50/70 dark:bg-gray-900/70 p-4 md:p-5">
+        <p className="text-lg text-gray-900 dark:text-gray-200 md:text-xl">
           Humans don't write new responses — they just rank what the model produced.
-          <span className="block font-bold text-teal-300 mt-1">
+          <span className="block font-bold text-teal-700 dark:text-teal-300 mt-1">
             This ranking data trains the next step: the Reward Model.
           </span>
         </p>
@@ -233,17 +233,17 @@ function RewardModelPanel() {
 
   return (
     <div className="flex flex-1 flex-col gap-5">
-      <p className="text-lg font-semibold text-gray-300 md:text-xl">
+      <p className="text-lg font-semibold text-gray-700 dark:text-gray-300 md:text-xl">
         The Reward Model learns to predict human preferences as a score.
       </p>
 
-      <div className="space-y-3 rounded-xl border border-gray-700 bg-gray-950/70 p-4 md:p-5">
+      <div className="space-y-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-950/70 p-4 md:p-5">
         {REWARD_BARS.map((bar) => (
           <div key={bar.label} className="flex items-center gap-3">
             <span className={cn("w-28 shrink-0 text-base font-bold md:text-lg", ACCENT[bar.color].text)}>
               {bar.label}
             </span>
-            <div className="flex h-8 min-w-0 flex-1 overflow-hidden rounded-lg bg-gray-800">
+            <div className="flex h-8 min-w-0 flex-1 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
               <motion.div
                 className={cn("h-full rounded-lg", BAR_FILL[bar.color])}
                 initial={{ width: "0%" }}
@@ -251,21 +251,21 @@ function RewardModelPanel() {
                 transition={{ duration: 0.8, ease: "easeOut" }}
               />
             </div>
-            <span className="w-16 shrink-0 text-right text-base font-bold text-gray-200 md:text-lg">
+            <span className="w-16 shrink-0 text-right text-base font-bold text-gray-900 dark:text-gray-200 md:text-lg">
               {bar.score} {bar.badge}
             </span>
           </div>
         ))}
       </div>
 
-      <p className="text-lg text-gray-200 md:text-xl">
+      <p className="text-lg text-gray-900 dark:text-gray-200 md:text-xl">
         The Reward Model is a separate neural network. It takes any (prompt, response) pair
         and outputs a single number — how much a human would prefer it.
       </p>
 
       <div className="rounded-xl border-2 border-amber-500/40 bg-amber-950/20 p-4 md:p-5">
-        <p className="text-base font-bold text-amber-300 md:text-lg">⚡ Key insight</p>
-        <p className="mt-1 text-lg text-gray-100 md:text-xl">
+        <p className="text-base font-bold text-amber-700 dark:text-amber-300 md:text-lg">⚡ Key insight</p>
+        <p className="mt-1 text-lg text-gray-900 dark:text-gray-100 md:text-xl">
           Humans ranked ~33,000 response pairs to train InstructGPT's reward model.
           The reward model then generalizes to millions of new prompts.
         </p>
@@ -284,7 +284,7 @@ const PPO_ROUNDS = [
     flaw: "Circular — defines API using the word interface",
     score: 0.58,
     update: "↑ nudged away from empty definitions",
-    scoreColor: "text-rose-400",
+    scoreColor: "text-rose-700 dark:text-rose-400",
   },
   {
     round: 2,
@@ -292,7 +292,7 @@ const PPO_ROUNDS = [
     flaw: "Clear idea — but no concrete example yet",
     score: 0.76,
     update: "↑ nudged toward helpful examples",
-    scoreColor: "text-amber-400",
+    scoreColor: "text-amber-700 dark:text-amber-400",
   },
   {
     round: 3,
@@ -301,7 +301,7 @@ const PPO_ROUNDS = [
     flaw: "Clear, accurate, helpful — same as human rank #1",
     score: 0.92,
     update: "✅ Reward score near the top",
-    scoreColor: "text-teal-400",
+    scoreColor: "text-teal-700 dark:text-teal-400",
   },
 ];
 
@@ -313,7 +313,7 @@ function PpoPanel() {
 
   return (
     <div className="flex flex-1 flex-col gap-5">
-      <p className="text-lg font-semibold text-gray-300 md:text-xl">
+      <p className="text-lg font-semibold text-gray-700 dark:text-gray-300 md:text-xl">
         PPO (Proximal Policy Optimization) uses reward scores to update the model's weights — chasing higher scores over time.
       </p>
 
@@ -326,8 +326,8 @@ function PpoPanel() {
             className={cn(
               "rounded-xl border-2 px-4 py-3 text-base font-bold transition md:text-lg",
               round === i
-                ? "border-amber-500/60 bg-amber-950/40 text-amber-100 ring-2 ring-amber-500/30"
-                : "border-gray-700 bg-gray-950/60 text-gray-300 hover:border-gray-600",
+                ? "border-amber-500/60 bg-amber-950/40 text-amber-800 dark:text-amber-100 ring-2 ring-amber-500/30"
+                : "border-gray-300 dark:border-gray-700 bg-white/60 dark:bg-gray-950/60 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600",
             )}
           >
             Round {r.round}
@@ -344,27 +344,27 @@ function PpoPanel() {
           transition={{ duration: 0.22 }}
           className="flex flex-1 flex-col gap-3 rounded-xl border-2 border-amber-500/30 bg-amber-950/20 p-4 md:p-5"
         >
-          <p className="text-base font-bold uppercase tracking-wide text-amber-300 md:text-lg">
+          <p className="text-base font-bold uppercase tracking-wide text-amber-700 dark:text-amber-300 md:text-lg">
             Round {current.round}
           </p>
-          <p className="text-lg text-gray-100 md:text-xl">
+          <p className="text-lg text-gray-900 dark:text-gray-100 md:text-xl">
             Model generates: {current.response}
           </p>
-          <p className="text-lg font-semibold text-gray-300 md:text-xl">
+          <p className="text-lg font-semibold text-gray-700 dark:text-gray-300 md:text-xl">
             {current.flaw}
           </p>
           <p className={cn("text-xl font-bold md:text-2xl", current.scoreColor)}>
             Reward score: {current.score}
           </p>
-          <p className="text-lg font-bold text-gray-200 md:text-xl">
+          <p className="text-lg font-bold text-gray-900 dark:text-gray-200 md:text-xl">
             PPO update: {current.update}
           </p>
         </motion.div>
       </AnimatePresence>
 
-      <p className="text-lg text-gray-300 md:text-xl">
+      <p className="text-lg text-gray-700 dark:text-gray-300 md:text-xl">
         PPO is just the optimizer — instead of minimizing text prediction loss,
-        it <span className="font-bold text-amber-300">maximizes the reward score</span>.
+        it <span className="font-bold text-amber-700 dark:text-amber-300">maximizes the reward score</span>.
       </p>
     </div>
   );
@@ -399,7 +399,7 @@ function HackingPanel() {
 
   return (
     <div className="flex flex-1 flex-col gap-4">
-      <p className="text-lg font-semibold text-gray-300 md:text-xl">
+      <p className="text-lg font-semibold text-gray-700 dark:text-gray-300 md:text-xl">
         Too much PPO — the model cheats the reward score instead of getting better.
       </p>
 
@@ -412,8 +412,8 @@ function HackingPanel() {
             className={cn(
               "rounded-xl border-2 px-4 py-3 text-base font-bold transition md:text-lg",
               stepIdx === i
-                ? "border-rose-400/70 bg-rose-950/50 text-rose-50 ring-2 ring-rose-400/50 ring-offset-2 ring-offset-gray-900"
-                : "border-gray-700 bg-gray-950/60 text-gray-300 hover:border-gray-500",
+                ? "border-rose-400/70 bg-rose-950/50 text-rose-800 dark:text-rose-50 ring-2 ring-rose-400/50 ring-offset-2 ring-offset-gray-900"
+                : "border-gray-300 dark:border-gray-700 bg-white/60 dark:bg-gray-950/60 text-gray-700 dark:text-gray-300 hover:border-gray-500",
             )}
           >
             {i + 1}. {s.label}
@@ -422,43 +422,43 @@ function HackingPanel() {
       </div>
 
       <div className="rounded-xl border-2 border-rose-500/30 bg-rose-950/20 p-4 md:p-5">
-        <p className="text-lg font-bold text-rose-100 md:text-xl">{step.title}</p>
+        <p className="text-lg font-bold text-rose-800 dark:text-rose-100 md:text-xl">{step.title}</p>
         {step.body ? (
-          <p className="mt-2 text-lg text-gray-200 md:text-xl">{step.body}</p>
+          <p className="mt-2 text-lg text-gray-900 dark:text-gray-200 md:text-xl">{step.body}</p>
         ) : null}
       </div>
 
       {stepIdx === 2 && (
         <>
-          <p className="text-base font-bold uppercase tracking-wide text-gray-400 md:text-lg">
+          <p className="text-base font-bold uppercase tracking-wide text-gray-600 dark:text-gray-400 md:text-lg">
             Prompt: "What is an API?"
           </p>
 
           <div className="grid gap-3 md:grid-cols-2">
             <div className="rounded-xl border-2 border-teal-500/40 bg-teal-950/20 p-4">
-              <p className="text-base font-bold text-teal-300 md:text-lg">Good answer</p>
-              <p className="mt-2 text-lg text-gray-100 md:text-xl">
+              <p className="text-base font-bold text-teal-700 dark:text-teal-300 md:text-lg">Good answer</p>
+              <p className="mt-2 text-lg text-gray-900 dark:text-gray-100 md:text-xl">
                 "An API lets two apps talk to each other. A weather app uses an API to fetch today's temperature."
               </p>
-              <p className="mt-3 text-lg font-bold text-teal-300 md:text-xl">Reward score: 0.91 ✅</p>
-              <p className="mt-1 text-lg text-gray-300 md:text-xl">Helpful for a real user</p>
+              <p className="mt-3 text-lg font-bold text-teal-700 dark:text-teal-300 md:text-xl">Reward score: 0.91 ✅</p>
+              <p className="mt-1 text-lg text-gray-700 dark:text-gray-300 md:text-xl">Helpful for a real user</p>
             </div>
 
             <div className="rounded-xl border-2 border-rose-500/40 bg-rose-950/20 p-4">
-              <p className="text-base font-bold text-rose-300 md:text-lg">Hacked answer</p>
-              <p className="mt-2 text-lg text-gray-100 md:text-xl">
+              <p className="text-base font-bold text-rose-700 dark:text-rose-300 md:text-lg">Hacked answer</p>
+              <p className="mt-2 text-lg text-gray-900 dark:text-gray-100 md:text-xl">
                 "APIs are REVOLUTIONARY!! They TRANSFORM software in MIND-BLOWING ways!!"
               </p>
-              <p className="mt-3 text-lg font-bold text-rose-400 md:text-xl">Reward score: 0.97 ❌</p>
-              <p className="mt-1 text-lg text-gray-300 md:text-xl">Higher score — but useless to humans</p>
+              <p className="mt-3 text-lg font-bold text-rose-700 dark:text-rose-400 md:text-xl">Reward score: 0.97 ❌</p>
+              <p className="mt-1 text-lg text-gray-700 dark:text-gray-300 md:text-xl">Higher score — but useless to humans</p>
             </div>
           </div>
 
           <div className="rounded-xl border-2 border-rose-400 bg-rose-950/40 px-4 py-4">
-            <p className="text-lg font-bold text-rose-200 md:text-xl">
+            <p className="text-lg font-bold text-rose-800 dark:text-rose-200 md:text-xl">
               ⚠️ Reward hacking = the model gamed the score without getting better.
             </p>
-            <p className="mt-2 text-lg text-gray-200 md:text-xl">
+            <p className="mt-2 text-lg text-gray-900 dark:text-gray-200 md:text-xl">
               It learned to please the reward model, not to help you. That is why the next step adds a KL penalty.
             </p>
           </div>
@@ -478,11 +478,11 @@ const KL_SCENARIOS = [
       '"An API is a way for two applications to talk to each other. For example, when a weather app shows today\'s temperature, it\'s using an API to fetch that data from a remote server."',
     note: "SFT baseline — starting point right before PPO",
     klStatus: "KL = 0",
-    klColor: "text-violet-400",
+    klColor: "text-violet-700 dark:text-violet-400",
     driftSummary: "Token choices match SFT exactly — no drift yet",
-    driftColor: "text-violet-300",
+    driftColor: "text-violet-700 dark:text-violet-300",
     outcome: "Model unchanged — PPO has not started",
-    outcomeColor: "text-gray-300",
+    outcomeColor: "text-gray-700 dark:text-gray-300",
     tokens: [
       { token: '"An"', sft: 35, current: 35, driftLabel: "Match" },
       { token: '"API"', sft: 40, current: 40, driftLabel: "Match" },
@@ -496,11 +496,11 @@ const KL_SCENARIOS = [
       '"APIs are REVOLUTIONARY!! They TRANSFORM software in MIND-BLOWING ways!!"',
     note: "Hype words took over — model drifted far from SFT",
     klStatus: "KL = large ❌",
-    klColor: "text-rose-400",
+    klColor: "text-rose-700 dark:text-rose-400",
     driftSummary: "Normal words dropped — REVOLUTIONARY spiked to 55%",
-    driftColor: "text-rose-400",
+    driftColor: "text-rose-700 dark:text-rose-400",
     outcome: "Reward hacked — score up, answer useless",
-    outcomeColor: "text-rose-400",
+    outcomeColor: "text-rose-700 dark:text-rose-400",
     tokens: [
       { token: '"An"', sft: 35, current: 8, driftLabel: "HIGH ⚠️" },
       { token: '"API"', sft: 40, current: 5, driftLabel: "HIGH ⚠️" },
@@ -514,11 +514,11 @@ const KL_SCENARIOS = [
       '"An API is a way for two applications to talk to each other. For example, when a weather app shows today\'s temperature, it\'s using an API to fetch that data from a remote server."',
     note: "Helpful answer — stayed close to SFT, added clarity",
     klStatus: "KL = small ✅",
-    klColor: "text-teal-400",
+    klColor: "text-teal-700 dark:text-teal-400",
     driftSummary: "Small shift toward helpful words — hype stays blocked",
-    driftColor: "text-teal-400",
+    driftColor: "text-teal-700 dark:text-teal-400",
     outcome: "Improved AND stable ✅",
-    outcomeColor: "text-teal-400",
+    outcomeColor: "text-teal-700 dark:text-teal-400",
     tokens: [
       { token: '"An"', sft: 35, current: 32, driftLabel: "Low" },
       { token: '"For example"', sft: 18, current: 24, driftLabel: "Low ✅" },
@@ -545,19 +545,19 @@ function KlTokenRow({
   const currentBar = isHealthy ? "bg-teal-500" : isBad ? "bg-rose-500" : "bg-amber-500";
   const driftColor = isHealthy
     ? driftLabel === "Match"
-      ? "text-violet-300"
-      : "text-teal-400"
+      ? "text-violet-700 dark:text-violet-300"
+      : "text-teal-700 dark:text-teal-400"
     : isBad
-      ? "text-rose-400"
-      : "text-amber-400";
+      ? "text-rose-700 dark:text-rose-400"
+      : "text-amber-700 dark:text-amber-400";
 
   return (
     <div className="flex items-center gap-3">
-      <span className="w-32 shrink-0 text-base font-bold text-gray-200 md:text-lg">{token}</span>
+      <span className="w-32 shrink-0 text-base font-bold text-gray-900 dark:text-gray-200 md:text-lg">{token}</span>
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div className="flex items-center gap-2">
-          <span className="w-10 shrink-0 text-right text-base text-violet-300 md:text-lg">{sft}%</span>
-          <div className="flex h-4 flex-1 overflow-hidden rounded-full bg-gray-800">
+          <span className="w-10 shrink-0 text-right text-base text-violet-700 dark:text-violet-300 md:text-lg">{sft}%</span>
+          <div className="flex h-4 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
             <motion.div
               className="h-full rounded-full bg-violet-500"
               initial={{ width: "0%" }}
@@ -565,11 +565,11 @@ function KlTokenRow({
               transition={{ duration: reducedMotion ? 0 : 0.7, ease: "easeOut" }}
             />
           </div>
-          <span className="w-10 shrink-0 text-right text-base text-violet-300 md:text-lg">SFT</span>
+          <span className="w-10 shrink-0 text-right text-base text-violet-700 dark:text-violet-300 md:text-lg">SFT</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-10 shrink-0 text-right text-base text-gray-200 md:text-lg">{current}%</span>
-          <div className="flex h-4 flex-1 overflow-hidden rounded-full bg-gray-800">
+          <span className="w-10 shrink-0 text-right text-base text-gray-900 dark:text-gray-200 md:text-lg">{current}%</span>
+          <div className="flex h-4 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
             <motion.div
               className={cn("h-full rounded-full", currentBar)}
               initial={{ width: "0%" }}
@@ -593,7 +593,7 @@ function KlPanel() {
 
   return (
     <div className="flex flex-1 flex-col gap-4">
-      <p className="text-lg font-semibold text-gray-300 md:text-xl">
+      <p className="text-lg font-semibold text-gray-700 dark:text-gray-300 md:text-xl">
         KL Penalty measures how far the model has drifted from its SFT baseline — and punishes big drift.
       </p>
 
@@ -606,8 +606,8 @@ function KlPanel() {
             className={cn(
               "rounded-xl border-2 px-4 py-3 text-base font-bold transition md:text-lg",
               scenario === i
-                ? "border-teal-500/60 bg-teal-950/40 text-teal-100 ring-2 ring-teal-500/30"
-                : "border-gray-700 bg-gray-950/60 text-gray-300 hover:border-gray-600",
+                ? "border-teal-500/60 bg-teal-950/40 text-teal-800 dark:text-teal-100 ring-2 ring-teal-500/30"
+                : "border-gray-300 dark:border-gray-700 bg-white/60 dark:bg-gray-950/60 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600",
             )}
           >
             {s.tabLabel}
@@ -624,15 +624,15 @@ function KlPanel() {
           transition={{ duration: 0.22 }}
           className="flex flex-col gap-3 rounded-xl border-2 border-teal-500/30 bg-teal-950/20 p-4 md:p-5"
         >
-          <p className="text-base font-bold uppercase tracking-wide text-teal-300 md:text-lg">
+          <p className="text-base font-bold uppercase tracking-wide text-teal-700 dark:text-teal-300 md:text-lg">
             {current.tabLabel}
           </p>
-          <p className="text-lg text-gray-100 md:text-xl">Model generates: {current.response}</p>
-          <p className="text-lg font-semibold text-gray-300 md:text-xl">{current.note}</p>
+          <p className="text-lg text-gray-900 dark:text-gray-100 md:text-xl">Model generates: {current.response}</p>
+          <p className="text-lg font-semibold text-gray-700 dark:text-gray-300 md:text-xl">{current.note}</p>
           <p className={cn("text-xl font-bold md:text-2xl", current.klColor)}>{current.klStatus}</p>
 
-          <div className="rounded-xl border border-gray-700 bg-gray-950/70 p-4">
-            <p className="mb-3 text-base font-bold text-gray-400 md:text-lg">Prompt: "What is an API?"</p>
+          <div className="rounded-xl border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-950/70 p-4">
+            <p className="mb-3 text-base font-bold text-gray-600 dark:text-gray-400 md:text-lg">Prompt: "What is an API?"</p>
             <div className="space-y-3">
               {current.tokens.map((t) => (
                 <KlTokenRow
@@ -656,9 +656,9 @@ function KlPanel() {
         </motion.div>
       </AnimatePresence>
 
-      <p className="text-lg text-gray-300 md:text-xl">
+      <p className="text-lg text-gray-700 dark:text-gray-300 md:text-xl">
         PPO pushes the model to improve.
-        <span className="font-bold text-teal-300"> KL keeps it from going off the rails.</span>
+        <span className="font-bold text-teal-700 dark:text-teal-300"> KL keeps it from going off the rails.</span>
       </p>
     </div>
   );
@@ -695,7 +695,7 @@ export default function RLHFExplorer() {
       initial={reducedMotion ? false : { opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="flex w-full flex-col rounded-2xl border border-gray-700 bg-gray-900 p-5 md:p-8"
+      className="flex w-full flex-col rounded-2xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-5 md:p-8"
       data-local-navigation="true"
     >
       {/* Tab bar */}
@@ -723,13 +723,13 @@ export default function RLHFExplorer() {
                       "ring-2 ring-offset-2 ring-offset-gray-900",
                       ACCENT[tab.color].tab,
                     )
-                  : "border-gray-700 bg-gray-950/60 text-gray-300 hover:border-gray-500 hover:text-white",
+                  : "border-gray-300 dark:border-gray-700 bg-white/60 dark:bg-gray-950/60 text-gray-700 dark:text-gray-300 hover:border-gray-500 hover:text-gray-950 dark:hover:text-white",
               )}
             >
               <span
                 className={cn(
                   "mr-1.5",
-                  isActive ? "text-gray-200" : "text-gray-400",
+                  isActive ? "text-gray-900 dark:text-gray-200" : "text-gray-600 dark:text-gray-400",
                 )}
                 aria-hidden
               >
@@ -767,7 +767,7 @@ export default function RLHFExplorer() {
           type="button"
           onClick={goPrev}
           disabled={activeIdx === 0}
-          className="rounded-xl border-2 border-gray-700 bg-gray-950 px-5 py-3 text-base font-bold text-gray-200 transition hover:border-gray-600 disabled:opacity-40 md:text-lg"
+          className="rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 px-5 py-3 text-base font-bold text-gray-900 dark:text-gray-200 transition hover:border-gray-300 dark:hover:border-gray-600 disabled:opacity-40 md:text-lg"
         >
           ← Prev
         </button>
@@ -775,11 +775,11 @@ export default function RLHFExplorer() {
           type="button"
           onClick={goNext}
           disabled={activeIdx === TABS.length - 1}
-          className="rounded-xl border-2 border-violet-500/50 bg-violet-950/40 px-5 py-3 text-base font-bold text-violet-100 transition hover:border-violet-400 disabled:opacity-40 md:text-lg"
+          className="rounded-xl border-2 border-violet-500/50 bg-violet-950/40 px-5 py-3 text-base font-bold text-violet-800 dark:text-violet-100 transition hover:border-violet-400 disabled:opacity-40 md:text-lg"
         >
           Next →
         </button>
-        <span className="text-base text-gray-400 md:text-lg">
+        <span className="text-base text-gray-600 dark:text-gray-400 md:text-lg">
           {activeIdx + 1} / {TABS.length}
         </span>
       </div>

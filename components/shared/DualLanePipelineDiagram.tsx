@@ -489,7 +489,7 @@ export default function DualLanePipelineDiagram({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.28, ease: "easeOut" }}
       className={cn(
-        "w-full rounded-2xl border border-white/10 bg-[#0f1728]/80",
+        "w-full rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0f1728]/80",
         presentation ? "p-6 sm:p-7" : "p-5",
         className,
       )}
@@ -497,7 +497,7 @@ export default function DualLanePipelineDiagram({
       {title ? (
         <p
           className={cn(
-            "mb-4 font-medium text-slate-300",
+            "mb-4 font-medium text-slate-700 dark:text-slate-300",
             presentation ? "text-base sm:text-[17px]" : "text-sm",
           )}
         >
@@ -507,10 +507,11 @@ export default function DualLanePipelineDiagram({
 
       <div
         ref={containerRef}
-        className="relative isolate overflow-visible rounded-xl"
+        /* Neon lanes are drawn for a dark canvas: keep it dark in both themes. */
+        className="dark relative isolate overflow-visible rounded-xl"
         style={{
           minHeight: effectiveMinHeight,
-          background: "rgba(8,13,24,0.55)",
+          background: "#0b111e",
           backgroundImage:
             "radial-gradient(circle, rgba(148,163,184,0.09) 1px, transparent 1px)",
           backgroundSize: "22px 22px",
@@ -686,7 +687,7 @@ export default function DualLanePipelineDiagram({
                 )}
               />
             ))}
-            <span className="ml-auto text-[12px] font-medium text-slate-500">
+            <span className="ml-auto text-[12px] font-medium text-slate-600 dark:text-slate-500">
               {currentStep >= 0
                 ? `${currentStep + 1} / ${safeSteps.length}`
                 : `${safeSteps.length} steps`}
@@ -698,7 +699,7 @@ export default function DualLanePipelineDiagram({
               type="button"
               disabled={currentStep <= 0}
               onClick={goPrev}
-              className="flex h-8 items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 text-xs font-medium text-slate-300 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30"
+              className="flex h-8 items-center gap-1.5 rounded-lg border border-gray-200 dark:border-white/10 bg-gray-900/[0.04] dark:bg-white/5 px-3 text-xs font-medium text-slate-700 dark:text-slate-300 transition hover:bg-gray-900/[0.07] dark:hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30"
             >
               ← Prev
             </button>
@@ -709,7 +710,7 @@ export default function DualLanePipelineDiagram({
               className={cn(
                 "flex h-8 items-center gap-1.5 rounded-lg px-4 text-xs font-semibold transition",
                 playing
-                  ? "bg-slate-700 text-slate-200 hover:bg-slate-600"
+                  ? "bg-gray-200 dark:bg-slate-700 text-slate-900 dark:text-slate-200 hover:bg-slate-600"
                   : "bg-blue-600 text-white hover:bg-blue-500",
               )}
             >
@@ -720,7 +721,7 @@ export default function DualLanePipelineDiagram({
               type="button"
               disabled={isLast}
               onClick={goNext}
-              className="flex h-8 items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 text-xs font-medium text-slate-300 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30"
+              className="flex h-8 items-center gap-1.5 rounded-lg border border-gray-200 dark:border-white/10 bg-gray-900/[0.04] dark:bg-white/5 px-3 text-xs font-medium text-slate-700 dark:text-slate-300 transition hover:bg-gray-900/[0.07] dark:hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30"
             >
               Next →
             </button>
@@ -731,7 +732,7 @@ export default function DualLanePipelineDiagram({
           </div>
 
           {!hideStepNarrative ? (
-            <div className="min-h-[64px] rounded-xl border border-white/8 bg-white/4 px-4 py-3">
+            <div className="min-h-[64px] rounded-xl border border-gray-200 dark:border-white/8 bg-gray-900/[0.04] dark:bg-white/4 px-4 py-3">
               <AnimatePresence mode="wait" custom={direction}>
                 {activeStep ? (
                   <motion.div
@@ -742,8 +743,8 @@ export default function DualLanePipelineDiagram({
                     exit={{ x: direction * -20, opacity: 0 }}
                     transition={{ duration: 0.22, ease: "easeOut" }}
                   >
-                    <p className="mb-1 text-base font-semibold text-slate-100">{activeStep.label}</p>
-                    <p className="text-[13.5px] leading-relaxed text-slate-300">
+                    <p className="mb-1 text-base font-semibold text-slate-900 dark:text-slate-100">{activeStep.label}</p>
+                    <p className="text-[13.5px] leading-relaxed text-slate-700 dark:text-slate-300">
                       {activeStep.description}
                     </p>
                   </motion.div>
@@ -753,7 +754,7 @@ export default function DualLanePipelineDiagram({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="text-sm text-slate-500"
+                    className="text-sm text-slate-600 dark:text-slate-500"
                   >
                     Press <span className="font-mono">Play</span> or click a step dot to walk through
                     the diagram.

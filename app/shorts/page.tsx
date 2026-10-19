@@ -13,12 +13,12 @@ export const metadata: Metadata = {
 };
 
 const TOPIC_COLORS: Record<string, string> = {
-  violet:  "border-violet-500/30 bg-violet-500/15 text-violet-200",
-  amber:   "border-amber-500/30  bg-amber-500/15  text-amber-200",
-  teal:    "border-teal-500/30   bg-teal-500/15   text-teal-200",
-  rose:    "border-rose-500/30   bg-rose-500/15   text-rose-200",
-  blue:    "border-blue-500/30   bg-blue-500/15   text-blue-200",
-  emerald: "border-emerald-500/30 bg-emerald-500/15 text-emerald-200",
+  violet:  "border-violet-500/30 bg-violet-500/15 text-violet-800 dark:text-violet-200",
+  amber:   "border-amber-500/30  bg-amber-500/15  text-amber-800 dark:text-amber-200",
+  teal:    "border-teal-500/30   bg-teal-500/15   text-teal-800 dark:text-teal-200",
+  rose:    "border-rose-500/30   bg-rose-500/15   text-rose-800 dark:text-rose-200",
+  blue:    "border-blue-500/30   bg-blue-500/15   text-blue-800 dark:text-blue-200",
+  emerald: "border-emerald-500/30 bg-emerald-500/15 text-emerald-800 dark:text-emerald-200",
 };
 
 const aiShorts = SHORTS.filter((s) => s.playlist === "ai");
@@ -26,7 +26,7 @@ const seShorts = SHORTS.filter((s) => s.playlist === "software-design" || s.play
 
 function ShortsGrid({ shorts }: { shorts: typeof SHORTS }) {
   if (shorts.length === 0) {
-    return <p className="text-slate-500">No shorts published yet.</p>;
+    return <p className="text-slate-600 dark:text-slate-500">No shorts published yet.</p>;
   }
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -41,13 +41,13 @@ function ShortsGrid({ shorts }: { shorts: typeof SHORTS }) {
             className="group block"
           >
             {/* Phone-shaped preview card */}
-            <article className="overflow-hidden rounded-3xl bg-gradient-to-b from-slate-900 to-slate-950 ring-1 ring-white/10 transition duration-200 group-hover:ring-white/25 group-hover:-translate-y-1 shadow-xl">
+            <article className="overflow-hidden rounded-3xl bg-gradient-to-b from-white dark:from-slate-900 to-white dark:to-slate-950 ring-1 ring-gray-200 dark:ring-white/10 transition duration-200 group-hover:ring-gray-300 dark:group-hover:ring-white/25 group-hover:-translate-y-1 shadow-xl">
               {/* 9:16 thumbnail zone */}
               <div className="aspect-[9/16] relative flex flex-col items-center justify-center gap-5 p-6">
                 {/* Decorative concentric rings */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-                  <div className="h-48 w-48 rounded-full border border-white/5" />
-                  <div className="absolute h-32 w-32 rounded-full border border-white/5" />
+                  <div className="h-48 w-48 rounded-full border border-gray-200 dark:border-white/5" />
+                  <div className="absolute h-32 w-32 rounded-full border border-gray-200 dark:border-white/5" />
                 </div>
 
                 {/* Topic badge */}
@@ -61,7 +61,7 @@ function ShortsGrid({ shorts }: { shorts: typeof SHORTS }) {
                 </span>
 
                 {/* Title */}
-                <h3 className="z-10 text-center text-2xl font-bold leading-tight text-white">
+                <h3 className="z-10 text-center text-2xl font-bold leading-tight text-gray-950 dark:text-white">
                   {short.title}
                 </h3>
 
@@ -79,7 +79,7 @@ function ShortsGrid({ shorts }: { shorts: typeof SHORTS }) {
                 </div>
 
                 {/* Description */}
-                <p className="z-10 text-center text-sm text-slate-400 leading-relaxed">
+                <p className="z-10 text-center text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                   {short.description}
                 </p>
               </div>
@@ -99,14 +99,14 @@ export default function ShortsGalleryPage() {
       <Container className="relative z-10 py-16 space-y-16">
         {/* ── Page header ─────────────────────────────────────────────────────── */}
         <div className="space-y-4 max-w-2xl">
-          <h1 className="text-4xl font-bold text-white sm:text-5xl">
+          <h1 className="text-4xl font-bold text-gray-950 dark:text-white sm:text-5xl">
             Short Videos
           </h1>
-          <p className="text-lg text-slate-300 leading-7">
+          <p className="text-lg text-slate-700 dark:text-slate-300 leading-7">
             One concept, one animation, under a minute. Two playlists —{" "}
-            <span className="text-violet-300 font-medium">AI Concepts</span>{" "}
+            <span className="text-violet-700 dark:text-violet-300 font-medium">AI Concepts</span>{" "}
             and{" "}
-            <span className="text-blue-300 font-medium">
+            <span className="text-blue-700 dark:text-blue-300 font-medium">
               Software Engineering
             </span>
             .
@@ -116,10 +116,10 @@ export default function ShortsGalleryPage() {
         {/* ── AI Concepts playlist ─────────────────────────────────────────────── */}
         <section className="space-y-6">
           <div className="flex items-center gap-4">
-            <span className="inline-flex items-center rounded-full border border-violet-500/30 bg-violet-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-violet-200">
+            <span className="inline-flex items-center rounded-full border border-violet-500/30 bg-violet-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-violet-800 dark:text-violet-200">
               🤖 AI Concepts
             </span>
-            <div className="h-px flex-1 bg-white/10" />
+            <div className="h-px flex-1 bg-gray-900/[0.07] dark:bg-white/10" />
           </div>
           <ShortsGrid shorts={aiShorts} />
         </section>
@@ -127,10 +127,10 @@ export default function ShortsGalleryPage() {
         {/* ── Software Engineering playlist ────────────────────────────────────── */}
         <section className="space-y-6">
           <div className="flex items-center gap-4">
-            <span className="inline-flex items-center rounded-full border border-blue-500/30 bg-blue-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-blue-200">
+            <span className="inline-flex items-center rounded-full border border-blue-500/30 bg-blue-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-blue-800 dark:text-blue-200">
               🛠️ Software Engineering
             </span>
-            <div className="h-px flex-1 bg-white/10" />
+            <div className="h-px flex-1 bg-gray-900/[0.07] dark:bg-white/10" />
           </div>
           <ShortsGrid shorts={seShorts} />
         </section>

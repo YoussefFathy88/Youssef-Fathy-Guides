@@ -44,9 +44,9 @@ const DATA_POINTS = [
 const CELL =
   "px-4 py-4 text-left align-middle md:px-6 md:py-5";
 const HEAD =
-  "px-4 py-3 text-sm font-bold uppercase tracking-wide text-violet-300 md:px-6 md:py-4 md:text-base";
-const MONO = "font-mono text-lg font-bold tabular-nums text-gray-100 md:text-2xl";
-const EQ = "font-mono text-base font-medium text-gray-300 md:text-xl";
+  "px-4 py-3 text-sm font-bold uppercase tracking-wide text-violet-700 dark:text-violet-300 md:px-6 md:py-4 md:text-base";
+const MONO = "font-mono text-lg font-bold tabular-nums text-gray-900 dark:text-gray-100 md:text-2xl";
+const EQ = "font-mono text-base font-medium text-gray-700 dark:text-gray-300 md:text-xl";
 
 export default function LinearRegressionTrainingExplorer({
   title,
@@ -120,7 +120,7 @@ export default function LinearRegressionTrainingExplorer({
       footerCallout="m & c are the weights — learned by reducing prediction error"
     >
       <div className="flex flex-col">
-        <div className="border-b border-gray-800/60 px-3 pb-2 pt-2">
+        <div className="border-b border-gray-200/60 dark:border-gray-800/60 px-3 pb-2 pt-2">
           <LinearMappingChartSvg bounds={bounds} ariaLabel="Training linear regression with gradient descent">
             <text
               x={CHART_PL + CHART_PW - 10}
@@ -262,11 +262,11 @@ function TrainingStepTable({ step }: { step: TrainingStep }) {
       >
         <p className="text-xl font-bold tracking-wide md:text-3xl">{badge.title}</p>
         {badge.subtitle ? (
-          <p className="mt-2 text-base font-medium text-gray-200 md:text-lg">{badge.subtitle}</p>
+          <p className="mt-2 text-base font-medium text-gray-900 dark:text-gray-200 md:text-lg">{badge.subtitle}</p>
         ) : null}
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-violet-500/30 bg-[#0f0a1e]/90">
+      <div className="overflow-hidden rounded-2xl border border-violet-500/30 bg-white dark:bg-[#0f0a1e]/90">
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-b border-violet-500/25 bg-violet-500/10">
@@ -275,10 +275,10 @@ function TrainingStepTable({ step }: { step: TrainingStep }) {
               <th className={cn(HEAD, "hidden sm:table-cell")}>Equation</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-800/80">
+          <tbody className="divide-y divide-gray-200/80 dark:divide-gray-800/80">
             {tableRows(step).map((row) => (
               <tr key={row.label} className={row.highlight ? "bg-violet-500/10" : undefined}>
-                <td className={cn(CELL, "text-base font-semibold text-gray-200 md:text-lg")}>
+                <td className={cn(CELL, "text-base font-semibold text-gray-900 dark:text-gray-200 md:text-lg")}>
                   {row.label}
                 </td>
                 <td className={cn(CELL, MONO, row.valueTone)}>{row.value}</td>
@@ -307,37 +307,37 @@ function passBadge(kind: TrainingStep["kind"]) {
       return {
         title: "FORWARD PASS",
         subtitle: "Feed x in → model predicts ŷ → compare to true y",
-        className: "border border-sky-500/40 bg-sky-500/15 text-sky-100",
+        className: "border border-sky-500/40 bg-sky-500/15 text-sky-800 dark:text-sky-100",
       };
     case "backward":
       return {
         title: "BACKWARD PASS",
         subtitle: "E = (y − ŷ)² — the factor 2 in ∂E comes from squaring",
-        className: "border border-amber-500/40 bg-amber-500/15 text-amber-100",
+        className: "border border-amber-500/40 bg-amber-500/15 text-amber-800 dark:text-amber-100",
       };
     case "update":
       return {
         title: "WEIGHT UPDATE",
         subtitle: "Nudge m and c in the direction that reduces error",
-        className: "border border-emerald-500/40 bg-emerald-500/15 text-emerald-100",
+        className: "border border-emerald-500/40 bg-emerald-500/15 text-emerald-800 dark:text-emerald-100",
       };
     case "true_data":
       return {
         title: "TRUE DATA",
         subtitle: "Hidden relationship the model must learn",
-        className: "border border-violet-500/40 bg-violet-500/15 text-violet-100",
+        className: "border border-violet-500/40 bg-violet-500/15 text-violet-800 dark:text-violet-100",
       };
     case "init_guess":
       return {
         title: "STARTING GUESS",
         subtitle: "Weights start random — flat line at first",
-        className: "border border-gray-500/40 bg-gray-500/15 text-gray-100",
+        className: "border border-gray-500/40 bg-gray-500/15 text-gray-900 dark:text-gray-100",
       };
     case "converged":
       return {
         title: "LEARNED",
         subtitle: "After many forward → backward → update cycles",
-        className: "border border-violet-400/50 bg-violet-500/20 text-violet-100",
+        className: "border border-violet-400/50 bg-violet-500/20 text-violet-800 dark:text-violet-100",
       };
     default:
       return { title: "", subtitle: "", className: "" };
@@ -404,20 +404,20 @@ function tableRows(step: TrainingStep): TableRow[] {
           label: "True y",
           value: String(yTrue ?? "—"),
           equation: "from the dataset",
-          valueTone: "text-amber-300",
+          valueTone: "text-amber-700 dark:text-amber-300",
         },
         {
           label: "Residual (y − ŷ)",
           value: String(residual ?? "—"),
           equation: `${yTrue} − ${yPred} = ${residual ?? "?"}`,
-          valueTone: "text-slate-200",
+          valueTone: "text-slate-900 dark:text-slate-200",
         },
         {
           label: "Loss E",
           value: String(squaredError ?? "—"),
           equation: "E = (y − ŷ)²",
           highlight: true,
-          valueTone: "text-rose-300",
+          valueTone: "text-rose-700 dark:text-rose-300",
         },
       ];
     case "backward":

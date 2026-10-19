@@ -21,7 +21,7 @@ export function SectionHeader({
         <h2 className="max-w-4xl text-balance text-3xl font-semibold sm:text-4xl">
           {title}
         </h2>
-        <p className="max-w-3xl text-lg text-slate-300">{description}</p>
+        <p className="max-w-3xl text-lg text-slate-700 dark:text-slate-300">{description}</p>
       </div>
     </div>
   );

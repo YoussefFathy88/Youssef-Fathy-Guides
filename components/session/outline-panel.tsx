@@ -20,12 +20,12 @@ export function OutlinePanel({ items }: OutlinePanelProps) {
               <span className={`rounded-full border px-3 py-1 text-xs font-medium ${accent.badge}`}>
                 {String(index + 1).padStart(2, "0")}
               </span>
-              <span className="text-xs uppercase tracking-[0.24em] text-slate-500">
+              <span className="text-xs uppercase tracking-[0.24em] text-slate-600 dark:text-slate-500">
                 {item.label}
               </span>
             </div>
-            <h3 className="mt-4 text-xl font-semibold text-white">{item.title}</h3>
-            <p className="mt-3 text-sm text-slate-300">{item.description}</p>
+            <h3 className="mt-4 text-xl font-semibold text-gray-950 dark:text-white">{item.title}</h3>
+            <p className="mt-3 text-sm text-slate-700 dark:text-slate-300">{item.description}</p>
           </article>
         );
       })}

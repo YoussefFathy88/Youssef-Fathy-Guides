@@ -18,7 +18,7 @@ function Chevron({ open, className }: { open: boolean; className?: string }) {
   return (
     <svg
       className={cn(
-        "h-6 w-6 shrink-0 text-slate-400 transition-transform duration-200 md:h-7 md:w-7",
+        "h-6 w-6 shrink-0 text-slate-600 dark:text-slate-400 transition-transform duration-200 md:h-7 md:w-7",
         open && "rotate-180",
         className,
       )}
@@ -37,7 +37,7 @@ type TitleAccent = "slate" | "sky" | "emerald" | "amber" | "violet";
 
 function TitleCard({ title, accent }: { title: string; accent: TitleAccent }) {
   const accents: Record<TitleAccent, string> = {
-    slate: "border-slate-500/45 bg-slate-900/85 ring-slate-500/15",
+    slate: "border-slate-500/45 bg-gray-50/85 dark:bg-slate-900/85 ring-slate-500/15",
     sky: "border-sky-500/45 bg-sky-950/35 ring-sky-500/15",
     emerald: "border-emerald-500/45 bg-emerald-950/30 ring-emerald-500/15",
     amber: "border-amber-500/45 bg-amber-950/25 ring-amber-500/15",
@@ -51,7 +51,7 @@ function TitleCard({ title, accent }: { title: string; accent: TitleAccent }) {
         accents[accent],
       )}
     >
-      <h4 className="text-center text-lg font-bold tracking-tight text-white md:text-2xl">{title}</h4>
+      <h4 className="text-center text-lg font-bold tracking-tight text-gray-950 dark:text-white md:text-2xl">{title}</h4>
     </div>
   );
 }
@@ -78,7 +78,7 @@ export function RagLabSystemArchitecture({
   return (
     <figure
       className={cn(
-        "relative overflow-hidden rounded-2xl border border-slate-600/90 bg-slate-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]",
+        "relative overflow-hidden rounded-2xl border border-gray-300/90 dark:border-slate-600/90 bg-white dark:bg-slate-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]",
         className,
       )}
     >
@@ -93,12 +93,12 @@ export function RagLabSystemArchitecture({
       />
 
       <div className="relative">
-        <figcaption className="border-b border-slate-800 bg-slate-900/90 px-4 py-4 md:px-6 md:py-5">
-          <p className="text-base font-semibold leading-snug text-slate-100 md:text-lg">{title}</p>
+        <figcaption className="border-b border-gray-200 dark:border-slate-800 bg-gray-50/90 dark:bg-slate-900/90 px-4 py-4 md:px-6 md:py-5">
+          <p className="text-base font-semibold leading-snug text-slate-900 dark:text-slate-100 md:text-lg">{title}</p>
         </figcaption>
 
         <div
-          className="grid gap-3 border-b border-slate-800 p-4 md:grid-cols-3 md:gap-4 md:p-5"
+          className="grid gap-3 border-b border-gray-200 dark:border-slate-800 p-4 md:grid-cols-3 md:gap-4 md:p-5"
           role="tablist"
           aria-label="Architecture layers"
         >
@@ -118,14 +118,14 @@ export function RagLabSystemArchitecture({
                   "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400",
                   isActive
                     ? "border-sky-500/70 bg-sky-950/40 shadow-[0_0_0_1px_rgba(56,189,248,0.25)]"
-                    : "border-slate-700 bg-slate-900/60 hover:border-slate-600 hover:bg-slate-900",
+                    : "border-gray-300 dark:border-slate-700 bg-gray-50/60 dark:bg-slate-900/60 hover:border-gray-300 dark:hover:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-900",
                 )}
               >
                 <div>
-                  <span className="block text-lg font-bold text-white md:text-xl">{section.label}</span>
-                  <span className="mt-1 block text-sm text-slate-400 md:text-base">{section.hint}</span>
+                  <span className="block text-lg font-bold text-gray-950 dark:text-white md:text-xl">{section.label}</span>
+                  <span className="mt-1 block text-sm text-slate-600 dark:text-slate-400 md:text-base">{section.hint}</span>
                 </div>
-                <Chevron open={isActive} className={isActive ? "text-sky-300" : undefined} />
+                <Chevron open={isActive} className={isActive ? "text-sky-700 dark:text-sky-300" : undefined} />
               </button>
             );
           })}

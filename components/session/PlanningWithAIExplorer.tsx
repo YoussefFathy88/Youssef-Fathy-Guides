@@ -38,10 +38,10 @@ function ContextPanel() {
             initial={reducedMotion ? false : { opacity: 0, x: -14 }}
             animate={{ opacity: i < loaded ? 1 : 0.15, x: 0 }}
             transition={{ duration: 0.3 }}
-            className="flex items-center gap-3 rounded-lg border border-teal-400/40 bg-gray-950/60 px-4 py-3"
+            className="flex items-center gap-3 rounded-lg border border-teal-400/40 bg-white/60 dark:bg-gray-950/60 px-4 py-3"
           >
-            <span className="text-xl text-teal-300">{i < loaded ? "✅" : "◻"}</span>
-            <p className="text-lg text-gray-100 md:text-xl">{item.label}</p>
+            <span className="text-xl text-teal-700 dark:text-teal-300">{i < loaded ? "✅" : "◻"}</span>
+            <p className="text-lg text-gray-900 dark:text-gray-100 md:text-xl">{item.label}</p>
           </motion.div>
         ))}
       </div>
@@ -49,7 +49,7 @@ function ContextPanel() {
         <button
           type="button"
           onClick={() => setLoaded((l) => l + 1)}
-          className="w-fit rounded-xl border-2 border-teal-400/70 bg-teal-950/40 px-5 py-3 text-base font-bold text-teal-100 transition hover:border-teal-300 md:text-lg"
+          className="w-fit rounded-xl border-2 border-teal-400/70 bg-teal-950/40 px-5 py-3 text-base font-bold text-teal-800 dark:text-teal-100 transition hover:border-teal-300 md:text-lg"
         >
           Load next item →
         </button>
@@ -89,8 +89,8 @@ function DiscussPanel() {
               msg.role.startsWith("You") ? "self-start border-violet-400/50 bg-violet-950/25" : "self-end border-teal-400/50 bg-teal-950/25",
             )}
           >
-            <p className="text-base font-bold text-gray-300 md:text-lg">{msg.role}</p>
-            <p className="mt-1 text-lg text-gray-100 md:text-xl">{msg.text}</p>
+            <p className="text-base font-bold text-gray-700 dark:text-gray-300 md:text-lg">{msg.role}</p>
+            <p className="mt-1 text-lg text-gray-900 dark:text-gray-100 md:text-xl">{msg.text}</p>
           </motion.div>
         ))}
       </div>
@@ -98,7 +98,7 @@ function DiscussPanel() {
         <button
           type="button"
           onClick={() => setShown((s) => s + 1)}
-          className="w-fit rounded-xl border-2 border-violet-400/70 bg-violet-950/40 px-5 py-3 text-base font-bold text-violet-100 transition hover:border-violet-300 md:text-lg"
+          className="w-fit rounded-xl border-2 border-violet-400/70 bg-violet-950/40 px-5 py-3 text-base font-bold text-violet-800 dark:text-violet-100 transition hover:border-violet-300 md:text-lg"
         >
           Continue conversation →
         </button>
@@ -135,8 +135,8 @@ function OutputPanel() {
             transition={{ duration: 0.3 }}
             className="rounded-xl border-2 border-amber-400/40 bg-amber-950/20 p-4"
           >
-            <p className="text-base font-bold text-amber-200 md:text-lg">{i + 1}. {layer.label}</p>
-            <p className="mt-1 text-lg text-gray-100 md:text-xl">{layer.detail}</p>
+            <p className="text-base font-bold text-amber-800 dark:text-amber-200 md:text-lg">{i + 1}. {layer.label}</p>
+            <p className="mt-1 text-lg text-gray-900 dark:text-gray-100 md:text-xl">{layer.detail}</p>
           </motion.div>
         ))}
       </div>
@@ -144,7 +144,7 @@ function OutputPanel() {
         <button
           type="button"
           onClick={() => setLayers((l) => l + 1)}
-          className="w-fit rounded-xl border-2 border-amber-400/70 bg-amber-950/40 px-5 py-3 text-base font-bold text-amber-100 transition hover:border-amber-300 md:text-lg"
+          className="w-fit rounded-xl border-2 border-amber-400/70 bg-amber-950/40 px-5 py-3 text-base font-bold text-amber-800 dark:text-amber-100 transition hover:border-amber-300 md:text-lg"
         >
           Add next layer →
         </button>

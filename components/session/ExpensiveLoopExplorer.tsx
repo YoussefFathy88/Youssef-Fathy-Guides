@@ -25,9 +25,9 @@ const LOOP_NODES = [
 ] as const;
 
 const TONE_CLASS: Record<(typeof LOOP_NODES)[number]["tone"], string> = {
-  green: "border-teal-400/70 bg-teal-950/30 text-teal-100",
-  yellow: "border-amber-400/70 bg-amber-950/30 text-amber-100",
-  red: "border-rose-400/70 bg-rose-950/30 text-rose-100",
+  green: "border-teal-400/70 bg-teal-950/30 text-teal-800 dark:text-teal-100",
+  yellow: "border-amber-400/70 bg-amber-950/30 text-amber-800 dark:text-amber-100",
+  red: "border-rose-400/70 bg-rose-950/30 text-rose-800 dark:text-rose-100",
 };
 
 function LoopPanel() {
@@ -50,17 +50,17 @@ function LoopPanel() {
             >
               {node.label}
             </motion.div>
-            {i < LOOP_NODES.length - 1 && <span className="text-2xl text-gray-500">→</span>}
+            {i < LOOP_NODES.length - 1 && <span className="text-2xl text-gray-600 dark:text-gray-500">→</span>}
           </div>
         ))}
-        {done && <span className="text-2xl text-gray-500">↻</span>}
+        {done && <span className="text-2xl text-gray-600 dark:text-gray-500">↻</span>}
       </div>
 
       {!done ? (
         <button
           type="button"
           onClick={() => setShown((s) => s + 1)}
-          className="w-fit rounded-xl border-2 border-rose-400/70 bg-rose-950/40 px-5 py-3 text-base font-bold text-rose-100 transition hover:border-rose-300 md:text-lg"
+          className="w-fit rounded-xl border-2 border-rose-400/70 bg-rose-950/40 px-5 py-3 text-base font-bold text-rose-800 dark:text-rose-100 transition hover:border-rose-300 md:text-lg"
         >
           Next step →
         </button>
@@ -97,8 +97,8 @@ function CostPanel() {
             className="flex flex-col gap-2 rounded-xl border-2 border-amber-400/40 bg-amber-950/20 p-4 md:p-5"
           >
             <span className="text-3xl" aria-hidden>{c.icon}</span>
-            <p className="text-lg font-bold text-amber-200 md:text-xl">{c.label}</p>
-            <p className="text-lg text-gray-200 md:text-xl">{c.detail}</p>
+            <p className="text-lg font-bold text-amber-800 dark:text-amber-200 md:text-xl">{c.label}</p>
+            <p className="text-lg text-gray-900 dark:text-gray-200 md:text-xl">{c.detail}</p>
           </motion.div>
         ))}
       </div>

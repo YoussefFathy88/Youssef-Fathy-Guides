@@ -54,7 +54,7 @@ function MagnitudeBar({
 
   return (
     <motion.div
-      className="mx-auto h-5 w-full max-w-md overflow-hidden rounded-full bg-white/10 md:h-6"
+      className="mx-auto h-5 w-full max-w-md overflow-hidden rounded-full bg-gray-900/[0.07] dark:bg-white/10 md:h-6"
       initial={false}
     >
       <motion.div
@@ -84,9 +84,9 @@ function BackpropLayerStrip({
     mode === "explode"
       ? "border-rose-400/70 bg-rose-500/20 ring-2 ring-rose-400/40"
       : "border-slate-300/60 bg-slate-500/20 ring-2 ring-slate-300/30";
-  const idleTone = "border-white/10 bg-white/[0.04]";
+  const idleTone = "border-gray-200 dark:border-white/10 bg-gray-900/[0.04] dark:bg-white/[0.04]";
   const barTone = mode === "explode" ? "bg-rose-400" : "bg-slate-400";
-  const magText = mode === "explode" ? "text-rose-300" : "text-slate-200";
+  const magText = mode === "explode" ? "text-rose-700 dark:text-rose-300" : "text-slate-900 dark:text-slate-200";
 
   return (
     <motion.div
@@ -94,7 +94,7 @@ function BackpropLayerStrip({
       initial={reducedMotion ? false : { opacity: 0 }}
       animate={{ opacity: 1 }}
     >
-      <p className="text-sm font-bold uppercase tracking-wide text-slate-400 md:text-base">
+      <p className="text-sm font-bold uppercase tracking-wide text-slate-600 dark:text-slate-400 md:text-base">
         Backward pass (loss → earlier layers)
       </p>
       <div className="space-y-2">
@@ -118,11 +118,11 @@ function BackpropLayerStrip({
               }
               transition={{ duration: 0.5 }}
             >
-              <span className="w-28 shrink-0 text-left text-base font-bold text-slate-200 md:w-36 md:text-lg">
+              <span className="w-28 shrink-0 text-left text-base font-bold text-slate-900 dark:text-slate-200 md:w-36 md:text-lg">
                 {label}
               </span>
               <motion.div
-                className="h-4 flex-1 overflow-hidden rounded-full bg-white/10 md:h-5"
+                className="h-4 flex-1 overflow-hidden rounded-full bg-gray-900/[0.07] dark:bg-white/10 md:h-5"
                 initial={false}
               >
                 <motion.div
@@ -134,7 +134,7 @@ function BackpropLayerStrip({
               <span
                 className={cn(
                   "w-20 shrink-0 text-right font-mono text-base font-bold tabular-nums md:w-24 md:text-lg",
-                  active ? magText : "text-slate-500",
+                  active ? magText : "text-slate-600 dark:text-slate-500",
                 )}
               >
                 {formatMagnitude(mag)}
@@ -144,13 +144,13 @@ function BackpropLayerStrip({
         })}
       </div>
       {step < layers.length - 1 ? (
-        <p className="text-base font-medium text-slate-400 md:text-lg" aria-live="polite">
+        <p className="text-base font-medium text-slate-600 dark:text-slate-400 md:text-lg" aria-live="polite">
           {mode === "explode"
             ? "Each step backward multiplies the gradient — it blows up"
             : "Each step backward shrinks the gradient — it fades away"}
         </p>
       ) : (
-        <p className="text-base font-bold text-slate-200 md:text-lg" aria-live="polite">
+        <p className="text-base font-bold text-slate-900 dark:text-slate-200 md:text-lg" aria-live="polite">
           {mode === "explode"
             ? "Early layers get huge updates — training explodes"
             : "Early layers get almost zero signal — they cannot learn"}
@@ -171,8 +171,8 @@ function ExplodeStory({
 
   return (
     <div className="space-y-6 text-center md:space-y-8">
-      <p className="text-xl font-bold text-rose-200 md:text-2xl">Exploding gradients</p>
-      <p className="text-base font-medium text-slate-300 md:text-lg">
+      <p className="text-xl font-bold text-rose-800 dark:text-rose-200 md:text-2xl">Exploding gradients</p>
+      <p className="text-base font-medium text-slate-700 dark:text-slate-300 md:text-lg">
         Backprop multiplies large factors — the gradient grows at every layer
       </p>
 
@@ -185,12 +185,12 @@ function ExplodeStory({
       />
 
       <div className="space-y-3">
-        <p className="text-base font-semibold uppercase tracking-wide text-rose-300/90 md:text-lg">
+        <p className="text-base font-semibold uppercase tracking-wide text-rose-700 dark:text-rose-300/90 md:text-lg">
           Gradient at highlighted layer
         </p>
         <motion.p
           key={magnitude}
-          className="font-mono text-5xl font-bold tabular-nums text-rose-300 md:text-7xl"
+          className="font-mono text-5xl font-bold tabular-nums text-rose-700 dark:text-rose-300 md:text-7xl"
           initial={reducedMotion ? false : { scale: 0.92, opacity: 0.6 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.35 }}
@@ -214,8 +214,8 @@ function VanishStory({
 
   return (
     <div className="space-y-6 text-center md:space-y-8">
-      <p className="text-xl font-bold text-slate-200 md:text-2xl">Vanishing gradients</p>
-      <p className="text-base font-medium text-slate-300 md:text-lg">
+      <p className="text-xl font-bold text-slate-900 dark:text-slate-200 md:text-2xl">Vanishing gradients</p>
+      <p className="text-base font-medium text-slate-700 dark:text-slate-300 md:text-lg">
         Backprop multiplies small factors — the gradient shrinks at every layer
       </p>
 
@@ -228,12 +228,12 @@ function VanishStory({
       />
 
       <div className="space-y-3">
-        <p className="text-base font-semibold uppercase tracking-wide text-slate-400 md:text-lg">
+        <p className="text-base font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400 md:text-lg">
           Gradient at highlighted layer
         </p>
         <motion.p
           key={magnitude}
-          className="font-mono text-5xl font-bold tabular-nums text-slate-300 md:text-7xl"
+          className="font-mono text-5xl font-bold tabular-nums text-slate-700 dark:text-slate-300 md:text-7xl"
           initial={reducedMotion ? false : { scale: 0.92, opacity: 0.6 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.35 }}
@@ -253,16 +253,16 @@ function LayerNormStory({ reducedMotion }: { reducedMotion: boolean }) {
   return (
     <div className="space-y-6 text-center md:space-y-8">
       <p className="text-xl font-bold text-[color:var(--success)] md:text-2xl">LayerNorm fixes the scale</p>
-      <p className="text-base font-medium text-slate-300 md:text-lg">
+      <p className="text-base font-medium text-slate-700 dark:text-slate-300 md:text-lg">
         Re-center and rescale activations — stable range before attention and FFN
       </p>
 
       <motion.div
-        className="mx-auto w-full max-w-3xl rounded-2xl border border-white/15 bg-white/[0.06] px-5 py-6 md:px-8 md:py-8"
+        className="mx-auto w-full max-w-3xl rounded-2xl border border-gray-200 dark:border-white/15 bg-gray-900/[0.04] dark:bg-white/[0.06] px-5 py-6 md:px-8 md:py-8"
         initial={reducedMotion ? false : { opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <p className="text-lg font-bold text-slate-200 md:text-xl">Before LayerNorm</p>
+        <p className="text-lg font-bold text-slate-900 dark:text-slate-200 md:text-xl">Before LayerNorm</p>
         <p className={cn(vectorClass, "mt-4 text-[color:var(--warning)]")}>{formatVector(LN_BEFORE)}</p>
       </motion.div>
 
@@ -289,11 +289,11 @@ function LayerNormStory({ reducedMotion }: { reducedMotion: boolean }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: reducedMotion ? 0 : 0.12 }}
       >
-        <p className="text-lg font-bold text-slate-200 md:text-xl">After LayerNorm</p>
+        <p className="text-lg font-bold text-slate-900 dark:text-slate-200 md:text-xl">After LayerNorm</p>
         <p className={cn(vectorClass, "mt-4 text-[color:var(--success)]")}>{formatVector(LN_AFTER)}</p>
       </motion.div>
 
-      <p className="text-base font-medium text-slate-400 md:text-lg">
+      <p className="text-base font-medium text-slate-600 dark:text-slate-400 md:text-lg">
         Keeps values in a safe band — GPT applies this before every sub-layer
       </p>
     </div>
@@ -405,8 +405,8 @@ export function GradientInstabilityMini({
               className={cn(
                 "rounded-full px-4 py-2.5 text-base font-bold transition-colors md:px-5 md:py-3 md:text-lg",
                 i === phaseIdx
-                  ? "bg-white/15 text-white ring-2 ring-white/25"
-                  : "bg-white/[0.06] text-slate-400 ring-1 ring-white/10 hover:bg-white/10",
+                  ? "bg-gray-900/10 dark:bg-white/15 text-gray-950 dark:text-white ring-2 ring-gray-300 dark:ring-white/25"
+                  : "bg-gray-900/[0.04] dark:bg-white/[0.06] text-slate-600 dark:text-slate-400 ring-1 ring-gray-200 dark:ring-white/10 hover:bg-gray-900/[0.07] dark:hover:bg-white/10",
               )}
               aria-current={i === phaseIdx ? "step" : undefined}
             >

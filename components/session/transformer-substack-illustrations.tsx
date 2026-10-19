@@ -47,7 +47,7 @@ export function DecoderExampleTokenStrip({
   return (
     <div className="space-y-3">
       {showLabel ? (
-        <p className="text-sm font-bold uppercase tracking-wide text-slate-400 md:text-base">{label}</p>
+        <p className="text-sm font-bold uppercase tracking-wide text-slate-600 dark:text-slate-400 md:text-base">{label}</p>
       ) : null}
       <div className="flex flex-wrap justify-center gap-2 md:gap-3">
         {DECODER_EXAMPLE_TOKENS.map((tok, i) => (
@@ -56,8 +56,8 @@ export function DecoderExampleTokenStrip({
             className={cn(
               "rounded-xl border px-3 py-2 text-base font-bold md:px-4 md:py-3 md:text-lg",
               i === activeIndex
-                ? "border-[color:var(--primary)]/60 bg-[color:var(--primary)]/20 text-white ring-2 ring-[color:var(--primary)]/40"
-                : "border-white/10 bg-white/[0.06] text-slate-300",
+                ? "border-[color:var(--primary)]/60 bg-[color:var(--primary)]/20 text-gray-950 dark:text-white ring-2 ring-[color:var(--primary)]/40"
+                : "border-gray-200 dark:border-white/10 bg-gray-900/[0.04] dark:bg-white/[0.06] text-slate-700 dark:text-slate-300",
             )}
           >
             {tok}
@@ -65,7 +65,7 @@ export function DecoderExampleTokenStrip({
         ))}
       </div>
       {showSentence ? (
-        <p className="text-center font-mono text-base text-slate-300 md:text-lg">{DECODER_EXAMPLE_SENTENCE}</p>
+        <p className="text-center font-mono text-base text-slate-700 dark:text-slate-300 md:text-lg">{DECODER_EXAMPLE_SENTENCE}</p>
       ) : null}
     </div>
   );
@@ -106,13 +106,13 @@ function LMHeadMatmulDiagram({
       <div className="flex flex-wrap items-center justify-center gap-3 md:gap-5">
         {/* h — column vector at "?" */}
         <div className="flex flex-col items-center gap-2">
-          <span className="text-base font-bold text-violet-200 md:text-lg">h at “?”</span>
+          <span className="text-base font-bold text-violet-800 dark:text-violet-200 md:text-lg">h at “?”</span>
           <div
             className={cn(
               "flex w-16 flex-col items-center gap-0.5 rounded-xl border-2 px-1.5 py-2 md:w-20",
               phase === "vector" || showMultiply
                 ? "border-[color:var(--primary)]/55 bg-[color:var(--primary)]/15 ring-2 ring-[color:var(--primary)]/25"
-                : "border-white/15 bg-white/[0.04]",
+                : "border-gray-200 dark:border-white/15 bg-gray-900/[0.04] dark:bg-white/[0.04]",
             )}
           >
             {Array.from({ length: vectorCells }, (_, i) => (
@@ -121,34 +121,34 @@ function LMHeadMatmulDiagram({
                 className="h-3 w-full rounded-sm bg-[color:var(--primary)]/70 md:h-3.5"
               />
             ))}
-            <span className="py-0.5 text-base font-bold text-slate-400">⋮</span>
+            <span className="py-0.5 text-base font-bold text-slate-600 dark:text-slate-400">⋮</span>
           </div>
-          <span className="font-mono text-base font-semibold text-slate-300 md:text-lg">12,288 × 1</span>
+          <span className="font-mono text-base font-semibold text-slate-700 dark:text-slate-300 md:text-lg">12,288 × 1</span>
         </div>
 
         {showMultiply ? (
           <>
-            <span className="text-2xl font-bold text-white md:text-3xl" aria-hidden>
+            <span className="text-2xl font-bold text-gray-950 dark:text-white md:text-3xl" aria-hidden>
               ×
             </span>
 
             {/* W_LM — weight matrix (teaching: one row per candidate token) */}
             <div className="flex flex-col items-center gap-2">
-              <span className="text-base font-bold text-amber-200 md:text-lg">W_LM</span>
+              <span className="text-base font-bold text-amber-800 dark:text-amber-200 md:text-lg">W_LM</span>
               <div
                 className={cn(
                   "overflow-hidden rounded-xl border-2",
                   highlightWeights
                     ? "border-[color:var(--warning)]/55 bg-[color:var(--warning)]/10 ring-2 ring-[color:var(--warning)]/25"
-                    : "border-white/15 bg-white/[0.04]",
+                    : "border-gray-200 dark:border-white/15 bg-gray-900/[0.04] dark:bg-white/[0.04]",
                 )}
               >
                 {DECODER_LM_CANDIDATES.map((c) => (
                   <div
                     key={c.token}
-                    className="flex items-center gap-2 border-b border-white/10 px-2 py-1.5 last:border-b-0 md:px-3 md:py-2"
+                    className="flex items-center gap-2 border-b border-gray-200 dark:border-white/10 px-2 py-1.5 last:border-b-0 md:px-3 md:py-2"
                   >
-                    <span className="w-10 shrink-0 text-base font-bold text-white md:w-12 md:text-lg">
+                    <span className="w-10 shrink-0 text-base font-bold text-gray-950 dark:text-white md:w-12 md:text-lg">
                       {c.token}
                     </span>
                     <div className="flex flex-1 gap-0.5">
@@ -158,17 +158,17 @@ function LMHeadMatmulDiagram({
                           className="h-3 flex-1 rounded-sm bg-[color:var(--warning)]/55 md:h-3.5"
                         />
                       ))}
-                      <span className="text-base text-slate-500">···</span>
+                      <span className="text-base text-slate-600 dark:text-slate-500">···</span>
                     </div>
                   </div>
                 ))}
               </div>
-              <span className="font-mono text-base font-semibold text-slate-200 md:text-lg">vocab × 12,288</span>
+              <span className="font-mono text-base font-semibold text-slate-900 dark:text-slate-200 md:text-lg">vocab × 12,288</span>
             </div>
 
             {showOutput ? (
               <>
-                <span className="text-2xl font-bold text-white md:text-3xl" aria-hidden>
+                <span className="text-2xl font-bold text-gray-950 dark:text-white md:text-3xl" aria-hidden>
                   =
                 </span>
 
@@ -195,21 +195,21 @@ function LMHeadMatmulDiagram({
                             "flex min-w-[9rem] items-center justify-between gap-3 rounded-xl border-2 px-3 py-2 md:min-w-[10rem] md:px-4 md:py-2.5",
                             winner
                               ? "border-[color:var(--success)]/60 bg-[color:var(--success)]/15 ring-2 ring-[color:var(--success)]/30"
-                              : "border-white/15 bg-white/[0.04]",
+                              : "border-gray-200 dark:border-white/15 bg-gray-900/[0.04] dark:bg-white/[0.04]",
                           )}
                           initial={reducedMotion ? false : { opacity: 0, x: 8 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: reducedMotion ? 0 : idx * 0.06 }}
                         >
-                          <span className="text-base font-bold text-white md:text-lg">{c.token}</span>
-                          <span className="font-mono text-base font-bold tabular-nums text-violet-200 md:text-lg">
+                          <span className="text-base font-bold text-gray-950 dark:text-white md:text-lg">{c.token}</span>
+                          <span className="font-mono text-base font-bold tabular-nums text-violet-800 dark:text-violet-200 md:text-lg">
                             {metric}
                           </span>
                         </motion.div>
                       );
                     })}
                   </div>
-                  <span className="font-mono text-base font-semibold text-slate-300 md:text-lg">vocab × 1</span>
+                  <span className="font-mono text-base font-semibold text-slate-700 dark:text-slate-300 md:text-lg">vocab × 1</span>
                 </div>
               </>
             ) : null}
@@ -219,7 +219,7 @@ function LMHeadMatmulDiagram({
 
       {pickWinner ? (
         <p className="text-center text-lg font-bold text-[color:var(--success)] md:text-xl">
-          Pick highest probability → <span className="text-white">Yes</span>
+          Pick highest probability → <span className="text-gray-950 dark:text-white">Yes</span>
         </p>
       ) : null}
     </div>
@@ -243,9 +243,9 @@ function SemanticMeaningPanel({
   return (
     <div className="space-y-6 py-2">
       <div className="rounded-2xl border border-[color:var(--primary)]/40 bg-[color:var(--primary)]/10 px-5 py-6 md:px-8 md:py-8">
-        <p className="text-sm font-bold uppercase tracking-wide text-violet-300 md:text-base">{stageLabel}</p>
-        <p className="mt-2 text-xl font-bold text-white md:text-2xl">{headline}</p>
-        <p className="mt-3 text-base font-medium leading-relaxed text-slate-200 md:text-lg">{body}</p>
+        <p className="text-sm font-bold uppercase tracking-wide text-violet-700 dark:text-violet-300 md:text-base">{stageLabel}</p>
+        <p className="mt-2 text-xl font-bold text-gray-950 dark:text-white md:text-2xl">{headline}</p>
+        <p className="mt-3 text-base font-medium leading-relaxed text-slate-900 dark:text-slate-200 md:text-lg">{body}</p>
       </div>
 
       {steps && steps.length > 0 ? (
@@ -253,18 +253,18 @@ function SemanticMeaningPanel({
           {steps.map((box) => (
             <div
               key={box.title}
-              className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-4 md:py-5"
+              className="rounded-xl border border-gray-200 dark:border-white/10 bg-gray-900/[0.04] dark:bg-white/[0.04] px-4 py-4 md:py-5"
             >
-              <p className="text-base font-bold text-violet-200 md:text-lg">{box.title}</p>
-              <p className="mt-2 text-base text-slate-300 md:text-lg">{box.body}</p>
+              <p className="text-base font-bold text-violet-800 dark:text-violet-200 md:text-lg">{box.title}</p>
+              <p className="mt-2 text-base text-slate-700 dark:text-slate-300 md:text-lg">{box.body}</p>
             </div>
           ))}
         </div>
       ) : null}
 
       {footnote ? (
-        <div className="rounded-xl border border-white/10 bg-black/25 px-4 py-4 md:px-6 md:py-5">
-          <p className="font-mono text-base text-violet-200 md:text-lg">{footnote}</p>
+        <div className="rounded-xl border border-gray-200 dark:border-white/10 bg-black/25 px-4 py-4 md:px-6 md:py-5">
+          <p className="font-mono text-base text-violet-800 dark:text-violet-200 md:text-lg">{footnote}</p>
         </div>
       ) : null}
     </div>
@@ -321,8 +321,8 @@ function barRow(
 ) {
   return (
     <div className="space-y-1.5">
-      <div className="text-base font-medium text-slate-300 md:text-lg">{label}</div>
-      <div className="h-3 w-full overflow-hidden rounded-full bg-white/[0.08]">
+      <div className="text-base font-medium text-slate-700 dark:text-slate-300 md:text-lg">{label}</div>
+      <div className="h-3 w-full overflow-hidden rounded-full bg-gray-900/[0.07] dark:bg-white/[0.08]">
         <motion.div
           className={cn("h-full rounded-full", tone)}
           initial={reducedMotion ? false : { width: 0 }}
@@ -346,7 +346,7 @@ function OverviewEncoderMini({ reducedMotion }: { reducedMotion: boolean }) {
   };
   return (
     <div className="flex flex-col-reverse items-stretch gap-2 py-2">
-      <p className="mb-1 text-center text-base text-slate-300 md:text-lg">
+      <p className="mb-1 text-center text-base text-slate-700 dark:text-slate-300 md:text-lg">
         Pulse follows data upward through one layer
       </p>
       {steps.map((id, idx) => (
@@ -354,7 +354,7 @@ function OverviewEncoderMini({ reducedMotion }: { reducedMotion: boolean }) {
           key={id}
           className={cn(
             "rounded-lg border px-3 py-2 text-center text-base font-semibold md:text-lg",
-            id === "in" && "border-white/10 bg-white/[0.06] text-slate-200",
+            id === "in" && "border-gray-200 dark:border-white/10 bg-gray-900/[0.04] dark:bg-white/[0.06] text-slate-900 dark:text-slate-200",
             id === "mha" &&
               "border-[color:var(--purple)]/25 bg-[color:var(--purple)]/12 text-[color:var(--purple)]",
             (id === "n1" || id === "n2") &&
@@ -388,7 +388,7 @@ function OverviewDecoderMini({ reducedMotion }: { reducedMotion: boolean }) {
   };
   return (
     <div className="flex flex-col-reverse items-stretch gap-2 py-2">
-      <p className="mb-1 text-center text-base text-slate-300 md:text-lg">
+      <p className="mb-1 text-center text-base text-slate-700 dark:text-slate-300 md:text-lg">
         LN → masked attn → residual → LN → FFN → residual (×96), then ln_f → LM head
       </p>
       {steps.map((id, idx) => (
@@ -453,10 +453,10 @@ function SelfAttentionMini({
 
   return (
     <div className="flex w-full flex-col items-center gap-4 py-1">
-      <p className="text-center text-base text-slate-200 md:text-lg">
+      <p className="text-center text-base text-slate-900 dark:text-slate-200 md:text-lg">
         <span className="font-semibold text-[color:var(--purple)]">Q</span> at{" "}
-        <span className="font-semibold text-white">{SELF_ATTN_TOKENS[t]}</span>
-        <span className="text-slate-400"> — line thickness ≈ attention weight to each key</span>
+        <span className="font-semibold text-gray-950 dark:text-white">{SELF_ATTN_TOKENS[t]}</span>
+        <span className="text-slate-600 dark:text-slate-400"> — line thickness ≈ attention weight to each key</span>
       </p>
 
       <svg
@@ -533,10 +533,10 @@ function SelfAttentionMini({
         })}
       </svg>
 
-      <div className="flex w-full max-w-md flex-wrap justify-center gap-x-4 gap-y-1 text-base text-slate-300 md:text-lg">
+      <div className="flex w-full max-w-md flex-wrap justify-center gap-x-4 gap-y-1 text-base text-slate-700 dark:text-slate-300 md:text-lg">
         {SELF_ATTN_TOKENS.map((tok, j) => (
           <span key={tok} className="tabular-nums">
-            <span className="font-medium text-slate-200">{tok}</span>:{" "}
+            <span className="font-medium text-slate-900 dark:text-slate-200">{tok}</span>:{" "}
             {Math.round((row[j] ?? 0) * 100)}%
           </span>
         ))}
@@ -558,16 +558,16 @@ function SelfAttentionMini({
 const MULTI_HEAD_TOKENS = ["The", "capital", "of", "Egypt", "is", "Cairo"] as const;
 
 const MULTI_HEAD_TOKEN_CHIPS: { readonly token: string; readonly chipClass: string }[] = [
-  { token: "The", chipClass: "border-violet-400/50 bg-violet-500/18 text-violet-50" },
+  { token: "The", chipClass: "border-violet-400/50 bg-violet-500/18 text-violet-800 dark:text-violet-50" },
   {
     token: "capital",
     chipClass:
-      "border-emerald-400/55 bg-emerald-500/22 text-emerald-50 ring-2 ring-emerald-400/40 ring-offset-2 ring-offset-slate-950/80",
+      "border-emerald-400/55 bg-emerald-500/22 text-emerald-800 dark:text-emerald-50 ring-2 ring-emerald-400/40 ring-offset-2 ring-offset-slate-950/80",
   },
-  { token: "of", chipClass: "border-white/20 bg-white/[0.08] text-slate-100" },
-  { token: "Egypt", chipClass: "border-amber-400/45 bg-amber-500/18 text-amber-50" },
-  { token: "is", chipClass: "border-sky-400/45 bg-sky-500/18 text-sky-50" },
-  { token: "Cairo", chipClass: "border-rose-400/45 bg-rose-500/18 text-rose-50" },
+  { token: "of", chipClass: "border-gray-300 dark:border-white/20 bg-gray-900/[0.07] dark:bg-white/[0.08] text-slate-900 dark:text-slate-100" },
+  { token: "Egypt", chipClass: "border-amber-400/45 bg-amber-500/18 text-amber-800 dark:text-amber-50" },
+  { token: "is", chipClass: "border-sky-400/45 bg-sky-500/18 text-sky-800 dark:text-sky-50" },
+  { token: "Cairo", chipClass: "border-rose-400/45 bg-rose-500/18 text-rose-800 dark:text-rose-50" },
 ];
 
 const MULTI_HEAD_SPECS = [
@@ -575,7 +575,7 @@ const MULTI_HEAD_SPECS = [
     title: "Head 1 — grammar",
     barClass: "bg-violet-500",
     borderClass: "border-violet-500/35",
-    titleClass: "text-violet-300",
+    titleClass: "text-violet-700 dark:text-violet-300",
     question: 'Which words connect to "capital" structurally?',
     weights: [55, 15, 20, 5, 3, 2] as const,
     footer: '"The" is the article that modifies "capital" — strong grammatical bond',
@@ -584,7 +584,7 @@ const MULTI_HEAD_SPECS = [
     title: "Head 2 — topic / meaning",
     barClass: "bg-emerald-500",
     borderClass: "border-emerald-500/35",
-    titleClass: "text-emerald-300",
+    titleClass: "text-emerald-700 dark:text-emerald-300",
     question: "Which words share the same concept?",
     weights: [4, 10, 4, 44, 3, 35] as const,
     footer: 'Egypt + Cairo are geographically linked to "capital" — strong semantic match',
@@ -593,7 +593,7 @@ const MULTI_HEAD_SPECS = [
     title: "Head 3 — position / neighbors",
     barClass: "bg-amber-500",
     borderClass: "border-amber-500/35",
-    titleClass: "text-amber-300",
+    titleClass: "text-amber-700 dark:text-amber-300",
     question: 'Which words sit close to "capital"?',
     weights: [18, 10, 52, 14, 4, 2] as const,
     footer: '"of" is right next to "capital" — positional proximity drives this head',
@@ -621,7 +621,7 @@ function MultiHeadMini({ reducedMotion }: { reducedMotion: boolean }) {
         ))}
       </div>
 
-      <p className="text-center text-sm font-medium leading-snug text-slate-300 md:text-base">
+      <p className="text-center text-sm font-medium leading-snug text-slate-700 dark:text-slate-300 md:text-base">
         Each head looks at &ldquo;capital&rdquo; — but notices a different kind of relationship
       </p>
 
@@ -630,22 +630,22 @@ function MultiHeadMini({ reducedMotion }: { reducedMotion: boolean }) {
           <div
             key={head.title}
             className={cn(
-              "flex min-w-0 flex-col rounded-xl border bg-white/[0.03] p-4 shadow-sm md:p-5",
+              "flex min-w-0 flex-col rounded-xl border bg-gray-900/[0.04] dark:bg-white/[0.03] p-4 shadow-sm md:p-5",
               head.borderClass,
             )}
           >
             <h4 className={cn("text-sm font-bold md:text-base", head.titleClass)}>{head.title}</h4>
-            <p className="mt-2 text-base leading-relaxed text-slate-300 md:text-lg">{head.question}</p>
+            <p className="mt-2 text-base leading-relaxed text-slate-700 dark:text-slate-300 md:text-lg">{head.question}</p>
 
             <div className="mt-4 space-y-2.5">
               {MULTI_HEAD_TOKENS.map((tok, j) => {
                 const pct = head.weights[j] ?? 0;
                 return (
                   <div key={`${head.title}-${tok}`} className="flex items-center gap-2">
-                    <span className="w-14 shrink-0 text-right text-sm font-semibold text-slate-100 tabular-nums sm:w-16 md:text-base">
+                    <span className="w-14 shrink-0 text-right text-sm font-semibold text-slate-900 dark:text-slate-100 tabular-nums sm:w-16 md:text-base">
                       {tok}
                     </span>
-                    <div className="relative h-6 min-w-0 flex-1 overflow-hidden rounded-full bg-white/[0.08]">
+                    <div className="relative h-6 min-w-0 flex-1 overflow-hidden rounded-full bg-gray-900/[0.07] dark:bg-white/[0.08]">
                       <motion.div
                         className={cn("h-full rounded-full", head.barClass)}
                         initial={reducedMotion ? false : { width: 0 }}
@@ -657,7 +657,7 @@ function MultiHeadMini({ reducedMotion }: { reducedMotion: boolean }) {
                         }}
                       />
                     </div>
-                    <span className="w-9 shrink-0 text-right text-sm font-bold tabular-nums text-slate-100 md:text-base">
+                    <span className="w-9 shrink-0 text-right text-sm font-bold tabular-nums text-slate-900 dark:text-slate-100 md:text-base">
                       {pct}%
                     </span>
                   </div>
@@ -665,24 +665,24 @@ function MultiHeadMini({ reducedMotion }: { reducedMotion: boolean }) {
               })}
             </div>
 
-            <p className="mt-4 border-t border-white/10 pt-3 text-base leading-relaxed text-slate-300 md:text-lg">
+            <p className="mt-4 border-t border-gray-200 dark:border-white/10 pt-3 text-base leading-relaxed text-slate-700 dark:text-slate-300 md:text-lg">
               {head.footer}
             </p>
           </div>
         ))}
       </div>
 
-      <div className="rounded-xl border border-white/12 bg-white/[0.04] px-4 py-4 md:px-5 md:py-5">
-        <p className="text-center text-sm font-bold text-slate-100 md:text-base">
+      <div className="rounded-xl border border-gray-200 dark:border-white/12 bg-gray-900/[0.04] dark:bg-white/[0.04] px-4 py-4 md:px-5 md:py-5">
+        <p className="text-center text-sm font-bold text-slate-900 dark:text-slate-100 md:text-base">
           Final vector for &ldquo;capital&rdquo; = blend of all 3 heads
         </p>
-        <p className="mt-3 text-center text-base leading-relaxed text-slate-300 md:text-lg">
+        <p className="mt-3 text-center text-base leading-relaxed text-slate-700 dark:text-slate-300 md:text-lg">
           Grammar head says → &ldquo;The&rdquo; modifies me · Topic head says → Egypt + Cairo define me · Position head
           says → &ldquo;of&rdquo; is my immediate neighbor
         </p>
       </div>
 
-      <p className="text-center text-sm text-slate-400 md:text-base">
+      <p className="text-center text-sm text-slate-600 dark:text-slate-400 md:text-base">
         Concatenate head outputs → linear projection → back to model width (same width as input).
       </p>
     </div>
@@ -712,12 +712,12 @@ so the answer expected is: yes
         <p className="text-sm font-bold uppercase tracking-wide text-[color:var(--warning)] md:text-base">
           Feed-forward
         </p>
-        <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-100 md:text-base">
+        <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-900 dark:text-slate-100 md:text-base">
           {unpackStory}
         </p>
       </div>
 
-      <div className="space-y-3 border-t border-white/10 pt-4">
+      <div className="space-y-3 border-t border-gray-200 dark:border-white/10 pt-4">
         {barRow(
           gptDims ? "Linear up (12,288)" : "Linear up (e.g. 512)",
           28,
@@ -739,7 +739,7 @@ so the answer expected is: yes
           0.24,
           reducedMotion,
         )}
-        <p className="text-center text-base text-slate-300 md:text-lg">
+        <p className="text-center text-base text-slate-700 dark:text-slate-300 md:text-lg">
           Same weights at every position — each token gets its own pass after attention has mixed context in.
         </p>
       </div>
@@ -762,7 +762,7 @@ function ResidualMini({
       {barRow("Sub-layer output", 55, "bg-[color:var(--purple)]/70", preLn ? 0.08 : 0, reducedMotion)}
       {barRow("Skip — residual stream", 55, "bg-[color:var(--success)]/55", preLn ? 0.16 : 0.1, reducedMotion)}
       {barRow(preLn ? "Add → out" : "Add → LayerNorm → out", 80, "bg-[color:var(--primary)]/55", preLn ? 0.24 : 0.22, reducedMotion)}
-      <p className="text-center text-base text-slate-300 md:text-lg">
+      <p className="text-center text-base text-slate-700 dark:text-slate-300 md:text-lg">
         {multi && preLn
           ? "GPT-3 Pre-LN: norm before attention and before FFN; residual add after each sub-layer (twice per block)."
           : multi
@@ -785,7 +785,7 @@ function LayersMini({
   const n = Math.min(Math.max(layerCount, 1), 12);
   return (
     <div className="flex flex-col-reverse items-stretch gap-2 py-2">
-      <p className="mb-1 text-center text-base text-slate-300 md:text-lg">
+      <p className="mb-1 text-center text-base text-slate-700 dark:text-slate-300 md:text-lg">
         {label} — same block repeated {layerCount}×
       </p>
       {Array.from({ length: n }, (_, i) => (
@@ -820,10 +820,10 @@ function LMHeadMini({ reducedMotion }: { reducedMotion: boolean }) {
             className={cn(
               "rounded-full border px-3 py-2 text-base font-bold transition md:px-4 md:py-2.5 md:text-lg",
               idx === step
-                ? "border-[color:var(--primary)]/50 bg-[color:var(--primary)]/15 text-white ring-2 ring-[color:var(--primary)]/30"
+                ? "border-[color:var(--primary)]/50 bg-[color:var(--primary)]/15 text-gray-950 dark:text-white ring-2 ring-[color:var(--primary)]/30"
                 : idx < step
-                  ? "border-gray-700/50 bg-gray-800/60 text-gray-300 hover:bg-gray-700/60"
-                  : "border-white/10 bg-white/[0.04] text-slate-500 hover:bg-white/[0.08]",
+                  ? "border-gray-300/50 dark:border-gray-700/50 bg-gray-100/60 dark:bg-gray-800/60 text-gray-700 dark:text-gray-300 hover:bg-gray-200/60 dark:hover:bg-gray-700/60"
+                  : "border-gray-200 dark:border-white/10 bg-gray-900/[0.04] dark:bg-white/[0.04] text-slate-600 dark:text-slate-500 hover:bg-gray-900/[0.07] dark:hover:bg-white/[0.08]",
             )}
           >
             {s.short}
@@ -838,10 +838,10 @@ function LMHeadMini({ reducedMotion }: { reducedMotion: boolean }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
       >
-        <p className="text-xl font-bold text-white md:text-2xl">{current.title}</p>
+        <p className="text-xl font-bold text-gray-950 dark:text-white md:text-2xl">{current.title}</p>
       </motion.div>
 
-      <div className="rounded-xl border border-white/10 bg-black/20 px-4 py-4 md:px-6 md:py-5">
+      <div className="rounded-xl border border-gray-200 dark:border-white/10 bg-black/20 px-4 py-4 md:px-6 md:py-5">
         <LMHeadMatmulDiagram
           phase={current.id}
           showProbs={showProbs}
@@ -849,7 +849,7 @@ function LMHeadMini({ reducedMotion }: { reducedMotion: boolean }) {
         />
       </div>
 
-      <div className="flex items-center justify-end gap-4 border-t border-white/10 pt-4">
+      <div className="flex items-center justify-end gap-4 border-t border-gray-200 dark:border-white/10 pt-4">
         <button
           type="button"
           onClick={() => setStep((s) => Math.max(0, s - 1))}
@@ -857,8 +857,8 @@ function LMHeadMini({ reducedMotion }: { reducedMotion: boolean }) {
           className={cn(
             "rounded-full border px-5 py-2.5 text-base font-bold transition md:px-6 md:py-3 md:text-lg",
             step === 0
-              ? "cursor-not-allowed border-gray-800 text-gray-600"
-              : "border-gray-600 text-gray-200 hover:border-[color:var(--primary)] hover:text-white",
+              ? "cursor-not-allowed border-gray-200 dark:border-gray-800 text-gray-600"
+              : "border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-200 hover:border-[color:var(--primary)] hover:text-gray-950 dark:hover:text-white",
           )}
         >
           ← Prev
@@ -870,8 +870,8 @@ function LMHeadMini({ reducedMotion }: { reducedMotion: boolean }) {
           className={cn(
             "rounded-full border px-5 py-2.5 text-base font-bold transition md:px-6 md:py-3 md:text-lg",
             last
-              ? "cursor-not-allowed border-gray-800 text-gray-600"
-              : "border-[color:var(--primary)]/50 bg-[color:var(--primary)]/15 text-violet-100 hover:bg-[color:var(--primary)]/25",
+              ? "cursor-not-allowed border-gray-200 dark:border-gray-800 text-gray-600"
+              : "border-[color:var(--primary)]/50 bg-[color:var(--primary)]/15 text-violet-800 dark:text-violet-100 hover:bg-[color:var(--primary)]/25",
           )}
         >
           Next →
@@ -891,7 +891,7 @@ function MaskedAttentionMini() {
       <MaskedAttentionSemanticMini />
 
       <div className="mx-auto w-full max-w-2xl">
-        <p className="mb-3 text-center font-mono text-base text-slate-300 md:text-lg">
+        <p className="mb-3 text-center font-mono text-base text-slate-700 dark:text-slate-300 md:text-lg">
           {DECODER_EXAMPLE_SENTENCE}
         </p>
 
@@ -905,8 +905,8 @@ function MaskedAttentionMini() {
               className={cn(
                 "rounded-md border px-1.5 py-1 text-center text-base font-semibold md:text-lg",
                 i <= active
-                  ? "border-[color:var(--purple)]/40 bg-[color:var(--purple)]/12 text-slate-100"
-                  : "border-white/10 bg-white/[0.03] text-slate-500",
+                  ? "border-[color:var(--purple)]/40 bg-[color:var(--purple)]/12 text-slate-900 dark:text-slate-100"
+                  : "border-gray-200 dark:border-white/10 bg-gray-900/[0.04] dark:bg-white/[0.03] text-slate-600 dark:text-slate-500",
               )}
             >
               {tok}
@@ -930,7 +930,7 @@ function MaskedAttentionMini() {
                 key={idx}
                 className={cn(
                   "aspect-square rounded-md border",
-                  !allowed && "border-white/10 bg-white/[0.03]",
+                  !allowed && "border-gray-200 dark:border-white/10 bg-gray-900/[0.04] dark:bg-white/[0.03]",
                   allowed &&
                     !lit &&
                     "border-[color:var(--purple)]/25 bg-[color:var(--purple)]/12",
@@ -943,8 +943,8 @@ function MaskedAttentionMini() {
         </div>
       </div>
 
-      <p className="text-center text-base text-slate-300 md:text-lg">
-        Query at <span className="font-bold text-white">“?”</span> — attends to every token in the question
+      <p className="text-center text-base text-slate-700 dark:text-slate-300 md:text-lg">
+        Query at <span className="font-bold text-gray-950 dark:text-white">“?”</span> — attends to every token in the question
       </p>
     </div>
   );

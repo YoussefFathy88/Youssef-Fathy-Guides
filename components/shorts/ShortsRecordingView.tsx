@@ -39,7 +39,8 @@ export function ShortsRecordingView({ children, topic, title, description }: Sho
   return (
     <div
       className={cn(
-        "relative z-10 flex min-h-[calc(100vh-64px)] w-full flex-col items-center gap-4 px-4",
+        /* Shorts are recorded as video: always dark, whatever the site theme. */
+        "dark relative z-10 flex min-h-[calc(100vh-64px)] w-full flex-col items-center gap-4 bg-[#080d18] px-4 text-slate-100",
         recordingMode ? "justify-start pt-4 pb-10" : "justify-center py-10",
       )}
     >

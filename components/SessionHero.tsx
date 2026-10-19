@@ -31,11 +31,11 @@ export function SessionHero({ session }: SessionHeroProps) {
     <section className="surface-card overflow-hidden px-6 py-8 sm:px-8 sm:py-10">
       <div className="space-y-6">
         <div className="space-y-3">
-          <p className="text-[13px] uppercase tracking-[0.28em] text-slate-400">
+          <p className="text-[13px] uppercase tracking-[0.28em] text-slate-600 dark:text-slate-400">
             Previously on the series
           </p>
           <blockquote
-            className="border-l-2 pl-4 text-[13px] italic leading-6 text-slate-300"
+            className="border-l-2 pl-4 text-[13px] italic leading-6 text-slate-700 dark:text-slate-300"
             style={{ borderColor: module?.color }}
           >
             {session.prevRecap}
@@ -52,12 +52,12 @@ export function SessionHero({ session }: SessionHeroProps) {
         </div>
 
         <div className="flex flex-wrap items-center gap-2 text-[11px]">
-          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-slate-300">
+          <span className="rounded-full border border-gray-200 dark:border-white/10 bg-gray-900/[0.04] dark:bg-white/5 px-3 py-1 text-slate-700 dark:text-slate-300">
             {previous?.title ?? "Course entry point"}
           </span>
-          <span className="text-slate-500">-&gt;</span>
+          <span className="text-slate-600 dark:text-slate-500">-&gt;</span>
           <span
-            className="rounded-full border px-3 py-1 font-medium text-white"
+            className="rounded-full border px-3 py-1 font-medium text-gray-950 dark:text-white"
             style={{
               borderColor: hexToRgba(module?.color ?? "#534AB7", 0.35),
               backgroundColor: module?.color,
@@ -65,8 +65,8 @@ export function SessionHero({ session }: SessionHeroProps) {
           >
             Current session: {session.title}
           </span>
-          <span className="text-slate-500">-&gt;</span>
-          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-slate-300">
+          <span className="text-slate-600 dark:text-slate-500">-&gt;</span>
+          <span className="rounded-full border border-gray-200 dark:border-white/10 bg-gray-900/[0.04] dark:bg-white/5 px-3 py-1 text-slate-700 dark:text-slate-300">
             {next?.title ?? "End of current thread"}
           </span>
         </div>
@@ -85,7 +85,7 @@ export function SessionHero({ session }: SessionHeroProps) {
             <button
               type="button"
               onClick={() => markComplete(session.id)}
-              className="rounded-full border border-emerald-400/20 bg-emerald-500/12 px-5 py-3 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/20"
+              className="rounded-full border border-emerald-400/20 bg-emerald-500/12 px-5 py-3 text-sm font-semibold text-emerald-800 dark:text-emerald-100 transition hover:bg-emerald-500/20"
             >
               Mark complete
             </button>
@@ -97,7 +97,7 @@ export function SessionHero({ session }: SessionHeroProps) {
         </div>
 
         {requiredSession ? (
-          <div className="surface-panel p-4 text-sm text-slate-300">
+          <div className="surface-panel p-4 text-sm text-slate-700 dark:text-slate-300">
             You can open this session anytime. For the guided path, it is best taken after {requiredSession.id} - {requiredSession.title}.
           </div>
         ) : null}

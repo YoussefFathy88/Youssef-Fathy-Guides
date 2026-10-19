@@ -293,16 +293,16 @@ export function PresentationShell({
     >
       <div
         ref={shellRef}
-        className="relative h-[100dvh] overflow-hidden bg-[#060914] text-gray-50"
+        className="relative h-[100dvh] overflow-hidden bg-white dark:bg-[#060914] text-gray-900 dark:text-gray-50"
       >
         <GridBackground className="opacity-70" />
 
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-20 bg-gradient-to-b from-[#060914] via-[#060914]/92 to-transparent">
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-20 bg-gradient-to-b from-white dark:from-[#060914] via-white/90 dark:via-[#060914]/92 to-transparent">
           <div className="pointer-events-auto mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
             {/* Left: module badge + outline tracker (or section label fallback) */}
             <div className="min-w-0 space-y-2">
-              <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.2em] text-violet-200/75">
-                <span className="rounded-full border border-violet-400/20 bg-violet-500/12 px-3 py-1 font-semibold text-violet-200">
+              <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.2em] text-violet-800 dark:text-violet-200/75">
+                <span className="rounded-full border border-violet-400/20 bg-violet-500/12 px-3 py-1 font-semibold text-violet-800 dark:text-violet-200">
                   Module {module}
                 </span>
                 <span>{moduleName}</span>
@@ -321,18 +321,18 @@ export function PresentationShell({
                           isActive
                             ? "bg-violet-600 text-white ring-1 ring-violet-400/50"
                             : isPast
-                              ? "bg-teal-900/40 text-teal-300/60 ring-1 ring-teal-700/30"
-                              : "bg-gray-800/60 text-gray-500 ring-1 ring-gray-700/30",
+                              ? "bg-teal-900/40 text-teal-700 dark:text-teal-300/60 ring-1 ring-teal-700/30"
+                              : "bg-gray-100/60 dark:bg-gray-800/60 text-gray-600 dark:text-gray-500 ring-1 ring-gray-300/30 dark:ring-gray-700/30",
                         )}
                       >
                         <span
                           className={cn(
                             "flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
                             isActive
-                              ? "bg-white/20 text-white"
+                              ? "bg-gray-900/10 dark:bg-white/20 text-gray-950 dark:text-white"
                               : isPast
-                                ? "bg-teal-700/40 text-teal-300/60"
-                                : "bg-gray-700/50 text-gray-500",
+                                ? "bg-teal-700/40 text-teal-700 dark:text-teal-300/60"
+                                : "bg-gray-200/50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-500",
                           )}
                         >
                           {index + 1}
@@ -343,7 +343,7 @@ export function PresentationShell({
                   })}
                 </div>
               ) : (
-                <div className="flex items-center text-xs uppercase tracking-[0.2em] text-gray-400">
+                <div className="flex items-center text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-gray-400">
                   {activeSectionLabel}
                 </div>
               )}
@@ -351,7 +351,7 @@ export function PresentationShell({
 
             {/* Right: slide counter + nav */}
             <div className="flex flex-wrap items-center gap-2 text-sm">
-              <span className="rounded-full border border-gray-700 bg-gray-950/70 px-3 py-2 text-gray-300">
+              <span className="rounded-full border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-950/70 px-3 py-2 text-gray-700 dark:text-gray-300">
                 {slides.length === 0 ? "—" : `${currentIndex + 1} / ${slides.length}`}
               </span>
               <button
@@ -359,9 +359,9 @@ export function PresentationShell({
                 onClick={() => goToRelativeSlide(-1)}
                 disabled={currentIndex === 0 || slides.length === 0}
                 className={cn(
-                  "rounded-full border border-gray-700 bg-gray-950/70 px-3 py-2 text-gray-200 transition hover:border-violet-400 hover:text-white",
+                  "rounded-full border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-950/70 px-3 py-2 text-gray-900 dark:text-gray-200 transition hover:border-violet-400 hover:text-gray-950 dark:hover:text-white",
                   (currentIndex === 0 || slides.length === 0) &&
-                    "cursor-not-allowed opacity-40 hover:border-gray-700 hover:text-gray-200",
+                    "cursor-not-allowed opacity-40 hover:border-gray-300 dark:hover:border-gray-700 hover:text-gray-900 dark:hover:text-gray-200",
                 )}
               >
                 Prev
@@ -371,9 +371,9 @@ export function PresentationShell({
                 onClick={() => goToRelativeSlide(1)}
                 disabled={currentIndex >= slides.length - 1 || slides.length === 0}
                 className={cn(
-                  "rounded-full border border-gray-700 bg-gray-950/70 px-3 py-2 text-gray-200 transition hover:border-violet-400 hover:text-white",
+                  "rounded-full border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-950/70 px-3 py-2 text-gray-900 dark:text-gray-200 transition hover:border-violet-400 hover:text-gray-950 dark:hover:text-white",
                   (currentIndex >= slides.length - 1 || slides.length === 0) &&
-                    "cursor-not-allowed opacity-40 hover:border-gray-700 hover:text-gray-200",
+                    "cursor-not-allowed opacity-40 hover:border-gray-300 dark:hover:border-gray-700 hover:text-gray-900 dark:hover:text-gray-200",
                 )}
               >
                 Next
@@ -381,13 +381,13 @@ export function PresentationShell({
               <button
                 type="button"
                 onClick={() => void toggleFullscreen()}
-                className="rounded-full border border-gray-700 bg-gray-950/70 px-3 py-2 text-gray-200 transition hover:border-violet-400 hover:text-white"
+                className="rounded-full border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-950/70 px-3 py-2 text-gray-900 dark:text-gray-200 transition hover:border-violet-400 hover:text-gray-950 dark:hover:text-white"
               >
                 {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
               </button>
               <Link
                 href={`/sessions/${slug}`}
-                className="rounded-full border border-violet-400/25 bg-violet-500/12 px-3 py-2 text-violet-100 transition hover:bg-violet-500/20"
+                className="rounded-full border border-violet-400/25 bg-violet-500/12 px-3 py-2 text-violet-800 dark:text-violet-100 transition hover:bg-violet-500/20"
               >
                 Exit Presenter
               </Link>

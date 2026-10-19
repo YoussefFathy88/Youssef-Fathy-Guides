@@ -24,21 +24,21 @@ function AnatomyPanel() {
     <div className="flex flex-1 flex-col gap-4">
       <PanelTitle>A good rule has three parts: context, instruction, and an example.</PanelTitle>
       <div className="rounded-xl border-2 border-rose-500/40 bg-rose-950/20 p-4">
-        <p className="text-base font-bold text-rose-300 md:text-lg">Vague (bad)</p>
-        <p className="mt-1 text-lg text-gray-300 line-through md:text-xl">&ldquo;Use clean code.&rdquo;</p>
+        <p className="text-base font-bold text-rose-700 dark:text-rose-300 md:text-lg">Vague (bad)</p>
+        <p className="mt-1 text-lg text-gray-700 dark:text-gray-300 line-through md:text-xl">&ldquo;Use clean code.&rdquo;</p>
       </div>
       <div className="rounded-xl border-2 border-violet-400/50 bg-violet-950/20 p-4">
-        <p className="text-base font-bold text-violet-300 md:text-lg">Specific (good) — builds in three parts</p>
-        <div className="mt-2 text-lg text-gray-100 md:text-xl">
+        <p className="text-base font-bold text-violet-700 dark:text-violet-300 md:text-lg">Specific (good) — builds in three parts</p>
+        <div className="mt-2 text-lg text-gray-900 dark:text-gray-100 md:text-xl">
           {built >= 1 && <motion.span initial={reducedMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }}>All database queries must go through the service layer. </motion.span>}
-          {built >= 2 && <motion.span initial={reducedMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} className="text-teal-200">Never query directly from a controller or route handler.</motion.span>}
+          {built >= 2 && <motion.span initial={reducedMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} className="text-teal-800 dark:text-teal-200">Never query directly from a controller or route handler.</motion.span>}
         </div>
       </div>
       {!full && (
         <button
           type="button"
           onClick={() => setBuilt((b) => b + 1)}
-          className="w-fit rounded-xl border-2 border-violet-400/70 bg-violet-950/40 px-5 py-3 text-base font-bold text-violet-100 transition hover:border-violet-300 md:text-lg"
+          className="w-fit rounded-xl border-2 border-violet-400/70 bg-violet-950/40 px-5 py-3 text-base font-bold text-violet-800 dark:text-violet-100 transition hover:border-violet-300 md:text-lg"
         >
           Build next part →
         </button>
@@ -65,13 +65,13 @@ function ExamplesPanel() {
   return (
     <div className="flex flex-1 flex-col gap-4">
       <PanelTitle>Five real rules from a project (SpecAI-inspired), typed one at a time.</PanelTitle>
-      <div className="flex flex-col gap-2 rounded-xl border border-gray-700 bg-gray-950/70 p-4 font-mono">
+      <div className="flex flex-col gap-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-950/70 p-4 font-mono">
         {REAL_RULES.slice(0, shown).map((rule, i) => (
           <motion.p
             key={rule}
             initial={reducedMotion ? false : { opacity: 0, x: -8 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-lg text-gray-100 md:text-xl"
+            className="text-lg text-gray-900 dark:text-gray-100 md:text-xl"
           >
             {i + 1}. {rule}
           </motion.p>
@@ -81,7 +81,7 @@ function ExamplesPanel() {
         <button
           type="button"
           onClick={() => setShown((s) => s + 1)}
-          className="w-fit rounded-xl border-2 border-teal-400/70 bg-teal-950/40 px-5 py-3 text-base font-bold text-teal-100 transition hover:border-teal-300 md:text-lg"
+          className="w-fit rounded-xl border-2 border-teal-400/70 bg-teal-950/40 px-5 py-3 text-base font-bold text-teal-800 dark:text-teal-100 transition hover:border-teal-300 md:text-lg"
         >
           Add next rule →
         </button>
@@ -109,25 +109,25 @@ function AntiPatternsPanel() {
         {ANTI_PATTERNS.map((item, i) => {
           const isRevealed = revealed.has(i);
           return (
-            <div key={item.bad} className="rounded-xl border border-gray-700 bg-gray-950/60 p-4">
+            <div key={item.bad} className="rounded-xl border border-gray-300 dark:border-gray-700 bg-white/60 dark:bg-gray-950/60 p-4">
               <div className="flex items-center gap-2">
-                <span className="text-xl text-rose-400" aria-hidden>❌</span>
-                <p className="text-lg text-gray-200 md:text-xl">&ldquo;{item.bad}&rdquo;</p>
+                <span className="text-xl text-rose-700 dark:text-rose-400" aria-hidden>❌</span>
+                <p className="text-lg text-gray-900 dark:text-gray-200 md:text-xl">&ldquo;{item.bad}&rdquo;</p>
               </div>
               {!isRevealed ? (
                 <button
                   type="button"
                   onClick={() => setRevealed((r) => new Set(r).add(i))}
-                  className="mt-2 rounded-lg border border-teal-400/50 bg-teal-950/30 px-3 py-1.5 text-base font-bold text-teal-200 md:text-lg"
+                  className="mt-2 rounded-lg border border-teal-400/50 bg-teal-950/30 px-3 py-1.5 text-base font-bold text-teal-800 dark:text-teal-200 md:text-lg"
                 >
                   Show fix →
                 </button>
               ) : (
                 <motion.div initial={reducedMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} className="mt-2">
-                  <p className="text-base text-gray-400 md:text-lg">{item.why}</p>
+                  <p className="text-base text-gray-600 dark:text-gray-400 md:text-lg">{item.why}</p>
                   <div className="mt-1 flex items-start gap-2">
-                    <span className="text-xl text-teal-300" aria-hidden>✅</span>
-                    <p className="text-lg text-teal-100 md:text-xl">{item.fix}</p>
+                    <span className="text-xl text-teal-700 dark:text-teal-300" aria-hidden>✅</span>
+                    <p className="text-lg text-teal-800 dark:text-teal-100 md:text-xl">{item.fix}</p>
                   </div>
                 </motion.div>
               )}

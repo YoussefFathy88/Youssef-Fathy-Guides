@@ -82,41 +82,41 @@ export function SessionCard({ session, state, unlockHint }: SessionCardProps) {
           </div>
 
           {state === "completed" ? (
-            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-400/20 bg-emerald-500/12 px-3 py-1 text-xs font-medium text-emerald-200">
+            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-400/20 bg-emerald-500/12 px-3 py-1 text-xs font-medium text-emerald-800 dark:text-emerald-200">
               <CheckIcon />
               Completed
             </span>
           ) : state === "locked" ? (
-            <span className="inline-flex items-center gap-1 rounded-full border border-slate-500/20 bg-slate-500/10 px-3 py-1 text-xs font-medium text-slate-300">
+            <span className="inline-flex items-center gap-1 rounded-full border border-slate-500/20 bg-slate-500/10 px-3 py-1 text-xs font-medium text-slate-700 dark:text-slate-300">
               <LockIcon />
               Guided later
             </span>
           ) : state === "current" ? (
-            <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-white">
+            <span className="rounded-full border border-gray-200 dark:border-white/15 bg-gray-900/[0.07] dark:bg-white/10 px-3 py-1 text-xs font-medium text-gray-950 dark:text-white">
               Current
             </span>
           ) : (
-            <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-medium text-slate-300">
+            <span className="rounded-full border border-gray-200 dark:border-white/10 px-3 py-1 text-xs font-medium text-slate-700 dark:text-slate-300">
               Available
             </span>
           )}
         </div>
 
         <div>
-          <p className="text-sm text-slate-400">Module {session.module}</p>
-          <h3 className="mt-2 text-2xl font-semibold text-white">{session.title}</h3>
+          <p className="text-sm text-slate-600 dark:text-slate-400">Module {session.module}</p>
+          <h3 className="mt-2 text-2xl font-semibold text-gray-950 dark:text-white">{session.title}</h3>
         </div>
       </div>
 
       <div className="mt-6 min-h-[3.5rem]">
         {state === "locked" ? (
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-600 dark:text-slate-400">
             Open anytime. Recommended after {unlockHint ?? "the previous session"}.
           </p>
         ) : state === "completed" ? (
-          <p className="text-sm text-emerald-100/90">Watch again</p>
+          <p className="text-sm text-emerald-800 dark:text-emerald-100/90">Watch again</p>
         ) : state === "current" ? (
-          <p className="text-sm text-slate-200">Continue this session</p>
+          <p className="text-sm text-slate-900 dark:text-slate-200">Continue this session</p>
         ) : (
           <p className="text-sm" style={{ color: moduleColor }}>
             Open session

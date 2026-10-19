@@ -31,8 +31,8 @@ function CriteriaPanel() {
       <div className="grid gap-3 md:grid-cols-3">
         {CRITERIA.map((c) => (
           <div key={c.id} className="rounded-xl border-2 border-teal-400/40 bg-teal-950/15 p-4">
-            <p className="text-lg font-bold text-teal-200 md:text-xl">{c.label}</p>
-            <p className="mt-1 text-lg text-gray-100 md:text-xl">{c.detail}</p>
+            <p className="text-lg font-bold text-teal-800 dark:text-teal-200 md:text-xl">{c.label}</p>
+            <p className="mt-1 text-lg text-gray-900 dark:text-gray-100 md:text-xl">{c.detail}</p>
           </div>
         ))}
       </div>
@@ -40,7 +40,7 @@ function CriteriaPanel() {
       <button
         type="button"
         onClick={() => setShowGood(true)}
-        className="w-fit rounded-xl border-2 border-teal-400/70 bg-teal-950/40 px-5 py-3 text-base font-bold text-teal-100 transition hover:border-teal-300 md:text-lg"
+        className="w-fit rounded-xl border-2 border-teal-400/70 bg-teal-950/40 px-5 py-3 text-base font-bold text-teal-800 dark:text-teal-100 transition hover:border-teal-300 md:text-lg"
       >
         Compare bad vs. good →
       </button>
@@ -52,12 +52,12 @@ function CriteriaPanel() {
           className="grid gap-3 md:grid-cols-2"
         >
           <div className="rounded-xl border-2 border-rose-500/40 bg-rose-950/20 p-4">
-            <p className="text-base font-bold text-rose-300 md:text-lg">Bad</p>
-            <p className="mt-2 text-lg text-gray-400 line-through md:text-xl">&ldquo;Implement the backend.&rdquo;</p>
+            <p className="text-base font-bold text-rose-700 dark:text-rose-300 md:text-lg">Bad</p>
+            <p className="mt-2 text-lg text-gray-600 dark:text-gray-400 line-through md:text-xl">&ldquo;Implement the backend.&rdquo;</p>
           </div>
           <div className="rounded-xl border-2 border-teal-400/60 bg-teal-950/25 p-4">
-            <p className="text-base font-bold text-teal-300 md:text-lg">Good</p>
-            <p className="mt-2 text-lg text-gray-100 md:text-xl">
+            <p className="text-base font-bold text-teal-700 dark:text-teal-300 md:text-lg">Good</p>
+            <p className="mt-2 text-lg text-gray-900 dark:text-gray-100 md:text-xl">
               &ldquo;Create a search service that queries pgvector and returns the top-5 chunks by cosine similarity.&rdquo;
             </p>
           </div>
@@ -85,9 +85,9 @@ function DecomposePanel() {
   return (
     <div className="flex flex-1 flex-col gap-4">
       <PanelTitle>One prompt pattern turns a plan into an ordered subtask list.</PanelTitle>
-      <div className="rounded-xl border border-gray-700 bg-gray-950/70 p-4">
-        <p className="text-base font-bold uppercase tracking-wide text-gray-400 md:text-lg">Prompt</p>
-        <p className="mt-2 font-mono text-lg text-gray-100 md:text-xl">
+      <div className="rounded-xl border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-950/70 p-4">
+        <p className="text-base font-bold uppercase tracking-wide text-gray-600 dark:text-gray-400 md:text-lg">Prompt</p>
+        <p className="mt-2 font-mono text-lg text-gray-900 dark:text-gray-100 md:text-xl">
           &ldquo;Given this plan, break it into subtasks. Each subtask should be implementable in one AI session. Order by dependency.&rdquo;
         </p>
       </div>
@@ -97,18 +97,18 @@ function DecomposePanel() {
             key={item}
             initial={reducedMotion ? false : { opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-lg text-gray-100 md:text-xl"
+            className="text-lg text-gray-900 dark:text-gray-100 md:text-xl"
           >
             {item}
           </motion.p>
         ))}
-        {revealed === 0 && <p className="text-lg text-gray-500 md:text-xl">Response will appear here…</p>}
+        {revealed === 0 && <p className="text-lg text-gray-600 dark:text-gray-500 md:text-xl">Response will appear here…</p>}
       </div>
       {!full && (
         <button
           type="button"
           onClick={() => setRevealed((r) => r + 1)}
-          className="w-fit rounded-xl border-2 border-violet-400/70 bg-violet-950/40 px-5 py-3 text-base font-bold text-violet-100 transition hover:border-violet-300 md:text-lg"
+          className="w-fit rounded-xl border-2 border-violet-400/70 bg-violet-950/40 px-5 py-3 text-base font-bold text-violet-800 dark:text-violet-100 transition hover:border-violet-300 md:text-lg"
         >
           {revealed === 0 ? "Generate response →" : "Next subtask →"}
         </button>
@@ -143,10 +143,10 @@ function ExamplePanel() {
             animate={{ opacity: 1, y: 0 }}
             className="flex items-start gap-3 rounded-xl border-2 border-amber-400/40 bg-amber-950/15 p-4"
           >
-            <span className="mt-0.5 text-xl text-amber-300" aria-hidden>☐</span>
+            <span className="mt-0.5 text-xl text-amber-700 dark:text-amber-300" aria-hidden>☐</span>
             <div>
-              <p className="text-lg font-bold text-white md:text-xl">{i + 1}. {task.label}</p>
-              <p className="mt-1 text-lg text-gray-300 md:text-xl">{task.scope}</p>
+              <p className="text-lg font-bold text-gray-950 dark:text-white md:text-xl">{i + 1}. {task.label}</p>
+              <p className="mt-1 text-lg text-gray-700 dark:text-gray-300 md:text-xl">{task.scope}</p>
             </div>
           </motion.div>
         ))}
@@ -155,7 +155,7 @@ function ExamplePanel() {
         <button
           type="button"
           onClick={() => setShown((s) => s + 1)}
-          className="w-fit rounded-xl border-2 border-amber-400/70 bg-amber-950/40 px-5 py-3 text-base font-bold text-amber-100 transition hover:border-amber-300 md:text-lg"
+          className="w-fit rounded-xl border-2 border-amber-400/70 bg-amber-950/40 px-5 py-3 text-base font-bold text-amber-800 dark:text-amber-100 transition hover:border-amber-300 md:text-lg"
         >
           Generate next task →
         </button>

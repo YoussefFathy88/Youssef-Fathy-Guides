@@ -120,10 +120,10 @@ export default function LinearChainGradientExplorer({
       : "border-violet-500/40 bg-violet-500/10 ring-1 ring-violet-500/20";
 
   return (
-    <div className="my-6 overflow-hidden rounded-2xl border border-gray-800 bg-gray-950/80 shadow-xl">
+    <div className="my-6 overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 shadow-xl">
       {title ? (
-        <div className="border-b border-gray-800/60 px-6 py-4">
-          <p className="text-balance text-base font-semibold text-white md:text-lg">{title}</p>
+        <div className="border-b border-gray-200/60 dark:border-gray-800/60 px-6 py-4">
+          <p className="text-balance text-base font-semibold text-gray-950 dark:text-white md:text-lg">{title}</p>
         </div>
       ) : null}
 
@@ -137,9 +137,9 @@ export default function LinearChainGradientExplorer({
               "rounded-full border px-3 py-2 text-sm font-medium transition md:px-4 md:text-base",
               i === phase
                 ? story === "explode"
-                  ? "border-rose-400/40 bg-rose-500/20 text-rose-200"
-                  : "border-violet-400/40 bg-violet-500/20 text-violet-200"
-                : "border-gray-800/50 bg-gray-900/40 text-gray-500 hover:bg-gray-800/40",
+                  ? "border-rose-400/40 bg-rose-500/20 text-rose-800 dark:text-rose-200"
+                  : "border-violet-400/40 bg-violet-500/20 text-violet-800 dark:text-violet-200"
+                : "border-gray-200/50 dark:border-gray-800/50 bg-gray-50/40 dark:bg-gray-900/40 text-gray-600 dark:text-gray-500 hover:bg-gray-100/40 dark:hover:bg-gray-800/40",
             )}
           >
             {i + 1}. {s.label}
@@ -148,14 +148,14 @@ export default function LinearChainGradientExplorer({
         <button
           type="button"
           onClick={() => setPlaying((p) => !p)}
-          className="ml-auto rounded-full border border-gray-700 px-4 py-2 text-sm font-medium text-gray-300 hover:border-violet-500 md:text-base"
+          className="ml-auto rounded-full border border-gray-300 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-violet-500 md:text-base"
         >
           {playing ? "Pause" : "Play"}
         </button>
       </div>
 
       <div className="min-h-[3rem] px-5 pt-2 pb-1">
-        <p className="text-base leading-relaxed text-gray-300 md:text-lg">{step.hint}</p>
+        <p className="text-base leading-relaxed text-gray-700 dark:text-gray-300 md:text-lg">{step.hint}</p>
       </div>
 
       <div className="px-5 pb-4">
@@ -190,7 +190,7 @@ export default function LinearChainGradientExplorer({
         </AnimatePresence>
       </div>
 
-      <div className="flex items-center justify-between border-t border-gray-800/60 px-5 py-3">
+      <div className="flex items-center justify-between border-t border-gray-200/60 dark:border-gray-800/60 px-5 py-3">
         <button
           type="button"
           onClick={() => setPhase(Math.max(0, phase - 1))}
@@ -198,8 +198,8 @@ export default function LinearChainGradientExplorer({
           className={cn(
             "rounded-full border px-4 py-2 text-base font-medium transition",
             phase === 0
-              ? "cursor-not-allowed border-gray-800 text-gray-700"
-              : "border-gray-700 text-gray-300 hover:border-violet-500",
+              ? "cursor-not-allowed border-gray-200 dark:border-gray-800 text-gray-700"
+              : "border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-violet-500",
           )}
         >
           ← Prev
@@ -213,7 +213,7 @@ export default function LinearChainGradientExplorer({
               aria-label={`Step ${i + 1}`}
               className={cn(
                 "h-2.5 w-2.5 rounded-full",
-                i === phase ? "bg-violet-400" : "bg-gray-700",
+                i === phase ? "bg-violet-400" : "bg-gray-200 dark:bg-gray-700",
               )}
             />
           ))}
@@ -225,14 +225,14 @@ export default function LinearChainGradientExplorer({
           className={cn(
             "rounded-full border px-4 py-2 text-base font-medium transition",
             phase === steps.length - 1
-              ? "cursor-not-allowed border-gray-800 text-gray-700"
-              : "border-gray-700 text-gray-300 hover:border-violet-500",
+              ? "cursor-not-allowed border-gray-200 dark:border-gray-800 text-gray-700"
+              : "border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-violet-500",
           )}
         >
           Next →
         </button>
       </div>
-      {caption ? <p className="px-6 pb-4 text-base text-gray-400">{caption}</p> : null}
+      {caption ? <p className="px-6 pb-4 text-base text-gray-600 dark:text-gray-400">{caption}</p> : null}
     </div>
   );
 }
@@ -249,7 +249,7 @@ function TwoLayerDiagram({
   const forward = phase === 0;
   const backprop = phase >= 1;
   const showFormula = phase >= 2;
-  const accent = story === "explode" ? "text-rose-300" : "text-violet-300";
+  const accent = story === "explode" ? "text-rose-700 dark:text-rose-300" : "text-violet-700 dark:text-violet-300";
 
   return (
     <div className="mx-auto max-w-3xl space-y-8 text-center">
@@ -263,11 +263,11 @@ function TwoLayerDiagram({
           ∂m₁ = (gradient at output) × m₂ = 1.0 × {weight} = {weight}
         </p>
       ) : backprop ? (
-        <p className="text-base text-gray-300 md:text-lg">
-          Gradient travels <span className="font-semibold text-white">backward</span> through Layer 2 before Layer 1 can update
+        <p className="text-base text-gray-700 dark:text-gray-300 md:text-lg">
+          Gradient travels <span className="font-semibold text-gray-950 dark:text-white">backward</span> through Layer 2 before Layer 1 can update
         </p>
       ) : (
-        <p className="text-base text-gray-300 md:text-lg">
+        <p className="text-base text-gray-700 dark:text-gray-300 md:text-lg">
           Input x flows through Layer 1, then Layer 2 produces the prediction
         </p>
       )}
@@ -293,10 +293,10 @@ function FiveLayerChain({
 
   return (
     <div className="space-y-8 text-center">
-      <p className={cn("text-xl font-bold md:text-2xl", story === "explode" ? "text-rose-200" : "text-violet-200")}>
+      <p className={cn("text-xl font-bold md:text-2xl", story === "explode" ? "text-rose-800 dark:text-rose-200" : "text-violet-800 dark:text-violet-200")}>
         {story === "explode" ? "Exploding gradient" : "Vanishing gradient"}
       </p>
-      <p className="font-mono text-lg font-bold text-white md:text-2xl">{productStr}</p>
+      <p className="font-mono text-lg font-bold text-gray-950 dark:text-white md:text-2xl">{productStr}</p>
       <div className="mx-auto max-w-lg space-y-3">
         {layers.map((label, i) => {
           const mag = magnitudes[layers.length - i] ?? magnitudes[0]!;
@@ -311,13 +311,13 @@ function FiveLayerChain({
                   ? accent === "rose"
                     ? "border-rose-400/70 bg-rose-500/20 ring-2 ring-rose-400/40"
                     : "border-violet-400/60 bg-violet-500/20 ring-2 ring-violet-400/30"
-                  : "border-white/10 bg-white/[0.04]",
+                  : "border-gray-200 dark:border-white/10 bg-gray-900/[0.04] dark:bg-white/[0.04]",
               )}
             >
-              <span className="w-24 shrink-0 text-left text-base font-bold text-gray-200 md:w-28 md:text-lg">
+              <span className="w-24 shrink-0 text-left text-base font-bold text-gray-900 dark:text-gray-200 md:w-28 md:text-lg">
                 {label}
               </span>
-              <div className="h-4 flex-1 overflow-hidden rounded-full bg-white/10 md:h-5">
+              <div className="h-4 flex-1 overflow-hidden rounded-full bg-gray-900/[0.07] dark:bg-white/10 md:h-5">
                 <motion.div
                   className={cn("h-full rounded-full", accent === "rose" ? "bg-rose-400" : "bg-violet-400")}
                   animate={{ width: `${Math.max(story === "vanish" ? 2 : pct, pct)}%` }}
@@ -327,7 +327,7 @@ function FiveLayerChain({
               <span
                 className={cn(
                   "w-24 shrink-0 text-right font-mono text-base font-bold tabular-nums md:text-lg",
-                  active ? (accent === "rose" ? "text-rose-300" : "text-violet-300") : "text-gray-500",
+                  active ? (accent === "rose" ? "text-rose-700 dark:text-rose-300" : "text-violet-700 dark:text-violet-300") : "text-gray-600 dark:text-gray-500",
                 )}
               >
                 {mag >= 1000 ? mag.toLocaleString("en-US") : mag < 0.01 ? mag.toExponential(1) : mag.toFixed(mag < 1 ? 5 : 1)}
@@ -355,12 +355,12 @@ function LayerBlock({
     <div
       className={cn(
         "rounded-2xl border px-6 py-5 md:px-8 md:py-6",
-        active ? "border-violet-400/60 bg-violet-500/15 ring-2 ring-violet-400/30" : "border-white/15 bg-white/[0.06]",
+        active ? "border-violet-400/60 bg-violet-500/15 ring-2 ring-violet-400/30" : "border-gray-200 dark:border-white/15 bg-gray-900/[0.04] dark:bg-white/[0.06]",
       )}
     >
-      <p className="text-sm font-bold uppercase tracking-wide text-gray-400 md:text-base">{label}</p>
-      <p className="mt-2 font-mono text-lg font-bold text-white md:text-xl">{eq}</p>
-      {highlight ? <p className="mt-2 font-mono text-base text-violet-300 md:text-lg">{highlight}</p> : null}
+      <p className="text-sm font-bold uppercase tracking-wide text-gray-600 dark:text-gray-400 md:text-base">{label}</p>
+      <p className="mt-2 font-mono text-lg font-bold text-gray-950 dark:text-white md:text-xl">{eq}</p>
+      {highlight ? <p className="mt-2 font-mono text-base text-violet-700 dark:text-violet-300 md:text-lg">{highlight}</p> : null}
     </div>
   );
 }

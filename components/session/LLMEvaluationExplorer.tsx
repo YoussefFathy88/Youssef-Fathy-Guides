@@ -18,40 +18,40 @@ const BAR_FILL: Record<AccentColor, string> = {
 
 const ACCENT: Record<AccentColor, { tab: string; border: string; bg: string; text: string }> = {
   gray: {
-    tab: "border-slate-300/80 bg-slate-800/60 text-white ring-slate-300/50",
+    tab: "border-slate-300/80 bg-gray-100/60 dark:bg-slate-800/60 text-gray-950 dark:text-white ring-slate-300/50",
     border: "border-slate-300/70",
     bg: "bg-slate-500/15",
-    text: "text-gray-100",
+    text: "text-gray-900 dark:text-gray-100",
   },
   teal: {
-    tab: "border-teal-400/80 bg-teal-950/50 text-teal-50 ring-teal-400/50",
+    tab: "border-teal-400/80 bg-teal-950/50 text-teal-800 dark:text-teal-50 ring-teal-400/50",
     border: "border-teal-400/70",
     bg: "bg-teal-500/15",
-    text: "text-teal-100",
+    text: "text-teal-800 dark:text-teal-100",
   },
   blue: {
-    tab: "border-blue-400/80 bg-blue-950/50 text-blue-50 ring-blue-400/50",
+    tab: "border-blue-400/80 bg-blue-950/50 text-blue-800 dark:text-blue-50 ring-blue-400/50",
     border: "border-blue-400/70",
     bg: "bg-blue-500/15",
-    text: "text-blue-100",
+    text: "text-blue-800 dark:text-blue-100",
   },
   violet: {
-    tab: "border-violet-400/80 bg-violet-950/50 text-violet-50 ring-violet-400/50",
+    tab: "border-violet-400/80 bg-violet-950/50 text-violet-800 dark:text-violet-50 ring-violet-400/50",
     border: "border-violet-400/70",
     bg: "bg-violet-500/15",
-    text: "text-violet-100",
+    text: "text-violet-800 dark:text-violet-100",
   },
   rose: {
-    tab: "border-rose-400/80 bg-rose-950/50 text-rose-50 ring-rose-400/50",
+    tab: "border-rose-400/80 bg-rose-950/50 text-rose-800 dark:text-rose-50 ring-rose-400/50",
     border: "border-rose-400/70",
     bg: "bg-rose-500/15",
-    text: "text-rose-100",
+    text: "text-rose-800 dark:text-rose-100",
   },
   amber: {
-    tab: "border-amber-400/80 bg-amber-950/50 text-amber-50 ring-amber-400/50",
+    tab: "border-amber-400/80 bg-amber-950/50 text-amber-800 dark:text-amber-50 ring-amber-400/50",
     border: "border-amber-400/70",
     bg: "bg-amber-500/15",
-    text: "text-amber-100",
+    text: "text-amber-800 dark:text-amber-100",
   },
 };
 
@@ -64,7 +64,7 @@ const TABS = [
 ] as const;
 
 function PanelTitle({ children }: { children: React.ReactNode }) {
-  return <p className="text-lg font-semibold text-gray-300 md:text-xl">{children}</p>;
+  return <p className="text-lg font-semibold text-gray-700 dark:text-gray-300 md:text-xl">{children}</p>;
 }
 
 function Callout({
@@ -76,7 +76,7 @@ function Callout({
 }) {
   return (
     <div className={cn("rounded-xl border-2 p-4 md:p-5", ACCENT[color].border, ACCENT[color].bg)}>
-      <p className="text-lg text-gray-100 md:text-xl">{children}</p>
+      <p className="text-lg text-gray-900 dark:text-gray-100 md:text-xl">{children}</p>
     </div>
   );
 }
@@ -99,7 +99,7 @@ function ProbBar({
       <span className={cn("w-36 shrink-0 text-base font-bold md:text-lg", ACCENT[color].text)}>
         {label}
       </span>
-      <div className="flex h-7 min-w-0 flex-1 overflow-hidden rounded-lg bg-gray-800">
+      <div className="flex h-7 min-w-0 flex-1 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
         <motion.div
           className={cn("h-full rounded-lg", BAR_FILL[color])}
           initial={{ width: "0%" }}
@@ -107,7 +107,7 @@ function ProbBar({
           transition={{ duration: 0.8, ease: "easeOut" }}
         />
       </div>
-      <span className="w-12 shrink-0 text-right text-base font-bold text-gray-200 md:text-lg">
+      <span className="w-12 shrink-0 text-right text-base font-bold text-gray-900 dark:text-gray-200 md:text-lg">
         {value}%
       </span>
     </div>
@@ -136,29 +136,29 @@ function WhyPanel() {
 
       <div className="space-y-2">
         {CHECKLIST.map((item) => (
-          <p key={item.label} className="text-lg text-gray-200 md:text-xl">
-            <span className="font-bold text-gray-100">{item.label}:</span> {item.status}
+          <p key={item.label} className="text-lg text-gray-900 dark:text-gray-200 md:text-xl">
+            <span className="font-bold text-gray-900 dark:text-gray-100">{item.label}:</span> {item.status}
           </p>
         ))}
       </div>
 
       <div className="grid gap-2 md:grid-cols-3">
         {QUESTIONS.map((q) => (
-          <div key={q} className="rounded-xl border border-gray-600 bg-gray-950/70 p-4">
-            <p className="text-lg font-bold text-gray-100 md:text-xl">{q}</p>
+          <div key={q} className="rounded-xl border border-gray-300 dark:border-gray-600 bg-white/70 dark:bg-gray-950/70 p-4">
+            <p className="text-lg font-bold text-gray-900 dark:text-gray-100 md:text-xl">{q}</p>
           </div>
         ))}
       </div>
 
-      <p className="text-lg text-gray-300 md:text-xl">
+      <p className="text-lg text-gray-700 dark:text-gray-300 md:text-xl">
         Without evaluation you're just guessing. Evaluation gives you a measurable answer.
       </p>
 
       <div className="flex flex-wrap gap-3">
-        <span className="rounded-xl border-2 border-blue-500/50 bg-blue-950/30 px-4 py-3 text-base font-bold text-blue-100 md:text-lg">
+        <span className="rounded-xl border-2 border-blue-500/50 bg-blue-950/30 px-4 py-3 text-base font-bold text-blue-800 dark:text-blue-100 md:text-lg">
           🤖 Automated Benchmarks — fast, cheap
         </span>
-        <span className="rounded-xl border-2 border-teal-500/50 bg-teal-950/30 px-4 py-3 text-base font-bold text-teal-100 md:text-lg">
+        <span className="rounded-xl border-2 border-teal-500/50 bg-teal-950/30 px-4 py-3 text-base font-bold text-teal-800 dark:text-teal-100 md:text-lg">
           👥 Human Evaluation — real preferences
         </span>
       </div>
@@ -178,14 +178,14 @@ function ApproachesPanel() {
           <p className="text-2xl md:text-3xl" aria-hidden>
             🤖
           </p>
-          <p className="mt-2 text-base font-bold text-blue-300 md:text-lg">Automated Benchmarks</p>
-          <p className="mt-2 text-lg text-gray-200 md:text-xl">
+          <p className="mt-2 text-base font-bold text-blue-700 dark:text-blue-300 md:text-lg">Automated Benchmarks</p>
+          <p className="mt-2 text-lg text-gray-900 dark:text-gray-200 md:text-xl">
             Standardized tests the model takes automatically. A score is computed without humans.
           </p>
-          <p className="mt-3 text-lg text-teal-300 md:text-xl">
+          <p className="mt-3 text-lg text-teal-700 dark:text-teal-300 md:text-xl">
             ✅ Fast · ✅ Cheap · ✅ Reproducible
           </p>
-          <p className="mt-2 text-lg text-rose-300 md:text-xl">
+          <p className="mt-2 text-lg text-rose-700 dark:text-rose-300 md:text-xl">
             ❌ Can be gamed · ❌ May not match real use · ❌ Test data may leak into training
           </p>
         </div>
@@ -194,21 +194,21 @@ function ApproachesPanel() {
           <p className="text-2xl md:text-3xl" aria-hidden>
             👥
           </p>
-          <p className="mt-2 text-base font-bold text-teal-300 md:text-lg">Human Evaluation</p>
-          <p className="mt-2 text-lg text-gray-200 md:text-xl">
+          <p className="mt-2 text-base font-bold text-teal-700 dark:text-teal-300 md:text-lg">Human Evaluation</p>
+          <p className="mt-2 text-lg text-gray-900 dark:text-gray-200 md:text-xl">
             Real humans interact with the model and vote on which responses they prefer.
           </p>
-          <p className="mt-3 text-lg text-teal-300 md:text-xl">
+          <p className="mt-3 text-lg text-teal-700 dark:text-teal-300 md:text-xl">
             ✅ Real preferences · ✅ Harder to game · ✅ Tests usefulness
           </p>
-          <p className="mt-2 text-lg text-rose-300 md:text-xl">
+          <p className="mt-2 text-lg text-rose-700 dark:text-rose-300 md:text-xl">
             ❌ Slow · ❌ Expensive · ❌ Subjective
           </p>
         </div>
       </div>
 
       <Callout>
-        Best practice: use <span className="font-bold text-violet-200">both</span> together.
+        Best practice: use <span className="font-bold text-violet-800 dark:text-violet-200">both</span> together.
         Benchmarks for fast feedback. Human evaluation for final quality.
       </Callout>
     </div>
@@ -263,7 +263,7 @@ function MmluPanel() {
               <motion.span
                 initial={reducedMotion ? false : { opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="rounded-xl border border-teal-500/40 bg-teal-950/30 px-3 py-2 text-base font-bold text-teal-100 md:text-lg"
+                className="rounded-xl border border-teal-500/40 bg-teal-950/30 px-3 py-2 text-base font-bold text-teal-800 dark:text-teal-100 md:text-lg"
               >
                 {s}
               </motion.span>
@@ -272,13 +272,13 @@ function MmluPanel() {
         ))}
       </div>
 
-      <p className="text-lg text-gray-300 md:text-xl">
+      <p className="text-lg text-gray-700 dark:text-gray-300 md:text-xl">
         Multiple choice — pick A, B, C, or D. Score = percent correct.
       </p>
 
       <div className="rounded-xl border-2 border-teal-500/40 bg-teal-950/20 p-4 md:p-5">
-        <p className="text-base font-bold text-teal-300 md:text-lg">Biology 🧬</p>
-        <p className="mt-2 text-lg text-gray-100 md:text-xl">
+        <p className="text-base font-bold text-teal-700 dark:text-teal-300 md:text-lg">Biology 🧬</p>
+        <p className="mt-2 text-lg text-gray-900 dark:text-gray-100 md:text-xl">
           What is the primary function of mitochondria in a cell?
         </p>
         <div className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -291,9 +291,9 @@ function MmluPanel() {
                 "rounded-xl border-2 px-4 py-3 text-left text-base font-bold transition md:text-lg",
                 selected === opt.id
                   ? opt.id === "B"
-                    ? "border-teal-400 bg-teal-950/50 text-teal-50"
-                    : "border-rose-400 bg-rose-950/50 text-rose-50"
-                  : "border-gray-700 bg-gray-950/60 text-gray-200 hover:border-gray-500",
+                    ? "border-teal-400 bg-teal-950/50 text-teal-800 dark:text-teal-50"
+                    : "border-rose-400 bg-rose-950/50 text-rose-800 dark:text-rose-50"
+                  : "border-gray-300 dark:border-gray-700 bg-white/60 dark:bg-gray-950/60 text-gray-900 dark:text-gray-200 hover:border-gray-500",
               )}
             >
               {opt.id}) {opt.text}
@@ -306,7 +306,7 @@ function MmluPanel() {
             animate={{ opacity: 1 }}
             className={cn(
               "mt-3 text-lg font-bold md:text-xl",
-              selected === "B" ? "text-teal-300" : "text-rose-400",
+              selected === "B" ? "text-teal-700 dark:text-teal-300" : "text-rose-700 dark:text-rose-400",
             )}
           >
             {feedback}
@@ -314,12 +314,12 @@ function MmluPanel() {
         ) : null}
       </div>
 
-      <div className="space-y-2 rounded-xl border border-gray-700 bg-gray-950/70 p-4">
+      <div className="space-y-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-950/70 p-4">
         <ProbBar label="Random guess" value={25} color="gray" animated={barsAnimated} reducedMotion={reducedMotion} />
         <ProbBar label="Expert human" value={89} color="blue" animated={barsAnimated} reducedMotion={reducedMotion} />
         <ProbBar label="Strong LLM" value={86} color="teal" animated={barsAnimated} reducedMotion={reducedMotion} />
       </div>
-      <p className="text-base text-gray-400 md:text-lg">Illustrative scores — strong models often score 80%+ on MMLU.</p>
+      <p className="text-base text-gray-600 dark:text-gray-400 md:text-lg">Illustrative scores — strong models often score 80%+ on MMLU.</p>
     </div>
   );
 }
@@ -390,8 +390,8 @@ function TruthfulPanel() {
             className={cn(
               "rounded-xl border-2 px-4 py-2.5 text-base font-bold transition md:text-lg",
               innerTab === tab
-                ? "border-rose-400/70 bg-rose-950/50 text-rose-50 ring-2 ring-rose-400/40 ring-offset-1 ring-offset-gray-900"
-                : "border-gray-700 bg-gray-950/60 text-gray-300 hover:border-gray-500",
+                ? "border-rose-400/70 bg-rose-950/50 text-rose-800 dark:text-rose-50 ring-2 ring-rose-400/40 ring-offset-1 ring-offset-gray-900"
+                : "border-gray-300 dark:border-gray-700 bg-white/60 dark:bg-gray-950/60 text-gray-700 dark:text-gray-300 hover:border-gray-500",
             )}
           >
             {tab === "examples" ? "Examples" : "How it's scored"}
@@ -422,8 +422,8 @@ function TruthfulPanel() {
                   className={cn(
                     "rounded-xl border-2 px-4 py-3 text-base font-bold md:text-lg",
                     exampleIdx === i
-                      ? "border-rose-400/70 bg-rose-950/50 text-rose-50 ring-2 ring-rose-400/50 ring-offset-2 ring-offset-gray-900"
-                      : "border-gray-700 bg-gray-950/60 text-gray-300",
+                      ? "border-rose-400/70 bg-rose-950/50 text-rose-800 dark:text-rose-50 ring-2 ring-rose-400/50 ring-offset-2 ring-offset-gray-900"
+                      : "border-gray-300 dark:border-gray-700 bg-white/60 dark:bg-gray-950/60 text-gray-700 dark:text-gray-300",
                   )}
                 >
                   Example {i + 1}
@@ -439,9 +439,9 @@ function TruthfulPanel() {
                 exit={{ opacity: 0, y: -6 }}
                 className="space-y-3"
               >
-                <div className="rounded-xl border border-gray-600 bg-gray-950/70 p-4">
-                  <p className="text-base font-bold text-gray-400 md:text-lg">{ex.category}</p>
-                  <p className="mt-1 text-lg text-gray-100 md:text-xl">{ex.question}</p>
+                <div className="rounded-xl border border-gray-300 dark:border-gray-600 bg-white/70 dark:bg-gray-950/70 p-4">
+                  <p className="text-base font-bold text-gray-600 dark:text-gray-400 md:text-lg">{ex.category}</p>
+                  <p className="mt-1 text-lg text-gray-900 dark:text-gray-100 md:text-xl">{ex.question}</p>
                 </div>
 
                 {revealed >= 1 && (
@@ -450,8 +450,8 @@ function TruthfulPanel() {
                     animate={{ opacity: 1, y: 0 }}
                     className="rounded-xl border-2 border-rose-500/40 bg-rose-950/20 p-4"
                   >
-                    <p className="text-lg text-gray-200 md:text-xl">{ex.bad}</p>
-                    <p className="mt-2 font-bold text-rose-400 md:text-lg">❌ Hallucinated — repeating a myth</p>
+                    <p className="text-lg text-gray-900 dark:text-gray-200 md:text-xl">{ex.bad}</p>
+                    <p className="mt-2 font-bold text-rose-700 dark:text-rose-400 md:text-lg">❌ Hallucinated — repeating a myth</p>
                   </motion.div>
                 )}
 
@@ -461,8 +461,8 @@ function TruthfulPanel() {
                     animate={{ opacity: 1, y: 0 }}
                     className="rounded-xl border-2 border-teal-500/40 bg-teal-950/20 p-4"
                   >
-                    <p className="text-lg text-gray-200 md:text-xl">{ex.good}</p>
-                    <p className="mt-2 font-bold text-teal-300 md:text-lg">✅ Truthful</p>
+                    <p className="text-lg text-gray-900 dark:text-gray-200 md:text-xl">{ex.good}</p>
+                    <p className="mt-2 font-bold text-teal-700 dark:text-teal-300 md:text-lg">✅ Truthful</p>
                   </motion.div>
                 )}
               </motion.div>
@@ -479,9 +479,9 @@ function TruthfulPanel() {
           >
             <Callout color="rose">
               Score ={" "}
-              <span className="font-bold text-teal-200">similarity to true answer</span>
+              <span className="font-bold text-teal-800 dark:text-teal-200">similarity to true answer</span>
               {" − "}
-              <span className="font-bold text-rose-200">similarity to false answer</span>. Higher = better.
+              <span className="font-bold text-rose-800 dark:text-rose-200">similarity to false answer</span>. Higher = better.
             </Callout>
 
             <div className="flex flex-wrap gap-2">
@@ -493,8 +493,8 @@ function TruthfulPanel() {
                   className={cn(
                     "rounded-xl border-2 px-4 py-3 text-base font-bold transition md:text-lg",
                     caseIdx === i
-                      ? "border-rose-400/70 bg-rose-950/50 text-rose-50 ring-2 ring-rose-400/50 ring-offset-2 ring-offset-gray-900"
-                      : "border-gray-700 bg-gray-950/60 text-gray-300 hover:border-gray-500",
+                      ? "border-rose-400/70 bg-rose-950/50 text-rose-800 dark:text-rose-50 ring-2 ring-rose-400/50 ring-offset-2 ring-offset-gray-900"
+                      : "border-gray-300 dark:border-gray-700 bg-white/60 dark:bg-gray-950/60 text-gray-700 dark:text-gray-300 hover:border-gray-500",
                   )}
                 >
                   {c.label}
@@ -510,14 +510,14 @@ function TruthfulPanel() {
                 exit={{ opacity: 0, y: -6 }}
                 className="space-y-3"
               >
-                <div className="rounded-xl border border-gray-600 bg-gray-950/70 p-4">
-                  <p className="text-base font-bold text-gray-400 md:text-lg">Question</p>
-                  <p className="mt-1 text-lg text-gray-100 md:text-xl">{sc.question}</p>
-                  <p className="mt-3 text-base font-bold text-gray-400 md:text-lg">Model answer</p>
-                  <p className="mt-1 text-lg italic text-gray-200 md:text-xl">{sc.answer}</p>
+                <div className="rounded-xl border border-gray-300 dark:border-gray-600 bg-white/70 dark:bg-gray-950/70 p-4">
+                  <p className="text-base font-bold text-gray-600 dark:text-gray-400 md:text-lg">Question</p>
+                  <p className="mt-1 text-lg text-gray-900 dark:text-gray-100 md:text-xl">{sc.question}</p>
+                  <p className="mt-3 text-base font-bold text-gray-600 dark:text-gray-400 md:text-lg">Model answer</p>
+                  <p className="mt-1 text-lg italic text-gray-900 dark:text-gray-200 md:text-xl">{sc.answer}</p>
                 </div>
 
-                <div className="space-y-2 rounded-xl border border-gray-700 bg-gray-950/70 p-4">
+                <div className="space-y-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-950/70 p-4">
                   <ProbBar
                     label="True match"
                     value={sc.trueScore}
@@ -542,12 +542,12 @@ function TruthfulPanel() {
                       : "border-rose-500/40 bg-rose-950/20",
                   )}
                 >
-                  <p className="text-lg text-gray-200 md:text-xl">
+                  <p className="text-lg text-gray-900 dark:text-gray-200 md:text-xl">
                     Score = {(sc.trueScore / 100).toFixed(2)} − {(sc.falseScore / 100).toFixed(2)} ={" "}
                     <span
                       className={cn(
                         "font-bold",
-                        sc.isCorrect ? "text-teal-300" : "text-rose-400",
+                        sc.isCorrect ? "text-teal-700 dark:text-teal-300" : "text-rose-700 dark:text-rose-400",
                       )}
                     >
                       {sc.delta}
@@ -556,12 +556,12 @@ function TruthfulPanel() {
                   <p
                     className={cn(
                       "mt-1 text-lg font-bold md:text-xl",
-                      sc.isCorrect ? "text-teal-300" : "text-rose-400",
+                      sc.isCorrect ? "text-teal-700 dark:text-teal-300" : "text-rose-700 dark:text-rose-400",
                     )}
                   >
                     {sc.verdict}
                   </p>
-                  <p className="mt-1 text-base text-gray-400 md:text-lg">{sc.note}</p>
+                  <p className="mt-1 text-base text-gray-600 dark:text-gray-400 md:text-lg">{sc.note}</p>
                 </div>
               </motion.div>
             </AnimatePresence>
@@ -569,7 +569,7 @@ function TruthfulPanel() {
         )}
       </AnimatePresence>
 
-      <p className="text-lg text-gray-300 md:text-xl">
+      <p className="text-lg text-gray-700 dark:text-gray-300 md:text-xl">
         817 questions across 38 categories — built around common human misconceptions.
       </p>
     </div>
@@ -603,11 +603,11 @@ function HumanevalPanel() {
                 animate={{ opacity: 1, x: 0 }}
                 className="flex items-center gap-2"
               >
-                <span className="rounded-xl border border-amber-500/40 bg-amber-950/25 px-3 py-2 text-base font-bold text-amber-100 md:text-lg">
+                <span className="rounded-xl border border-amber-500/40 bg-amber-950/25 px-3 py-2 text-base font-bold text-amber-800 dark:text-amber-100 md:text-lg">
                   {stage}
                 </span>
                 {i < HUMANEVAL_STAGES.length - 1 ? (
-                  <span className="text-gray-500" aria-hidden>
+                  <span className="text-gray-600 dark:text-gray-500" aria-hidden>
                     →
                   </span>
                 ) : null}
@@ -617,10 +617,10 @@ function HumanevalPanel() {
         ))}
       </div>
 
-      <div className="rounded-xl border border-gray-600 bg-gray-950/70 p-4 font-mono text-base text-gray-200 md:text-lg">
-        <p className="font-bold text-gray-300">Task:</p>
+      <div className="rounded-xl border border-gray-300 dark:border-gray-600 bg-white/70 dark:bg-gray-950/70 p-4 font-mono text-base text-gray-900 dark:text-gray-200 md:text-lg">
+        <p className="font-bold text-gray-700 dark:text-gray-300">Task:</p>
         <p className="mt-1">Return only the even numbers from a list.</p>
-        <p className="mt-2 text-amber-200">def get_evens(numbers): ???</p>
+        <p className="mt-2 text-amber-800 dark:text-amber-200">def get_evens(numbers): ???</p>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -633,9 +633,9 @@ function HumanevalPanel() {
               "rounded-xl border-2 px-4 py-3 text-base font-bold md:text-lg",
               solution === id
                 ? id === "A"
-                  ? "border-teal-400/70 bg-teal-950/50 text-teal-50"
-                  : "border-rose-400/70 bg-rose-950/50 text-rose-50"
-                : "border-gray-700 bg-gray-950/60 text-gray-300",
+                  ? "border-teal-400/70 bg-teal-950/50 text-teal-800 dark:text-teal-50"
+                  : "border-rose-400/70 bg-rose-950/50 text-rose-800 dark:text-rose-50"
+                : "border-gray-300 dark:border-gray-700 bg-white/60 dark:bg-gray-950/60 text-gray-700 dark:text-gray-300",
             )}
           >
             Solution {id}
@@ -649,9 +649,9 @@ function HumanevalPanel() {
           animate={{ opacity: 1 }}
           className="rounded-xl border-2 border-teal-500/40 bg-teal-950/20 p-4 font-mono text-base md:text-lg"
         >
-          <p className="text-teal-100">return [n for n in numbers if n % 2 == 0]</p>
-          <p className="mt-2 text-teal-300">get_evens([1,2,3,4]) == [2,4] ✅</p>
-          <p className="font-bold text-teal-300">Result: PASS ✅</p>
+          <p className="text-teal-800 dark:text-teal-100">return [n for n in numbers if n % 2 == 0]</p>
+          <p className="mt-2 text-teal-700 dark:text-teal-300">get_evens([1,2,3,4]) == [2,4] ✅</p>
+          <p className="font-bold text-teal-700 dark:text-teal-300">Result: PASS ✅</p>
         </motion.div>
       )}
 
@@ -661,14 +661,14 @@ function HumanevalPanel() {
           animate={{ opacity: 1 }}
           className="rounded-xl border-2 border-rose-500/40 bg-rose-950/20 p-4 font-mono text-base md:text-lg"
         >
-          <p className="text-rose-100">return [n for n in numbers if n % 2 == 1]</p>
-          <p className="mt-2 text-rose-400">get_evens([1,2,3,4]) expected [2,4] — got [1,3] ❌</p>
-          <p className="font-bold text-rose-400">Result: FAIL ❌</p>
+          <p className="text-rose-800 dark:text-rose-100">return [n for n in numbers if n % 2 == 1]</p>
+          <p className="mt-2 text-rose-700 dark:text-rose-400">get_evens([1,2,3,4]) expected [2,4] — got [1,3] ❌</p>
+          <p className="font-bold text-rose-700 dark:text-rose-400">Result: FAIL ❌</p>
         </motion.div>
       )}
 
-      <p className="text-lg text-gray-300 md:text-xl">
-        Metric: <span className="font-bold text-amber-300">pass@k</span> — at least one of k solutions passes all tests.
+      <p className="text-lg text-gray-700 dark:text-gray-300 md:text-xl">
+        Metric: <span className="font-bold text-amber-700 dark:text-amber-300">pass@k</span> — at least one of k solutions passes all tests.
       </p>
     </div>
   );
@@ -707,7 +707,7 @@ export default function LLMEvaluationExplorer() {
       initial={reducedMotion ? false : { opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="flex w-full flex-col rounded-2xl border border-gray-700 bg-gray-900 p-5 md:p-8"
+      className="flex w-full flex-col rounded-2xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-5 md:p-8"
       data-local-navigation="true"
     >
       <div
@@ -731,11 +731,11 @@ export default function LLMEvaluationExplorer() {
                 "md:px-4 md:py-3 md:text-lg",
                 isActive
                   ? cn("ring-2 ring-offset-2 ring-offset-gray-900", ACCENT[tab.color].tab)
-                  : "border-gray-700 bg-gray-950/60 text-gray-300 hover:border-gray-500 hover:text-white",
+                  : "border-gray-300 dark:border-gray-700 bg-white/60 dark:bg-gray-950/60 text-gray-700 dark:text-gray-300 hover:border-gray-500 hover:text-gray-950 dark:hover:text-white",
               )}
             >
               <span
-                className={cn("mr-1.5", isActive ? "text-gray-200" : "text-gray-400")}
+                className={cn("mr-1.5", isActive ? "text-gray-900 dark:text-gray-200" : "text-gray-600 dark:text-gray-400")}
                 aria-hidden
               >
                 {idx + 1}.
@@ -770,7 +770,7 @@ export default function LLMEvaluationExplorer() {
           type="button"
           onClick={goPrev}
           disabled={activeIdx === 0}
-          className="rounded-xl border-2 border-gray-700 bg-gray-950 px-5 py-3 text-base font-bold text-gray-200 transition hover:border-gray-600 disabled:opacity-40 md:text-lg"
+          className="rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 px-5 py-3 text-base font-bold text-gray-900 dark:text-gray-200 transition hover:border-gray-300 dark:hover:border-gray-600 disabled:opacity-40 md:text-lg"
         >
           ← Prev
         </button>
@@ -778,11 +778,11 @@ export default function LLMEvaluationExplorer() {
           type="button"
           onClick={goNext}
           disabled={activeIdx === TABS.length - 1}
-          className="rounded-xl border-2 border-violet-500/50 bg-violet-950/40 px-5 py-3 text-base font-bold text-violet-100 transition hover:border-violet-400 disabled:opacity-40 md:text-lg"
+          className="rounded-xl border-2 border-violet-500/50 bg-violet-950/40 px-5 py-3 text-base font-bold text-violet-800 dark:text-violet-100 transition hover:border-violet-400 disabled:opacity-40 md:text-lg"
         >
           Next →
         </button>
-        <span className="text-base text-gray-400 md:text-lg">
+        <span className="text-base text-gray-600 dark:text-gray-400 md:text-lg">
           {activeIdx + 1} / {TABS.length}
         </span>
       </div>

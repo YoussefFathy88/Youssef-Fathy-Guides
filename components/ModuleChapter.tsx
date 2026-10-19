@@ -27,7 +27,7 @@ export function ModuleChapter({ module, sessions }: ModuleChapterProps) {
         className="surface-card overflow-hidden p-6 sm:p-8"
         style={{
           borderColor: hexToRgba(module.color, 0.26),
-          background: `linear-gradient(135deg, ${hexToRgba(module.color, 0.18)}, rgba(15, 23, 42, 0.78) 42%, rgba(8, 13, 24, 0.96))`,
+          background: `linear-gradient(135deg, ${hexToRgba(module.color, 0.18)}, var(--surface) 42%, var(--surface-strong))`,
         }}
       >
         <div className="grid gap-4 lg:grid-cols-[0.8fr_0.2fr] lg:items-end">
@@ -35,18 +35,18 @@ export function ModuleChapter({ module, sessions }: ModuleChapterProps) {
             <p className="text-sm uppercase tracking-[0.3em]" style={{ color: module.color }}>
               Chapter {module.id}
             </p>
-            <h2 className="text-4xl font-semibold text-white">
+            <h2 className="text-4xl font-semibold text-gray-950 dark:text-white">
               {module.title}
             </h2>
-            <p className="max-w-3xl text-lg text-slate-200">{module.tagline}</p>
+            <p className="max-w-3xl text-lg text-slate-900 dark:text-slate-200">{module.tagline}</p>
           </div>
 
           <div className="surface-panel p-4">
-            <p className="text-sm text-slate-400">Module progress</p>
-            <p className="mt-2 text-2xl font-semibold text-white">
+            <p className="text-sm text-slate-600 dark:text-slate-400">Module progress</p>
+            <p className="mt-2 text-2xl font-semibold text-gray-950 dark:text-white">
               {completedInModule}/{sessions.length}
             </p>
-            <div className="mt-4 h-2 rounded-full bg-white/10">
+            <div className="mt-4 h-2 rounded-full bg-gray-900/[0.07] dark:bg-white/10">
               <div
                 className="h-2 rounded-full"
                 style={{

@@ -8,7 +8,7 @@ const COLONY_COLOR = "#6366F1";
 export function ColonySection() {
   return (
     <section
-      className="relative overflow-hidden rounded-[28px] border border-white/10"
+      className="relative overflow-hidden rounded-[28px] border border-gray-200 dark:border-white/10"
       style={{
         background: `linear-gradient(135deg, ${COLONY_COLOR}0D 0%, #050B18 40%)`,
         backgroundImage:
@@ -41,14 +41,14 @@ export function ColonySection() {
               >
                 🌐
               </span>
-              <h2 className="text-2xl font-semibold text-white sm:text-3xl">
+              <h2 className="text-2xl font-semibold text-gray-950 dark:text-white sm:text-3xl">
                 The Colony
               </h2>
             </div>
             <p className="text-sm" style={{ color: COLONY_COLOR }}>
               How Agents Collaborate
             </p>
-            <p className="max-w-lg text-sm text-slate-400">
+            <p className="max-w-lg text-sm text-slate-600 dark:text-slate-400">
               When one agent isn&apos;t enough — multi-agent architectures, orchestration, and emergent behavior.
             </p>
           </div>
@@ -91,14 +91,14 @@ export function ColonySection() {
                   </span>
                   {!isAvailable && (
                     <span
-                      className="rounded-full border px-2 py-0.5 text-[9px] font-medium uppercase tracking-wider text-slate-500"
+                      className="rounded-full border px-2 py-0.5 text-[9px] font-medium uppercase tracking-wider text-slate-600 dark:text-slate-500"
                       style={{ borderColor: "rgba(148,163,184,0.15)" }}
                     >
                       Soon
                     </span>
                   )}
                 </div>
-                <p className="text-xs leading-snug text-slate-300">{session.title}</p>
+                <p className="text-xs leading-snug text-slate-700 dark:text-slate-300">{session.title}</p>
 
                 {/* Bottom accent line */}
                 <div
@@ -109,7 +109,7 @@ export function ColonySection() {
             );
 
             const sharedClasses =
-              "group relative rounded-xl border border-white/[0.07] bg-white/[0.03] p-4 transition-all duration-200 overflow-hidden";
+              "group relative rounded-xl border border-gray-200 dark:border-white/[0.07] bg-gray-900/[0.04] dark:bg-white/[0.03] p-4 transition-all duration-200 overflow-hidden";
 
             if (isAvailable) {
               return (

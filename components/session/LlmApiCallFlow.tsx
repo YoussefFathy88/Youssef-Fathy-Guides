@@ -33,9 +33,9 @@ const DEFAULT_EXAMPLES: ApiExample[] = [
 ];
 
 const PARAMS = [
-  { key: "model", value: '"claude"', color: "text-violet-400" },
-  { key: "Temperature", value: "0.1", color: "text-amber-400" },
-  { key: "messages", value: "[{ role: 'user', content: … }]", color: "text-teal-400" },
+  { key: "model", value: '"claude"', color: "text-violet-700 dark:text-violet-400" },
+  { key: "Temperature", value: "0.1", color: "text-amber-700 dark:text-amber-400" },
+  { key: "messages", value: "[{ role: 'user', content: … }]", color: "text-teal-700 dark:text-teal-400" },
 ];
 
 export default function LlmApiCallFlow({
@@ -71,16 +71,16 @@ export default function LlmApiCallFlow({
   const current = examples[activeIdx];
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-gray-950/60 p-8 md:p-10 space-y-8">
+    <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white/60 dark:bg-gray-950/60 p-8 md:p-10 space-y-8">
       {title && (
-        <h3 className="text-xl md:text-2xl font-semibold text-gray-100 leading-snug">{title}</h3>
+        <h3 className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-gray-100 leading-snug">{title}</h3>
       )}
 
       {/* Three-lane flow */}
       <div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-3 md:gap-4">
         {/* Input */}
-        <div className="rounded-xl border border-gray-700 bg-gray-900 p-5 md:p-6 space-y-3 min-h-[160px] flex flex-col justify-between">
-          <span className="font-mono text-base md:text-lg font-bold uppercase tracking-widest text-gray-300">
+        <div className="rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-5 md:p-6 space-y-3 min-h-[160px] flex flex-col justify-between">
+          <span className="font-mono text-base md:text-lg font-bold uppercase tracking-widest text-gray-700 dark:text-gray-300">
             User Input
           </span>
           <AnimatePresence mode="wait">
@@ -90,7 +90,7 @@ export default function LlmApiCallFlow({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.3 }}
-              className="text-lg md:text-xl text-gray-100 leading-relaxed"
+              className="text-lg md:text-xl text-gray-900 dark:text-gray-100 leading-relaxed"
             >
               {current.input}
             </motion.p>
@@ -142,12 +142,12 @@ export default function LlmApiCallFlow({
             >
               🤖
             </motion.span>
-            <span className="font-mono text-lg md:text-xl font-bold text-violet-200">LLM API</span>
+            <span className="font-mono text-lg md:text-xl font-bold text-violet-800 dark:text-violet-200">LLM API</span>
           </div>
           <div className="space-y-2">
             {PARAMS.map((p) => (
               <div key={p.key} className="flex flex-wrap gap-x-1 gap-y-0.5 font-mono text-base md:text-lg leading-relaxed">
-                <span className="text-gray-300">{p.key}:</span>
+                <span className="text-gray-700 dark:text-gray-300">{p.key}:</span>
                 <span className={p.color}>{p.value}</span>
               </div>
             ))}
@@ -195,8 +195,8 @@ export default function LlmApiCallFlow({
         </div>
 
         {/* Output */}
-        <div className="rounded-xl border border-gray-700 bg-gray-900 p-5 md:p-6 space-y-3 min-h-[160px] flex flex-col justify-between">
-          <span className="font-mono text-base md:text-lg font-bold uppercase tracking-widest text-gray-300">
+        <div className="rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-5 md:p-6 space-y-3 min-h-[160px] flex flex-col justify-between">
+          <span className="font-mono text-base md:text-lg font-bold uppercase tracking-widest text-gray-700 dark:text-gray-300">
             Text Output
           </span>
           <AnimatePresence mode="wait">
@@ -207,7 +207,7 @@ export default function LlmApiCallFlow({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: 0.3 }}
-                className="text-lg md:text-xl text-teal-100 leading-relaxed"
+                className="text-lg md:text-xl text-teal-800 dark:text-teal-100 leading-relaxed"
               >
                 {current.output}
               </motion.p>
@@ -216,7 +216,7 @@ export default function LlmApiCallFlow({
                 key="waiting"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-lg md:text-xl text-gray-400 italic"
+                className="text-lg md:text-xl text-gray-600 dark:text-gray-400 italic"
               >
                 Generating…
               </motion.p>
@@ -238,7 +238,7 @@ export default function LlmApiCallFlow({
               }}
               className={cn(
                 "h-3 rounded-full transition-all duration-300",
-                i === activeIdx ? "w-8 bg-violet-400" : "w-3 bg-gray-700 hover:bg-gray-500"
+                i === activeIdx ? "w-8 bg-violet-400" : "w-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-500"
               )}
               aria-label={`Example ${i + 1}`}
             />
@@ -246,7 +246,7 @@ export default function LlmApiCallFlow({
         </div>
         <button
           onClick={() => setAutoPlay((v) => !v)}
-          className="font-mono text-base md:text-lg text-gray-300 hover:text-gray-100 transition-colors py-2 px-3"
+          className="font-mono text-base md:text-lg text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors py-2 px-3"
         >
           {autoPlay ? "⏸ pause" : "▶ play"}
         </button>
@@ -255,7 +255,7 @@ export default function LlmApiCallFlow({
       {/* Key insight chip */}
       <div className="rounded-xl border border-amber-500/25 bg-amber-950/20 px-5 py-4 md:px-6 md:py-5 flex items-start gap-4">
         <span className="text-2xl md:text-3xl shrink-0">⚠️</span>
-        <p className="text-lg md:text-xl text-amber-100 leading-relaxed">
+        <p className="text-lg md:text-xl text-amber-800 dark:text-amber-100 leading-relaxed">
           <span className="font-semibold">Same call shape every time</span> — but the output is unstructured plain text. Every response has a different format. You cannot reliably parse it, store it, or act on it programmatically.
         </p>
       </div>

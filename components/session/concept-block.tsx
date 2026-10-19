@@ -15,17 +15,17 @@ export function ConceptBlock({ concept }: ConceptBlockProps) {
           <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${accent.badge}`}>
             {concept.category}
           </span>
-          <h3 className="mt-4 text-2xl font-semibold text-white">{concept.title}</h3>
+          <h3 className="mt-4 text-2xl font-semibold text-gray-950 dark:text-white">{concept.title}</h3>
         </div>
         <span className={`mt-1 h-3 w-3 rounded-full ${accent.dot}`} />
       </div>
 
-      <p className="mt-4 text-base text-slate-300">{concept.description}</p>
+      <p className="mt-4 text-base text-slate-700 dark:text-slate-300">{concept.description}</p>
 
       <div className={`surface-panel mt-6 p-4 ${accent.border}`}>
         <div className="flex items-center justify-between gap-3">
-          <p className="text-sm font-medium text-white">{concept.placeholderTitle}</p>
-          <span className="text-xs uppercase tracking-[0.22em] text-slate-500">
+          <p className="text-sm font-medium text-gray-950 dark:text-white">{concept.placeholderTitle}</p>
+          <span className="text-xs uppercase tracking-[0.22em] text-slate-600 dark:text-slate-500">
             Story layer
           </span>
         </div>
@@ -43,13 +43,13 @@ export function ConceptBlock({ concept }: ConceptBlockProps) {
       </div>
 
       <div className="mt-5 flex items-center gap-2">
-        <span className="text-xs uppercase tracking-[0.22em] text-slate-500">
+        <span className="text-xs uppercase tracking-[0.22em] text-slate-600 dark:text-slate-500">
           Takeaway
         </span>
-        <div className="h-px flex-1 bg-white/10" />
+        <div className="h-px flex-1 bg-gray-900/[0.07] dark:bg-white/10" />
       </div>
 
-      <p className="mt-3 text-sm font-medium text-slate-200">{concept.takeaway}</p>
+      <p className="mt-3 text-sm font-medium text-slate-900 dark:text-slate-200">{concept.takeaway}</p>
     </article>
   );
 }

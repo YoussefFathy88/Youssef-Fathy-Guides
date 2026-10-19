@@ -38,7 +38,7 @@ export function JourneyMap({ currentSessionId, className }: JourneyMapProps) {
 
   return (
     <section className={cn("surface-card relative overflow-hidden p-6 sm:p-8", className)}>
-      <div className="absolute bottom-10 left-[0.72rem] top-10 w-px bg-white/10 sm:left-[1.1rem]" />
+      <div className="absolute bottom-10 left-[0.72rem] top-10 w-px bg-gray-900/[0.07] dark:bg-white/10 sm:left-[1.1rem]" />
 
       <div className="space-y-8">
         {modules.map((module) => {
@@ -56,7 +56,7 @@ export function JourneyMap({ currentSessionId, className }: JourneyMapProps) {
                 />
                 <div className="space-y-2">
                   <div className="flex flex-wrap items-center gap-3">
-                    <p className="text-lg font-semibold text-white">
+                    <p className="text-lg font-semibold text-gray-950 dark:text-white">
                       Module {module.id} - {module.title}
                     </p>
                     <span
@@ -70,7 +70,7 @@ export function JourneyMap({ currentSessionId, className }: JourneyMapProps) {
                       {module.episodeRange}
                     </span>
                   </div>
-                  <p className="max-w-4xl text-sm text-slate-400">{module.tagline}</p>
+                  <p className="max-w-4xl text-sm text-slate-600 dark:text-slate-400">{module.tagline}</p>
                 </div>
               </div>
 

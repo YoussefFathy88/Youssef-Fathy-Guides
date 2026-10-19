@@ -25,9 +25,9 @@ function ReviewList({ items }: { items: readonly string[] }) {
           initial={reducedMotion ? false : { opacity: 0, x: -8 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.25, delay: reducedMotion ? 0 : i * 0.1 }}
-          className="flex items-start gap-2 text-lg text-gray-100 md:text-xl"
+          className="flex items-start gap-2 text-lg text-gray-900 dark:text-gray-100 md:text-xl"
         >
-          <span className="mt-1 text-violet-300" aria-hidden>•</span>
+          <span className="mt-1 text-violet-700 dark:text-violet-300" aria-hidden>•</span>
           <span>{item}</span>
         </motion.div>
       ))}
@@ -44,22 +44,22 @@ function SearchTaskPanel() {
   return (
     <div className="flex flex-1 flex-col gap-4">
       <PanelTitle>Query in, embed it, return the top-5 chunks from pgvector.</PanelTitle>
-      <div className="rounded-xl border border-gray-700 bg-gray-950/70 p-4 font-mono text-lg text-gray-100 md:text-xl">
+      <div className="rounded-xl border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-950/70 p-4 font-mono text-lg text-gray-900 dark:text-gray-100 md:text-xl">
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}>async function searchChunks(query: string)</motion.p>
-        {expanded >= 1 && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="pl-4 text-teal-200">const vector = await embed(query)</motion.p>}
-        {expanded >= 2 && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="pl-4 text-violet-200">return db.matchTopK(vector, 5)</motion.p>}
+        {expanded >= 1 && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="pl-4 text-teal-800 dark:text-teal-200">const vector = await embed(query)</motion.p>}
+        {expanded >= 2 && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="pl-4 text-violet-800 dark:text-violet-200">return db.matchTopK(vector, 5)</motion.p>}
       </div>
       {expanded < 2 && (
         <button
           type="button"
           onClick={() => setExpanded((e) => e + 1)}
-          className="w-fit rounded-xl border-2 border-teal-400/70 bg-teal-950/40 px-5 py-3 text-base font-bold text-teal-100 transition hover:border-teal-300 md:text-lg"
+          className="w-fit rounded-xl border-2 border-teal-400/70 bg-teal-950/40 px-5 py-3 text-base font-bold text-teal-800 dark:text-teal-100 transition hover:border-teal-300 md:text-lg"
         >
           Reveal next line →
         </button>
       )}
       <Callout color="teal">
-        <span className="font-bold text-teal-200">Review this before moving on:</span>
+        <span className="font-bold text-teal-800 dark:text-teal-200">Review this before moving on:</span>
       </Callout>
       <ReviewList
         items={[
@@ -82,17 +82,17 @@ function EndpointTaskPanel() {
     <div className="flex flex-1 flex-col gap-4">
       <PanelTitle>A thin POST /search endpoint that calls the search service.</PanelTitle>
       <div className="flex items-center justify-center gap-3">
-        <div className="rounded-xl border-2 border-violet-400/50 bg-violet-950/25 px-5 py-4 text-lg font-bold text-violet-100 md:text-xl">
+        <div className="rounded-xl border-2 border-violet-400/50 bg-violet-950/25 px-5 py-4 text-lg font-bold text-violet-800 dark:text-violet-100 md:text-xl">
           POST /search
         </div>
         <motion.span
           animate={{ x: plugged ? 0 : -8, opacity: plugged ? 1 : 0.4 }}
-          className="text-3xl text-gray-400"
+          className="text-3xl text-gray-600 dark:text-gray-400"
           aria-hidden
         >
           🔌→
         </motion.span>
-        <div className="rounded-xl border-2 border-teal-400/50 bg-teal-950/25 px-5 py-4 text-lg font-bold text-teal-100 md:text-xl">
+        <div className="rounded-xl border-2 border-teal-400/50 bg-teal-950/25 px-5 py-4 text-lg font-bold text-teal-800 dark:text-teal-100 md:text-xl">
           searchChunks()
         </div>
       </div>
@@ -100,7 +100,7 @@ function EndpointTaskPanel() {
         <button
           type="button"
           onClick={() => setPlugged(true)}
-          className="mx-auto w-fit rounded-xl border-2 border-violet-400/70 bg-violet-950/40 px-5 py-3 text-base font-bold text-violet-100 transition hover:border-violet-300 md:text-lg"
+          className="mx-auto w-fit rounded-xl border-2 border-violet-400/70 bg-violet-950/40 px-5 py-3 text-base font-bold text-violet-800 dark:text-violet-100 transition hover:border-violet-300 md:text-lg"
         >
           Wire it up →
         </button>
@@ -108,10 +108,10 @@ function EndpointTaskPanel() {
         <motion.div
           initial={reducedMotion ? false : { opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-xl border border-gray-700 bg-gray-950/70 p-4 font-mono text-lg text-gray-100 md:text-xl"
+          className="rounded-xl border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-950/70 p-4 font-mono text-lg text-gray-900 dark:text-gray-100 md:text-xl"
         >
           <p>{"→ { query: \"pricing table\" }"}</p>
-          <p className="text-teal-200">{"← 200 { chunks: [...5 items] }"}</p>
+          <p className="text-teal-800 dark:text-teal-200">{"← 200 { chunks: [...5 items] }"}</p>
         </motion.div>
       )}
       <ReviewList
@@ -137,16 +137,16 @@ function UiTaskPanel() {
     <div className="flex flex-1 flex-col gap-4">
       <PanelTitle>A search input that calls /search and renders the returned chunks.</PanelTitle>
       <div className="flex flex-col gap-3 rounded-xl border-2 border-amber-400/40 bg-amber-950/15 p-5">
-        <div className="rounded-lg border border-gray-600 bg-gray-950/70 px-4 py-3 text-lg text-gray-300 md:text-xl">🔍 Search chunks…</div>
+        <div className="rounded-lg border border-gray-300 dark:border-gray-600 bg-white/70 dark:bg-gray-950/70 px-4 py-3 text-lg text-gray-700 dark:text-gray-300 md:text-xl">🔍 Search chunks…</div>
         {step >= 1 && (
-          <motion.div initial={reducedMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} className="text-lg text-amber-200 md:text-xl">
+          <motion.div initial={reducedMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} className="text-lg text-amber-800 dark:text-amber-200 md:text-xl">
             ⏳ Loading…
           </motion.div>
         )}
         {step >= 2 && (
           <motion.div initial={reducedMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-2">
-            <div className="rounded-lg border border-gray-700 bg-gray-950/60 p-3 text-lg text-gray-100 md:text-xl">Chunk 1 — pricing overview…</div>
-            <div className="rounded-lg border border-gray-700 bg-gray-950/60 p-3 text-lg text-gray-100 md:text-xl">Chunk 2 — enterprise tier…</div>
+            <div className="rounded-lg border border-gray-300 dark:border-gray-700 bg-white/60 dark:bg-gray-950/60 p-3 text-lg text-gray-900 dark:text-gray-100 md:text-xl">Chunk 1 — pricing overview…</div>
+            <div className="rounded-lg border border-gray-300 dark:border-gray-700 bg-white/60 dark:bg-gray-950/60 p-3 text-lg text-gray-900 dark:text-gray-100 md:text-xl">Chunk 2 — enterprise tier…</div>
           </motion.div>
         )}
       </div>
@@ -154,7 +154,7 @@ function UiTaskPanel() {
         <button
           type="button"
           onClick={() => setStep((s) => s + 1)}
-          className="w-fit rounded-xl border-2 border-amber-400/70 bg-amber-950/40 px-5 py-3 text-base font-bold text-amber-100 transition hover:border-amber-300 md:text-lg"
+          className="w-fit rounded-xl border-2 border-amber-400/70 bg-amber-950/40 px-5 py-3 text-base font-bold text-amber-800 dark:text-amber-100 transition hover:border-amber-300 md:text-lg"
         >
           Show {UI_STEPS[step]?.toLowerCase()} →
         </button>

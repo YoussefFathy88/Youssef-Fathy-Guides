@@ -16,18 +16,18 @@ function SchemaRow({ field, depth = 0 }: { field: SchemaFieldLine; depth?: numbe
   return (
     <div className={cn(depth > 0 && "ml-4 md:ml-6 border-l border-violet-500/25 pl-3 md:pl-4")}>
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 py-1.5">
-        <span className="font-mono text-base md:text-lg font-semibold text-violet-200">
+        <span className="font-mono text-base md:text-lg font-semibold text-violet-800 dark:text-violet-200">
           {field.key}
         </span>
-        <span className="font-mono text-base md:text-lg text-gray-500">:</span>
-        <span className="font-mono text-base md:text-lg text-amber-200/90">{field.type}</span>
+        <span className="font-mono text-base md:text-lg text-gray-600 dark:text-gray-500">:</span>
+        <span className="font-mono text-base md:text-lg text-amber-800 dark:text-amber-200/90">{field.type}</span>
         {field.required && (
-          <span className="rounded-full border border-rose-500/40 bg-rose-950/40 px-2 py-0.5 font-mono text-sm md:text-base font-bold text-rose-200">
+          <span className="rounded-full border border-rose-500/40 bg-rose-950/40 px-2 py-0.5 font-mono text-sm md:text-base font-bold text-rose-800 dark:text-rose-200">
             required
           </span>
         )}
         {field.note && (
-          <span className="font-mono text-base md:text-lg text-gray-400 w-full md:w-auto">
+          <span className="font-mono text-base md:text-lg text-gray-600 dark:text-gray-400 w-full md:w-auto">
             — {field.note}
           </span>
         )}
@@ -54,19 +54,19 @@ export default function AiDecisionSchemaCompact({
         <span className="text-2xl" aria-hidden>
           🔧
         </span>
-        <span className="font-mono text-lg md:text-xl font-bold text-violet-200">
+        <span className="font-mono text-lg md:text-xl font-bold text-violet-800 dark:text-violet-200">
           {AI_DECISION_SCHEMA_NAME}
         </span>
-        <span className="font-mono text-base md:text-lg text-gray-400">JSON Schema</span>
+        <span className="font-mono text-base md:text-lg text-gray-600 dark:text-gray-400">JSON Schema</span>
       </div>
-      {title && <p className="text-lg md:text-xl text-violet-100/90 leading-relaxed">{title}</p>}
-      <div className="rounded-lg border border-violet-700/30 bg-gray-950/80 p-4 md:p-5 space-y-0.5">
+      {title && <p className="text-lg md:text-xl text-violet-800 dark:text-violet-100/90 leading-relaxed">{title}</p>}
+      <div className="rounded-lg border border-violet-700/30 bg-white/80 dark:bg-gray-950/80 p-4 md:p-5 space-y-0.5">
         {AI_DECISION_SCHEMA_LINES.map((field) => (
           <SchemaRow key={field.key} field={field} />
         ))}
       </div>
-      <p className="text-base md:text-lg text-gray-400 leading-relaxed">
-        Only the payload for the chosen <span className="font-mono text-amber-200">action</span> is
+      <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+        Only the payload for the chosen <span className="font-mono text-amber-800 dark:text-amber-200">action</span> is
         filled — other branches stay empty.
       </p>
     </div>

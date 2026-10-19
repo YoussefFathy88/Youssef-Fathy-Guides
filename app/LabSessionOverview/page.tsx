@@ -15,13 +15,13 @@ export default function LabSessionOverviewPreviewPage() {
       <GridBackground />
       <Container className="relative z-10 space-y-12 xl:pr-20">
         <header className="max-w-5xl space-y-5">
-          <p className="font-mono text-base font-semibold uppercase tracking-[0.26em] text-cyan-200/70">
+          <p className="font-mono text-base font-semibold uppercase tracking-[0.26em] text-cyan-800 dark:text-cyan-200/70">
             Component Preview
           </p>
-          <h1 className="text-6xl font-semibold text-white sm:text-7xl">
+          <h1 className="text-6xl font-semibold text-gray-950 dark:text-white sm:text-7xl">
             Lab Session Overview
           </h1>
-          <p className="text-2xl text-slate-300 sm:text-3xl">
+          <p className="text-2xl text-slate-700 dark:text-slate-300 sm:text-3xl">
             Structure-only preview for future AI Engineering Lab session pages.
           </p>
         </header>

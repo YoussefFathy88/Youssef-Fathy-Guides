@@ -124,8 +124,8 @@ const COLOR = {
   violet: {
     bg: "bg-violet-900/30",
     border: "border-violet-500/50",
-    badge: "bg-violet-500/20 text-violet-300",
-    label: "text-violet-300",
+    badge: "bg-violet-500/20 text-violet-700 dark:text-violet-300",
+    label: "text-violet-700 dark:text-violet-300",
     dot: "bg-violet-400",
     glow: "shadow-violet-500/20",
     bar: "bg-violet-500",
@@ -133,8 +133,8 @@ const COLOR = {
   teal: {
     bg: "bg-teal-900/30",
     border: "border-teal-500/50",
-    badge: "bg-teal-500/20 text-teal-300",
-    label: "text-teal-300",
+    badge: "bg-teal-500/20 text-teal-700 dark:text-teal-300",
+    label: "text-teal-700 dark:text-teal-300",
     dot: "bg-teal-400",
     glow: "shadow-teal-500/20",
     bar: "bg-teal-500",
@@ -142,8 +142,8 @@ const COLOR = {
   amber: {
     bg: "bg-amber-900/30",
     border: "border-amber-500/50",
-    badge: "bg-amber-500/20 text-amber-300",
-    label: "text-amber-300",
+    badge: "bg-amber-500/20 text-amber-700 dark:text-amber-300",
+    label: "text-amber-700 dark:text-amber-300",
     dot: "bg-amber-400",
     glow: "shadow-amber-500/20",
     bar: "bg-amber-500",
@@ -151,8 +151,8 @@ const COLOR = {
   rose: {
     bg: "bg-rose-900/30",
     border: "border-rose-500/50",
-    badge: "bg-rose-500/20 text-rose-300",
-    label: "text-rose-300",
+    badge: "bg-rose-500/20 text-rose-700 dark:text-rose-300",
+    label: "text-rose-700 dark:text-rose-300",
     dot: "bg-rose-400",
     glow: "shadow-rose-500/20",
     bar: "bg-rose-500",
@@ -160,8 +160,8 @@ const COLOR = {
   blue: {
     bg: "bg-blue-900/30",
     border: "border-blue-500/50",
-    badge: "bg-blue-500/20 text-blue-300",
-    label: "text-blue-300",
+    badge: "bg-blue-500/20 text-blue-700 dark:text-blue-300",
+    label: "text-blue-700 dark:text-blue-300",
     dot: "bg-blue-400",
     glow: "shadow-blue-500/20",
     bar: "bg-blue-500",
@@ -193,7 +193,7 @@ function ChatBubble({
           "w-9 h-9 rounded-full flex items-center justify-center text-lg flex-shrink-0",
           role === "user"
             ? "bg-violet-600 text-white"
-            : "bg-gray-700 text-white"
+            : "bg-gray-200 dark:bg-gray-700 text-gray-950 dark:text-white"
         )}
       >
         {role === "user" ? "👤" : avatar}
@@ -203,7 +203,7 @@ function ChatBubble({
           "max-w-[75%] rounded-2xl px-4 py-3 text-base md:text-lg leading-snug",
           role === "user"
             ? "bg-violet-600 text-white rounded-tr-sm"
-            : "bg-gray-700 text-gray-100 rounded-tl-sm"
+            : "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-tl-sm"
         )}
       >
         {text}
@@ -253,7 +253,7 @@ function PromptSectionCard({
           </motion.span>
         )}
       </div>
-      <p className="text-gray-200 text-base md:text-lg leading-snug font-mono">
+      <p className="text-gray-900 dark:text-gray-200 text-base md:text-lg leading-snug font-mono">
         {section.text}
       </p>
     </motion.div>
@@ -313,16 +313,16 @@ export default function SystemPromptRevealDemo({
   };
 
   return (
-    <div className="w-full rounded-2xl border border-gray-700 bg-gray-900 shadow-xl overflow-hidden">
+    <div className="w-full rounded-2xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 shadow-xl overflow-hidden">
       {/* ── Header ── */}
-      <div className="px-5 md:px-8 py-4 border-b border-gray-700/60 bg-gray-800/40">
-        <p className="text-xl md:text-2xl font-bold text-gray-100 leading-tight">
+      <div className="px-5 md:px-8 py-4 border-b border-gray-300/60 dark:border-gray-700/60 bg-gray-100/40 dark:bg-gray-800/40">
+        <p className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 leading-tight">
           {title}
         </p>
       </div>
 
       {/* ── Step label strip ── */}
-      <div className="px-5 md:px-8 py-3 border-b border-gray-700/40 bg-gray-800/20 flex items-center gap-3 flex-wrap">
+      <div className="px-5 md:px-8 py-3 border-b border-gray-300/40 dark:border-gray-700/40 bg-gray-100/20 dark:bg-gray-800/20 flex items-center gap-3 flex-wrap">
         <div className="flex gap-1.5">
           {STEP_LABELS.map((_, i) => (
             <div
@@ -336,10 +336,10 @@ export default function SystemPromptRevealDemo({
             />
           ))}
         </div>
-        <span className="text-base md:text-lg font-semibold text-violet-300 ml-1">
+        <span className="text-base md:text-lg font-semibold text-violet-700 dark:text-violet-300 ml-1">
           {STEP_LABELS[step]}
         </span>
-        <span className="text-gray-500 text-sm ml-auto">
+        <span className="text-gray-600 dark:text-gray-500 text-sm ml-auto">
           {step + 1} / {totalSteps}
         </span>
       </div>
@@ -357,14 +357,14 @@ export default function SystemPromptRevealDemo({
             className="flex items-center gap-2"
           >
             <span className="text-xl">{scenario.aiAvatar}</span>
-            <span className="text-base font-semibold text-gray-300">
+            <span className="text-base font-semibold text-gray-700 dark:text-gray-300">
               {scenario.product}
             </span>
             {isFinalStep && (
               <motion.span
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="ml-2 text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-medium"
+                className="ml-2 text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 font-medium"
               >
                 Different system prompt → different AI
               </motion.span>
@@ -383,13 +383,13 @@ export default function SystemPromptRevealDemo({
               transition={{ duration: 0.45, ease: "easeOut" }}
               className="overflow-hidden"
             >
-              <div className="rounded-xl border border-gray-600 bg-gray-800/60 overflow-hidden">
-                <div className="px-4 py-2 border-b border-gray-600/60 flex items-center gap-2 bg-gray-700/40">
+              <div className="rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-100/60 dark:bg-gray-800/60 overflow-hidden">
+                <div className="px-4 py-2 border-b border-gray-300/60 dark:border-gray-600/60 flex items-center gap-2 bg-gray-200/40 dark:bg-gray-700/40">
                   <span className="w-2.5 h-2.5 rounded-full bg-gray-500" />
-                  <span className="text-sm font-mono font-semibold text-gray-400 uppercase tracking-wider">
+                  <span className="text-sm font-mono font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                     system prompt
                   </span>
-                  <span className="ml-auto text-xs text-gray-500">
+                  <span className="ml-auto text-xs text-gray-600 dark:text-gray-500">
                     Developer-written · User never sees this
                   </span>
                 </div>
@@ -416,21 +416,21 @@ export default function SystemPromptRevealDemo({
             initial={prefersReduced ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="rounded-xl border border-gray-700 bg-gray-800/40 overflow-hidden"
+            className="rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100/40 dark:bg-gray-800/40 overflow-hidden"
           >
-            <div className="px-4 py-2 border-b border-gray-700/60 bg-gray-700/30 flex items-center gap-2">
+            <div className="px-4 py-2 border-b border-gray-300/60 dark:border-gray-700/60 bg-gray-200/30 dark:bg-gray-700/30 flex items-center gap-2">
               <span className="text-lg">{scenario.aiAvatar}</span>
-              <span className="text-base font-semibold text-gray-200">
+              <span className="text-base font-semibold text-gray-900 dark:text-gray-200">
                 {scenario.name}
               </span>
               {showPrompt && (
-                <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-gray-600 text-gray-400">
+                <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-gray-600 text-gray-600 dark:text-gray-400">
                   Reading system prompt…
                 </span>
               )}
               <span className="ml-auto flex gap-1">
                 <span className="w-2 h-2 rounded-full bg-green-400" />
-                <span className="text-xs text-gray-500">Online</span>
+                <span className="text-xs text-gray-600 dark:text-gray-500">Online</span>
               </span>
             </div>
             <div className="p-4 md:p-5 space-y-4">
@@ -457,38 +457,38 @@ export default function SystemPromptRevealDemo({
             className="min-h-[2.5rem] flex items-center"
           >
             {step === 0 && (
-              <p className="text-base md:text-lg text-gray-400">
+              <p className="text-base md:text-lg text-gray-600 dark:text-gray-400">
                 A user asks an AI assistant a simple question. The AI replies with a clear name and purpose. But how did it know?
               </p>
             )}
             {step === 1 && (
-              <p className="text-base md:text-lg text-gray-300">
-                <span className="text-violet-300 font-semibold">The system prompt</span> sits above every conversation. The developer writes it. The user never sees it. The AI reads it first — before the user types a single word.
+              <p className="text-base md:text-lg text-gray-700 dark:text-gray-300">
+                <span className="text-violet-700 dark:text-violet-300 font-semibold">The system prompt</span> sits above every conversation. The developer writes it. The user never sees it. The AI reads it first — before the user types a single word.
               </p>
             )}
             {step === 2 && (
-              <p className="text-base md:text-lg text-gray-300">
-                The <span className="text-violet-300 font-semibold">Role</span> section gives the AI its name, job title, and company — that is why it introduces itself as Aria, not "Assistant".
+              <p className="text-base md:text-lg text-gray-700 dark:text-gray-300">
+                The <span className="text-violet-700 dark:text-violet-300 font-semibold">Role</span> section gives the AI its name, job title, and company — that is why it introduces itself as Aria, not "Assistant".
               </p>
             )}
             {step === 3 && (
-              <p className="text-base md:text-lg text-gray-300">
-                The <span className="text-teal-300 font-semibold">Task</span> section tells the AI what it should help with — and signals it should ask clarifying questions rather than guess.
+              <p className="text-base md:text-lg text-gray-700 dark:text-gray-300">
+                The <span className="text-teal-700 dark:text-teal-300 font-semibold">Task</span> section tells the AI what it should help with — and signals it should ask clarifying questions rather than guess.
               </p>
             )}
             {step === 4 && (
-              <p className="text-base md:text-lg text-gray-300">
-                The <span className="text-amber-300 font-semibold">Rules</span> section draws hard limits — if you ask Aria about a competing store, those rules redirect her back to StyleHub's catalog.
+              <p className="text-base md:text-lg text-gray-700 dark:text-gray-300">
+                The <span className="text-amber-700 dark:text-amber-300 font-semibold">Rules</span> section draws hard limits — if you ask Aria about a competing store, those rules redirect her back to StyleHub's catalog.
               </p>
             )}
             {step === 5 && (
-              <p className="text-base md:text-lg text-gray-300">
-                The <span className="text-blue-300 font-semibold">Format</span> section controls writing style — the same AI model can be told to use emojis, avoid tables, or sound like a doctor, just from this one field.
+              <p className="text-base md:text-lg text-gray-700 dark:text-gray-300">
+                The <span className="text-blue-700 dark:text-blue-300 font-semibold">Format</span> section controls writing style — the same AI model can be told to use emojis, avoid tables, or sound like a doctor, just from this one field.
               </p>
             )}
             {step === 6 && (
-              <p className="text-base md:text-lg text-gray-300">
-                Same user message. Same underlying model. <span className="text-amber-300 font-semibold">Different system prompt → completely different AI.</span> MediBot refuses to help with shopping and redirects to health topics — exactly as its rules demand.
+              <p className="text-base md:text-lg text-gray-700 dark:text-gray-300">
+                Same user message. Same underlying model. <span className="text-amber-700 dark:text-amber-300 font-semibold">Different system prompt → completely different AI.</span> MediBot refuses to help with shopping and redirects to health topics — exactly as its rules demand.
               </p>
             )}
           </motion.div>
@@ -496,11 +496,11 @@ export default function SystemPromptRevealDemo({
       </div>
 
       {/* ── Controls ── */}
-      <div className="px-5 md:px-8 py-4 border-t border-gray-700/60 bg-gray-800/20 flex items-center gap-3">
+      <div className="px-5 md:px-8 py-4 border-t border-gray-300/60 dark:border-gray-700/60 bg-gray-100/20 dark:bg-gray-800/20 flex items-center gap-3">
         <button
           onClick={prev}
           disabled={step === 0}
-          className="px-5 py-3 rounded-lg border border-gray-600 text-base md:text-lg font-semibold text-gray-300 hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="px-5 py-3 rounded-lg border border-gray-300 dark:border-gray-600 text-base md:text-lg font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
         >
           ← Prev
         </button>
@@ -518,13 +518,13 @@ export default function SystemPromptRevealDemo({
         {step === totalSteps - 1 && (
           <button
             onClick={reset}
-            className="px-5 py-3 rounded-lg border border-gray-600 text-base md:text-lg font-semibold text-gray-300 hover:bg-gray-700 transition-colors"
+            className="px-5 py-3 rounded-lg border border-gray-300 dark:border-gray-600 text-base md:text-lg font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
           >
             Reset
           </button>
         )}
         {caption && (
-          <p className="ml-auto text-sm text-gray-500 hidden md:block text-right max-w-xs">
+          <p className="ml-auto text-sm text-gray-600 dark:text-gray-500 hidden md:block text-right max-w-xs">
             {caption}
           </p>
         )}

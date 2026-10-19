@@ -803,26 +803,27 @@ export default function NodeFlowDiagram({
       initial={reducedMotion ? false : { opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="w-full rounded-2xl border border-white/10 bg-[#0f1728]/80 p-7 md:p-8"
+      className="w-full rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0f1728]/80 p-7 md:p-8"
     >
       {title && (
-        <p className="mb-5 text-lg font-semibold text-slate-200 md:text-xl">{title}</p>
+        <p className="mb-5 text-lg font-semibold text-slate-900 dark:text-slate-200 md:text-xl">{title}</p>
       )}
 
       {/* SVG Canvas */}
       <div
         ref={containerRef}
-        className="relative w-full overflow-hidden rounded-xl"
+        /* Neon nodes are drawn for a dark canvas: keep it dark in both themes. */
+        className="dark relative w-full overflow-hidden rounded-xl"
         style={{
           height,
-          background: "rgba(8,13,24,0.6)",
+          background: "#0b111e",
           backgroundImage: "radial-gradient(circle, rgba(148,163,184,0.1) 1px, transparent 1px)",
           backgroundSize: "22px 22px",
         }}
       >
         {!hasDiagramData && (
           <div className="absolute inset-0 flex items-center justify-center px-6 text-center">
-            <p className="max-w-md text-base font-medium leading-relaxed text-slate-300 md:text-lg">
+            <p className="max-w-md text-base font-medium leading-relaxed text-slate-700 dark:text-slate-300 md:text-lg">
               Diagram data is unavailable for this block. The page is still loaded, but the
               nodes/edges payload did not arrive from the MDX content.
             </p>
@@ -1005,7 +1006,7 @@ export default function NodeFlowDiagram({
                 )}
               />
             ))}
-            <span className="ml-auto text-base font-bold tabular-nums text-slate-300 md:text-lg">
+            <span className="ml-auto text-base font-bold tabular-nums text-slate-700 dark:text-slate-300 md:text-lg">
               {currentStep >= 0 ? `${currentStep + 1} / ${safeSteps.length}` : `${safeSteps.length} steps`}
             </span>
           </div>
@@ -1016,7 +1017,7 @@ export default function NodeFlowDiagram({
               type="button"
               disabled={currentStep <= 0}
               onClick={goPrev}
-              className="flex h-11 min-h-[2.75rem] items-center gap-2 rounded-xl border-2 border-white/10 bg-white/5 px-4 text-base font-bold text-slate-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30 md:h-12 md:px-5 md:text-lg"
+              className="flex h-11 min-h-[2.75rem] items-center gap-2 rounded-xl border-2 border-gray-200 dark:border-white/10 bg-gray-900/[0.04] dark:bg-white/5 px-4 text-base font-bold text-slate-900 dark:text-slate-100 transition hover:bg-gray-900/[0.07] dark:hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30 md:h-12 md:px-5 md:text-lg"
             >
               ← Prev
             </button>
@@ -1027,7 +1028,7 @@ export default function NodeFlowDiagram({
               className={cn(
                 "flex h-11 min-h-[2.75rem] items-center gap-2 rounded-xl px-5 text-base font-bold transition md:h-12 md:px-6 md:text-lg",
                 playing
-                  ? "bg-slate-700 text-slate-200 hover:bg-slate-600"
+                  ? "bg-gray-200 dark:bg-slate-700 text-slate-900 dark:text-slate-200 hover:bg-slate-600"
                   : "bg-blue-600 text-white hover:bg-blue-500",
               )}
             >
@@ -1038,19 +1039,19 @@ export default function NodeFlowDiagram({
               type="button"
               disabled={isLast}
               onClick={goNext}
-              className="flex h-11 min-h-[2.75rem] items-center gap-2 rounded-xl border-2 border-white/10 bg-white/5 px-4 text-base font-bold text-slate-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30 md:h-12 md:px-5 md:text-lg"
+              className="flex h-11 min-h-[2.75rem] items-center gap-2 rounded-xl border-2 border-gray-200 dark:border-white/10 bg-gray-900/[0.04] dark:bg-white/5 px-4 text-base font-bold text-slate-900 dark:text-slate-100 transition hover:bg-gray-900/[0.07] dark:hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30 md:h-12 md:px-5 md:text-lg"
             >
               Next →
             </button>
 
-            <span className="ml-auto text-base font-medium text-slate-300 md:text-lg">
+            <span className="ml-auto text-base font-medium text-slate-700 dark:text-slate-300 md:text-lg">
               ← → or Space to navigate
             </span>
           </div>
 
           {/* Step description */}
           {!hideStepNarrative && (
-            <div className="min-h-[72px] rounded-xl border border-white/8 bg-white/4 px-5 py-4 md:px-6 md:py-5">
+            <div className="min-h-[72px] rounded-xl border border-gray-200 dark:border-white/8 bg-gray-900/[0.04] dark:bg-white/4 px-5 py-4 md:px-6 md:py-5">
               <AnimatePresence mode="wait" custom={direction}>
                 {activeStep ? (
                   <motion.div
@@ -1061,8 +1062,8 @@ export default function NodeFlowDiagram({
                     exit={{ x: direction * -20, opacity: 0 }}
                     transition={{ duration: 0.22, ease: "easeOut" }}
                   >
-                    <p className="mb-2 text-lg font-bold text-slate-100 md:text-xl">{activeStep.label}</p>
-                    <p className="text-base font-medium leading-relaxed text-slate-200 md:text-lg">
+                    <p className="mb-2 text-lg font-bold text-slate-900 dark:text-slate-100 md:text-xl">{activeStep.label}</p>
+                    <p className="text-base font-medium leading-relaxed text-slate-900 dark:text-slate-200 md:text-lg">
                       {activeStep.description}
                     </p>
                     {activeStep.highlightNodes && activeStep.highlightNodes.length > 0 && (
@@ -1073,10 +1074,10 @@ export default function NodeFlowDiagram({
                           return (
                             <div
                               key={id}
-                              className="flex flex-wrap items-center gap-2 rounded-md border border-white/5 bg-slate-800/60 px-3 py-2 shadow-sm"
+                              className="flex flex-wrap items-center gap-2 rounded-md border border-gray-200 dark:border-white/5 bg-gray-100/60 dark:bg-slate-800/60 px-3 py-2 shadow-sm"
                             >
                               {n.emoji ? <span className="text-base leading-none">{n.emoji}</span> : null}
-                              <span className="text-base font-bold text-slate-100 md:text-lg">{n.label}</span>
+                              <span className="text-base font-bold text-slate-900 dark:text-slate-100 md:text-lg">{n.label}</span>
                             </div>
                           );
                         })}
@@ -1089,7 +1090,7 @@ export default function NodeFlowDiagram({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="text-base font-medium text-slate-400 md:text-lg"
+                    className="text-base font-medium text-slate-600 dark:text-slate-400 md:text-lg"
                   >
                     Press <span className="font-mono font-bold">Play</span> or click a step dot to walk through the
                     diagram.

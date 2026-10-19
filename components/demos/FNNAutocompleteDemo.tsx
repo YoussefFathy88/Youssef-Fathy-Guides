@@ -118,12 +118,12 @@ export function FNNAutocompleteDemo() {
       : "—";
 
   return (
-    <section className="w-full rounded-2xl border border-zinc-800 bg-zinc-950 p-4 text-zinc-100 sm:p-6">
+    <section className="w-full rounded-2xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-4 text-zinc-900 dark:text-zinc-100 sm:p-6">
       <header className="mb-4 space-y-1">
-        <h3 className="text-base font-semibold text-zinc-100 sm:text-lg">
+        <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 sm:text-lg">
           🧱 Feedforward Network — Fixed Window Autocomplete
         </h3>
-        <p className="text-sm text-zinc-400">Window = 3 words</p>
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">Window = 3 words</p>
       </header>
 
       <div className="mb-5 flex flex-wrap items-center gap-2">
@@ -133,8 +133,8 @@ export function FNNAutocompleteDemo() {
           className={[
             "rounded-md border px-3 py-1.5 text-sm transition-all duration-300",
             phase === "data-preparation"
-              ? "border-violet-500 bg-violet-950 text-violet-200"
-              : "border-zinc-700 bg-zinc-900 text-zinc-300",
+              ? "border-violet-500 bg-violet-950 text-violet-800 dark:text-violet-200"
+              : "border-gray-300 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300",
           ].join(" ")}
         >
           1) Data Preparation
@@ -145,8 +145,8 @@ export function FNNAutocompleteDemo() {
           className={[
             "rounded-md border px-3 py-1.5 text-sm transition-all duration-300",
             phase === "training"
-              ? "border-amber-500 bg-amber-950 text-amber-200"
-              : "border-zinc-700 bg-zinc-900 text-zinc-300",
+              ? "border-amber-500 bg-amber-950 text-amber-800 dark:text-amber-200"
+              : "border-gray-300 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300",
           ].join(" ")}
         >
           2) Training
@@ -157,8 +157,8 @@ export function FNNAutocompleteDemo() {
           className={[
             "rounded-md border px-3 py-1.5 text-sm transition-all duration-300",
             phase === "inference"
-              ? "border-teal-500 bg-zinc-900 text-teal-300"
-              : "border-zinc-700 bg-zinc-900 text-zinc-300",
+              ? "border-teal-500 bg-gray-50 dark:bg-zinc-900 text-teal-700 dark:text-teal-300"
+              : "border-gray-300 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300",
           ].join(" ")}
         >
           3) Inference
@@ -167,31 +167,31 @@ export function FNNAutocompleteDemo() {
 
       {phase === "data-preparation" ? (
         <>
-          <div className="mb-5 rounded-xl border border-zinc-800 bg-zinc-900/70 p-4">
-            <p className="mb-3 text-sm text-zinc-300">
+          <div className="mb-5 rounded-xl border border-gray-200 dark:border-zinc-800 bg-gray-50/70 dark:bg-zinc-900/70 p-4">
+            <p className="mb-3 text-sm text-zinc-700 dark:text-zinc-300">
               Start from raw text, then split it into fixed-size training pairs.
             </p>
-            <div className="mb-3 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
-              <p className="mb-2 text-xs text-zinc-500">Raw text (from books/articles):</p>
-              <p className="font-mono text-sm text-zinc-200">
+            <div className="mb-3 rounded-lg border border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-900 p-3">
+              <p className="mb-2 text-xs text-zinc-600 dark:text-zinc-500">Raw text (from books/articles):</p>
+              <p className="font-mono text-sm text-zinc-900 dark:text-zinc-200">
                 In Egypt there are pyramids and the capital city is Cairo.
               </p>
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
               {TRAINING_EXAMPLES.slice(0, 4).map((example, idx) => (
-                <div key={`prep-${idx}`} className="rounded-lg border border-zinc-800 bg-zinc-900 p-2">
-                  <p className="mb-1 text-[10px] text-zinc-500">Pair {idx + 1}</p>
+                <div key={`prep-${idx}`} className="rounded-lg border border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-900 p-2">
+                  <p className="mb-1 text-[10px] text-zinc-600 dark:text-zinc-500">Pair {idx + 1}</p>
                   <div className="flex flex-wrap items-center gap-1">
                     {example.window.map((word, i) => (
                       <span
                         key={`prep-word-${idx}-${i}`}
-                        className="rounded border border-amber-500 bg-amber-950 px-1.5 py-0.5 font-mono text-xs text-amber-200"
+                        className="rounded border border-amber-500 bg-amber-950 px-1.5 py-0.5 font-mono text-xs text-amber-800 dark:text-amber-200"
                       >
                         {word}
                       </span>
                     ))}
-                    <span className="text-zinc-500">→</span>
-                    <span className="rounded border border-teal-500 bg-zinc-900 px-1.5 py-0.5 font-mono text-xs text-teal-300">
+                    <span className="text-zinc-600 dark:text-zinc-500">→</span>
+                    <span className="rounded border border-teal-500 bg-gray-50 dark:bg-zinc-900 px-1.5 py-0.5 font-mono text-xs text-teal-700 dark:text-teal-300">
                       {example.target}
                     </span>
                   </div>
@@ -202,52 +202,52 @@ export function FNNAutocompleteDemo() {
           <button
             type="button"
             onClick={() => setPhase("training")}
-            className="rounded-md border border-amber-500 bg-zinc-900 px-3 py-1.5 text-sm text-amber-200 transition-all duration-300"
+            className="rounded-md border border-amber-500 bg-gray-50 dark:bg-zinc-900 px-3 py-1.5 text-sm text-amber-800 dark:text-amber-200 transition-all duration-300"
           >
             Continue to training →
           </button>
         </>
       ) : phase === "training" ? (
         <>
-          <div className="mb-5 rounded-xl border border-zinc-800 bg-zinc-900/70 p-4">
-            <p className="mb-3 text-sm text-zinc-300">
-              The model trains on many <span className="font-mono text-amber-300">3-word windows</span> and learns to
+          <div className="mb-5 rounded-xl border border-gray-200 dark:border-zinc-800 bg-gray-50/70 dark:bg-zinc-900/70 p-4">
+            <p className="mb-3 text-sm text-zinc-700 dark:text-zinc-300">
+              The model trains on many <span className="font-mono text-amber-700 dark:text-amber-300">3-word windows</span> and learns to
               predict the next token.
             </p>
             <div className="mb-3 flex flex-wrap items-center gap-2">
               {trainingExample.window.map((word, idx) => (
                 <span
                   key={`train-window-${word}-${idx}`}
-                  className="rounded border border-amber-500 bg-amber-950 px-2 py-1 font-mono text-sm text-amber-200"
+                  className="rounded border border-amber-500 bg-amber-950 px-2 py-1 font-mono text-sm text-amber-800 dark:text-amber-200"
                 >
                   {word}
                 </span>
               ))}
-              <span className="text-zinc-500">→</span>
-              <span className="rounded border border-teal-500 bg-zinc-900 px-2 py-1 font-mono text-sm text-teal-300">
+              <span className="text-zinc-600 dark:text-zinc-500">→</span>
+              <span className="rounded border border-teal-500 bg-gray-50 dark:bg-zinc-900 px-2 py-1 font-mono text-sm text-teal-700 dark:text-teal-300">
                 {trainingExample.target}
               </span>
             </div>
-            <div className="grid gap-2 text-xs text-zinc-400 sm:grid-cols-3">
-              <div className="rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2">
+            <div className="grid gap-2 text-xs text-zinc-600 dark:text-zinc-400 sm:grid-cols-3">
+              <div className="rounded-lg border border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-900 px-3 py-2">
                 Input: fixed 3 words
               </div>
-              <div className="rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2">
+              <div className="rounded-lg border border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-900 px-3 py-2">
                 Objective: next-token accuracy
               </div>
-              <div className="rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2">
+              <div className="rounded-lg border border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-900 px-3 py-2">
                 Limitation: no memory outside window
               </div>
             </div>
           </div>
 
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-t border-zinc-800 pt-3">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 dark:border-zinc-800 pt-3">
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => setTrainingIndex((prev) => Math.max(prev - 1, 0))}
                 disabled={trainingIndex === 0}
-                className="rounded-md border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-sm text-zinc-100 transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-40"
+                className="rounded-md border border-gray-300 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-900 px-3 py-1.5 text-sm text-zinc-900 dark:text-zinc-100 transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 ← Prev
               </button>
@@ -257,18 +257,18 @@ export function FNNAutocompleteDemo() {
                   setTrainingIndex((prev) => Math.min(prev + 1, TRAINING_EXAMPLES.length - 1))
                 }
                 disabled={trainingIndex === TRAINING_EXAMPLES.length - 1}
-                className="rounded-md border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-sm text-zinc-100 transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-40"
+                className="rounded-md border border-gray-300 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-900 px-3 py-1.5 text-sm text-zinc-900 dark:text-zinc-100 transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Next →
               </button>
             </div>
-            <p className="text-sm text-zinc-400">{`Training pair ${trainingIndex + 1} of ${TRAINING_EXAMPLES.length}`}</p>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">{`Training pair ${trainingIndex + 1} of ${TRAINING_EXAMPLES.length}`}</p>
           </div>
 
           <button
             type="button"
             onClick={() => setPhase("inference")}
-            className="rounded-md border border-teal-500 bg-zinc-900 px-3 py-1.5 text-sm text-teal-300 transition-all duration-300"
+            className="rounded-md border border-teal-500 bg-gray-50 dark:bg-zinc-900 px-3 py-1.5 text-sm text-teal-700 dark:text-teal-300 transition-all duration-300"
           >
             Continue to inference →
           </button>
@@ -278,10 +278,10 @@ export function FNNAutocompleteDemo() {
       <div className="mb-5 overflow-x-auto">
         <div className="inline-flex min-w-max flex-col gap-2">
           <div className="flex items-center gap-2">
-            <span className="rounded border border-amber-400/60 bg-amber-950/70 px-2 py-0.5 text-xs text-amber-200">
+            <span className="rounded border border-amber-400/60 bg-amber-950/70 px-2 py-0.5 text-xs text-amber-800 dark:text-amber-200">
               Window
             </span>
-            <span className="text-amber-300">↓</span>
+            <span className="text-amber-700 dark:text-amber-300">↓</span>
           </div>
           <div className="flex items-center gap-2">
             {SENTENCE.map((word, idx) => {
@@ -293,8 +293,8 @@ export function FNNAutocompleteDemo() {
                   className={[
                     "font-mono rounded px-2 py-1 text-sm transition-all duration-300",
                     inWindow
-                      ? "border border-amber-400 bg-amber-950 text-amber-100"
-                      : "bg-zinc-800 text-zinc-100",
+                      ? "border border-amber-400 bg-amber-950 text-amber-800 dark:text-amber-100"
+                      : "bg-gray-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100",
                     passedWindow ? "opacity-40" : "opacity-100",
                   ].join(" ")}
                 >
@@ -306,19 +306,19 @@ export function FNNAutocompleteDemo() {
         </div>
       </div>
 
-      <div className="mb-5 grid gap-3 rounded-xl border border-zinc-800 bg-zinc-900/70 p-3 sm:grid-cols-3">
+      <div className="mb-5 grid gap-3 rounded-xl border border-gray-200 dark:border-zinc-800 bg-gray-50/70 dark:bg-zinc-900/70 p-3 sm:grid-cols-3">
         {step.windowWords.map((word, idx) => (
-          <div key={`slot-${idx}`} className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2">
-            <p className="mb-1 text-xs text-zinc-400">{`Word -${3 - idx}`}</p>
-            <p className="font-mono text-teal-300 transition-all duration-300">{word}</p>
+          <div key={`slot-${idx}`} className="rounded-lg border border-gray-300 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-900 px-3 py-2">
+            <p className="mb-1 text-xs text-zinc-600 dark:text-zinc-400">{`Word -${3 - idx}`}</p>
+            <p className="font-mono text-teal-700 dark:text-teal-300 transition-all duration-300">{word}</p>
           </div>
         ))}
-        <div className="sm:col-span-3 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2">
-          <p className="mb-1 text-xs text-zinc-400">Egypt context slot</p>
+        <div className="sm:col-span-3 rounded-lg border border-gray-300 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-900 px-3 py-2">
+          <p className="mb-1 text-xs text-zinc-600 dark:text-zinc-400">Egypt context slot</p>
           <p
             className={[
               "font-mono transition-all duration-300",
-              step.windowWords.includes("Egypt") ? "text-amber-300" : "text-zinc-500",
+              step.windowWords.includes("Egypt") ? "text-amber-700 dark:text-amber-300" : "text-zinc-600 dark:text-zinc-500",
             ].join(" ")}
           >
             {egyptSlotValue}
@@ -326,8 +326,8 @@ export function FNNAutocompleteDemo() {
         </div>
       </div>
 
-      <div className="mb-5 overflow-x-auto rounded-xl border border-zinc-800 bg-zinc-900/70 p-3">
-        <svg viewBox="0 0 340 170" className="h-44 min-w-[340px] w-full text-zinc-300">
+      <div className="mb-5 overflow-x-auto rounded-xl border border-gray-200 dark:border-zinc-800 bg-gray-50/70 dark:bg-zinc-900/70 p-3">
+        <svg viewBox="0 0 340 170" className="h-44 min-w-[340px] w-full text-zinc-700 dark:text-zinc-300">
           {INPUT_Y.flatMap((inputY) =>
             HIDDEN_Y.map((hiddenY) => (
               <line
@@ -427,8 +427,8 @@ export function FNNAutocompleteDemo() {
         className={[
           "mb-4 rounded-xl border px-4 py-3 transition-all duration-300",
           step.isFailure
-            ? "border-rose-500 bg-rose-950 text-rose-200"
-            : "border-teal-500/70 bg-zinc-900 text-teal-300",
+            ? "border-rose-500 bg-rose-950 text-rose-800 dark:text-rose-200"
+            : "border-teal-500/70 bg-gray-50 dark:bg-zinc-900 text-teal-700 dark:text-teal-300",
         ].join(" ")}
       >
         <p className="text-sm">
@@ -440,19 +440,19 @@ export function FNNAutocompleteDemo() {
           </p>
         ) : null}
         {step.isFailure ? (
-          <p className="mt-1 text-xs text-rose-300">
+          <p className="mt-1 text-xs text-rose-700 dark:text-rose-300">
             The word &quot;{EXPECTED_CONTEXT_WORD}&quot; is no longer in the fixed window. The model has no memory of it.
           </p>
         ) : null}
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-zinc-800 pt-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 dark:border-zinc-800 pt-3">
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setStepIndex((prev) => Math.max(prev - 1, 0))}
             disabled={stepIndex === 0}
-            className="rounded-md border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-sm text-zinc-100 transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-md border border-gray-300 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-900 px-3 py-1.5 text-sm text-zinc-900 dark:text-zinc-100 transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-40"
           >
             ← Prev
           </button>
@@ -460,15 +460,15 @@ export function FNNAutocompleteDemo() {
             type="button"
             onClick={() => setStepIndex((prev) => Math.min(prev + 1, STEPS.length - 1))}
             disabled={stepIndex === STEPS.length - 1}
-            className="rounded-md border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-sm text-zinc-100 transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-md border border-gray-300 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-900 px-3 py-1.5 text-sm text-zinc-900 dark:text-zinc-100 transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-40"
           >
             Next →
           </button>
         </div>
-        <p className="text-sm text-zinc-400">{`Step ${step.id} of ${STEPS.length}`}</p>
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">{`Step ${step.id} of ${STEPS.length}`}</p>
       </div>
 
-      <p className="mt-3 text-sm text-zinc-300">{step.caption}</p>
+      <p className="mt-3 text-sm text-zinc-700 dark:text-zinc-300">{step.caption}</p>
         </>
       )}
     </section>

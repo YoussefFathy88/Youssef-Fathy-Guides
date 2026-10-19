@@ -31,7 +31,7 @@ export function SessionOutlineSlide({ items = [] }: SessionOutlineSlideProps) {
   return (
     <div className="flex min-h-[28rem] w-full items-center justify-center p-8 md:p-10">
       <div className="w-full max-w-3xl">
-        <p className="mb-8 text-base font-bold uppercase tracking-widest text-violet-300 md:text-lg">
+        <p className="mb-8 text-base font-bold uppercase tracking-widest text-violet-700 dark:text-violet-300 md:text-lg">
           What we&apos;ll cover
         </p>
 
@@ -47,10 +47,10 @@ export function SessionOutlineSlide({ items = [] }: SessionOutlineSlideProps) {
               variants={itemVariants}
               className="flex items-center gap-5"
             >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-violet-600/30 ring-1 ring-violet-500/40 text-base font-bold text-violet-300 md:h-12 md:w-12 md:text-lg">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-violet-600/30 ring-1 ring-violet-500/40 text-base font-bold text-violet-700 dark:text-violet-300 md:h-12 md:w-12 md:text-lg">
                 {index + 1}
               </span>
-              <span className="text-xl font-semibold text-gray-100 md:text-2xl">
+              <span className="text-xl font-semibold text-gray-900 dark:text-gray-100 md:text-2xl">
                 {item}
               </span>
             </motion.li>

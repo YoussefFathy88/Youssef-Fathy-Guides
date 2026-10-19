@@ -28,37 +28,37 @@ const badgeColorMap: Record<
     dot: "bg-gray-400",
     border: "border-gray-400",
     glow: "shadow-gray-400/30",
-    label: "text-gray-200",
+    label: "text-gray-900 dark:text-gray-200",
   },
   teal: {
     dot: "bg-teal-400",
     border: "border-teal-400",
     glow: "shadow-teal-400/30",
-    label: "text-teal-200",
+    label: "text-teal-800 dark:text-teal-200",
   },
   amber: {
     dot: "bg-amber-400",
     border: "border-amber-400",
     glow: "shadow-amber-400/30",
-    label: "text-amber-200",
+    label: "text-amber-800 dark:text-amber-200",
   },
   violet: {
     dot: "bg-violet-400",
     border: "border-violet-400",
     glow: "shadow-violet-400/30",
-    label: "text-violet-200",
+    label: "text-violet-800 dark:text-violet-200",
   },
   rose: {
     dot: "bg-rose-400",
     border: "border-rose-400",
     glow: "shadow-rose-400/30",
-    label: "text-rose-200",
+    label: "text-rose-800 dark:text-rose-200",
   },
   blue: {
     dot: "bg-blue-400",
     border: "border-blue-400",
     glow: "shadow-blue-400/30",
-    label: "text-blue-200",
+    label: "text-blue-800 dark:text-blue-200",
   },
 };
 
@@ -165,22 +165,22 @@ export default function ModelBehaviorEvolution({
 
   return (
     <div
-      className="w-full rounded-2xl border border-gray-700 bg-gray-900 p-6 font-sans antialiased md:p-8"
+      className="w-full rounded-2xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-6 font-sans antialiased md:p-8"
       data-local-navigation="true"
     >
       {title || caption ? (
         <div className="mb-6 space-y-2">
           {title ? (
-            <p className="text-xl font-bold text-gray-100 md:text-2xl">{title}</p>
+            <p className="text-xl font-bold text-gray-900 dark:text-gray-100 md:text-2xl">{title}</p>
           ) : null}
-          {caption ? <p className="text-lg text-gray-300 md:text-xl">{caption}</p> : null}
+          {caption ? <p className="text-lg text-gray-700 dark:text-gray-300 md:text-xl">{caption}</p> : null}
         </div>
       ) : null}
 
       <div className="space-y-6">
-        <div className="rounded-xl bg-gray-950 px-5 py-4 ring-1 ring-gray-700 md:px-6 md:py-5">
-          <p className="text-base font-bold uppercase tracking-wide text-gray-300 md:text-lg">Prompt</p>
-          <p className="mt-3 font-mono text-lg leading-relaxed text-gray-100 md:text-xl">{prompt}</p>
+        <div className="rounded-xl bg-white dark:bg-gray-950 px-5 py-4 ring-1 ring-gray-300 dark:ring-gray-700 md:px-6 md:py-5">
+          <p className="text-base font-bold uppercase tracking-wide text-gray-700 dark:text-gray-300 md:text-lg">Prompt</p>
+          <p className="mt-3 font-mono text-lg leading-relaxed text-gray-900 dark:text-gray-100 md:text-xl">{prompt}</p>
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -199,7 +199,7 @@ export default function ModelBehaviorEvolution({
                   "flex flex-col rounded-xl border transition-all duration-300",
                   isActive
                     ? cn(colors.border, "border-2 shadow-lg", colors.glow)
-                    : "border-gray-700",
+                    : "border-gray-300 dark:border-gray-700",
                   isDimmed ? "opacity-40" : "opacity-100",
                 )}
               >
@@ -207,7 +207,7 @@ export default function ModelBehaviorEvolution({
                   className={cn(
                     "flex items-start gap-3 rounded-t-xl px-4 py-4 transition-transform duration-200 md:px-5",
                     headerPulse[i] ? "scale-[1.02]" : "scale-100",
-                    isActive ? "bg-gray-800/80" : "bg-gray-800/40",
+                    isActive ? "bg-gray-100/80 dark:bg-gray-800/80" : "bg-gray-100/40 dark:bg-gray-800/40",
                   )}
                 >
                   <span className={cn("mt-2 h-3 w-3 shrink-0 rounded-full", colors.dot)} />
@@ -216,17 +216,17 @@ export default function ModelBehaviorEvolution({
                       {stage.label}
                     </p>
                     {isActive ? (
-                      <p className="mt-1 text-base font-bold text-gray-400 md:text-lg">Generating…</p>
+                      <p className="mt-1 text-base font-bold text-gray-600 dark:text-gray-400 md:text-lg">Generating…</p>
                     ) : null}
                     {isComplete && !isActive ? (
-                      <p className="mt-1 text-base font-bold text-gray-400 md:text-lg">Done</p>
+                      <p className="mt-1 text-base font-bold text-gray-600 dark:text-gray-400 md:text-lg">Done</p>
                     ) : null}
                   </div>
                 </div>
 
-                <div className="min-h-[140px] flex-1 bg-gray-950 px-4 py-4 font-mono text-lg leading-relaxed text-gray-100 md:min-h-[160px] md:px-5 md:text-xl">
+                <div className="min-h-[140px] flex-1 bg-white dark:bg-gray-950 px-4 py-4 font-mono text-lg leading-relaxed text-gray-900 dark:text-gray-100 md:min-h-[160px] md:px-5 md:text-xl">
                   {displayedTokens.length === 0 ? (
-                    <span className="text-base text-gray-500 md:text-lg">
+                    <span className="text-base text-gray-600 dark:text-gray-500 md:text-lg">
                       Response will appear here…
                     </span>
                   ) : (
@@ -245,8 +245,8 @@ export default function ModelBehaviorEvolution({
                     explanationVisible[i] ? "max-h-48 opacity-100" : "max-h-0 opacity-0",
                   )}
                 >
-                  <div className="border-t border-gray-700 bg-gray-800/60 px-4 py-4 md:px-5">
-                    <p className="text-lg leading-relaxed text-gray-200 md:text-xl">{stage.explanation}</p>
+                  <div className="border-t border-gray-300 dark:border-gray-700 bg-gray-100/60 dark:bg-gray-800/60 px-4 py-4 md:px-5">
+                    <p className="text-lg leading-relaxed text-gray-900 dark:text-gray-200 md:text-xl">{stage.explanation}</p>
                   </div>
                 </div>
               </div>
@@ -262,7 +262,7 @@ export default function ModelBehaviorEvolution({
             className={cn(
               "rounded-xl px-6 py-3 text-base font-bold transition-all duration-200 md:text-lg",
               animState === "running"
-                ? "cursor-not-allowed bg-gray-800 text-gray-500"
+                ? "cursor-not-allowed bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-500"
                 : "bg-violet-600 text-white shadow-sm hover:bg-violet-500 active:bg-violet-700",
             )}
           >

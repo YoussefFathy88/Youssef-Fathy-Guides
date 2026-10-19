@@ -109,32 +109,32 @@ const ROLE_BADGES: Record<
   orchestrator: {
     bg: "bg-cyan-500/15 border-cyan-400/40",
     ring: "ring-cyan-400/50",
-    text: "text-cyan-100",
+    text: "text-cyan-800 dark:text-cyan-100",
   },
   workspace: {
     bg: "bg-blue-500/15 border-blue-400/40",
     ring: "ring-blue-400/50",
-    text: "text-blue-100",
+    text: "text-blue-800 dark:text-blue-100",
   },
   prompt: {
     bg: "bg-teal-500/15 border-teal-400/40",
     ring: "ring-teal-400/50",
-    text: "text-teal-100",
+    text: "text-teal-800 dark:text-teal-100",
   },
   provider: {
     bg: "bg-violet-500/15 border-violet-400/40",
     ring: "ring-violet-400/50",
-    text: "text-violet-100",
+    text: "text-violet-800 dark:text-violet-100",
   },
   tools: {
     bg: "bg-amber-500/15 border-amber-400/40",
     ring: "ring-amber-400/50",
-    text: "text-amber-100",
+    text: "text-amber-800 dark:text-amber-100",
   },
   action: {
     bg: "bg-rose-500/15 border-rose-400/40",
     ring: "ring-rose-400/50",
-    text: "text-rose-100",
+    text: "text-rose-800 dark:text-rose-100",
   },
 };
 
@@ -154,12 +154,12 @@ function StepPanelBody({
   return (
     <>
       <div className="flex flex-wrap items-start gap-4">
-        <span className="flex h-16 w-16 md:h-20 md:w-20 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-gray-950 text-4xl md:text-5xl">
+        <span className="flex h-16 w-16 md:h-20 md:w-20 shrink-0 items-center justify-center rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-950 text-4xl md:text-5xl">
           {step.icon}
         </span>
         <div className="flex-1 space-y-2">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="font-mono text-base md:text-lg font-bold text-gray-300">
+            <span className="font-mono text-base md:text-lg font-bold text-gray-700 dark:text-gray-300">
               Step {step.stepNumber}
             </span>
             <span className={cn("rounded-full border px-3 py-1 font-mono text-base md:text-lg font-semibold", badge.bg, badge.text)}>
@@ -171,15 +171,15 @@ function StepPanelBody({
               </span>
             )}
           </div>
-          <p className="text-xl md:text-2xl font-semibold text-gray-100 leading-snug">{step.title}</p>
+          <p className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-gray-100 leading-snug">{step.title}</p>
         </div>
       </div>
 
-      <div className="rounded-xl border border-gray-700/80 bg-gray-950 p-4 md:p-5">
-        <p className="font-mono text-base md:text-lg text-violet-300 leading-relaxed">{step.code}</p>
+      <div className="rounded-xl border border-gray-300/80 dark:border-gray-700/80 bg-white dark:bg-gray-950 p-4 md:p-5">
+        <p className="font-mono text-base md:text-lg text-violet-700 dark:text-violet-300 leading-relaxed">{step.code}</p>
       </div>
 
-      <p className="text-lg md:text-xl text-gray-200 leading-relaxed">{step.detail}</p>
+      <p className="text-lg md:text-xl text-gray-900 dark:text-gray-200 leading-relaxed">{step.detail}</p>
 
       {step.id === "prompt" && (
         <PromptMergePanel
@@ -192,11 +192,11 @@ function StepPanelBody({
       {step.id === "decision" && <AiDecisionSchemaCompact />}
 
       {step.output && step.id !== "prompt" && (
-        <div className="rounded-xl border border-gray-600 bg-gray-900 p-5 md:p-6 space-y-2">
-          <span className="font-mono text-base md:text-lg font-bold uppercase tracking-widest text-gray-400">
+        <div className="rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 p-5 md:p-6 space-y-2">
+          <span className="font-mono text-base md:text-lg font-bold uppercase tracking-widest text-gray-600 dark:text-gray-400">
             → {step.outputLabel}
           </span>
-          <pre className="whitespace-pre-wrap font-mono text-base md:text-lg text-gray-100 leading-relaxed">
+          <pre className="whitespace-pre-wrap font-mono text-base md:text-lg text-gray-900 dark:text-gray-100 leading-relaxed">
             {step.output}
           </pre>
         </div>
@@ -207,7 +207,7 @@ function StepPanelBody({
 
 function MergeArrow() {
   return (
-    <div className="flex justify-center py-2 text-2xl md:text-3xl text-teal-400" aria-hidden>
+    <div className="flex justify-center py-2 text-2xl md:text-3xl text-teal-700 dark:text-teal-400" aria-hidden>
       ↓
     </div>
   );
@@ -230,17 +230,17 @@ function UserQuestionFlow({
   return (
     <div className="rounded-2xl border border-teal-500/30 bg-teal-950/20 p-6 md:p-7 space-y-5">
       <div className="space-y-2">
-        <span className="font-mono text-base md:text-lg font-bold uppercase tracking-widest text-teal-200">
+        <span className="font-mono text-base md:text-lg font-bold uppercase tracking-widest text-teal-800 dark:text-teal-200">
           Example flow
         </span>
-        <p className="text-xl md:text-2xl font-semibold text-gray-100 leading-snug">
+        <p className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-gray-100 leading-snug">
           User writes a question — orchestrator runs Steps 1 → 4
         </p>
       </div>
 
-      <div className="rounded-xl border border-teal-600/30 bg-gray-950/60 p-5 md:p-6">
-        <span className="font-mono text-base md:text-lg font-bold text-gray-400">message =</span>
-        <p className="mt-2 text-lg md:text-xl text-teal-50 leading-relaxed">&quot;{message}&quot;</p>
+      <div className="rounded-xl border border-teal-600/30 bg-white/60 dark:bg-gray-950/60 p-5 md:p-6">
+        <span className="font-mono text-base md:text-lg font-bold text-gray-600 dark:text-gray-400">message =</span>
+        <p className="mt-2 text-lg md:text-xl text-teal-800 dark:text-teal-50 leading-relaxed">&quot;{message}&quot;</p>
       </div>
 
       <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3">
@@ -256,10 +256,10 @@ function UserQuestionFlow({
                 className={cn(
                   "flex items-center gap-2 rounded-full border-2 px-4 py-2.5 md:px-5 md:py-3 font-mono text-base md:text-lg font-semibold transition-colors",
                   highlighted
-                    ? "border-teal-400 bg-teal-500/20 text-teal-100 ring-2 ring-teal-400/40"
+                    ? "border-teal-400 bg-teal-500/20 text-teal-800 dark:text-teal-100 ring-2 ring-teal-400/40"
                     : done
-                      ? "border-gray-600 bg-gray-800/80 text-gray-300"
-                      : "border-gray-700 bg-gray-900/60 text-gray-500 opacity-40",
+                      ? "border-gray-300 dark:border-gray-600 bg-gray-100/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300"
+                      : "border-gray-300 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-900/60 text-gray-600 dark:text-gray-500 opacity-40",
                   (i === 0 || highlighted || done) && "opacity-100",
                 )}
               >
@@ -296,7 +296,7 @@ function PromptMergePanel({
 
   return (
     <div className="space-y-3">
-      <p className="text-lg md:text-xl font-semibold text-teal-100">
+      <p className="text-lg md:text-xl font-semibold text-teal-800 dark:text-teal-100">
         Three inputs merge into one prompt
       </p>
       <div className="grid gap-3 md:gap-4">
@@ -305,10 +305,10 @@ function PromptMergePanel({
             key={block.label}
             className={cn("rounded-xl border p-4 md:p-5 space-y-2", block.accent)}
           >
-            <span className="font-mono text-base md:text-lg font-bold uppercase tracking-widest text-gray-200">
+            <span className="font-mono text-base md:text-lg font-bold uppercase tracking-widest text-gray-900 dark:text-gray-200">
               {block.emoji} {block.label}
             </span>
-            <pre className="whitespace-pre-wrap font-mono text-base md:text-lg text-gray-100 leading-relaxed">
+            <pre className="whitespace-pre-wrap font-mono text-base md:text-lg text-gray-900 dark:text-gray-100 leading-relaxed">
               {block.content}
             </pre>
           </div>
@@ -316,10 +316,10 @@ function PromptMergePanel({
       </div>
       <MergeArrow />
       <div className="rounded-xl border-2 border-teal-400/50 bg-teal-950/25 p-4 md:p-5 space-y-2">
-        <span className="font-mono text-base md:text-lg font-bold uppercase tracking-widest text-teal-200">
+        <span className="font-mono text-base md:text-lg font-bold uppercase tracking-widest text-teal-800 dark:text-teal-200">
           → Combined user_prompt
         </span>
-        <pre className="whitespace-pre-wrap font-mono text-base md:text-lg text-gray-100 leading-relaxed">
+        <pre className="whitespace-pre-wrap font-mono text-base md:text-lg text-gray-900 dark:text-gray-100 leading-relaxed">
           {`[SYSTEM] ${systemPrompt.split("\n")[0]}…\n\n[TASKS] 3 tasks loaded (ids 1–3)…\n\n[USER] ${userMessage}`}
         </pre>
       </div>
@@ -357,9 +357,9 @@ export default function AiTaskflowOrchestrator({
   }, [autoPlay, playing, advance, cycleMs]);
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-gray-950/60 p-8 md:p-10 space-y-8">
+    <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white/60 dark:bg-gray-950/60 p-8 md:p-10 space-y-8">
       {title && (
-        <h3 className="text-xl md:text-2xl font-semibold text-gray-100 leading-snug">{title}</h3>
+        <h3 className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-gray-100 leading-snug">{title}</h3>
       )}
 
       <UserQuestionFlow
@@ -382,12 +382,12 @@ export default function AiTaskflowOrchestrator({
             🎛️
           </span>
           <div className="flex-1 min-w-0 space-y-2">
-            <p className="font-mono text-base md:text-lg font-bold uppercase tracking-widest text-cyan-200">
+            <p className="font-mono text-base md:text-lg font-bold uppercase tracking-widest text-cyan-800 dark:text-cyan-200">
               Orchestrator
             </p>
-            <p className="min-h-[3.25rem] md:min-h-[3.5rem] text-lg md:text-xl text-cyan-50 leading-relaxed flex items-center">
+            <p className="min-h-[3.25rem] md:min-h-[3.5rem] text-lg md:text-xl text-cyan-800 dark:text-cyan-50 leading-relaxed flex items-center">
               Managing{" "}
-              <span className="font-semibold text-cyan-100 ml-1">
+              <span className="font-semibold text-cyan-800 dark:text-cyan-100 ml-1">
                 {step.tabLabel} — {step.iconLabel}
               </span>
             </p>
@@ -408,8 +408,8 @@ export default function AiTaskflowOrchestrator({
                   isActive
                     ? cn(sBadge.bg, sBadge.text, "ring-2", sBadge.ring, "opacity-100")
                     : isPast
-                      ? "border-gray-700 text-gray-500 opacity-70"
-                      : "border-gray-700 text-gray-500 opacity-35",
+                      ? "border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-500 opacity-70"
+                      : "border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-500 opacity-35",
                 )}
               >
                 <span className="text-lg">{s.icon}</span>
@@ -461,14 +461,14 @@ export default function AiTaskflowOrchestrator({
                 "rounded-xl border-2 px-4 py-4 md:py-5 text-left transition-all duration-200",
                 isActive
                   ? cn(sBadge.bg, sBadge.ring, "ring-2")
-                  : "border-gray-800 bg-gray-900/50 hover:border-gray-600 hover:bg-gray-900",
+                  : "border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-900",
               )}
             >
               <div className="flex items-center gap-3">
                 <span className="text-2xl md:text-3xl">{s.icon}</span>
                 <div className="space-y-0.5 min-w-0">
-                  <p className="font-mono text-base md:text-lg font-bold text-gray-200">{s.tabLabel}</p>
-                  <p className={cn("text-base md:text-lg font-semibold truncate", isActive ? sBadge.text : "text-gray-500")}>
+                  <p className="font-mono text-base md:text-lg font-bold text-gray-900 dark:text-gray-200">{s.tabLabel}</p>
+                  <p className={cn("text-base md:text-lg font-semibold truncate", isActive ? sBadge.text : "text-gray-600 dark:text-gray-500")}>
                     {s.iconLabel}
                   </p>
                 </div>
@@ -512,7 +512,7 @@ export default function AiTaskflowOrchestrator({
         })}
       </div>
 
-      <p className="text-base md:text-lg text-gray-400">
+      <p className="text-base md:text-lg text-gray-600 dark:text-gray-400">
         {autoPlay
           ? "Use Play to cycle steps, or tap a tab"
           : "Tap a step tab — orchestrator highlights the step you select"}
@@ -521,7 +521,7 @@ export default function AiTaskflowOrchestrator({
         <button
           type="button"
           onClick={() => setPlaying((p) => !p)}
-          className="font-mono text-base md:text-lg text-gray-200 hover:text-white transition-colors py-3 px-5 rounded-lg border border-gray-600 bg-gray-900"
+          className="font-mono text-base md:text-lg text-gray-900 dark:text-gray-200 hover:text-gray-950 dark:hover:text-white transition-colors py-3 px-5 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900"
         >
           {playing ? "⏸ Pause tour" : "▶ Play all steps"}
         </button>

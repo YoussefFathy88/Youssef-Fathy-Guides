@@ -2,11 +2,11 @@ import { Container } from "@/components/ui/container";
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-white/10 bg-slate-950/60">
-      <Container className="flex flex-col gap-4 py-6 text-sm text-slate-400 sm:flex-row sm:items-end sm:justify-between">
+    <footer className="border-t border-border-subtle bg-background-elevated">
+      <Container className="flex flex-col gap-4 py-6 text-base text-muted-foreground sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1">
-          <p className="text-white">The Software Story</p>
-          <p className="text-xs text-slate-500">
+          <p className="font-semibold text-foreground">The Software Story</p>
+          <p className="text-sm text-muted-foreground">
             Copyright (c) Youssef Fathy. All rights reserved.
           </p>
         </div>

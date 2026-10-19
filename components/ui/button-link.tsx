@@ -21,10 +21,10 @@ export function ButtonLink({
     <Link
       href={href}
       className={cn(
-        "inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold transition duration-300 hover:-translate-y-0.5",
+        "inline-flex items-center justify-center rounded-full px-5 py-3 text-base font-semibold md:text-lg transition duration-300 hover:-translate-y-0.5",
         variant === "primary"
-          ? "border border-sky-400/20 bg-sky-500/15 text-sky-50 shadow-[0_20px_45px_-24px_rgba(96,165,250,0.75)] hover:border-sky-300/35 hover:bg-sky-500/22"
-          : "border border-white/10 bg-white/5 text-white hover:border-white/20 hover:bg-white/10",
+          ? "bg-brand text-white shadow-sm hover:bg-brand-hover"
+          : "border border-border-subtle bg-surface text-foreground hover:border-brand hover:text-brand-text",
         className,
       )}
     >

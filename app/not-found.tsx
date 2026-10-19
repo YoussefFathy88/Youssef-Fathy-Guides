@@ -12,7 +12,7 @@ export default function NotFound() {
           <h1 className="mt-6 text-4xl font-semibold sm:text-5xl">
             This session has not been added to the library yet.
           </h1>
-          <p className="mt-4 max-w-2xl text-lg text-slate-300">
+          <p className="mt-4 max-w-2xl text-lg text-slate-700 dark:text-slate-300">
             The route is ready, but there is no matching session configuration in the
             data layer yet.
           </p>

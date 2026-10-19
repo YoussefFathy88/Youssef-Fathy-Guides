@@ -13,8 +13,8 @@ function formatVector(values: readonly number[]): string {
 
 export function LayerNormMini({ reducedMotion }: { reducedMotion: boolean }) {
   const vectorClass =
-    "whitespace-nowrap font-mono text-2xl font-bold tabular-nums leading-none tracking-tight text-white md:text-4xl lg:text-5xl";
-  const labelClass = "text-xl font-bold text-slate-200 md:text-2xl";
+    "whitespace-nowrap font-mono text-2xl font-bold tabular-nums leading-none tracking-tight text-gray-950 dark:text-white md:text-4xl lg:text-5xl";
+  const labelClass = "text-xl font-bold text-slate-900 dark:text-slate-200 md:text-2xl";
 
   return (
     <motion.div
@@ -24,7 +24,7 @@ export function LayerNormMini({ reducedMotion }: { reducedMotion: boolean }) {
       transition={{ duration: 0.3 }}
     >
       <motion.div
-        className="w-full max-w-3xl rounded-2xl border border-white/15 bg-white/[0.06] px-6 py-8 text-center md:px-10 md:py-10"
+        className="w-full max-w-3xl rounded-2xl border border-gray-200 dark:border-white/15 bg-gray-900/[0.04] dark:bg-white/[0.06] px-6 py-8 text-center md:px-10 md:py-10"
         initial={reducedMotion ? false : { opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}

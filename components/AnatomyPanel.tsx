@@ -36,7 +36,7 @@ export function AnatomyPanel({ module, onClose }: AnatomyPanelProps) {
         transition: "transform 300ms ease-out",
         willChange: "transform",
       }}
-      className="flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0D1424]"
+      className="flex flex-col overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 bg-[#0D1424]"
       aria-hidden={!isOpen}
     >
       {module ? <PanelContent module={module} /> : <PanelPlaceholder />}
@@ -47,7 +47,7 @@ export function AnatomyPanel({ module, onClose }: AnatomyPanelProps) {
 function PanelPlaceholder() {
   return (
     <div className="flex h-full flex-col items-center justify-center gap-4 p-8 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-white/[0.04]">
+      <div className="flex h-16 w-16 items-center justify-center rounded-full border border-gray-200 dark:border-white/10 bg-gray-900/[0.04] dark:bg-white/[0.04]">
         <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
           <circle cx="14" cy="14" r="10" stroke="rgba(148,163,184,0.3)" strokeWidth="1.5" />
           <circle cx="14" cy="14" r="4" stroke="rgba(148,163,184,0.3)" strokeWidth="1.5" />
@@ -58,7 +58,7 @@ function PanelPlaceholder() {
         </svg>
       </div>
       <div className="space-y-1">
-        <p className="text-sm font-medium text-slate-400">Select a body part</p>
+        <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Select a body part</p>
         <p className="text-xs text-slate-600">Click any region on the agent to explore its sessions</p>
       </div>
     </div>
@@ -72,7 +72,7 @@ function PanelContent({ module }: { module: AnatomyModule }) {
     <>
       {/* Header */}
       <div
-        className="shrink-0 border-b border-white/10 p-6"
+        className="shrink-0 border-b border-gray-200 dark:border-white/10 p-6"
         style={{
           background: `linear-gradient(135deg, ${module.color}18 0%, transparent 60%)`,
           borderLeft: `4px solid ${module.color}`,
@@ -84,7 +84,7 @@ function PanelContent({ module }: { module: AnatomyModule }) {
               <span className="text-2xl" role="img" aria-label={module.label}>
                 {module.emoji}
               </span>
-              <h2 className="text-xl font-bold text-white">{module.label}</h2>
+              <h2 className="text-xl font-bold text-gray-950 dark:text-white">{module.label}</h2>
             </div>
             <p className="text-sm font-normal" style={{ color: module.color }}>
               {module.subtitle}
@@ -126,7 +126,7 @@ function PanelContent({ module }: { module: AnatomyModule }) {
                 <li key={session.id}>
                   <Link
                     href={`/sessions/${session.slug}` as Route}
-                    className="group flex items-start gap-3 rounded-xl border border-transparent p-3 transition-all duration-200 hover:border-white/10 hover:bg-white/[0.04]"
+                    className="group flex items-start gap-3 rounded-xl border border-transparent p-3 transition-all duration-200 hover:border-gray-200 dark:hover:border-white/10 hover:bg-gray-900/[0.04] dark:hover:bg-white/[0.04]"
                   >
                     <span
                       className="mt-0.5 shrink-0 text-xs font-mono font-semibold tabular-nums"
@@ -134,7 +134,7 @@ function PanelContent({ module }: { module: AnatomyModule }) {
                     >
                       {index}
                     </span>
-                    <span className="text-sm leading-snug text-[#F1F5F9] transition-colors group-hover:text-white">
+                    <span className="text-sm leading-snug text-[#F1F5F9] transition-colors group-hover:text-gray-950 dark:group-hover:text-white">
                       {session.title}
                     </span>
                     <svg
@@ -167,7 +167,7 @@ function PanelContent({ module }: { module: AnatomyModule }) {
                   >
                     {index}
                   </span>
-                  <span className="text-sm leading-snug text-slate-500">{session.title}</span>
+                  <span className="text-sm leading-snug text-slate-600 dark:text-slate-500">{session.title}</span>
                   <span
                     className="ml-auto mt-0.5 shrink-0 rounded-full px-2 py-0.5 text-[9px] font-medium uppercase tracking-wider"
                     style={{

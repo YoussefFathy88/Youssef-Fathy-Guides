@@ -24,7 +24,7 @@ export function AnatomySection() {
 
   return (
     <section
-      className="relative overflow-hidden rounded-[28px] border border-white/10"
+      className="dark relative overflow-hidden rounded-[28px] border border-gray-200 dark:border-white/10" /* glowing robot stage: always dark */
       style={{
         background: "#050B18",
         backgroundImage:
@@ -68,7 +68,7 @@ export function AnatomySection() {
                 background: "linear-gradient(90deg, transparent, #00E5FF)",
               }}
             />
-            <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-slate-500">
+            <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-slate-600 dark:text-slate-500">
               Agent Anatomy
             </p>
             <div
@@ -78,10 +78,10 @@ export function AnatomySection() {
               }}
             />
           </div>
-          <h2 className="text-center text-2xl font-semibold text-white sm:text-3xl">
+          <h2 className="text-center text-2xl font-semibold text-gray-950 dark:text-white sm:text-3xl">
             AI Agent Story
           </h2>
-          <p className="text-center text-sm text-slate-500">
+          <p className="text-center text-sm text-slate-600 dark:text-slate-500">
             Click a robot body part to explore and open the available sessions.
           </p>
         </div>

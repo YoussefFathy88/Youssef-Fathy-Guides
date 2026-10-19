@@ -25,20 +25,20 @@ function WhyPanel() {
       <PanelTitle>Every session starts cold — without rules, the AI has no memory of your standards.</PanelTitle>
       <div className="grid gap-4 md:grid-cols-2">
         <div className="rounded-xl border-2 border-rose-500/40 bg-rose-950/20 p-4 md:p-5">
-          <p className="text-base font-bold text-rose-300 md:text-lg">No rules — generic output</p>
-          <pre className="mt-2 whitespace-pre-wrap font-mono text-lg text-gray-200 md:text-xl">
+          <p className="text-base font-bold text-rose-700 dark:text-rose-300 md:text-lg">No rules — generic output</p>
+          <pre className="mt-2 whitespace-pre-wrap font-mono text-lg text-gray-900 dark:text-gray-200 md:text-xl">
 {`function get_user_data(id) {
   return db.query('SELECT * FROM users...')
 }`}
           </pre>
         </div>
         <div className="rounded-xl border-2 border-teal-400/50 bg-teal-950/20 p-4 md:p-5">
-          <p className="text-base font-bold text-teal-300 md:text-lg">With rules — matches project style</p>
+          <p className="text-base font-bold text-teal-700 dark:text-teal-300 md:text-lg">With rules — matches project style</p>
           {!showRules ? (
             <button
               type="button"
               onClick={() => setShowRules(true)}
-              className="mt-3 rounded-lg border-2 border-teal-400/60 bg-teal-950/40 px-4 py-2 text-base font-bold text-teal-100 md:text-lg"
+              className="mt-3 rounded-lg border-2 border-teal-400/60 bg-teal-950/40 px-4 py-2 text-base font-bold text-teal-800 dark:text-teal-100 md:text-lg"
             >
               Apply project rules →
             </button>
@@ -46,7 +46,7 @@ function WhyPanel() {
             <motion.pre
               initial={reducedMotion ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="mt-2 whitespace-pre-wrap font-mono text-lg text-gray-200 md:text-xl"
+              className="mt-2 whitespace-pre-wrap font-mono text-lg text-gray-900 dark:text-gray-200 md:text-xl"
             >
 {`export async function getUserById(userId: string) {
   return userService.findById(userId)
@@ -85,8 +85,8 @@ function TypesPanel() {
             transition={{ duration: 0.3, delay: reducedMotion ? 0 : i * 0.12 }}
             className="rounded-xl border-2 border-teal-400/40 bg-teal-950/15 p-4"
           >
-            <p className="text-lg font-bold text-teal-200 md:text-xl">{rule.label}</p>
-            <p className="mt-1 text-lg text-gray-100 md:text-xl">{rule.example}</p>
+            <p className="text-lg font-bold text-teal-800 dark:text-teal-200 md:text-xl">{rule.label}</p>
+            <p className="mt-1 text-lg text-gray-900 dark:text-gray-100 md:text-xl">{rule.example}</p>
           </motion.div>
         ))}
       </div>
@@ -109,8 +109,8 @@ function WherePanel() {
   return (
     <div className="flex flex-1 flex-col gap-4">
       <PanelTitle>Rules live in the repo — committed, so the whole team benefits.</PanelTitle>
-      <div className="flex flex-col gap-2 rounded-xl border border-gray-700 bg-gray-950/70 p-4 font-mono text-lg md:text-xl">
-        <p className="text-gray-400">project/</p>
+      <div className="flex flex-col gap-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-950/70 p-4 font-mono text-lg md:text-xl">
+        <p className="text-gray-600 dark:text-gray-400">project/</p>
         {FILE_TREE.map((f) => (
           <button
             key={f.id}
@@ -118,7 +118,7 @@ function WherePanel() {
             onClick={() => setActive(f.id)}
             className={cn(
               "ml-4 flex items-center gap-2 rounded-lg px-2 py-1 text-left transition",
-              active === f.id ? "bg-violet-950/50 text-violet-200" : "text-gray-200 hover:bg-gray-900",
+              active === f.id ? "bg-violet-950/50 text-violet-800 dark:text-violet-200" : "text-gray-900 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-900",
             )}
           >
             <span>├─</span>
@@ -133,7 +133,7 @@ function WherePanel() {
           </Callout>
         </motion.div>
       )}
-      <p className="text-lg text-gray-300 md:text-xl">Click a file above to see which tool loads it automatically.</p>
+      <p className="text-lg text-gray-700 dark:text-gray-300 md:text-xl">Click a file above to see which tool loads it automatically.</p>
     </div>
   );
 }

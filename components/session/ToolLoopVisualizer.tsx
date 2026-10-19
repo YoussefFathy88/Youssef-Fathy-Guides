@@ -15,7 +15,7 @@ const TOOLS = [
     color: {
       ring: "ring-violet-400/60",
       bg: "bg-violet-500/15 border-violet-400/40",
-      label: "text-violet-200",
+      label: "text-violet-800 dark:text-violet-200",
       glow: "shadow-[0_0_28px_4px_rgba(139,92,246,0.45)]",
       dot: "bg-violet-400",
     },
@@ -28,7 +28,7 @@ const TOOLS = [
     color: {
       ring: "ring-amber-400/60",
       bg: "bg-amber-500/15 border-amber-400/40",
-      label: "text-amber-200",
+      label: "text-amber-800 dark:text-amber-200",
       glow: "shadow-[0_0_28px_4px_rgba(245,158,11,0.35)]",
       dot: "bg-amber-400",
     },
@@ -41,7 +41,7 @@ const TOOLS = [
     color: {
       ring: "ring-sky-400/60",
       bg: "bg-sky-500/15 border-sky-400/40",
-      label: "text-sky-200",
+      label: "text-sky-800 dark:text-sky-200",
       glow: "shadow-[0_0_28px_4px_rgba(56,189,248,0.35)]",
       dot: "bg-sky-400",
     },
@@ -75,7 +75,7 @@ function ToolCard({
         "rounded-2xl border-2 px-5 py-4 flex items-center gap-4 transition-all duration-300",
         active
           ? cn(tool.color.bg, "ring-2", tool.color.ring, tool.color.glow)
-          : "border-gray-700/60 bg-gray-900/60",
+          : "border-gray-300/60 dark:border-gray-700/60 bg-gray-50/60 dark:bg-gray-900/60",
       )}
     >
       <span className="text-3xl md:text-4xl shrink-0">{tool.icon}</span>
@@ -83,12 +83,12 @@ function ToolCard({
         <p
           className={cn(
             "font-mono text-base md:text-lg font-bold leading-tight",
-            active ? tool.color.label : "text-gray-300",
+            active ? tool.color.label : "text-gray-700 dark:text-gray-300",
           )}
         >
           {tool.name}
         </p>
-        <p className="text-base md:text-lg text-gray-400 mt-0.5 leading-snug">
+        <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 mt-0.5 leading-snug">
           {tool.what}
         </p>
       </div>
@@ -112,8 +112,8 @@ function UserBubble({ message }: { message: string }) {
       className="flex items-start gap-3"
     >
       <span className="text-2xl md:text-3xl shrink-0 mt-0.5">👤</span>
-      <div className="rounded-2xl rounded-tl-sm border border-gray-600 bg-gray-800/80 px-5 py-4 max-w-sm">
-        <p className="text-lg md:text-xl text-gray-100 leading-snug">{message}</p>
+      <div className="rounded-2xl rounded-tl-sm border border-gray-300 dark:border-gray-600 bg-gray-100/80 dark:bg-gray-800/80 px-5 py-4 max-w-sm">
+        <p className="text-lg md:text-xl text-gray-900 dark:text-gray-100 leading-snug">{message}</p>
       </div>
     </motion.div>
   );
@@ -128,7 +128,7 @@ function ModelBubble({ content }: { content: string }) {
       className="flex items-start gap-3 justify-end"
     >
       <div className="rounded-2xl rounded-tr-sm border border-violet-500/40 bg-violet-500/10 px-5 py-4 max-w-sm">
-        <p className="text-lg md:text-xl text-violet-100 leading-snug">{content}</p>
+        <p className="text-lg md:text-xl text-violet-800 dark:text-violet-100 leading-snug">{content}</p>
       </div>
       <span className="text-2xl md:text-3xl shrink-0 mt-0.5">🤖</span>
     </motion.div>
@@ -138,7 +138,7 @@ function ModelBubble({ content }: { content: string }) {
 function FlowArrow({
   label,
   dir = "down",
-  color = "text-gray-400",
+  color = "text-gray-600 dark:text-gray-400",
 }: {
   label?: string;
   dir?: "down" | "right";
@@ -167,13 +167,13 @@ function VisualRegister({ message }: { message: string }) {
   return (
     <div className="space-y-5">
       <UserBubble message={message} />
-      <FlowArrow label="You send your message + tools" color="text-teal-400" />
+      <FlowArrow label="You send your message + tools" color="text-teal-700 dark:text-teal-400" />
       <div className="space-y-3">
         {TOOLS.map((t, i) => (
           <ToolCard key={t.id} tool={t} active={false} faded={false} delay={i * 0.12} />
         ))}
       </div>
-      <p className="text-center text-base md:text-lg text-gray-400 italic">
+      <p className="text-center text-base md:text-lg text-gray-600 dark:text-gray-400 italic">
         3 tools available in this session
       </p>
     </div>
@@ -189,7 +189,7 @@ function VisualDecide({ message }: { message: string }) {
         <motion.div
           animate={{ opacity: [0.5, 1, 0.5] }}
           transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
-          className="text-lg md:text-xl font-semibold text-violet-300"
+          className="text-lg md:text-xl font-semibold text-violet-700 dark:text-violet-300"
         >
           Model picks the right tool…
         </motion.div>
@@ -212,7 +212,7 @@ function VisualExecute() {
   return (
     <div className="space-y-4">
       <ToolCard tool={TOOLS[0]} active={true} faded={false} />
-      <FlowArrow label="Your code runs it" color="text-amber-400" />
+      <FlowArrow label="Your code runs it" color="text-amber-700 dark:text-amber-400" />
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -221,14 +221,14 @@ function VisualExecute() {
       >
         <div className="flex items-center gap-3">
           <span className="text-3xl md:text-4xl">⚙️</span>
-          <p className="text-lg md:text-xl font-bold text-amber-200">Your Application</p>
+          <p className="text-lg md:text-xl font-bold text-amber-800 dark:text-amber-200">Your Application</p>
         </div>
-        <FlowArrow label="writes to" color="text-gray-400" />
+        <FlowArrow label="writes to" color="text-gray-600 dark:text-gray-400" />
         <div className="flex items-center gap-3">
           <span className="text-3xl md:text-4xl">🗄️</span>
           <div>
-            <p className="text-lg md:text-xl font-bold text-gray-100">Database</p>
-            <p className="text-base md:text-lg text-gray-400">Model never touches this directly</p>
+            <p className="text-lg md:text-xl font-bold text-gray-900 dark:text-gray-100">Database</p>
+            <p className="text-base md:text-lg text-gray-600 dark:text-gray-400">Model never touches this directly</p>
           </div>
         </div>
       </motion.div>
@@ -247,7 +247,7 @@ function VisualReturn() {
       >
         <div className="flex items-center gap-3">
           <span className="text-3xl md:text-4xl">✅</span>
-          <p className="text-lg md:text-xl font-bold text-emerald-200">Task saved to database</p>
+          <p className="text-lg md:text-xl font-bold text-emerald-800 dark:text-emerald-200">Task saved to database</p>
         </div>
         <div className="grid grid-cols-2 gap-3 pt-1">
           {[
@@ -256,17 +256,17 @@ function VisualReturn() {
             { label: "status", value: "todo" },
             { label: "due", value: "24 May 2026" },
           ].map((row) => (
-            <div key={row.label} className="rounded-xl border border-emerald-700/40 bg-gray-900/60 px-4 py-3">
-              <p className="text-base font-semibold text-gray-400 uppercase tracking-wide">{row.label}</p>
-              <p className="text-base md:text-lg text-gray-100 mt-0.5 leading-snug">{row.value}</p>
+            <div key={row.label} className="rounded-xl border border-emerald-700/40 bg-gray-50/60 dark:bg-gray-900/60 px-4 py-3">
+              <p className="text-base font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">{row.label}</p>
+              <p className="text-base md:text-lg text-gray-900 dark:text-gray-100 mt-0.5 leading-snug">{row.value}</p>
             </div>
           ))}
         </div>
       </motion.div>
-      <FlowArrow label="You send this back to the model" color="text-teal-400" />
+      <FlowArrow label="You send this back to the model" color="text-teal-700 dark:text-teal-400" />
       <div className="flex items-center justify-center gap-3">
         <span className="text-3xl md:text-4xl">🤖</span>
-        <p className="text-lg md:text-xl text-gray-300">Model now sees the real record</p>
+        <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300">Model now sees the real record</p>
       </div>
     </div>
   );
@@ -282,7 +282,7 @@ function VisualAnswer() {
         transition={{ duration: 0.4, delay: 0.35 }}
         className="rounded-2xl border border-violet-500/30 bg-violet-950/25 px-5 py-4 space-y-3"
       >
-        <p className="text-base md:text-lg font-bold uppercase tracking-widest text-violet-300">
+        <p className="text-base md:text-lg font-bold uppercase tracking-widest text-violet-700 dark:text-violet-300">
           Why this works
         </p>
         {[
@@ -291,8 +291,8 @@ function VisualAnswer() {
           "The loop continues for multi-step agents",
         ].map((point) => (
           <div key={point} className="flex items-start gap-3">
-            <span className="text-lg md:text-xl text-violet-400 shrink-0 mt-0.5">→</span>
-            <p className="text-lg md:text-xl text-gray-200 leading-snug">{point}</p>
+            <span className="text-lg md:text-xl text-violet-700 dark:text-violet-400 shrink-0 mt-0.5">→</span>
+            <p className="text-lg md:text-xl text-gray-900 dark:text-gray-200 leading-snug">{point}</p>
           </div>
         ))}
       </motion.div>
@@ -354,12 +354,12 @@ const DEFAULT_STEPS: ToolStep[] = [
 ];
 
 const ACTOR_META = {
-  user: { label: "YOU", icon: "👤", badge: "bg-gray-700/80 text-gray-200 border-gray-600" },
-  model: { label: "MODEL", icon: "🤖", badge: "bg-violet-500/20 text-violet-200 border-violet-500/40" },
+  user: { label: "YOU", icon: "👤", badge: "bg-gray-200/80 dark:bg-gray-700/80 text-gray-900 dark:text-gray-200 border-gray-300 dark:border-gray-600" },
+  model: { label: "MODEL", icon: "🤖", badge: "bg-violet-500/20 text-violet-800 dark:text-violet-200 border-violet-500/40" },
   "your-code": {
     label: "YOUR CODE",
     icon: "⚙️",
-    badge: "bg-amber-500/20 text-amber-200 border-amber-500/40",
+    badge: "bg-amber-500/20 text-amber-800 dark:text-amber-200 border-amber-500/40",
   },
 } as const;
 
@@ -452,10 +452,10 @@ export default function ToolLoopVisualizer({
       initial={reduced ? false : { opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className="w-full rounded-2xl border border-white/10 bg-gray-950/70 p-8 md:p-10 space-y-8"
+      className="w-full rounded-2xl border border-gray-200 dark:border-white/10 bg-white/70 dark:bg-gray-950/70 p-8 md:p-10 space-y-8"
     >
       {title && (
-        <h2 className="text-xl md:text-2xl font-semibold text-gray-100 leading-snug">{title}</h2>
+        <h2 className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-gray-100 leading-snug">{title}</h2>
       )}
 
       {/* Step dots + counter */}
@@ -478,7 +478,7 @@ export default function ToolLoopVisualizer({
             />
           );
         })}
-        <span className="ml-auto font-mono text-base md:text-lg font-semibold text-gray-500">
+        <span className="ml-auto font-mono text-base md:text-lg font-semibold text-gray-600 dark:text-gray-500">
           {current + 1} / {steps.length}
         </span>
       </div>
@@ -494,13 +494,13 @@ export default function ToolLoopVisualizer({
           <span className="text-xl md:text-2xl leading-none">{actor.icon}</span>
           {actor.label}
         </span>
-        <span className="text-xl md:text-2xl font-semibold text-gray-100 leading-snug">
+        <span className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-gray-100 leading-snug">
           {step.label}
         </span>
       </div>
 
       {/* Visual panel */}
-      <div className="relative overflow-hidden rounded-2xl border border-white/8 bg-gray-900/60">
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 dark:border-white/8 bg-gray-50/60 dark:bg-gray-900/60">
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={step.id}
@@ -518,7 +518,7 @@ export default function ToolLoopVisualizer({
       </div>
 
       {/* Detail */}
-      <p className="text-lg md:text-xl text-gray-200 leading-relaxed">{step.detail}</p>
+      <p className="text-lg md:text-xl text-gray-900 dark:text-gray-200 leading-relaxed">{step.detail}</p>
 
       {/* Controls */}
       <div className="flex flex-wrap items-center gap-3">
@@ -526,7 +526,7 @@ export default function ToolLoopVisualizer({
           type="button"
           disabled={current === 0}
           onClick={() => { setPlaying(false); go(current - 1); }}
-          className="flex min-h-[3rem] items-center gap-2 rounded-xl border border-gray-700 bg-gray-900 px-5 py-3 text-base md:text-lg font-medium text-gray-200 transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-30"
+          className="flex min-h-[3rem] items-center gap-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-5 py-3 text-base md:text-lg font-medium text-gray-900 dark:text-gray-200 transition hover:bg-gray-100 dark:hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-30"
         >
           ← Prev
         </button>
@@ -535,7 +535,7 @@ export default function ToolLoopVisualizer({
           type="button"
           disabled={isLast && !playing}
           onClick={() => { setPlaying(false); stepForward(); }}
-          className="flex min-h-[3rem] items-center gap-2 rounded-xl border border-gray-700 bg-gray-900 px-5 py-3 text-base md:text-lg font-medium text-gray-200 transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-30"
+          className="flex min-h-[3rem] items-center gap-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-5 py-3 text-base md:text-lg font-medium text-gray-900 dark:text-gray-200 transition hover:bg-gray-100 dark:hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-30"
         >
           Step →
         </button>
@@ -553,7 +553,7 @@ export default function ToolLoopVisualizer({
           className={cn(
             "flex min-h-[3rem] items-center gap-2 rounded-xl px-5 py-3 text-base md:text-lg font-semibold transition",
             playing
-              ? "bg-gray-700 text-gray-200 hover:bg-gray-600"
+              ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-200 hover:bg-gray-600"
               : "bg-violet-600 text-white hover:bg-violet-700",
           )}
         >
@@ -561,7 +561,7 @@ export default function ToolLoopVisualizer({
         </button>
 
         {isLast && (
-          <span className="ml-auto text-base md:text-lg font-medium text-gray-500">
+          <span className="ml-auto text-base md:text-lg font-medium text-gray-600 dark:text-gray-500">
             ↩ loop repeats for multi-step agents
           </span>
         )}
