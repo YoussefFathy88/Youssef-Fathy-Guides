@@ -1,0 +1,123 @@
+---
+title: "Building Apps in the AI Era: Lessons from Groo"
+slug: building-apps-ai-era
+order: 2
+status: published
+date: 2026-10-19
+author: Youssef Mohamed Fathy
+summary: What I learned building my app, Groo. Plan in Claude.ai, split the plan into small files, stay the product owner with CLAUDE.md, and see your UI in Claude Design before you build it.
+tags: [Groo, Claude.ai, Claude Code, Claude Design, Planning]
+---
+
+## Tip 1: Plan in Claude.ai before you code
+
+Before I open any coding agent, I plan the app in a chat tool like Claude.ai. Here is the workflow I used for Groo.
+
+### Step 1: Create one Project per app
+
+- Every chat in the Project shares the same instructions and files.
+- Each Project also has its own memory, so Claude keeps context across its chats.
+
+### Step 2: Write the Project instructions
+
+- Add your accuracy rules: verify facts, label confidence, ask before assuming.
+- Add this line: "Use the plan artifact at [link] as the source of truth."
+
+### Step 3: Research before you decide
+
+- Ask Claude to search competitors, features, and pricing.
+
+### Step 4: Let Claude interview you
+
+- Prompt: "Ask me all the questions you need for a full plan, in one go."
+- Answer them all. Then ask: "What gaps are left?"
+
+### Step 5: Save the plan as an artifact
+
+- Each update to the artifact keeps a version, so you can go back to an earlier one.
+- I paste the artifact's link into new chats, so Claude always works from the latest plan.
+
+## Tip 2: Never start Claude Code without a plan (split it into files)
+
+Give Claude Code the plan you made in Claude.ai. You can also plan inside Claude Code directly.
+
+### Why I plan in Claude.ai first
+
+- Claude Code is a coding agent. Claude.ai is better for brainstorming and research.
+- Both work. Try each and pick what fits you.
+
+### Split the plan into small, focused files
+
+<GuideTable
+  columns={["File", "What it holds", "When Claude reads it"]}
+  rows={[
+    ["docs/business.md", "Vision, market, pricing, later milestones", "Only for scope or pricing"],
+    ["docs/prd-m1.md", "What we build now + acceptance criteria", "Every feature"],
+    ["docs/design-brief.md", "Brand, UI rules, screens, motion", "Before any UI work"],
+    ["docs/decisions.md", "Every decision, with a date", "Always"],
+    ["docs/roadmap.md", "Build order, in small vertical slices", "Every step"],
+    ["docs/progress.md", "Done, in progress, next, waiting on me", "First thing every session"],
+    ["docs/parking-lot.md", "Good ideas for later", "When a new idea comes up"],
+  ]}
+/>
+
+### Why it works
+
+- Short files are easy to track and update.
+- Claude reads only what it needs, so there is less noise and you get better answers.
+- Tag each item `DECIDED`, `PROPOSED`, or `OPEN`. If an item is OPEN, Claude must ask you.
+- `progress.md` lets a new session pick up where you stopped.
+- The parking lot keeps scope small without losing ideas.
+
+## Tip 3: You are the product owner (CLAUDE.md)
+
+`CLAUDE.md` holds instructions Claude Code reads in every session. Use it to make Claude treat you as the product owner. Here is mine:
+
+```markdown
+## Decide together (most important rule)
+
+Joee makes the important decisions. Asking is always better than assuming.
+
+- Before any feature: restate the goal in 1-2 lines, list assumptions, and ask all open questions in ONE message.
+- Always ask before: adding a library, changing the data model, changing streak/scoring logic, adding a screen, changing navigation, touching auth or billing, deleting files, or running a migration.
+- Anything OPEN or PROPOSED in the docs is undecided. Never pick a value yourself.
+- If a request conflicts with the PRD or the simplicity rules, say so first.
+- If a better approach exists, say it first. Critique like a peer, not a cheerleader.
+- If you are unsure a library or API works on web, iOS, and Android, say so and check its official docs.
+- Small, reversible, obvious choices (a variable name, a conventional file location): just do it and mention it.
+
+## How to ask for a decision
+
+Decision: <one line>
+1. <Option A> (Recommended): <why>. Trade-off: <...>
+2. <Option B>: <why>. Trade-off: <...>
+3. <Option C>: <why>. Trade-off: <...>
+
+- 2-3 options max, with the recommended one first.
+- Batch related decisions and number them, so Joee can reply "1A, 2B".
+- After Joee answers: log the decision in docs/decisions.md with the date, and update docs/progress.md.
+- Design decisions (look, layout, colors, fonts, motion, flows): never ask from text alone. Show a visual sample or clickable prototype first (Claude Design canvas), then ask.
+
+## Response style
+
+- Answer first, in 1-2 lines. Then short bullets, one idea each, max ~5 per section.
+- Simple English. No long sentences. No em dashes.
+- Max ~150 words unless asked. If there is a lot, give the short version and ask "Want the details?"
+- Bold only the 2-3 most important words.
+- Flag certainty: [Official] docs, [Community] blogs/forums, [Unsure]. Never present a guess as fact.
+- End with what you need from Joee, if anything.
+```
+
+## Tip 4: Use Claude Design with Claude Code
+
+You need to see your UI with your own eyes to know whether the direction is right. Claude Design gives you that: chat on one side, a live design canvas on the other.
+
+- I wrote a `design.md` file with my colors, logo, style, and the feeling I want.
+- I asked Claude to draw screens from it.
+- After each design, I left comments and Claude improved it, round by round.
+
+<GuideImage
+  src="/guides/building-apps/design-options.png"
+  alt="Claude Design canvas showing three options for Groo's home screen: a calm checklist, colorful cards, and white cards with progress bars"
+  caption="We asked Claude Code to use Claude Design to sketch the app. It opened a page with three directions for Groo's home screen, and we picked the best one."
+/>

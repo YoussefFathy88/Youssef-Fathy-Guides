@@ -4,6 +4,7 @@ import Link from "next/link";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { notFound } from "next/navigation";
 
+import { GuideImage } from "@/components/guides/GuideImage";
 import { GuideTable } from "@/components/guides/GuideTable";
 import { Container } from "@/components/ui/container";
 import { formatGuideDate, getAllGuides, getGuide } from "@/lib/guides";
@@ -14,6 +15,7 @@ type GuidePageProps = {
 
 /* Reading-page typography: large and plain, black text with green accents. */
 const mdxComponents = {
+  GuideImage,
   GuideTable,
   h2: (props: ComponentPropsWithoutRef<"h2">) => (
     <h2
@@ -48,6 +50,13 @@ const mdxComponents = {
       {...props}
     />
   ),
+  pre: (props: ComponentPropsWithoutRef<"pre">) => (
+    <pre
+      className="mt-6 overflow-x-auto whitespace-pre-wrap break-words rounded-2xl border border-border-subtle bg-[#0d1117] p-5 font-mono text-base leading-7 text-gray-100 [&_code]:bg-transparent [&_code]:p-0 [&_code]:text-inherit"
+      {...props}
+    />
+  ),
+  hr: () => <hr className="my-12 border-border-subtle" />,
   a: (props: ComponentPropsWithoutRef<"a">) => (
     <a className="font-semibold text-brand-text underline underline-offset-4" {...props} />
   ),
