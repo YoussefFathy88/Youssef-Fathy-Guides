@@ -84,5 +84,6 @@ Authoring workflows live as Claude Code skills under `.claude/skills/` (ported f
 
 - `session-authoring` — creating/editing `content/sessions/**/*.mdx`, session components, MDX registry wiring.
 - `shorts-authoring` — creating a new YouTube Shorts concept animation end-to-end.
+- `deploy-site` — **use on every commit/push request**: static-build check, commit, push `main`, then `npm run deploy:pages` to update the live GitHub Pages site.
 
 Both skills still point at the `.cursor/rules/*.mdc` files above for full rule text — those files remain the source of truth; this CLAUDE.md is the condensed always-loaded summary.

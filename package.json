@@ -7,6 +7,7 @@
     "lan:url": "node scripts/print-lan-url.mjs",
     "build": "next build",
     "start": "next start --hostname 0.0.0.0 --port 3000",
+    "deploy:pages": "node scripts/deploy-gh-pages.mjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "verify:diagram": "node scripts/verify-diagram.mjs",
