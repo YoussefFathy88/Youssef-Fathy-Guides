@@ -1,5 +1,10 @@
 import type { AccentTone } from "@/lib/session-types";
 
+/** Prefixes a public/ path with the deploy base path (e.g. "/Youssef-Fathy-Guides" on GitHub Pages). */
+export function withBasePath(src: string) {
+  return src.startsWith("/") ? `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}${src}` : src;
+}
+
 export function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
 }

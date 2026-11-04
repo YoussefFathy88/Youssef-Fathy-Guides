@@ -12,7 +12,6 @@ type DiagramLabPageProps = {
   params: Promise<{
     diagramId: string;
   }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
 export async function generateStaticParams() {
@@ -39,9 +38,8 @@ export async function generateMetadata({ params }: DiagramLabPageProps): Promise
   };
 }
 
-export default async function DiagramLabPage({ params, searchParams }: DiagramLabPageProps) {
+export default async function DiagramLabPage({ params }: DiagramLabPageProps) {
   const { diagramId } = await params;
-  await searchParams;
   const target = getNodeFlowDiagramLabTarget(diagramId);
 
   if (!target) {

@@ -128,7 +128,7 @@ import ArchitectureComparisonDemo from "@/components/demos/ArchitectureCompariso
 import RNNAutocompleteDemo from "@/components/demos/RNNAutocompleteDemo";
 import { Container } from "@/components/ui/container";
 import { GridBackground } from "@/components/ui/grid-background";
-import { cn } from "@/lib/utils";
+import { cn, withBasePath } from "@/lib/utils";
 import { getAllSessions, getSession } from "@/lib/sessions";
 
 type SessionRouteParams = Promise<{
@@ -466,9 +466,10 @@ function getMdxComponents(isPresentationMode: boolean, outline?: string[]) {
           .join(" ")}
       />
     ),
-    img: ({ className, alt, ...props }: ComponentPropsWithoutRef<"img">) => (
+    img: ({ className, alt, src, ...props }: ComponentPropsWithoutRef<"img">) => (
       <img
         {...props}
+        src={typeof src === "string" ? withBasePath(src) : src}
         alt={alt ?? ""}
         className={cn(
           "mx-auto block h-auto w-full max-w-5xl rounded-2xl border object-contain shadow-md",
@@ -519,7 +520,9 @@ export async function generateMetadata({
 
 export default async function SessionPage({ params, searchParams }: SessionPageProps) {
   const { slug } = await params;
-  const resolvedSearchParams = await searchParams;
+  // Static export has no request-time query string, so presentation mode stays local-only.
+  const resolvedSearchParams: Awaited<SessionSearchParams> =
+    process.env.NEXT_PUBLIC_STATIC_EXPORT === "1" ? {} : await searchParams;
   const viewParam = Array.isArray(resolvedSearchParams.view)
     ? resolvedSearchParams.view[0]
     : resolvedSearchParams.view;
@@ -566,12 +569,14 @@ export default async function SessionPage({ params, searchParams }: SessionPageP
                     </span>
                     <span className="text-gray-500 dark:text-gray-400">{frontmatter.moduleName}</span>
                   </div>
+                  {process.env.NEXT_PUBLIC_STATIC_EXPORT === "1" ? null : (
                   <Link
                     href={`/sessions/${slug}?view=present`}
                     className="rounded-full border border-violet-200 bg-violet-50 px-3 py-1 font-medium text-violet-700 transition hover:border-violet-300 hover:bg-violet-100 dark:border-violet-800 dark:bg-violet-900/30 dark:text-violet-300 dark:hover:border-violet-700 dark:hover:bg-violet-900/50"
                   >
                     Presenter Mode
                   </Link>
+                  )}
                 </div>
 
                 <div className="space-y-3">

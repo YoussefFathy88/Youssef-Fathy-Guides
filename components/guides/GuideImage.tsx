@@ -1,6 +1,8 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 
+import { withBasePath } from "@/lib/utils";
+
 type GuideImageProps = {
   /** Path under public/, e.g. "/guides/building-apps/design-canvas.png". */
   src: string;
@@ -17,7 +19,7 @@ export function GuideImage({ src, alt, caption }: GuideImageProps) {
       {exists ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={src}
+          src={withBasePath(src)}
           alt={alt}
           className="w-full rounded-2xl border border-border-subtle"
           loading="lazy"

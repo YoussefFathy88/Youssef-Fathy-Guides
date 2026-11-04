@@ -7,7 +7,6 @@ type SessionPageProps = {
   params: Promise<{
     slug: string;
   }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
 export async function generateStaticParams() {
@@ -30,9 +29,8 @@ export async function generateMetadata({
   };
 }
 
-export default async function LegacySessionPage({ params, searchParams }: SessionPageProps) {
+export default async function LegacySessionPage({ params }: SessionPageProps) {
   const { slug } = await params;
-  await searchParams;
   const session = getSessionBySlug(slug);
 
   if (!session) {

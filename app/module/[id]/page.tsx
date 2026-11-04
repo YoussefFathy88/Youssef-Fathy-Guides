@@ -1,15 +1,19 @@
 import { redirect } from "next/navigation";
 
+import { getModules } from "@/lib/course";
+
 type ModulePageProps = {
   params: Promise<{
     id: string;
   }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function ModulePage({ params, searchParams }: ModulePageProps) {
+export function generateStaticParams() {
+  return getModules().map((module) => ({ id: String(module.id) }));
+}
+
+export default async function ModulePage({ params }: ModulePageProps) {
   await params;
-  await searchParams;
 
   redirect("/");
 }
