@@ -1,18 +1,13 @@
 // Builds the last commit (HEAD) as a static site and publishes it to the gh-pages branch.
 // GitHub Pages serves that branch at https://yousseffathy88.github.io/Youssef-Fathy-Guides/
 // Uncommitted changes are never deployed: the build runs in a clean checkout of HEAD.
-import { execFileSync } from "node:child_process";
+import { execFileSync, execSync } from "node:child_process";
 import { existsSync, mkdtempSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
 const BASE_PATH = process.env.PAGES_BASE_PATH ?? "/Youssef-Fathy-Guides";
 const REMOTE_URL = "https://github.com/YoussefFathy88/Youssef-Fathy-Guides.git";
-const isWindows = process.platform === "win32";
-
-function run(command, args, options = {}) {
-  execFileSync(command, args, { stdio: "inherit", shell: isWindows, ...options });
-}
 
 function git(args, cwd = process.cwd()) {
   return execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
@@ -33,7 +28,8 @@ try {
   if (!existsSync(nodeModules)) throw new Error("node_modules missing: run npm install first.");
   symlinkSync(nodeModules, path.join(checkout, "node_modules"), "junction");
 
-  run("npx", ["next", "build", "--webpack"], {
+  execSync("npx next build --webpack", {
+    stdio: "inherit",
     cwd: checkout,
     env: { ...process.env, STATIC_EXPORT: "1", PAGES_BASE_PATH: BASE_PATH },
   });
@@ -47,7 +43,7 @@ try {
   git(["add", "-A"], out);
   git(["-c", "user.name=YoussefFathy88", "-c", "user.email=youssef8.fathy@gmail.com",
     "commit", "-q", "-m", `Deploy site from ${commit}`], out);
-  run("git", ["push", "-f", REMOTE_URL, "gh-pages"], { cwd: out, shell: false });
+  execFileSync("git", ["push", "-f", REMOTE_URL, "gh-pages"], { cwd: out, stdio: "inherit" });
 
   console.log(`\nDone. Live in about a minute at https://yousseffathy88.github.io${BASE_PATH}/`);
 } finally {
