@@ -1,0 +1,312 @@
+1:"$Sreact.fragment"
+2:I[9645,["26","static/chunks/26-182eb6491c93e9bf.js","359","static/chunks/359-e4b53cc04e57be20.js","800","static/chunks/800-ec729911f3ce4946.js","30","static/chunks/30-f9a8f0fc4e346fef.js","712","static/chunks/712-8b73dc1d33a45785.js","650","static/chunks/app/sessions/%5Bslug%5D/page-40dcdd7ef7b6c281.js"],""]
+3:I[5688,["26","static/chunks/26-182eb6491c93e9bf.js","177","static/chunks/app/layout-194b0e50ca82c4e6.js"],"ThemeToggle"]
+4:I[979,[],""]
+5:I[380,[],""]
+e:I[7145,[],"default",1]
+:HL["/Youssef-Fathy-Guides/_next/static/css/414e2db0a15e48aa.css","style"]
+c:X
+0:{"P":null,"c":["","sessions","introduction-to-rag-lab",""],"q":"","i":false,"f":[[["",{"children":["sessions",{"children":[["slug","introduction-to-rag-lab","d",[]],{"children":["__PAGE__",{},"$undefined","$undefined",4608]},"$undefined","$undefined",4608]},"$undefined","$undefined",4608]},"$undefined","$undefined",4624],[["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/Youssef-Fathy-Guides/_next/static/css/414e2db0a15e48aa.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","data-scroll-behavior":"smooth","suppressHydrationWarning":true,"children":[["$","head",null,{"children":["$","script",null,{"dangerouslySetInnerHTML":{"__html":"(function(){try{var t=localStorage.getItem(\"theme\");var d=t?t===\"dark\":window.matchMedia(\"(prefers-color-scheme: dark)\").matches;document.documentElement.classList.toggle(\"dark\",d);}catch(e){}})();"}}]}],["$","body",null,{"className":"min-h-screen bg-background text-foreground","children":[["$","header",null,{"className":"sticky top-0 z-50 border-b border-border-subtle bg-background/85 backdrop-blur-xl","children":["$","div",null,{"className":"mx-auto w-full max-w-[1560px] px-4 sm:px-6 lg:px-8 flex min-h-18 items-center justify-between gap-3 py-4","children":[["$","$L2",null,{"href":"/","className":"flex min-w-0 items-center gap-3","aria-label":"The Software Story home","children":[["$","span",null,{"className":"flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand text-lg font-bold text-white","children":"SS"}],["$","span",null,{"className":"hidden leading-tight sm:block","children":[["$","span",null,{"className":"block text-lg font-bold text-foreground","children":["The Software ",["$","span",null,{"className":"text-brand-text","children":"Story"}]]}],["$","span",null,{"className":"block text-sm text-muted-foreground","children":"Copyright (c) Youssef Fathy. All rights reserved."}]]}]]}],["$","nav",null,{"className":"flex shrink-0 items-center gap-1 sm:gap-3","children":[["$","$L2",null,{"href":"/guides","className":"rounded-full px-3 py-2 text-base font-semibold text-foreground transition hover:bg-brand-soft hover:text-brand-text sm:px-4 md:text-lg","children":"Guides"}],["$","$L2",null,{"href":"/shorts","className":"rounded-full px-3 py-2 text-base font-semibold text-foreground transition hover:bg-brand-soft hover:text-brand-text sm:px-4 md:text-lg","children":"Shorts"}],["$","$L3",null,{}]]}]]}]}],["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","main",null,{"className":"pb-20 pt-14","children":["$","div",null,{"className":"mx-auto w-full max-w-[1560px] px-4 sm:px-6 lg:px-8 xl:pr-20","children":["$","section",null,{"id":"$undefined","className":"surface-card p-6 sm:p-8 px-6 py-8 sm:px-10 sm:py-12","children":[["$","span",null,{"className":"inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium uppercase tracking-[0.24em] border-amber-400/20 bg-amber-500/12 text-amber-800 dark:text-amber-200","children":"Route Not Found"}],["$","h1",null,{"className":"mt-6 text-4xl font-semibold sm:text-5xl","children":"This session has not been added to the library yet."}],["$","p",null,{"className":"mt-4 max-w-2xl text-lg text-slate-700 dark:text-slate-300","children":"The route is ready, but there is no matching session configuration in the data layer yet."}],["$","div",null,{"className":"mt-8","children":["$","$L2",null,{"href":"/","className":"inline-flex items-center justify-center rounded-full px-5 py-3 text-base font-semibold md:text-lg transition duration-300 hover:-translate-y-0.5 bg-brand text-white shadow-sm hover:bg-brand-hover","children":"Back to home"}]}]]}]}]}],[]],"forbidden":"$undefined","unauthorized":"$undefined"}],["$","footer",null,{"className":"border-t border-border-subtle bg-background-elevated","children":["$","div",null,{"className":"mx-auto w-full max-w-[1560px] px-4 sm:px-6 lg:px-8 flex flex-col gap-4 py-6 text-base text-muted-foreground sm:flex-row sm:items-end sm:justify-between","children":[["$","div",null,{"className":"space-y-1","children":["$L6","$L7"]}],"$L8"]}]}]]}]]}]]}],{"children":["$L9",{"children":["$La",{"children":["$Lb",{},null,false,null]},null,false,"$c"]},null,false,"$c"]},null,false,null],"$Ld",false]],"m":"$undefined","G":["$e",[]],"S":true,"h":null,"r":"$undefined","s":"$undefined","a":"$undefined","l":"$undefined","p":"$undefined","d":"$undefined","b":"y-UGT3xuEAxViEgXycvgT"}
+10:I[874,[],"OutletBoundary"]
+11:"$Sreact.suspense"
+13:I[874,[],"ViewportBoundary"]
+15:I[874,[],"MetadataBoundary"]
+6:["$","p",null,{"className":"font-semibold text-foreground","children":"The Software Story"}]
+7:["$","p",null,{"className":"text-sm text-muted-foreground","children":"Copyright (c) Youssef Fathy. All rights reserved."}]
+8:["$","p",null,{"children":"AI Agent Story, built as a persistent journey from fundamentals to production."}]
+9:["$","$1","c",{"children":[null,["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}]
+a:["$","$1","c",{"children":[null,["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}]
+b:["$","$1","c",{"children":["$Lf",null,["$","$L10",null,{"children":["$","$11",null,{"name":"Next.MetadataOutlet","children":"$@12"}]}]]}]
+d:["$","$1","h",{"children":[null,["$","$L13",null,{"children":"$L14"}],["$","div",null,{"hidden":true,"children":["$","$L15",null,{"children":["$","$11",null,{"name":"Next.Metadata","children":"$L16"}]}]}],null]}]
+c:C
+14:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+17:I[9346,["26","static/chunks/26-182eb6491c93e9bf.js","359","static/chunks/359-e4b53cc04e57be20.js","800","static/chunks/800-ec729911f3ce4946.js","30","static/chunks/30-f9a8f0fc4e346fef.js","712","static/chunks/712-8b73dc1d33a45785.js","650","static/chunks/app/sessions/%5Bslug%5D/page-40dcdd7ef7b6c281.js"],"SessionProgressNav"]
+f:["$","main",null,{"className":"relative overflow-hidden","children":[["$","div",null,{"aria-hidden":"true","className":"pointer-events-none absolute inset-0 overflow-hidden","children":["$","div",null,{"className":"absolute left-1/2 top-[-14rem] h-96 w-[48rem] -translate-x-1/2 rounded-full bg-emerald-400/10 blur-3xl dark:bg-emerald-500/10"}]}],["$","div",null,{"className":"mx-auto w-full max-w-[1560px] px-4 sm:px-6 lg:px-8 relative z-10 py-10 lg:py-12","children":["$","div",null,{"className":"space-y-8","children":[["$","header",null,{"className":"rounded-[28px] border border-gray-200/80 bg-white/85 px-6 py-8 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-950/60 sm:px-8","children":["$","div",null,{"className":"space-y-4","children":[["$","div",null,{"className":"flex flex-wrap items-center justify-between gap-3 text-sm","children":[["$","div",null,{"className":"flex flex-wrap items-center gap-3","children":[["$","span",null,{"className":"rounded-full border border-violet-200 bg-violet-50 px-3 py-1 font-medium text-violet-700 dark:border-violet-800 dark:bg-violet-900/30 dark:text-violet-300","children":["Module ",2]}],["$","span",null,{"className":"text-gray-500 dark:text-gray-400","children":"Giving the Brain Capabilities"}]]}],null]}],["$","div",null,{"className":"space-y-3","children":["$","h1",null,{"className":"text-balance text-5xl font-semibold leading-tight text-gray-950 dark:text-gray-50 sm:text-6xl","children":"AI Lab 01: Chat With Your Data"}]}]]}]}],["$","div",null,{"className":"flex flex-col gap-8","children":[["$","$L17",null,{"sections":[{"id":"goal","label":"Goal"},{"id":"big-picture","label":"Big Picture"},{"id":"practical-example","label":"Practical Example"},{"id":"next-session","label":"Next Session"}],"activeSection":"goal"}],["$","article",null,{"className":"w-full max-w-none rounded-[28px] border border-gray-200/80 bg-white/85 px-7 py-9 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-950/60 sm:px-10 sm:py-11 lg:px-12","children":"$L18"}]]}]]}]}]]}]
+12:null
+16:[["$","title","0",{"children":"AI Lab 01: Chat With Your Data - GenAI from the Ground Up"}],["$","meta","1",{"name":"description","content":"AI Lab 01: Chat With Your Data"}]]
+19:I[8179,["26","static/chunks/26-182eb6491c93e9bf.js","359","static/chunks/359-e4b53cc04e57be20.js","800","static/chunks/800-ec729911f3ce4946.js","30","static/chunks/30-f9a8f0fc4e346fef.js","712","static/chunks/712-8b73dc1d33a45785.js","650","static/chunks/app/sessions/%5Bslug%5D/page-40dcdd7ef7b6c281.js"],"SessionSection"]
+1a:I[4134,["26","static/chunks/26-182eb6491c93e9bf.js","359","static/chunks/359-e4b53cc04e57be20.js","800","static/chunks/800-ec729911f3ce4946.js","30","static/chunks/30-f9a8f0fc4e346fef.js","712","static/chunks/712-8b73dc1d33a45785.js","650","static/chunks/app/sessions/%5Bslug%5D/page-40dcdd7ef7b6c281.js"],"default"]
+1b:I[5613,["26","static/chunks/26-182eb6491c93e9bf.js","359","static/chunks/359-e4b53cc04e57be20.js","800","static/chunks/800-ec729911f3ce4946.js","30","static/chunks/30-f9a8f0fc4e346fef.js","712","static/chunks/712-8b73dc1d33a45785.js","650","static/chunks/app/sessions/%5Bslug%5D/page-40dcdd7ef7b6c281.js"],"default"]
+1c:I[8291,["26","static/chunks/26-182eb6491c93e9bf.js","359","static/chunks/359-e4b53cc04e57be20.js","800","static/chunks/800-ec729911f3ce4946.js","30","static/chunks/30-f9a8f0fc4e346fef.js","712","static/chunks/712-8b73dc1d33a45785.js","650","static/chunks/app/sessions/%5Bslug%5D/page-40dcdd7ef7b6c281.js"],"default"]
+18:["\n",["$","$L19",null,{"id":"goal","label":"Goal","children":[["$","h2",null,{"children":"The lab pipeline: prepare data, then answer from the store","data-session-slide-marker":"h2","className":"mb-10 text-balance text-[2.4rem] font-semibold leading-tight tracking-tight text-gray-950 dark:text-gray-50 sm:mb-14 sm:text-5xl"}],["$","$L1a",null,{"title":"Chat With Your Data","presentation":true,"minHeight":560,"hideStepNarrative":true,"lanes":[{"id":"prep","label":"Data preparation","color":"violet","blocks":[{"id":"upload","label":"Upload","emoji":"📤"},{"id":"chunk","label":"Chunk","emoji":"✂️"},{"id":"embed-i","label":"Embed","emoji":"🔢"},{"id":"store","label":"Chroma","emoji":"🗄️"}]},{"id":"run","label":"Running","color":"teal","blocks":[{"id":"q","label":"Question","emoji":"❓"},{"id":"embed-q","label":"Embed","emoji":"🔢"},{"id":"retrieve","label":"Retrieve","emoji":"🔍"},{"id":"gen","label":"LLM","emoji":"🤖","accent":"blue"}]}],"edges":[{"from":"upload","to":"chunk","animated":false},{"from":"chunk","to":"embed-i","animated":false},{"from":"embed-i","to":"store","animated":true},{"from":"q","to":"embed-q","animated":true},{"from":"embed-q","to":"retrieve","animated":true},{"from":"store","to":"retrieve","animated":true},{"from":"retrieve","to":"gen","animated":true},{"from":"q","to":"gen","animated":true,"dashed":true,"label":"+ question (prompt)"}],"steps":[{"id":"s1","label":"1","description":".","highlightNodes":["upload"],"highlightEdges":[]},{"id":"s2","label":"2","description":".","highlightNodes":["upload","chunk"],"highlightEdges":["upload→chunk"]},{"id":"s3","label":"3","description":".","highlightNodes":["chunk","embed-i","store"],"highlightEdges":["chunk→embed-i","embed-i→store"]},{"id":"s4","label":"4","description":".","highlightNodes":["q"],"highlightEdges":[]},{"id":"s5","label":"5","description":".","highlightNodes":["q","embed-q"],"highlightEdges":["q→embed-q"]},{"id":"s6","label":"6","description":".","highlightNodes":["embed-q","retrieve","store"],"highlightEdges":["embed-q→retrieve","store→retrieve"]},{"id":"s7","label":"7","description":".","highlightNodes":["retrieve","q","gen"],"highlightEdges":["retrieve→gen","q→gen"]}]}],["$","p",null,{"children":[["$","strong",null,{"children":"Embed → Retrieve","className":"font-semibold text-gray-950 dark:text-gray-100"}]," turns texts into vectors so the store can match your question to the right chunks. The diagrams below are the same intuition as in the Embeddings session: similar meanings land nearby in space, and retrieval ranks chunks by ",["$","strong",null,{"children":"cosine similarity","className":"font-semibold text-gray-950 dark:text-gray-100"}]," between vectors."],"className":"mt-5 text-[1.14rem] leading-9 text-gray-700 dark:text-gray-300 sm:text-[1.22rem] sm:leading-10"}],["$","h3",null,{"children":"Words become points in space","className":"mt-10 mb-2 text-[1.8rem] font-semibold leading-tight text-gray-950 dark:text-gray-100 sm:mb-3 sm:text-[2rem]"}],["$","$L1b",null,{"title":"Words as vectors in 2D space","points":[{"id":"king","label":"king","angle":25,"magnitude":0.88,"cluster":"royalty","mockVector":[0.21,-0.87,0.54,0.03,-0.66,0.91]},{"id":"queen","label":"queen","angle":32,"magnitude":0.85,"cluster":"royalty","mockVector":[0.19,-0.83,0.51,0.06,-0.61,0.88]},{"id":"prince","label":"prince","angle":18,"magnitude":0.78,"cluster":"royalty","mockVector":[0.23,-0.79,0.48,0.01,-0.58,0.84]},{"id":"dog","label":"dog","angle":140,"magnitude":0.82,"cluster":"animals","mockVector":[0.67,0.44,-0.21,0.88,0.33,-0.12]},{"id":"cat","label":"cat","angle":152,"magnitude":0.79,"cluster":"animals","mockVector":[0.71,0.41,-0.18,0.85,0.3,-0.09]},{"id":"wolf","label":"wolf","angle":128,"magnitude":0.76,"cluster":"animals","mockVector":[0.63,0.47,-0.24,0.81,0.36,-0.15]},{"id":"car","label":"car","angle":255,"magnitude":0.8,"cluster":"vehicles","mockVector":[-0.12,0.22,0.78,-0.44,0.65,0.31]},{"id":"bus","label":"bus","angle":265,"magnitude":0.75,"cluster":"vehicles","mockVector":[-0.09,0.25,0.74,-0.41,0.62,0.28]}]}],["$","h3",null,{"children":"Similarity is cosine similarity","className":"mt-10 mb-2 text-[1.8rem] font-semibold leading-tight text-gray-950 dark:text-gray-100 sm:mb-3 sm:text-[2rem]"}],["$","$L1c",null,{"title":"Cosine similarity — the angle between vectors","presets":[{"label":"king / queen","angleA":25,"angleB":32,"description":"Small angle → high similarity. Both in the royalty cluster."},{"label":"king / dog","angleA":25,"angleB":140,"description":"Large angle → low similarity. Completely different clusters."},{"label":"cat / wolf","angleA":152,"angleB":128,"description":"Moderate angle → moderate similarity. Both animals, different contexts."},{"label":"car / pizza","angleA":255,"angleB":85,"description":"Nearly opposite → cosine near –0.5. Unrelated domains."}]}]]}],"\n","\n","$L1d","\n","\n","$L1e","\n","\n","$L1f"]
+20:I[5059,["26","static/chunks/26-182eb6491c93e9bf.js","359","static/chunks/359-e4b53cc04e57be20.js","800","static/chunks/800-ec729911f3ce4946.js","30","static/chunks/30-f9a8f0fc4e346fef.js","712","static/chunks/712-8b73dc1d33a45785.js","650","static/chunks/app/sessions/%5Bslug%5D/page-40dcdd7ef7b6c281.js"],"RagLabSystemArchitecture"]
+21:I[1777,["26","static/chunks/26-182eb6491c93e9bf.js","359","static/chunks/359-e4b53cc04e57be20.js","800","static/chunks/800-ec729911f3ce4946.js","30","static/chunks/30-f9a8f0fc4e346fef.js","712","static/chunks/712-8b73dc1d33a45785.js","650","static/chunks/app/sessions/%5Bslug%5D/page-40dcdd7ef7b6c281.js"],"default"]
+28:I[4237,["26","static/chunks/26-182eb6491c93e9bf.js","359","static/chunks/359-e4b53cc04e57be20.js","800","static/chunks/800-ec729911f3ce4946.js","30","static/chunks/30-f9a8f0fc4e346fef.js","712","static/chunks/712-8b73dc1d33a45785.js","650","static/chunks/app/sessions/%5Bslug%5D/page-40dcdd7ef7b6c281.js"],"NextSessionCard"]
+1d:["$","$L19",null,{"id":"big-picture","label":"Big Picture","children":[["$","h2",null,{"children":"System components","data-session-slide-marker":"h2","className":"mb-10 text-balance text-[2.4rem] font-semibold leading-tight tracking-tight text-gray-950 dark:text-gray-50 sm:mb-14 sm:text-5xl"}],["$","$L20",null,{"title":"End-to-end lab architecture — dev parity with production concepts"}]]}]
+22:Tb0a,Build a RAG chatbot project with the following stack:
+- Frontend: Next.js (App Router, TypeScript, Tailwind)
+- Backend: FastAPI (Python)
+- Vector DB: Chroma (local)
+- Embeddings: OpenAI text-embedding-3-small
+- LLM: OpenAI GPT-4o
+- Orchestration: LangChain
+
+Project structure must follow clean architecture:
+
+rag-chatbot/
+├── .gitignore
+├── frontend/
+│   ├── app/
+│   │   ├── page.tsx
+│   │   └── layout.tsx
+│   ├── components/
+│   │   ├── ChatPanel.tsx
+│   │   ├── MessageBubble.tsx
+│   │   └── IndexModal.tsx
+│   ├── .env.local.example
+│   ├── package.json
+│   └── Dockerfile
+│
+├── backend/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── routers/
+│   │   │   ├── index.py
+│   │   │   └── chat.py
+│   │   ├── services/
+│   │   │   ├── index_service.py
+│   │   │   └── chat_service.py
+│   │   └── core/
+│   │       └── config.py
+│   ├── .env.local.example
+│   ├── requirements.txt
+│   └── Dockerfile
+│
+└── docker-compose.yml
+
+UI direction (use the lab reference screenshot as your visual guide):
+- Overall layout, spacing, and tone should match that reference.
+- Claude-style shell: messages scroll in the main area; the chat input stays fixed at the bottom of the viewport.
+- Upload / indexing should feel like Claude's attachment flow — calm, simple, obvious next step.
+- Place the main "Index documents" control just below the chat composer so it's easy to find.
+
+Requirements:
+1. docker-compose.yml must run all services with one command: docker-compose up
+2. FastAPI must run with --reload for hot reload
+3. Next.js must run with next dev for hot reload
+4. Both use volume mounts so code changes reflect without rebuild
+5. Add a root .gitignore that ignores .env.local (frontend and backend), node_modules, .next, Python caches/venv, and local Chroma data — commit .env.local.example files only as templates.
+6. Use the same env template name everywhere: frontend/.env.local.example and backend/.env.local.example, both listing required keys with placeholders. Load secrets from .env.local in dev (Next.js default; backend via python-dotenv).
+7. requirements.txt must include all dependencies pinned to exact versions (example pins below — verify against PyPI)
+
+Example requirements.txt:
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+langchain==0.3.13
+langchain-openai==0.3.6
+langchain-chroma==0.1.4
+chromadb==0.5.23
+openai==1.59.7
+python-dotenv==1.0.1
+pypdf2==3.0.1
+
+8. No implementation logic yet — only the structure, empty routers,
+   empty services, and working docker-compose.yml
+9. Add a /health endpoint in FastAPI to verify it's running23:T4f1,Now implement the full Indexing pipeline in the backend.
+
+Endpoint:
+- POST /index
+- Accepts: multipart/form-data with a PDF file
+- Returns: JSON { "status": "success", "chunks": <number of chunks stored> }
+
+Service: backend/app/services/index_service.py
+Implement these steps in order:
+
+1. UPLOAD
+   - Accept the uploaded PDF file bytes
+
+2. CHUNK
+   - Use LangChain RecursiveCharacterTextSplitter
+   - chunk_size: read from env INDEX_CHUNK_SIZE (default 500)
+   - chunk_overlap: read from env INDEX_CHUNK_OVERLAP (default 50)
+   - Split the PDF text into chunks
+
+3. EMBED
+   - Use OpenAI text-embedding-3-small
+   - API key from env OPENAI_API_KEY
+
+4. STORE
+   - Use Chroma as vector store
+   - Persist directory: read from env CHROMA_PATH (default ./chroma_db)
+   - Collection name: read from env CHROMA_COLLECTION (default "documents")
+   - Store all chunks with embeddings
+
+Requirements:
+- All config values must come from .env.local via core/config.py (loaded with python-dotenv)
+- Add clear inline comments for each pipeline step
+- Handle errors gracefully with proper HTTP exceptions
+- Print a log line for each step:
+  "Step 1/4: Uploading..."
+  "Step 2/4: Chunking..."
+  "Step 3/4: Embedding..."
+  "Step 4/4: Storing..."
+- Use PyPDF2 for PDF text extraction24:T4cf,Now implement the Index Modal in the Next.js frontend
+to connect with the POST /index backend endpoint.
+
+Component: frontend/components/IndexModal.tsx
+
+UI Elements:
+1. Modal overlay (opens when "Index Documents" button is clicked)
+2. Drag & drop file upload zone
+   - Accepts PDF files only
+   - Show file name after selection
+   - Show error if non-PDF is dropped
+3. "Start Indexing" button
+   - Disabled until a file is selected
+4. Status section (shown after clicking Start Indexing):
+   - Loading state: "Indexing your document..."
+   - Success state: "Done! X chunks indexed successfully."
+   - Error state: "Something went wrong. Please try again."
+5. Close button (X) to dismiss modal
+
+Component: frontend/components/ChatPanel.tsx
+- Add an "Index Documents" button just below the chat composer (same placement as in Prompt 1)
+- Clicking it opens the IndexModal
+
+Integration:
+- POST /index using FormData
+- API base URL from NEXT_PUBLIC_API_URL in .env.local
+- Use fetch, no extra libraries needed
+
+Requirements:
+- TypeScript strictly typed
+- Tailwind for styling
+- No form tags — use onClick/onChange handlers only
+- Disable "Start Indexing" button while request is in progress
+- Reset modal state when closed and reopened25:T69c,Now implement the full Chat (Retrieval) pipeline in the backend.
+
+Endpoint:
+- POST /chat
+- Accepts: JSON { "message": "user question here" }
+- Returns: JSON { "reply": "<full assistant answer as plain text>" } with status 200
+
+Service: backend/app/services/chat_service.py
+Implement these steps in order:
+
+1. EMBED QUERY
+   - Embed the user message using OpenAI text-embedding-3-small
+   - Same model used during indexing for consistency
+
+2. RETRIEVE
+   - Query Chroma vector store for top-k similar chunks
+   - k: read from env CHAT_RETRIEVAL_TOP_K (default 4)
+   - Use same collection from indexing
+
+3. BUILD CONTEXT
+   - Join retrieved chunks into a single context string
+   - Start with a line "Context:" then each chunk separated by a blank line
+
+4. GENERATE
+   - Use OpenAI GPT-4o via LangChain ChatOpenAI
+   - System prompt:
+     "You are a helpful assistant. Answer the user's question
+      using ONLY the context provided. If the answer is not
+      in the context, say: I don't know based on the provided documents."
+   - Call the model once and wait for the complete answer string, then return it in "reply"
+
+Requirements:
+- Respond with application/json (e.g. FastAPI JSONResponse or a plain dict return)
+- All config values must come from .env.local via core/config.py (loaded with python-dotenv)
+- Add clear inline comments for each pipeline step
+- Print a log line for each step:
+  "Step 1/4: Embedding query..."
+  "Step 2/4: Retrieving chunks..."
+  "Step 3/4: Building context..."
+  "Step 4/4: Generating response..."
+- Handle case where no chunks are retrieved: return JSON with a helpful "reply" string such as
+  "No relevant documents found. Please index documents first."26:T5c1,Now implement the Chat UI in the Next.js frontend
+to connect with the POST /chat backend endpoint.
+
+Component: frontend/components/ChatPanel.tsx
+Update to include the full chat experience:
+
+UI Elements:
+1. Messages list
+   - User message bubble (right aligned)
+   - Assistant message bubble (left aligned)
+   - Show a typing indicator while waiting for the HTTP response
+   - Auto scroll to latest message after each turn completes
+
+2. Input area (bottom, fixed like Prompt 1 — composer stays at the bottom of the viewport)
+   - Text input field
+   - Send button
+   - Disable both while the chat request is in flight
+   - Send on Enter key (Shift+Enter for new line)
+
+3. Empty state (no messages yet)
+   - Show a centered message: "Index a document and start asking questions."
+
+API integration:
+- POST /chat with JSON { "message": "user input" } and Content-Type: application/json
+- API base URL from NEXT_PUBLIC_API_URL in .env.local
+- Expect status 200 and JSON body { "reply": string }
+- Parse with await response.json(), read reply, and append one assistant message with the full text
+
+Message State Shape:
+type Message = {
+  role: "user" | "assistant"
+  content: string
+}
+
+Requirements:
+- TypeScript strictly typed
+- Tailwind for styling
+- No form tags — use onClick/onChange handlers only
+- Handle non-OK responses and JSON errors — show a short error string inside the assistant bubble
+- Scroll behavior: smooth auto-scroll once the assistant message is added27:Taa9,Refactor the RAG chatbot UI to match the attached design mockup.
+This is a frontend-only change — do NOT touch any backend, API routes,
+or embedding logic.
+
+The current UI sends a query and receives the full response at once
+(no streaming). Keep that behavior exactly as-is.
+
+## What to change
+
+1. **Overall shell**
+   - Dark background: #0f1117
+   - Rounded card container with a subtle border: 0.5px solid rgba(255,255,255,0.08)
+   - Remove any existing light theme or hard black blocks
+
+2. **Top bar**
+   - Left: gradient circle logo icon + title "RAG Assistant" + a small pill badge "Knowledge Base"
+   - Right: two icon buttons (new chat, settings)
+   - Border bottom: 0.5px solid rgba(255,255,255,0.07)
+
+3. **Message bubbles**
+   - User bubble: background #1a73e8, white text, top-right radius 4px
+   - AI bubble: background rgba(255,255,255,0.05), border 0.5px solid rgba(255,255,255,0.07), top-left radius 4px
+   - Error state bubble: background rgba(217,101,112,0.12), border rgba(217,101,112,0.3), text #f28b82, with a warning icon prefix
+   - Each AI bubble that has a source should render citation chips below the text:
+     small pill, background rgba(66,133,244,0.12), color #8ab4f8
+
+4. **Typing indicator**
+   - While waiting for the response, show a bubble with 3 animated bouncing dots
+   - Show it immediately after the user sends, remove it when the response arrives
+   - This replaces any existing loading spinner or blank state
+
+5. **Suggestion chips row** (above the input)
+   - Show 3 quick-question buttons when the conversation starts or after an AI reply
+   - Clicking a chip fills and submits the input
+   - Style: rounded pill, background rgba(255,255,255,0.04), border 0.5px solid rgba(255,255,255,0.10), muted text
+
+6. **Input bar**
+   - Rounded pill container (border-radius 24px) wrapping a textarea + attach icon + send button
+   - Send button: filled circle, #1a73e8, disabled (gray) when input is empty
+   - Textarea: auto-resizes up to 3 lines, no border, transparent background
+   - Focus state on the pill: border-color rgba(66,133,244,0.5)
+   - Footer note below input: "Answers grounded in indexed documents"
+
+7. **Message flow (no streaming)**
+   - On send: append user bubble → show typing indicator → await the existing API call →
+     remove typing indicator → append AI bubble with the full response text
+   - Do NOT change the API call itself, its URL, method, or payload
+   - Do NOT add any streaming or chunked reading logic
+
+## Do not change
+- API endpoint URL or method
+- Request payload structure
+- Response parsing logic (keep whatever field you currently read for the answer text)
+- "Index Documents" button functionality
+- Any embedding, chunking, or vector DB code1e:["$","$L19",null,{"id":"practical-example","label":"Practical Example","children":[["$","h2",null,{"children":"Project tree & assistant prompts","data-session-slide-marker":"h2","className":"mb-10 text-balance text-[2.4rem] font-semibold leading-tight tracking-tight text-gray-950 dark:text-gray-50 sm:mb-14 sm:text-5xl"}],["$","$L21",null,{"title":"Project tree & build prompts","caption":"One prompt per tab after the tree — paste in order: scaffold → index backend → index frontend → chat backend → chat frontend.","defaultFile":"tree","showFileTree":true,"files":[{"id":"tree","filename":"PROJECT_STRUCTURE.txt","language":"text","code":"rag-chatbot/\n├── .gitignore\n├── frontend/\n│   ├── app/\n│   │   ├── page.tsx\n│   │   └── layout.tsx\n│   ├── components/\n│   │   ├── ChatPanel.tsx\n│   │   ├── MessageBubble.tsx\n│   │   └── IndexModal.tsx\n│   ├── .env.local.example\n│   ├── package.json\n│   └── Dockerfile\n│\n├── backend/\n│   ├── app/\n│   │   ├── main.py\n│   │   ├── routers/\n│   │   │   ├── index.py\n│   │   │   └── chat.py\n│   │   ├── services/\n│   │   │   ├── index_service.py\n│   │   │   └── chat_service.py\n│   │   └── core/\n│   │       └── config.py\n│   ├── .env.local.example\n│   ├── requirements.txt\n│   └── Dockerfile\n│\n└── docker-compose.yml"},{"id":"p1","filename":"PROMPT_01_scaffold.prompt.txt","language":"text","code":"$22"},{"id":"p2-index-backend","filename":"PROMPT_02_index_backend.prompt.txt","language":"text","code":"$23"},{"id":"p3-index-frontend","filename":"PROMPT_03_index_frontend.prompt.txt","language":"text","code":"$24"},{"id":"p4-chat-backend","filename":"PROMPT_04_chat_backend.prompt.txt","language":"text","code":"$25"},{"id":"p5-chat-frontend","filename":"PROMPT_05_chat_frontend.prompt.txt","language":"text","code":"$26"},{"id":"p6-ui-enhancement","filename":"PROMPT_06_ui_enhancement.prompt.txt","language":"text","code":"$27"}]}]]}]
+1f:["$","$L19",null,{"id":"next-session","label":"Next Session","children":["$","$L28",null,{"title":"AI Lab 02: AI Task Management System","slug":"introduction-to-ai-taskflow-lab","teaser":"Tools give the model hands. Next lab we build an AI task manager where the model can create, update, and complete tasks using real function calls backed by a database.","module":2}]}]

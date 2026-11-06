@@ -1,0 +1,1 @@
+self.__SSG_MANIFEST=new Set(["\u002Fdiagram-lab\u002F[diagramId]","\u002Fguides\u002F[slug]","\u002Fguides\u002Fprompts\u002F[slug]","\u002Fmodule\u002F[id]","\u002Fsession\u002F[slug]","\u002Fsessions\u002F[slug]","\u002Fshorts\u002F[slug]"]);self.__SSG_MANIFEST_CB&&self.__SSG_MANIFEST_CB()
