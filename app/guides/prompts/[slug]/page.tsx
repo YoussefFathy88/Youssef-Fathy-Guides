@@ -93,6 +93,45 @@ export default async function PromptPage({ params }: PromptPageProps) {
               <CopyPromptButton text={prompt.body} className="w-full sm:w-auto" />
             </div>
           </section>
+
+          {prompt.afterGuide ? (
+            <section className="mt-14">
+              <h2 className="mb-6 border-l-4 border-brand pl-4 text-2xl font-bold sm:text-3xl">
+                {prompt.afterGuide.title}
+              </h2>
+              <ol className="space-y-4">
+                {prompt.afterGuide.steps.map((step, index) => (
+                  <li key={step.title} className="surface-card flex gap-4 p-5">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand text-lg font-bold text-white">
+                      {index + 1}
+                    </span>
+                    <div className="space-y-1">
+                      <p className="text-xl font-bold">{step.title}</p>
+                      <p className="text-lg leading-7">{step.detail}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+
+              <div className="mt-8 rounded-2xl border-2 border-brand bg-brand-soft p-5 sm:p-6">
+                <p className="text-xl font-bold">Your expected link</p>
+                <ul className="mt-4 space-y-4">
+                  {prompt.afterGuide.expectedLinks.map((link) => (
+                    <li key={link.url} className="space-y-1">
+                      <p className="text-base font-semibold text-muted-foreground">{link.when}</p>
+                      <p className="break-all font-mono text-lg font-bold text-brand-text">{link.url}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <ul className="mt-6 list-disc space-y-2 pl-6 text-lg leading-7 marker:text-brand">
+                {prompt.afterGuide.notes.map((note) => (
+                  <li key={note}>{note}</li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
         </div>
       </Container>
     </main>
